@@ -2,3 +2,334 @@
 
 Started GET "/assets/rails.png" for 127.0.0.1 at 2011-10-13 03:52:51 -0600
 Served asset /rails.png - 200 OK (53ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 07:50:58 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (64.0ms)
+Rendered start_game/index.html.haml within layouts/application (76.4ms)
+Completed 500 Internal Server Error in 345ms
+
+ActionView::Template::Error (undefined local variable or method `view_context' for #<#<Class:0x000000029c14c0>:0x000000029aaf68>):
+    1: //-%h1= title
+    2: %hr
+    3: %p= button_to "Start a new game", new_game_url, :remote => true, :class => view_context.t('.new_game'),
+    4: :id => view_context.t('.new_game')
+    5: %p= button_to "Join a game", join_game_url, :remote => true, :class => view_context.t('.join_game'),
+    6: :id => view_context.t('.join_game')
+  app/views/start_game/_index.html.haml:3:in `_app_views_start_game__index_html_haml__731005904327092604_21347300'
+  app/views/start_game/index.html.haml:9:in `_app_views_start_game_index_html_haml___1451284590067221605_21885980'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.7ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (4.2ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 07:52:02 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (25.5ms)
+Rendered start_game/index.html.haml within layouts/application (26.2ms)
+Completed 500 Internal Server Error in 30ms
+
+ActionView::Template::Error (undefined local variable or method `view_context' for #<#<Class:0x00000002adf4b0>:0x00000002aabf48>):
+    1: //-%h1= title
+    2: %hr
+    3: %p= button_to "Start a new game", new_game_url, :remote => true, :class => view_context.t('.new_game'),
+    4: :id => view_context.t('.new_game')
+    5: %p= button_to "Join a game", join_game_url, :remote => true, :class => view_context.t('.join_game'),
+    6: :id => view_context.t('.join_game')
+  app/views/start_game/_index.html.haml:3:in `_app_views_start_game__index_html_haml__731005904327092604_21347300'
+  app/views/start_game/index.html.haml:9:in `_app_views_start_game_index_html_haml___1451284590067221605_21885980'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.7ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (3.4ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 07:52:18 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (54.1ms)
+Rendered start_game/index.html.haml within layouts/application (66.0ms)
+Completed 500 Internal Server Error in 143ms
+
+ActionView::Template::Error (undefined local variable or method `view_context' for #<#<Class:0x00000002d42220>:0x00000002d29b08>):
+    1: //-%h1= title
+    2: %hr
+    3: %p= button_to "Start a new game", new_game_url, :remote => true, :class => view_context.t('.new_game'),
+    4: :id => view_context.t('.new_game')
+    5: %p= button_to "Join a game", join_game_url, :remote => true, :class => view_context.t('.join_game'),
+    6: :id => view_context.t('.join_game')
+  app/views/start_game/_index.html.haml:3:in `_app_views_start_game__index_html_haml___3753483741611480529_23178880'
+  app/views/start_game/index.html.haml:9:in `_app_views_start_game_index_html_haml__557319112895011725_23724160'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.7ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (4.3ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 07:55:35 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (4.1ms)
+Rendered start_game/index.html.haml within layouts/application (4.9ms)
+Compiled application.css  (3ms)  (pid 16599)
+Compiled application.js  (15ms)  (pid 16599)
+Compiled jquery.js  (9ms)  (pid 16599)
+Compiled jquery_ujs.js  (1ms)  (pid 16599)
+Completed 200 OK in 230ms (Views: 229.4ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 07:55:37 -0600
+Served asset /application.css - 200 OK (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 07:55:37 -0600
+Served asset /jquery.js - 200 OK (11ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 07:55:37 -0600
+Served asset /jquery_ujs.js - 200 OK (2ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 07:55:37 -0600
+Served asset /application.js - 200 OK (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 07:55:49 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (12.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (16.0ms)
+Completed 200 OK in 35ms (Views: 34.4ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 07:55:50 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (3.0ms)
+Rendered shared_javascripts/replace_contents.js.haml (5.8ms)
+Completed 200 OK in 12ms (Views: 11.4ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/new_game" for 127.0.0.1 at 2011-10-13 07:55:51 -0600
+
+LoadError (no such file to load -- backgroundrb):
+  app/controllers/new_game_controller.rb:3:in `<top (required)>'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.6ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (1.5ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (6.7ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 07:56:04 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered start_game/index.html.haml within layouts/application (2.0ms)
+Completed 200 OK in 8ms (Views: 7.2ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 07:56:04 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 07:56:04 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 07:56:04 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 07:56:04 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:03:00 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.9ms)
+Rendered start_game/index.html.haml within layouts/application (3.6ms)
+Compiled application.css  (3ms)  (pid 16599)
+Compiled application.css  (31ms)  (pid 16599)
+Completed 200 OK in 92ms (Views: 91.2ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 08:03:00 -0600
+Served asset /application.css - 200 OK (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 08:03:00 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 08:03:00 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 08:03:00 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:03:02 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.0ms)
+Rendered start_game/index.html.haml within layouts/application (1.6ms)
+Completed 200 OK in 8ms (Views: 7.8ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 08:03:02 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 08:03:02 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 08:03:02 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 08:03:02 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:06:27 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.4ms)
+Rendered start_game/index.html.haml within layouts/application (2.2ms)
+Compiled application.css  (1ms)  (pid 16599)
+Completed 500 Internal Server Error in 54ms
+
+ActionView::Template::Error (Invalid CSS after "  background-color": expected selector or at-rule, was ": $primary_color"
+  (in /home/dmorrill/workspace/acpcpokerguiclient/app/assets/stylesheets/scaffold.css.scss)):
+    4:    %head
+    5:       %title
+    6:          = 'AcpcPokerGuiClient'
+    7:       = stylesheet_link_tag "application"
+    8:       = javascript_include_tag "application"
+    9:       = csrf_meta_tags
+    10:       = yield(:head)
+  app/assets/stylesheets/scaffold.css.scss:11
+  app/views/layouts/application.html.haml:7:in `_app_views_layouts_application_html_haml__2957657467397917119_23850860'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (3.7ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:08:06 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.1ms)
+Rendered start_game/index.html.haml within layouts/application (1.8ms)
+Compiled application.css  (0ms)  (pid 16599)
+Completed 500 Internal Server Error in 12ms
+
+ActionView::Template::Error (Invalid CSS after "  background-color": expected selector or at-rule, was ": $primary_color"
+  (in /home/dmorrill/workspace/acpcpokerguiclient/app/assets/stylesheets/scaffold.css.scss)):
+    4:    %head
+    5:       %title
+    6:          = 'AcpcPokerGuiClient'
+    7:       = stylesheet_link_tag "application"
+    8:       = javascript_include_tag "application"
+    9:       = csrf_meta_tags
+    10:       = yield(:head)
+  app/assets/stylesheets/scaffold.css.scss:6
+  app/views/layouts/application.html.haml:7:in `_app_views_layouts_application_html_haml__2957657467397917119_23850860'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (3.6ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:08:07 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.5ms)
+Rendered start_game/index.html.haml within layouts/application (2.2ms)
+Compiled application.css  (0ms)  (pid 16599)
+Completed 500 Internal Server Error in 53ms
+
+ActionView::Template::Error (Invalid CSS after "  background-color": expected selector or at-rule, was ": $primary_color"
+  (in /home/dmorrill/workspace/acpcpokerguiclient/app/assets/stylesheets/scaffold.css.scss)):
+    4:    %head
+    5:       %title
+    6:          = 'AcpcPokerGuiClient'
+    7:       = stylesheet_link_tag "application"
+    8:       = javascript_include_tag "application"
+    9:       = csrf_meta_tags
+    10:       = yield(:head)
+  app/assets/stylesheets/scaffold.css.scss:6
+  app/views/layouts/application.html.haml:7:in `_app_views_layouts_application_html_haml__2957657467397917119_23850860'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.7ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (3.5ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:14:00 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.3ms)
+Rendered start_game/index.html.haml within layouts/application (2.0ms)
+Compiled application.css  (1ms)  (pid 16599)
+Completed 500 Internal Server Error in 22ms
+
+ActionView::Template::Error (Invalid CSS after "body": expected "{", was "$primary_color:..."
+  (in /home/dmorrill/workspace/acpcpokerguiclient/app/assets/stylesheets/scaffold.css.scss)):
+    4:    %head
+    5:       %title
+    6:          = 'AcpcPokerGuiClient'
+    7:       = stylesheet_link_tag "application"
+    8:       = javascript_include_tag "application"
+    9:       = csrf_meta_tags
+    10:       = yield(:head)
+  app/assets/stylesheets/scaffold.css.scss:10
+  app/views/layouts/application.html.haml:7:in `_app_views_layouts_application_html_haml__2957657467397917119_23850860'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.3ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (4.1ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:14:01 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered start_game/index.html.haml within layouts/application (1.8ms)
+Compiled application.css  (0ms)  (pid 16599)
+Completed 500 Internal Server Error in 53ms
+
+ActionView::Template::Error (Invalid CSS after "body": expected "{", was "$primary_color:..."
+  (in /home/dmorrill/workspace/acpcpokerguiclient/app/assets/stylesheets/scaffold.css.scss)):
+    4:    %head
+    5:       %title
+    6:          = 'AcpcPokerGuiClient'
+    7:       = stylesheet_link_tag "application"
+    8:       = javascript_include_tag "application"
+    9:       = csrf_meta_tags
+    10:       = yield(:head)
+  app/assets/stylesheets/scaffold.css.scss:10
+  app/views/layouts/application.html.haml:7:in `_app_views_layouts_application_html_haml__2957657467397917119_23850860'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (3.5ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 08:14:55 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (4.1ms)
+Rendered start_game/index.html.haml within layouts/application (4.9ms)
+Compiled application.css  (0ms)  (pid 16599)
+Completed 200 OK in 21ms (Views: 19.8ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 08:14:55 -0600
+Served asset /application.css - 200 OK (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 08:14:55 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 08:14:55 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 08:14:55 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)

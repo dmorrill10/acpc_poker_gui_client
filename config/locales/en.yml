@@ -1,5 +1,16 @@
-# Sample localization file for English. Add more files in this directory for other locales.
-# See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  hello: "Hello world"
+   start_game:
+      index:
+         title: "Start a Game"
+         new_game: "new_game"
+         join_game: "join_game"
+   player_actions:
+      index:
+         title: "Game Home"
+         leave: "leave_game"
+         bet: "bet"
+         call: "call"
+         check: "check"
+         fold: "fold"
+         raise: "raise"

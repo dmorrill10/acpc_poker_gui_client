@@ -1,6 +1,4 @@
-//-%h1= title
 %hr
-%p= button_to "Start a new game", new_game_url, :remote => true, :class => view_context.t('.new_game'),
-:id => view_context.t('.new_game')
-%p= button_to "Join a game", join_game_url, :remote => true, :class => view_context.t('.join_game'),
-:id => view_context.t('.join_game')
+//TODO This doesn't seem to work in rails3.1: view_context.t('.new_game')
+%p= button_to "Start a new game", new_game_url, :remote => true, :class => 'new_game',:id => 'new_game'
+%p= button_to "Join a game", join_game_url, :remote => true, :class => 'join_game', :id => 'join_game'

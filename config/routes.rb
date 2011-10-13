@@ -9,6 +9,31 @@ AcpcPokerGuiClient::Application.routes.draw do
   # Sample of named route:
   #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
   # This route can be invoked with purchase_url(:id => product.id)
+  
+  # Routes for NewGame:
+  match 'new_game/' => 'new_game#index', :as => :new_game
+  match 'new_game/two_player_limit' => 'new_game#two_player_limit', :as => :new_two_player_limit
+  match 'new_game/two_player_no_limit' => 'new_game#two_player_no_limit', :as => :new_two_player_no_limit
+  match 'new_game/three_player_limit' => 'new_game#three_player_limit', :as => :new_three_player_limit
+  match 'new_game/three_player_no_limit' => 'new_game#three_player_no_limit', :as => :new_three_player_no_limit
+
+  # Routes for JoinGame:
+  match 'join_game/' => 'join_game#index', :as => :join_game
+  match 'join_game/two_player_limit' => 'join_game#two_player_limit', :as => :join_two_player_limit
+  match 'join_game/two_player_no_limit' => 'join_game#two_player_no_limit', :as => :join_two_player_no_limit
+  match 'join_game/three_player_limit' => 'join_game#three_player_limit', :as => :join_three_player_limit
+  match 'join_game/three_player_no_limit' => 'join_game#three_player_no_limit', :as => :join_three_player_no_limit
+
+  # Routes for PlayerActions
+  match 'game_home' => 'player_actions#index', :as => :game_home
+  match 'bet' => 'player_actions#bet', :as => :bet
+  match 'check' => 'player_actions#check', :as => :check
+  match 'call' => 'player_actions#call', :as => :call
+  match 'fold' => 'player_actions#fold', :as => :fold
+  match 'raise' => 'player_actions#raise_action', :as => :raise
+  match 'update_game_state' => 'player_actions#update_game_state', :as => :update_game_state
+  match 'leave_game' => 'player_actions#leave_game', :as => :leave_game
+
 
   # Sample resource route (maps HTTP verbs to controller actions automatically):
   #   resources :products
@@ -46,9 +71,8 @@ AcpcPokerGuiClient::Application.routes.draw do
   #     resources :products
   #   end
 
-  # You can have the root of your site routed with "root"
-  # just remember to delete public/index.html.
-  # root :to => 'welcome#index'
+  # Root of the site
+  root :to => 'start_game#index'
 
   # See how all your routes lay out with "rake routes"
 

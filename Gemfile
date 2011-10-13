@@ -68,3 +68,6 @@ gem 'railroady'
 
 # For deployment.  Phusion Passenger integrates the rails app. with Apache.
 gem 'passenger'
+
+# Beanstalkd wrapper
+gem 'stalker'

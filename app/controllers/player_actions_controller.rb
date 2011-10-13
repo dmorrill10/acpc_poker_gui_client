@@ -1,12 +1,13 @@
 
 # Third party
-
+require 'stalker'
 
 # Local modules
 require 'application_defs'
 require 'application_helper'
 # TODO refactor models helper
 require 'models_helper'
+
 
 
 # Controller for the main game view where the table and actions are presented to the player.
@@ -44,6 +45,9 @@ class PlayerActionsController < ApplicationController
       # TODO ensure that the background server is running by this point
       
       # Start the player that represents the browser operator
+      id = 0
+      Stalker.enqueue("Game.start", :id => id)
+      Stalker.enqueue("Game.sendCall", :id => id)
       #game_runner.start_game!(:arg => game_arguments)
       
       # Wait for the player to start and catch errors

@@ -333,3 +333,749 @@ Served asset /jquery_ujs.js - 304 Not Modified (0ms)
 
 Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 08:14:55 -0600
 Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 11:43:45 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (3.0ms)
+Rendered start_game/index.html.haml within layouts/application (4.1ms)
+Completed 200 OK in 93ms (Views: 92.2ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 11:43:46 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 11:43:46 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 11:43:46 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 11:43:46 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:43:48 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.8ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.6ms)
+Completed 200 OK in 26ms (Views: 25.9ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:43:54 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Completed 500 Internal Server Error in 18ms
+
+NameError (undefined local variable or method `ensureBackgrounDRbServerIsStarted' for #<JoinGameController:0x00000002e3f830>):
+  app/controllers/join_game_controller.rb:25:in `two_player_limit'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (4.3ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:44:01 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (2.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.5ms)
+Completed 200 OK in 10ms (Views: 9.6ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:45:05 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.3ms)
+Completed 200 OK in 12ms (Views: 11.7ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:45:07 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Completed 500 Internal Server Error in 17ms
+
+NameError (undefined local variable or method `ensureBackgrounDRbServerIsStarted' for #<JoinGameController:0x000000042cc078>):
+  app/controllers/join_game_controller.rb:25:in `two_player_limit'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (3.8ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:45:12 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (34.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (35.7ms)
+Completed 200 OK in 42ms (Views: 41.8ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 11:45:13 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.3ms)
+Rendered start_game/index.html.haml within layouts/application (2.2ms)
+Completed 200 OK in 9ms (Views: 8.1ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 11:45:13 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 11:45:13 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 11:45:13 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 11:45:13 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started POST "/new_game" for 127.0.0.1 at 2011-10-13 11:45:15 -0600
+  Processing by NewGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered new_game/_index.html.haml (5.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (6.1ms)
+Completed 200 OK in 16ms (Views: 15.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/new_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:45:16 -0600
+  Processing by NewGameController#two_player_limit as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (5.1ms)
+Completed 200 OK in 29ms (Views: 28.3ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 11:45:19 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"18791", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"78", "player_names"=>"user, p2"}
+Completed 500 Internal Server Error in 1ms
+
+NameError (uninitialized constant PlayerActionsController::Stalker):
+  app/controllers/player_actions_controller.rb:48:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.1ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (4.9ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:45:26 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (2.2ms)
+Completed 200 OK in 8ms (Views: 7.6ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 11:46:22 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.1ms)
+Rendered start_game/index.html.haml within layouts/application (1.8ms)
+Completed 200 OK in 10ms (Views: 9.3ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 11:46:22 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 11:46:22 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 11:46:22 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 11:46:22 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/new_game" for 127.0.0.1 at 2011-10-13 11:46:22 -0600
+  Processing by NewGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered new_game/_index.html.haml (2.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.1ms)
+Completed 200 OK in 13ms (Views: 12.6ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/new_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:46:23 -0600
+  Processing by NewGameController#two_player_limit as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.1ms)
+Completed 200 OK in 10ms (Views: 9.3ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 11:46:24 -0600
+
+LoadError (no such file to load -- stalker):
+  app/controllers/player_actions_controller.rb:3:in `<top (required)>'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.3ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (1.1ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (4.8ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:46:34 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (2.1ms)
+Completed 200 OK in 41ms (Views: 40.5ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:47:03 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (5.0ms)
+Rendered shared_javascripts/replace_contents.js.haml (46.2ms)
+Completed 200 OK in 141ms (Views: 141.0ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 11:47:07 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.5ms)
+Rendered start_game/index.html.haml within layouts/application (4.1ms)
+Completed 200 OK in 126ms (Views: 125.1ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 11:47:07 -0600
+Served asset /application.css - 304 Not Modified (6ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 11:47:07 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (1ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 11:47:07 -0600
+Served asset /jquery.js - 304 Not Modified (2ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 11:47:07 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:47:09 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.5ms)
+Completed 200 OK in 14ms (Views: 13.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:47:10 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Completed 500 Internal Server Error in 17ms
+
+NameError (undefined local variable or method `ensureBackgrounDRbServerIsStarted' for #<JoinGameController:0x00000003be5ea8>):
+  app/controllers/join_game_controller.rb:25:in `two_player_limit'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.7ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (3.2ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:47:14 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (2.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.2ms)
+Completed 200 OK in 11ms (Views: 10.8ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:47:16 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.5ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.4ms)
+Completed 200 OK in 12ms (Views: 11.7ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:47:17 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (2.2ms)
+Completed 200 OK in 9ms (Views: 8.3ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/new_game" for 127.0.0.1 at 2011-10-13 11:47:18 -0600
+  Processing by NewGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered new_game/_index.html.haml (3.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.6ms)
+Completed 200 OK in 14ms (Views: 13.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:47:19 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (1.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (2.0ms)
+Completed 200 OK in 8ms (Views: 7.6ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 11:47:20 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered start_game/index.html.haml within layouts/application (2.4ms)
+Completed 200 OK in 8ms (Views: 7.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 11:47:20 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 11:47:20 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 11:47:20 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 11:47:20 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:47:21 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.5ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.5ms)
+Completed 200 OK in 12ms (Views: 11.7ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:47:23 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Completed 500 Internal Server Error in 17ms
+
+NameError (undefined local variable or method `ensureBackgrounDRbServerIsStarted' for #<JoinGameController:0x00000003ae2ee8>):
+  app/controllers/join_game_controller.rb:25:in `two_player_limit'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.1ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (3.6ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 11:48:18 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.3ms)
+Rendered start_game/index.html.haml within layouts/application (14.4ms)
+Completed 200 OK in 101ms (Views: 100.6ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 11:48:19 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 11:48:19 -0600
+Served asset /jquery.js - 304 Not Modified (2ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 11:48:19 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (1ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 11:48:19 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:48:21 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (33.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (35.7ms)
+Completed 200 OK in 45ms (Views: 44.1ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:48:22 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Completed 500 Internal Server Error in 18ms
+
+NameError (undefined local variable or method `ensureBackgrounDRbServerIsStarted' for #<JoinGameController:0x0000000247c410>):
+  app/controllers/join_game_controller.rb:25:in `two_player_limit'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (3.6ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 11:48:32 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.0ms)
+Rendered start_game/index.html.haml within layouts/application (1.6ms)
+Completed 200 OK in 8ms (Views: 7.0ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 11:48:33 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 11:48:33 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 11:48:33 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 11:48:33 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:48:35 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (3.0ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.1ms)
+Completed 200 OK in 46ms (Views: 45.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:48:36 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Completed 500 Internal Server Error in 18ms
+
+NameError (undefined local variable or method `ensureBackgrounDRbServerIsStarted' for #<JoinGameController:0x00000002489458>):
+  app/controllers/join_game_controller.rb:25:in `two_player_limit'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (3.5ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:48:43 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (2.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.0ms)
+Completed 200 OK in 10ms (Views: 9.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/new_game" for 127.0.0.1 at 2011-10-13 11:48:43 -0600
+  Processing by NewGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered new_game/_index.html.haml (3.5ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.3ms)
+Completed 200 OK in 13ms (Views: 12.8ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/new_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:48:44 -0600
+  Processing by NewGameController#two_player_limit as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (2.6ms)
+Completed 200 OK in 12ms (Views: 11.7ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 11:48:47 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"18791", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"56", "player_names"=>"user, p2"}
+Rendered player_actions/_index.html.haml (11.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (12.2ms)
+Completed 500 Internal Server Error in 62ms
+
+ActionView::Template::Error (undefined method `name' for nil:NilClass):
+    117: <!--%hr-->
+    118: <!---->
+    119: <!--%p= label :post, "User's turn to act?: #{@users_turn_to_act}"-->
+    120: <!--%p= label :post, "Player with the dealer button: #{@player_with_the_dealer_button.name}" if @player_with_the_dealer_button-->
+    121: <!--%p= label :post, "Player who posted the big blind: #{@player_who_submitted_big_blind.name}" if @player_who_submitted_big_blind-->
+    122: <!--%p= label :post, "Player who posted the small blind: #{@player_who_submitted_small_blind.name}" if @player_who_submitted_small_blind-->
+    123: <!--%p= label :post, "Player whose turn is next: #{@player_whose_turn_is_next.name}" if @player_whose_turn_is_next-->
+  app/views/player_actions/_index.html.haml:120:in `_app_views_player_actions__index_html_haml__4396656434452626983_16471520'
+  app/views/shared_javascripts/replace_contents.js.haml:5:in `_app_views_shared_javascripts_replace_contents_js_haml__488646717640757696_18450220'
+  app/helpers/application_helper.rb:32:in `replace_page_contents'
+  app/helpers/player_actions_helper.rb:13:in `replace_page_contents_with_updated_game_view'
+  app/controllers/player_actions_controller.rb:54:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (3.8ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:49:02 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (1.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (1.9ms)
+Completed 200 OK in 8ms (Views: 7.6ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:49:03 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.5ms)
+Completed 200 OK in 13ms (Views: 12.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:49:05 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Completed 500 Internal Server Error in 18ms
+
+NameError (undefined local variable or method `ensureBackgrounDRbServerIsStarted' for #<JoinGameController:0x000000025cc338>):
+  app/controllers/join_game_controller.rb:25:in `two_player_limit'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.9ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (3.5ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-13 11:49:41 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered start_game/_index.html.haml (1.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (2.1ms)
+Completed 200 OK in 9ms (Views: 8.2ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 11:49:42 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.5ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.4ms)
+Completed 200 OK in 14ms (Views: 13.6ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:49:43 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.2ms)
+Completed 200 OK in 10ms (Views: 10.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 11:49:44 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"41", "player_names"=>""}
+Rendered player_actions/_index.html.haml (0.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (1.3ms)
+Completed 500 Internal Server Error in 11ms
+
+ActionView::Template::Error (undefined method `name' for nil:NilClass):
+    117: <!--%hr-->
+    118: <!---->
+    119: <!--%p= label :post, "User's turn to act?: #{@users_turn_to_act}"-->
+    120: <!--%p= label :post, "Player with the dealer button: #{@player_with_the_dealer_button.name}" if @player_with_the_dealer_button-->
+    121: <!--%p= label :post, "Player who posted the big blind: #{@player_who_submitted_big_blind.name}" if @player_who_submitted_big_blind-->
+    122: <!--%p= label :post, "Player who posted the small blind: #{@player_who_submitted_small_blind.name}" if @player_who_submitted_small_blind-->
+    123: <!--%p= label :post, "Player whose turn is next: #{@player_whose_turn_is_next.name}" if @player_whose_turn_is_next-->
+  app/views/player_actions/_index.html.haml:120:in `_app_views_player_actions__index_html_haml__4396656434452626983_16471520'
+  app/views/shared_javascripts/replace_contents.js.haml:5:in `_app_views_shared_javascripts_replace_contents_js_haml__488646717640757696_18450220'
+  app/helpers/application_helper.rb:32:in `replace_page_contents'
+  app/helpers/player_actions_helper.rb:13:in `replace_page_contents_with_updated_game_view'
+  app/controllers/player_actions_controller.rb:54:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (0.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (3.6ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 11:53:57 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.2ms)
+Completed 200 OK in 9ms (Views: 9.1ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 11:53:59 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"81", "player_names"=>""}
+Rendered player_actions/_index.html.haml (1.0ms)
+Rendered shared_javascripts/replace_contents.js.haml (1.7ms)
+Completed 200 OK in 11ms (Views: 10.2ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 12:17:08 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered start_game/index.html.haml within layouts/application (1.8ms)
+Completed 200 OK in 8ms (Views: 7.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 12:17:08 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 12:17:08 -0600
+Served asset /jquery.js - 304 Not Modified (1ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 12:17:08 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 12:17:08 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 12:17:09 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.6ms)
+Completed 200 OK in 13ms (Views: 12.5ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 12:17:20 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.2ms)
+Completed 200 OK in 12ms (Views: 11.1ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 12:17:22 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"18", "player_names"=>""}
+Rendered player_actions/_index.html.haml (0.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (0.9ms)
+Completed 200 OK in 12ms (Views: 11.1ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 13:26:27 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.2ms)
+Rendered start_game/index.html.haml within layouts/application (3.6ms)
+Completed 200 OK in 10ms (Views: 9.7ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 13:26:27 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 13:26:27 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 13:26:27 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 13:26:27 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 13:26:28 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (3.0ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.1ms)
+Completed 200 OK in 14ms (Views: 14.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 13:26:30 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.1ms)
+Completed 200 OK in 9ms (Views: 9.1ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 13:26:32 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"10", "player_names"=>""}
+Rendered player_actions/_index.html.haml (0.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (0.9ms)
+Completed 200 OK in 13ms (Views: 11.5ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 13:28:56 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.5ms)
+Rendered start_game/index.html.haml within layouts/application (2.2ms)
+Completed 200 OK in 9ms (Views: 8.8ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 13:28:56 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 13:28:56 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 13:28:56 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 13:28:56 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 13:29:05 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.6ms)
+Completed 200 OK in 13ms (Views: 12.3ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 13:29:06 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.1ms)
+Completed 200 OK in 10ms (Views: 9.5ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 13:29:07 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"50", "player_names"=>""}
+Rendered player_actions/_index.html.haml (0.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (2.2ms)
+Completed 200 OK in 12ms (Views: 11.3ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-13 13:30:41 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (1.6ms)
+Rendered start_game/index.html.haml within layouts/application (2.3ms)
+Completed 200 OK in 9ms (Views: 8.3ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-13 13:30:41 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-13 13:30:41 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-13 13:30:41 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-13 13:30:41 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-13 13:30:50 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ="}
+Rendered join_game/_index.html.haml (2.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (3.4ms)
+Completed 200 OK in 12ms (Views: 12.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-13 13:30:51 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.2ms)
+Completed 200 OK in 11ms (Views: 10.4ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-13 13:30:52 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"TqU1GsOhOgF1U0wqR6phxnClLJdiuwoduyyO3aMy3GQ=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"3", "player_names"=>""}
+Rendered player_actions/_index.html.haml (0.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (0.9ms)
+Completed 200 OK in 13ms (Views: 11.6ms | ActiveRecord: 0.0ms)

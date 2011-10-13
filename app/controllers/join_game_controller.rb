@@ -22,8 +22,6 @@ class JoinGameController < ApplicationController
        @random_seed,
        @list_of_player_names) = two_player_limit_params
       
-      ensureBackgrounDRbServerIsStarted
-      
       send_parameters_to_connect_to_dealer
    end
       

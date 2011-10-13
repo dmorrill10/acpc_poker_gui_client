@@ -2,7 +2,7 @@
 
 [<em>ACPC dealer</em>]
    The program used to deal cards and manage poker
-   games.  It is the official program used by the Annual Computer
+   _matches_.  It is the official program used by the Annual Computer
    Poker Competition to run its matches and was developed by the _CPRG_.
 
 [_action_]
@@ -22,9 +22,16 @@
    A server seperate from the one serving
    the Rails application that is used to run _worker_ processes.
 
+[_bot_]
+   An automated agent that can play matches against other _competitors_ without
+   input from a user.
+
 [<em>Client response</em>]
    A matchstate string with an appended action:
       <some matchState>:{ <limitAction> or <noLimitAction> }
+
+[_competitor_]
+   A _user_ or _bot_. A competitor can participate in a match.
 
 [_controller_]
    A class that inherits from +ApplicationController+, contains
@@ -43,6 +50,10 @@
 [<em>Javascript template</em>]
    Javascript embedded in an +ERB+ or +HAML+
    format template.  It usually has an +.js.erb+ or +.js.haml+ extension.
+   
+[_match_]
+   A sequence of poker hands managed by the <em>ACPC dealer</em> and played by
+   _competitors_.
 
 [<em>matchstate string</em>]
    A string from the dealer of the form:
@@ -69,6 +80,9 @@
    A file that can be interpreted into an +HTML+ page, which can
    be displayed in a browser.  It is usually written in +ERB+ or +HAML+ and is a
    file with a +.html.erb+ or +.html.haml+ extension respectively.
+   
+[_user_]
+   A browser operator. A user can play matches against other _competitors_.
 
 [_view_]
    A set of _templates_ that can be rendered by _controller_ _actions_

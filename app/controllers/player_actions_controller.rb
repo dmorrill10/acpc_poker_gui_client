@@ -8,10 +8,6 @@ require 'application_helper'
 # TODO refactor models helper
 require 'models_helper'
 
-# Local classes
-require 'game_definition'
-require 'match_state'
-require 'player'
 
 # Controller for the main game view where the table and actions are presented to the player.
 # Impliments the actions in the main game view.

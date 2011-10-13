@@ -1,0 +1,24 @@
+
+- if @opponent_port_number
+   alert("Connecting to dealer... Opponent port is: #{@opponent_port_number}");
+- elsif @opponent_port_numbers
+   alert("Connecting to dealer... Opponent ports are: #{@opponent_port_numbers}");
+- else
+   alert("Connecting to dealer...");
+
+// TODO Move the class strings to a shared resource
+var port_number = document.getElementById('port_number_hidden_field');
+var match_name = document.getElementById('match_name_hidden_field');
+var game_definition_file_name = document.getElementById('game_definition_file_name_hidden_field');
+var number_of_hands = document.getElementById('number_of_hands_hidden_field');
+var random_seed = document.getElementById('random_seed_hidden_field')
+var player_names = document.getElementById('player_names_hidden_field')
+
+port_number.value = "#{@port_number}";
+match_name.value = "#{@match_name}";
+game_definition_file_name.value = "#{@game_definition_file_name}";
+number_of_hands.value = "#{@number_of_hands}";
+random_seed.value = "#{@random_seed}";
+player_names.value = "#{@player_names}";
+
+$('.game_home_hidden_button').submit();

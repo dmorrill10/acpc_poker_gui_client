@@ -1,0 +1,6 @@
+- if @alert_message
+   alert("#{@alert_message}");
+
+$('#container').remove();
+- content = escape_javascript(render :partial => @replacement_partial);
+$('body').html('<div id="container">#{content}</div>');

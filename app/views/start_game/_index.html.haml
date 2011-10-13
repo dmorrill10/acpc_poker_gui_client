@@ -1,0 +1,6 @@
+//-%h1= title
+%hr
+%p= button_to "Start a new game", new_game_url, :remote => true, :class => view_context.t('.new_game'),
+:id => view_context.t('.new_game')
+%p= button_to "Join a game", join_game_url, :remote => true, :class => view_context.t('.join_game'),
+:id => view_context.t('.join_game')

@@ -1,0 +1,80 @@
+= Glossary of Terms
+
+[<em>ACPC dealer</em>]
+   The program used to deal cards and manage poker
+   games.  It is the official program used by the Annual Computer
+   Poker Competition to run its matches and was developed by the _CPRG_.
+
+[_action_]
+   A method in a _controller_, to which a _route_ is mapped.
+
+[_Apache_]
+   A commonly used production-grade web server that is also used by
+   this application.
+
+[<em>BackgrounDRb</em>]
+   A background process system _gem_ that allows
+   Rails applications, such as this one, start _worker_ processes that persist
+   beyond a single HTTP request.  The worker class +GameRunner+ contains
+   the game logic and state for this application.
+
+[<em>BackgrounDRb server</em>]
+   A server seperate from the one serving
+   the Rails application that is used to run _worker_ processes.
+
+[<em>Client response</em>]
+   A matchstate string with an appended action:
+      <some matchState>:{ <limitAction> or <noLimitAction> }
+
+[_controller_]
+   A class that inherits from +ApplicationController+, contains
+   _actions_ that render _views_ to the browser, and delegates business logic to
+   _models_.
+
+[_CPRG_]
+   The University of Alberta's Computer Poker Research Group.
+
+[_gem_]
+   A plug-in-like Ruby library or application that adds
+   functionality to another Ruby application.  Gems are listed in +Gemfile+ and
+   are installed by running +bundle install+ from within the application
+   directory hierarchy.
+
+[<em>Javascript template</em>]
+   Javascript embedded in an +ERB+ or +HAML+
+   format template.  It usually has an +.js.erb+ or +.js.haml+ extension.
+
+[<em>matchstate string</em>]
+   A string from the dealer of the form:
+      MATCHSTATE:<position>:<handNumber>:<betting>:<cards>
+
+[_model_]
+   A class that works with data from, and provides results to,
+   _controllers_.
+
+[<em>partial template</em> or _partial_]
+   A snippet of template code
+   (+ERB+, +HAML+, etc.)
+   that can be inserted into full templates at run time.  By convention, partial
+   template files begin with an underscore ('_').
+
+[<em>Phusion Passenger</em>]
+   Gem that integrates this rails application 
+   with _Apache_.
+
+[_route_]
+   A map between URL parameters and _controller_ _actions_.
+
+[_template_]
+   A file that can be interpreted into an +HTML+ page, which can
+   be displayed in a browser.  It is usually written in +ERB+ or +HAML+ and is a
+   file with a +.html.erb+ or +.html.haml+ extension respectively.
+
+[_view_]
+   A set of _templates_ that can be rendered by _controller_ _actions_
+   to the browser.
+
+[_worker_]
+   A class that inherits from +BackgrounDRb::MetaWorker+
+   and is run as on the <em>BackgrounDRb server</em>.  Worker class files are
+   stored in +lib/workers/+.

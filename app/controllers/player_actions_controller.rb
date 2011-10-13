@@ -1,6 +1,6 @@
 
 # Third party
-require 'backgroundrb'
+
 
 # Local modules
 require 'application_defs'
@@ -18,7 +18,6 @@ require 'player'
 class PlayerActionsController < ApplicationController
    include ApplicationDefs
    include ModelsHelper
-   include BackgrounDRb
    include ApplicationHelper
    include PlayerActionsHelper
    
@@ -37,8 +36,6 @@ class PlayerActionsController < ApplicationController
       random_seed = params[:random_seed]      
       player_names = params[:player_names]
       
-      game_runner = MiddleMan.worker :game_runner
-      
       game_arguments = {
          :port_number => port_number,
          :match_name => match_name,
@@ -48,8 +45,12 @@ class PlayerActionsController < ApplicationController
          :player_names => player_names
       }
       
-      #TODO try to catch errors here with return value
-      game_runner.start_game!(:arg => game_arguments)
+      # TODO ensure that the background server is running by this point
+      
+      # Start the player that represents the browser operator
+      #game_runner.start_game!(:arg => game_arguments)
+      
+      # Wait for the player to start and catch errors
       
       replace_page_contents_with_updated_game_view
    end
@@ -59,17 +60,11 @@ class PlayerActionsController < ApplicationController
    def bet
       log 'bet'
       
-      game_runner = MiddleMan.worker :game_runner
-      
+      # Make a betting action
       result = catch(:game_core_error) do game_runner.make_bet_action end
       
-      #TODO Handle error
-      warn "ERROR: #{result}\n" if result.kind_of?(String)
-      
-      game_runner.update_state!
-      
-      #@alert_message = 'Making bet action...'
-      
+      # Show the user that the proper action was taken and catch errors
+
       replace_page_contents_with_updated_game_view
    end
 
@@ -77,18 +72,10 @@ class PlayerActionsController < ApplicationController
    def call
       log 'call'
       
-      game_runner = MiddleMan.worker :game_runner
+      # Make a call action
+      #result = catch(:game_core_error) do game_runner.make_call_action end
       
-      result = catch(:game_core_error) do game_runner.make_call_action end
-      
-      log "call: result: #{result}"
-      
-      #TODO Handle error
-      warn "ERROR: #{result}\n" if result.kind_of?(String)
-      
-      game_runner.update_state!
-      
-      #@alert_message = 'Making call action...'
+      # Show the user that the proper action was taken and catch errors
       
       replace_page_contents_with_updated_game_view
    end
@@ -97,14 +84,13 @@ class PlayerActionsController < ApplicationController
    def check
       log 'check'
       
-      game_runner = MiddleMan.worker :game_runner
-      
-      result = catch(:game_core_error) do game_runner.make_check_action end
+      # Make a check action
+      #result = catch(:game_core_error) do game_runner.make_check_action end
       
       #TODO Handle error
       warn "ERROR: #{result}\n" if result.kind_of?(String)
       
-      game_runner.update_state!
+      # Show the user that the proper action was taken and catch errors
       
       replace_page_contents_with_updated_game_view
    end
@@ -113,14 +99,10 @@ class PlayerActionsController < ApplicationController
    def fold
       log 'fold'
       
-      game_runner = MiddleMan.worker :game_runner
+      # Make a fold action
+      #result = catch(:game_core_error) do game_runner.make_fold_action end
       
-      result = catch(:game_core_error) do game_runner.make_fold_action end
-      
-      #TODO Handle error
-      warn "ERROR: #{result}\n" if result.kind_of?(String)
-      
-      game_runner.update_state!
+      # Show the user that the proper action was taken and catch errors
       
       replace_page_contents_with_updated_game_view
    end
@@ -130,14 +112,10 @@ class PlayerActionsController < ApplicationController
       #@raise_amount = params[:amount]
       log 'raise_action'
       
-      game_runner = MiddleMan.worker :game_runner
-      
+      # Make a raise action
       result = catch(:game_core_error) do game_runner.make_raise_action end
       
-      #TODO Handle error
-      warn "ERROR: #{result}\n" if result.kind_of?(String)
-      
-      game_runner.update_state!
+      # Show the user that the proper action was taken and catch errors
       
       replace_page_contents_with_updated_game_view
    end
@@ -146,14 +124,10 @@ class PlayerActionsController < ApplicationController
    def update_game_state
       log 'update_game_state'
       
-      game_runner = MiddleMan.worker :game_runner
-      
-      game_runner.update_state!
+      # Update the view's state of the game
+      #game_runner.update_state!
       
       # Close the pipe to the dealer if there is one open and the game has ended
-      if game_runner.match_ended?
-         close_dealer!
-      end
       
       replace_page_contents_with_updated_game_view
    end
@@ -162,7 +136,7 @@ class PlayerActionsController < ApplicationController
    def leave_game
       log 'leave_game'
       
-      close_dealer!
+      #close_dealer!
       
       replace_page_contents 'start_game/index'
    end

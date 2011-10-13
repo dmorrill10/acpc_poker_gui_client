@@ -1,6 +1,6 @@
 
 # Third party
-require 'backgroundrb'
+
 
 # Local modules
 require 'application_defs'
@@ -10,7 +10,6 @@ require 'application_helper'
 class NewGameController < ApplicationController
    include ApplicationDefs
    include ApplicationHelper
-   include BackgrounDRb
    
    # Presents the main 'start a new game' view.   
    def index
@@ -26,44 +25,46 @@ class NewGameController < ApplicationController
        @number_of_hands,
        @random_seed,
        @player_names) = two_player_limit_params
-      
-      ensureBackgrounDRbServerIsStarted
-      
+            
       dealer_arguments = [@match_name, @game_definition_file_name.to_s, @number_of_hands.to_s, @random_seed.to_s, @player_names.split(/\s*,?\s+/)].flatten
       
-      dealer_runner = MiddleMan.worker :dealer_runner
+      # TODO Make sure the background server is started at this point
+      
+      # Start the dealer
 
-      begin
-         dealer_runner.start_dealer!(:arg => dealer_arguments)
-      rescue => unable_to_start_dealer
-         # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
-         warn "ERROR: #{unable_to_start_dealer.message}\n"
-         return
-      end
+      # Wait for the dealer to start and catch errors
       
-      log "two_player_limit: successfully started dealer"
+      # TODO Replace this
+      #begin
+      #   dealer_runner.start_dealer!(:arg => dealer_arguments)
+      #rescue => unable_to_start_dealer
+      #   # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
+      #   warn "ERROR: #{unable_to_start_dealer.message}\n"
+      #   return
+      #end
+      #
+      #log "two_player_limit: successfully started dealer"
+      #
+      #port_numbers = (dealer_runner.dealer_string).split(/\s+/)
+      #   
+      #log "two_player_limit: port_numbers: #{port_numbers}"
+      #   
+      #(@port_number, @opponent_port_number) = port_numbers
+      #
       
-      port_numbers = (dealer_runner.dealer_string).split(/\s+/)
-         
-      log "two_player_limit: port_numbers: #{port_numbers}"
-         
-      (@port_number, @opponent_port_number) = port_numbers
+      # Start bots if there are not enough human players in the match
       
-      # TODO do this properly
-      bot_user_key = MiddleMan.new_worker(:worker => :bot_user)
-      bot_user = MiddleMan.worker(:bot_user, bot_user_key)
-      
-      bot_arguments = {:port_number => @opponent_port_number}
+      #bot_arguments = {:port_number => @opponent_port_number}
 
-      begin
-         log 'two_player_limit: adding user to table'
-         
-         bot_user.add_user_to_table!(:arg => bot_arguments)
-      rescue => unable_to_add_bot_to_table
-         # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
-         warn "ERROR: Unable to add bot to table: #{unable_to_add_bot_to_table.message}\n"
-         return
-      end
+      #begin
+      #   log 'two_player_limit: adding user to table'
+      #   
+      #   bot_user.add_user_to_table!(:arg => bot_arguments)
+      #rescue => unable_to_add_bot_to_table
+      #   # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
+      #   warn "ERROR: Unable to add bot to table: #{unable_to_add_bot_to_table.message}\n"
+      #   return
+      #end
       
       log 'two_player_limit: sending parameters to connect to dealer'
       

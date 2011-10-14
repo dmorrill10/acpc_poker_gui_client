@@ -47,6 +47,10 @@
    are installed by running +bundle install+ from within the application
    directory hierarchy.
 
+[_host_]
+   A _competitor_ who starts a match by running an instance of the
+   <em>ACPC Dealer</em>.
+
 [<em>Javascript template</em>]
    Javascript embedded in an +ERB+ or +HAML+
    format template.  It usually has an +.js.erb+ or +.js.haml+ extension.
@@ -68,6 +72,9 @@
    (+ERB+, +HAML+, etc.)
    that can be inserted into full templates at run time.  By convention, partial
    template files begin with an underscore ('_').
+
+[_participant_]
+   A _competitor_ who agrees to join a match.
 
 [<em>Phusion Passenger</em>]
    Gem that integrates this rails application 

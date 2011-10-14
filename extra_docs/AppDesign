@@ -1,0 +1,28 @@
+
+== The Design of this Application
+
+While the ACPC Poker GUI Client is currently implemented in Ruby over the Rails
+web framework, its design should be agnostic to such details. One language or
+framework should be transparently swappable with its current implementation.
+
+== Interface to the User
+
+As this is a web application, the browser is the only interface between
+the _user_ and the application.
+
+== Matches
+
+Users may participate in matches
+*  Users may _host_ a match and invite other users and/or select _bots_ to participate
+   *  This application must inform all _participants_ of the ports that they must to use to connect to the <em>ACPC Dealer</em>
+*  Users may accept invitations to matches hosted by other competitors
+   *  This application must be informed of the host name and port number it must use to connect to the dealer
+*  This application must know what the dealer's match parameters are
+
+
+== Playing Matches
+
+Users may play matches
+*  Users may see the dealer's match parameters
+*  Users may see the current state of the match
+*  

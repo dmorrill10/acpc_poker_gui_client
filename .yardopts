@@ -5,6 +5,7 @@ lib/**/*.rb
 ext/**/*.c
 external/fake_acpc_server/*.rb
 -
+extra_docs/AppDesign
 extra_docs/AppStatus
 extra_docs/FileStructure
 extra_docs/Glossary

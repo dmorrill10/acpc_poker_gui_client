@@ -6913,3 +6913,267 @@ The structure of this application's directories is as follows:
        └── sockets
    
    74 directories, 145 files
+   .
+   ├── acpcpokerguiclient.komodoproject
+   ├── app
+   │   ├── assets
+   │   │   ├── images
+   │   │   │   └── rails.png
+   │   │   ├── javascripts
+   │   │   │   └── application.js
+   │   │   └── stylesheets
+   │   │       └── application.css
+   │   ├── controllers
+   │   │   ├── application_controller.rb
+   │   │   ├── join_game_controller.rb
+   │   │   ├── new_game_controller.rb
+   │   │   ├── player_actions_controller.rb
+   │   │   └── start_game_controller.rb
+   │   ├── helpers
+   │   │   ├── application_helper.rb
+   │   │   ├── join_game_helper.rb
+   │   │   ├── layout_helper.rb
+   │   │   ├── new_game_helper.rb
+   │   │   ├── player_actions_helper.rb
+   │   │   ├── start_game_helper.rb
+   │   │   └── view_helper.js.haml
+   │   ├── mailers
+   │   ├── models
+   │   └── views
+   │       ├── join_game
+   │       │   └── _index.html.haml
+   │       ├── layouts
+   │       │   └── application.html.haml
+   │       ├── new_game
+   │       │   └── _index.html.haml
+   │       ├── player_actions
+   │       │   ├── _index.html.haml
+   │       │   └── _index.Old.html.haml
+   │       ├── shared_javascripts
+   │       │   ├── replace_contents.js.haml
+   │       │   └── send_parameters_to_connect_to_dealer.js.haml
+   │       └── start_game
+   │           ├── _index.html.haml
+   │           └── index.html.haml
+   ├── config
+   │   ├── application.rb
+   │   ├── boot.rb
+   │   ├── database.yml
+   │   ├── environment.rb
+   │   ├── environments
+   │   │   ├── development.rb
+   │   │   ├── production.rb
+   │   │   └── test.rb
+   │   ├── initializers
+   │   │   ├── backtrace_silencers.rb
+   │   │   ├── inflections.rb
+   │   │   ├── mime_types.rb
+   │   │   ├── secret_token.rb
+   │   │   ├── session_store.rb
+   │   │   └── wrap_parameters.rb
+   │   ├── locales
+   │   │   └── en.yml
+   │   └── routes.rb
+   ├── config.ru
+   ├── db
+   │   ├── development.sqlite3
+   │   └── seeds.rb
+   ├── doc
+   │   ├── ApplicationController.html
+   │   ├── ApplicationDefs.html
+   │   ├── ApplicationHelper.html
+   │   ├── class_list.html
+   │   ├── css
+   │   │   ├── common.css
+   │   │   ├── full_list.css
+   │   │   └── style.css
+   │   ├── DealerCommunication.html
+   │   ├── file.AppStatus.html
+   │   ├── file.FileStructure.html
+   │   ├── file.Glossary.html
+   │   ├── file_list.html
+   │   ├── frames.html
+   │   ├── GameCore.html
+   │   ├── GameDefinitionHelper.html
+   │   ├── GameDefinition.html
+   │   ├── GameState.html
+   │   ├── _index.html
+   │   ├── JoinGameController.html
+   │   ├── JoinGameHelper.html
+   │   ├── js
+   │   │   ├── app.js
+   │   │   ├── full_list.js
+   │   │   └── jquery.js
+   │   ├── LayoutHelper.html
+   │   ├── MatchStateHelper.html
+   │   ├── MatchState.html
+   │   ├── method_list.html
+   │   ├── ModelsHelper.html
+   │   ├── ModelTestHelper.html
+   │   ├── NewGameController.html
+   │   ├── NewGameHelper.html
+   │   ├── PlayerActionsController.html
+   │   ├── PlayerActionsHelper.html
+   │   ├── Player.html
+   │   ├── PlayerManager.html
+   │   ├── README_FOR_APP
+   │   ├── StartGameController.html
+   │   ├── StartGameHelper.html
+   │   ├── TestingRubyBot.html
+   │   └── top-level-namespace.html
+   ├── external
+   │   ├── fake_acpc_server
+   │   │   ├── fake_acpc_client.rb
+   │   │   └── fake_dealer.rb
+   │   └── project_acpc_server
+   │       ├── dealer
+   │       ├── dealer.c
+   │       ├── evalHandTables
+   │       ├── example_player
+   │       ├── example_player.c
+   │       ├── example_player.limit.2p.sh
+   │       ├── example_player.limit.3p.sh
+   │       ├── example_player.nolimit.2p.sh
+   │       ├── example_player.nolimit.3p.sh
+   │       ├── game.c
+   │       ├── game.h
+   │       ├── holdem.limit.2p.reverse_blinds.game
+   │       ├── holdem.limit.3p.game
+   │       ├── holdem.nolimit.2p.reverse_blinds.game
+   │       ├── holdem.nolimit.3p.game
+   │       ├── LICENCE
+   │       ├── Makefile
+   │       ├── play_match.pl
+   │       ├── protocol.odt
+   │       ├── protocol.pdf
+   │       ├── README
+   │       ├── rng.c
+   │       ├── rng.h
+   │       ├── test.err
+   │       ├── test.log
+   │       ├── test.player0.err
+   │       ├── test.player0.std
+   │       ├── test.player1.err
+   │       └── test.player1.std
+   ├── extra_docs
+   │   ├── AppDesign
+   │   ├── AppStatus
+   │   ├── FileStructure
+   │   ├── Glossary
+   │   ├── instructionsToDeployApp.txt
+   │   ├── old_but_still_useful_code.txt
+   │   └── temp_app_tree
+   ├── Gemfile
+   ├── Gemfile.lock
+   ├── lib
+   │   ├── application_defs.rb
+   │   ├── assets
+   │   ├── bots
+   │   │   ├── outputFromFakeClient.txt
+   │   │   └── testing_ruby_bot.rb
+   │   ├── ext
+   │   │   ├── extconf.rb
+   │   │   ├── hand_evaluator.c
+   │   │   ├── hand_evaluator.o
+   │   │   ├── hand_evaluator.so
+   │   │   └── Makefile
+   │   ├── game_definition_helper.rb
+   │   ├── game_players
+   │   │   ├── dealer_communication.rb
+   │   │   ├── game_core.rb
+   │   │   ├── game_definition.rb
+   │   │   ├── game_state.rb
+   │   │   ├── match_state.rb
+   │   │   ├── player_manager.rb
+   │   │   └── player.rb
+   │   ├── match_state_helper.rb
+   │   ├── models_helper.rb
+   │   ├── model_test_helper.rb
+   │   └── tasks
+   ├── log
+   │   └── development.log
+   ├── public
+   │   ├── 404.html
+   │   ├── 422.html
+   │   ├── 500.html
+   │   ├── favicon.ico
+   │   └── robots.txt
+   ├── Rakefile
+   ├── README
+   ├── script
+   │   ├── beanstalkd
+   │   ├── generate_documentation.sh
+   │   ├── outputFromFakeClient.txt
+   │   ├── rails
+   │   └── worker.rb
+   ├── spec
+   │   ├── controllers
+   │   │   ├── join_game_controller_spec.rb
+   │   │   ├── new_game_controller_spec.rb
+   │   │   ├── player_actions_controller_spec.rb
+   │   │   └── start_game_controller_spec.rb
+   │   ├── helpers
+   │   │   ├── join_game_helper_spec.rb
+   │   │   ├── new_game_helper_spec.rb
+   │   │   ├── player_actions_helper_spec.rb
+   │   │   └── start_game_helper_spec.rb
+   │   ├── lib
+   │   │   └── models_helper_spec.rb
+   │   ├── models
+   │   │   ├── dealer_communication_spec.rb
+   │   │   ├── game_core_spec.rb
+   │   │   ├── game_definition_spec.rb
+   │   │   ├── game_state_spec.rb
+   │   │   ├── match_state_spec.rb
+   │   │   ├── player_manager_spec.rb
+   │   │   └── player_spec.rb
+   │   ├── requests
+   │   │   ├── player_action_spec.rb
+   │   │   └── start_games_spec.rb
+   │   ├── spec_helper.rb
+   │   └── views
+   │       ├── join_game
+   │       │   ├── go_back.html.erb_spec.rb
+   │       │   ├── index.html.erb_spec.rb
+   │       │   ├── three_player_limit.js.haml_spec.rb
+   │       │   ├── three_player_no_limit.js.haml_spec.rb
+   │       │   ├── two_player_limit.js.haml_spec.rb
+   │       │   └── two_player_no_limit.js.haml_spec.rb
+   │       └── new_game
+   │           ├── index.html.erb_spec.rb
+   │           ├── three_player_limit.html.erb_spec.rb
+   │           ├── three_player_no_limit.html.erb_spec.rb
+   │           ├── two_player_limit.html.erb_spec.rb
+   │           └── two_player_no_limit.html.erb_spec.rb
+   └── tmp
+       ├── cache
+       │   ├── assets
+       │   │   ├── CDD
+       │   │   │   └── 990
+       │   │   ├── CE8
+       │   │   │   └── 420
+       │   │   ├── CF0
+       │   │   │   └── DA0
+       │   │   ├── CFA
+       │   │   │   └── 780
+       │   │   ├── D24
+       │   │   │   └── 310
+       │   │   ├── D32
+       │   │   │   └── A10
+       │   │   ├── D54
+       │   │   │   └── ED0
+       │   │   ├── D84
+       │   │   │   └── 210
+       │   │   ├── DA9
+       │   │   │   └── 620
+       │   │   ├── DD6
+       │   │   │   └── 730
+       │   │   └── E04
+       │   │       └── 890
+       │   └── sass
+       │       └── 44b553597b000e8c28356bcfa0a574ce710da165
+       ├── pids
+       ├── sessions
+       └── sockets
+   
+   76 directories, 185 files

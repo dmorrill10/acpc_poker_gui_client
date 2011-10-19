@@ -1,0 +1,92 @@
+== CPRG Poker Gui Client
+
+The _CPRG_ Poker Gui Client allows people to play poker games against
+automated agents.  It is still under development but it currently only supports
+two-player limit Texas Hold'em, but will eventually support two-player no-limit,
+three-player no-limit, and three-player no-limit variations of Texas Hold'em
+as well.
+
+
+== Server Side Requirements for Starting a Game
+
+Currently, an <em>ACPC dealer</em> instance must be running before a 
+game can be started.  In addition, a <em>BackgrounDRb server</em> must also
+be started so that game state can persist beyond a single HTTP request.
+
+Obviously, to serve a web page at all, an Apache server must be running and
+it must point to this application.  This is currently done with  
+Apache + Rails integration through the <em>Phusion Passenger</em> gem.
+
+
+== Application Control Flow
+
+When the user's browser is directed to the address of this application, a
+request is sent to Rails, which looks in config/routes.rb for
+   root :to => 'start_game#index'
+This _routes_ the application's root address to the +index+
+_action_ of +StartGameController+.  Control moves into the +index+ method of
++StartGameController+.  When it drops out of +index+, Rails implicitly
+renders a _template_ with the same name in the +start_game+ directory;
++index.html.haml+, in this case.  This template sets up the application's page
+and renders the
+<em>partial template</em>, +_index.html.haml+.  +_index.html.haml+ presents 
+two buttons to the user:  <b>Start a new game</b> and <b>Join a game</b>.
+
+The <b>Start a new game</b> option has not yet been implemented but when complete,
+it will allow the user to start up and connect to a new instance of the
+<em>ACPC dealer</em>.
+
+Pressing the <b>Join a game</b> button is routed to +JoinGameController+'s +index+
+and submits the HTTP request remotely, which allows the routed action to run
+a <em>Javascript template</em> when it returns rather than rendering a
+template.  In this case, +join_game/index.js.haml+ runs and replaces the
+contents of the current page with that of +join_game/_index.html.haml+.
+The page presented allows the user to provide game parameters and connect to
+an ACPC dealer already running.
+
+The user then submits the game parameters by clicking a button to start a game
+(currently, the only such button is one labelled <em>2 Player Limit</em>).
+Control goes to the JoinGameController action that is routed to the button,
+where the user given game parameters, plus the location of the specified game
+definition file, are stored in
+instance variables, which are accessable in both JoinGameController and
+any view templates in +join_game/+.  When control drops out of the action in
++JoinGameController+, a Javascript template with the same name as the action
+in +join_game/+ is run.  This template provides a popup alert to the user that
+the application is attempting to connect to the specified dealer instance.
+It also populates and submits a hidden form with the game parameter instance
+values to the +index+ action of +PlayerActionsController+.  This action
+retrieves the <em>BackgrounDRb</em> _worker_ instance of +GameRunner+
+(the <em>BackgrounDRb server</em> must be started before this occurs) and sends its
+game parameters to this object.
+
+The +GameRunner+ instance starts a TCP connection by instantiating a
++DealerCommunication+ object, which in turn creates a +TCPSocket+ and uses it
+to connect to the dealer.  It also creates a +GameCore+ instance, which creates
+objects to manage game logic and state, and updates the game state.
+
+The +GameCore+ instance spawns a +Player+ for every player in the game,
+including the user operating the browser (with a couple exceptions, the
+player controlled by the user is dealt with just as any other player.
+There is no differentiation between automated and human players either.),
+and provides them to a new +PlayerManager+ that it creates at the same time.
++GameCore+ then passes +PlayerManager+ to a new +GameState+ instance and
+never deals with a +Player+ or +PlayerManager+ again.  It allows +GameState+
+to act as an interface to these objects.  This method of creating many objects
+in a single core object and passing them around to objects that need
+to use them seperates the creation and use of an object and
+therefore allows for easier unit testing with mock and fake objects.
+
++GameCore+ also manages the flow of data from the
+dealer and the +GameState+, in the form of +MatchState+ instances and
+<em>matchstate strings</em>.  When an updated state is requested,
++GameCore+ tells +DealerCommunication+ to retrieve the next matchstate
+string from the dealer.  With that matchstate string, +GameCore+ generates
+a +MatchState+ object, which is simply a distillation of the data in the
+matchstate string.  +GameCore+ passes the new +MatchState+ to +GameState+,
+which updates it's own state and passes the +MatchState+ to +PlayerManager+ so
+that it can update the state of its +Players+.  When an action is taken by
+the user, a message is sent from the view, to a +PlayerActionsController+
+action, to +GameRunner+, to +GameCore+, to +GameState+, which returns a
+<em>client response</em> to +GameCore+, which sends the response to
+the dealer through +DealerCommunication+.

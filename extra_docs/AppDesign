@@ -22,7 +22,16 @@ Users may participate in matches
 
 == Playing Matches
 
-Users may play matches
-*  Users may see the dealer's match parameters
-*  Users may see the current state of the match
-*  
+Users may play matches, so users:
+*  may see the dealer's match parameters
+*  may see the current state of the match
+*  may take legal poker actions in the game (call, check, bet, raise, and fold)
+   * Only those actions that are legal to take will be available for the user to take
+   * may specify the size of the bet or raise, if the game allows variable size bets and/or raises
+*  may leave the table at any time
+   *  All background processes related to the match that was exited must end and the dealer must exit
+   *  The other participants must be informed that the match has ended abruptly
+*  must be notified of the end of the game
+*  must see the result of a hand they have played through
+*  must see the result of a match they have played through
+*  may play matches that last longer than one hand

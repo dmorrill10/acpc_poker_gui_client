@@ -1,24 +1,26 @@
 require 'spec_helper'
 
-describe MatchState do
-   it "is the given raw match state if it's empty" do
-      test_match_state_error ""
-   end
+describe MatchstateString do
+   describe 'raises an exception if the raw matchstate string' do   
+      it 'is empty' do
+         test_match_state_error ""
+      end
    
-   it "is the given raw match state if it's not labelled a match state" do
-      test_match_state_error "hello world"
-   end
+      it 'is not in the proper format' do
+         test_match_state_error "hello world"
+      end
    
-   it "is nil if the position isn't given in the match state" do
-      test_match_state_error MATCH_STATE_LABEL + "::0::AhKd"
-   end
+      it 'does not contain a position' do
+         test_match_state_error MATCH_STATE_LABEL + "::0::AhKd"
+      end
    
-   it "is nil if the hand number isn't given in the match state" do
-      test_match_state_error MATCH_STATE_LABEL + ":0:::AsKc"
-   end
+      it 'does not contain a hand number' do
+         test_match_state_error MATCH_STATE_LABEL + ":0:::AsKc"
+      end
    
-   it "is nil if cards aren't given in the match state" do
-      test_match_state_error MATCH_STATE_LABEL + ":0:0::"
+      it 'does not contain cards' do
+         test_match_state_error MATCH_STATE_LABEL + ":0:0::"
+      end
    end
    
    it "parses every possible action" do
@@ -161,18 +163,14 @@ describe MatchState do
    end
    
    def test_match_state_error(incomplete_match_state)
-      patient = catch(:incomplete_match_state) do
-         MatchState.new incomplete_match_state
-      end
-      patient.should be_a_kind_of String
-      patient
+      expect{MatchstateString.new incomplete_match_state}.to raise_exception(MatchstateString::IncompleteMatchstateString)
    end
    
    def test_match_state_success(match_state)
       patient = catch(:incomplete_match_state) do
-         MatchState.new match_state
+         MatchstateString.new match_state
       end
-      patient.should be_a_kind_of MatchState
+      patient.should be_a_kind_of MatchstateString
       patient.to_s.should be == match_state
       patient
    end

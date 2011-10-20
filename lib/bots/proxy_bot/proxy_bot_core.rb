@@ -16,7 +16,7 @@ class GameCore
 
    # @param [String] game_definition_file_name The name of the game definition
    #     file that is to be used to define the parameters of the game.
-   # @param [DealerCommunication] dealer_communication_service A service that
+   # @param [AcpcDealerCommunicator] dealer_communication_service A service that
    #     allows communication to and from the dealer.
    def initialize(match_name, game_definition_file_name, number_of_hands,
                   random_seed, player_names, dealer_communication_service)
@@ -25,7 +25,7 @@ class GameCore
       @dealer_communication_service = dealer_communication_service
       
       result = catch(:incomplete_match_state) do next_match_state end
-      if result.kind_of?(MatchState) then @match_state = result else throw :game_core_error, result end
+      if result.kind_of?(MatchstateString) then @match_state = result else throw :game_core_error, result end
       
       result = catch(:game_definition_error) do GameDefinition.new(game_definition_file_name) end
       if result.kind_of?(GameDefinition) then @game_definition = result else throw :game_core_error, result end
@@ -66,7 +66,7 @@ class GameCore
       
       if @dealer_communication_service.ready_to_read?
          result = catch(:incomplete_match_state) do next_match_state end
-         if result.kind_of?(MatchState) then @match_state = result else throw :game_core_error, result end
+         if result.kind_of?(MatchstateString) then @match_state = result else throw :game_core_error, result end
       
          @game_state.update_state! @match_state
       end
@@ -78,11 +78,11 @@ class GameCore
    def start_new_hand!
       #TODO check if this actually works
       log 'start_new_hand!'
-      #do_or_throw_game_core_error {@match_state = @dealer_communication_service.get_match_state_string_from_dealer}
+      #do_or_throw_game_core_error {@match_state = @dealer_communication_service.gets}
       
       if @dealer_communication_service.ready_to_read?
          result = catch(:incomplete_match_state) do next_match_state end
-         if result.kind_of?(MatchState) then @match_state = result else throw :game_core_error, result end
+         if result.kind_of?(MatchstateString) then @match_state = result else throw :game_core_error, result end
       
          @game_state.start_new_hand! @match_state
       end
@@ -108,7 +108,7 @@ class GameCore
          begin
             log "make_call_action: call_action: #{call_action}"
             
-            @dealer_communication_service.send_match_state_string_to_dealer(call_action)
+            @dealer_communication_service.puts(call_action)
          rescue => dealer_communication_error
             log "make_call_action: dealer_communication_error: #{dealer_communication_error.message}"
             
@@ -133,7 +133,7 @@ class GameCore
       if @dealer_communication_service.ready_to_write?
          fold_action = @game_state.make_fold_action
          begin
-            @dealer_communication_service.send_match_state_string_to_dealer fold_action
+            @dealer_communication_service.puts fold_action
          rescue => dealer_communication_error
             throw :game_core_error, dealer_communication_error.message
          end
@@ -150,7 +150,7 @@ class GameCore
       if @dealer_communication_service.ready_to_write?
          raise_action = @game_state.make_raise_or_bet_action
          begin
-            @dealer_communication_service.send_match_state_string_to_dealer raise_action
+            @dealer_communication_service.puts raise_action
          rescue => dealer_communication_error
             throw :game_core_error, dealer_communication_error.message
          end
@@ -300,15 +300,15 @@ class GameCore
       log "next_match_state"
       
       begin
-         raw_match_state = @dealer_communication_service.get_match_state_string_from_dealer
+         raw_match_state = @dealer_communication_service.gets
       rescue => unable_to_get_match_state_string
          throw :incomplete_match_state, unable_to_get_match_state_string.message
       end
       
       log "next_match_state: raw_match_state: #{raw_match_state}"
       
-      result = catch(:incomplete_match_state) do MatchState.new raw_match_state end
-      throw :incomplete_match_state, result unless result.kind_of? MatchState
+      result = catch(:incomplete_match_state) do MatchstateString.new raw_match_state end
+      throw :incomplete_match_state, result unless result.kind_of? MatchstateString
       
       result
    end

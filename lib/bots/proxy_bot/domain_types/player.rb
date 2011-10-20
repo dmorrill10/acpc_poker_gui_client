@@ -13,7 +13,7 @@ class Player
    
    # @return [Integer] This player's position relative to the dealer,
    #     0 indexed, modulo the number of players in the game.
-   # @example (see MatchState#position_relative_to_dealer)
+   # @example (see MatchstateString#position_relative_to_dealer)
    attr_reader :position_relative_to_dealer
    
    # @return [Integer] This player's position relative to the user,
@@ -48,7 +48,7 @@ class Player
    attr_accessor :chip_balance
    
    # @return [String] This player's hole cards or nil if none are known to the user.
-   # @example (see MatchState#users_hole_cards)
+   # @example (see MatchstateString#users_hole_cards)
    attr_accessor :hole_cards
    
    # @return [Integer] The strength of this player's hand.

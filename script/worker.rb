@@ -55,7 +55,7 @@ Stalker.job("Game.start") do |args|
    bot_arguments = {:port_number => 18791}
    begin
       port_number = 18791
-      dealer_communication_service = DealerCommunication.new(port_number)
+      dealer_communication_service = AcpcDealerCommunicator.new(port_number)
 
       result = catch(:game_core_error) do
          GameCore.new('default', GAME_DEFINITION_FILE_NAMES[:two_player_limit_texas_holdem_poker], 1, 1, 'p2, user', dealer_communication_service)

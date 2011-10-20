@@ -12,15 +12,14 @@
    A commonly used production-grade web server that is also used by
    this application.
 
-[<em>BackgrounDRb</em>]
-   A background process system _gem_ that allows
-   Rails applications, such as this one, start _worker_ processes that persist
-   beyond a single HTTP request.  The worker class +GameRunner+ contains
-   the game logic and state for this application.
+[<em>background server</em>]
+   A server to run jobs in background. Background jobs are necessary because a
+   TCP socket needs to be persisted in order to communicate with the
+   <em>ACPC Dealer</em>.
 
-[<em>BackgrounDRb server</em>]
-   A server seperate from the one serving
-   the Rails application that is used to run _worker_ processes.
+[<em>Beanstalkd server</em>]
+   The background server implementation currently being used to run jobs in
+   the background.
 
 [_bot_]
    An automated agent that can play matches against other _competitors_ without
@@ -59,6 +58,10 @@
    A sequence of poker hands managed by the <em>ACPC dealer</em> and played by
    _competitors_.
 
+[<em>match state</em>]
+   The state of a _match_. A match state completely describes the match at a
+   particular time.
+
 [<em>matchstate string</em>]
    A string from the dealer of the form:
       MATCHSTATE:<position>:<handNumber>:<betting>:<cards>
@@ -74,7 +77,7 @@
    template files begin with an underscore ('_').
 
 [_participant_]
-   A _competitor_ who agrees to join a match.
+   A _competitor_ who joins a _table_.
 
 [<em>Phusion Passenger</em>]
    Gem that integrates this rails application 
@@ -82,6 +85,10 @@
 
 [_route_]
    A map between URL parameters and _controller_ _actions_.
+
+[_table_]
+   The arena upon which _matches_ are held. _Competitors_ participate in matches
+   by joining or hosting a table.
 
 [_template_]
    A file that can be interpreted into an +HTML+ page, which can

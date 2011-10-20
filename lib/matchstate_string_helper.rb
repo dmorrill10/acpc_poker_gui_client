@@ -1,7 +1,7 @@
 require 'application_defs'
 
-# Assortment of static helper methods for the MatchState model.
-module MatchStateHelper
+# Assortment of static helper methods for the MatchstateString model.
+module MatchstateStringHelper
    include ApplicationDefs
    
    # Builds a match state string from its given component parts.

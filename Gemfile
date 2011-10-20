@@ -2,6 +2,8 @@ source 'http://rubygems.org'
 
 gem 'rails', '3.1.1'
 
+gem 'rack', '1.3.3'
+
 # Database library
 gem 'sqlite3'
 
@@ -41,6 +43,16 @@ group :development, :test do
   
   # Mock object and method stubbing framework
   gem 'mocha'
+  
+  # To make Guard more efficient on Linux
+  gem 'rb-inotify'
+  gem 'libnotify'
+  
+  # Automatically run tests with Guard
+  gem 'guard-rspec'
+  
+  # Automatically run bundler to install gems when this Gemfile changes
+  gem 'guard-bundler'
 end
 
 # JavaScript runtime
@@ -60,6 +72,7 @@ gem "haml"
 
 # YARD documentation library
 gem 'yard'
+gem 'yard-rspec'
 
 # Railroady diagramming tool.  Create SVG diagrams in the "doc" directory
 # with 'rake diagram:all'.  Unfortunately, for this app, the diagrams it

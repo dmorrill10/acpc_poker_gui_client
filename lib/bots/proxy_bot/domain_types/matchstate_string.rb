@@ -1,10 +1,17 @@
+
+# Local modules
 require 'models_helper'
-require 'match_state_helper'
+require 'matchstate_string_helper'
+
+# Local mixins
+require 'easy_exceptions'
 
 # Model to parse and manage information from a given match state string.
-class MatchState
+class MatchstateString
    include ModelsHelper
-   include MatchStateHelper
+   include MatchstateStringHelper
+   
+   exceptions :incomplete_matchstate_string
    
    # @return [Integer] The position relative to the dealer of the player that
    #     received the match state string, indexed from 0, modulo the
@@ -29,9 +36,9 @@ class MatchState
    
    
    # @param [String] raw_match_state A raw match state string to be parsed.
-   # @raise [:incomplete_match_state] +raw_match_state+ is an incomplete match state.
+   # @raise IncompleteMatchstateString.
    def initialize(raw_match_state)
-      throw :incomplete_match_state, raw_match_state if line_is_comment_or_empty? raw_match_state
+      raise IncompleteMatchstateString, raw_match_state if line_is_comment_or_empty? raw_match_state
    
       all_actions = ACTION_TYPES.values.join ''
       all_ranks = CARD_RANKS.values.join ''
@@ -54,13 +61,19 @@ class MatchState
       @all_hole_cards: #{@all_hole_cards},
       @board_cards: #{@board_cards}"
    
-      throw :incomplete_match_state, raw_match_state if incomplete_match_state?      
+      raise IncompleteMatchstateString, raw_match_state if incomplete_match_state?      
    end
 
-   # @return [String] The match state in text form.
+   # @return [String] The MatchstateString in raw text form.
    def to_s
       build_match_state_string @position_relative_to_dealer, @hand_number,
          @betting_sequence, @all_hole_cards, @board_cards
+   end
+   
+   # @param [MatchstateString] another_matchstate_string A matchstate string to compare against this one.
+   # @return [Boolean] True if this matchstate string is equivalent to +another_matchstate_string+.
+   def ==(another_matchstate_string)
+      another_matchstate_string.to_s == to_s
    end
    
    # @return [String] The last action taken.

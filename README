@@ -1,6 +1,6 @@
-== CPRG Poker Gui Client
+== ACPC Poker Gui Client
 
-The _CPRG_ Poker Gui Client allows people to play poker games against
+The _ACPC_ Poker Gui Client allows people to play poker games against
 automated agents.  It is still under development but it currently only supports
 two-player limit Texas Hold'em, but will eventually support two-player no-limit,
 three-player no-limit, and three-player no-limit variations of Texas Hold'em
@@ -9,9 +9,9 @@ as well.
 
 == Server Side Requirements for Starting a Game
 
-Currently, an <em>ACPC dealer</em> instance must be running before a 
-game can be started.  In addition, a <em>BackgrounDRb server</em> must also
-be started so that game state can persist beyond a single HTTP request.
+A <em>Beanstalkd server</em> is used to run background processes. Background
+processes are required so that game state can persist beyond a single HTTP
+request.
 
 Obviously, to serve a web page at all, an Apache server must be running and
 it must point to this application.  This is currently done with  
@@ -32,9 +32,10 @@ and renders the
 <em>partial template</em>, +_index.html.haml+.  +_index.html.haml+ presents 
 two buttons to the user:  <b>Start a new game</b> and <b>Join a game</b>.
 
-The <b>Start a new game</b> option has not yet been implemented but when complete,
-it will allow the user to start up and connect to a new instance of the
-<em>ACPC dealer</em>.
+# The following is outdated ---------------
+
+The <b>Start a new game</b> allows the user to start up and connect to a new
+instance of the <em>ACPC dealer</em>.
 
 Pressing the <b>Join a game</b> button is routed to +JoinGameController+'s +index+
 and submits the HTTP request remotely, which allows the routed action to run
@@ -60,8 +61,70 @@ retrieves the <em>BackgrounDRb</em> _worker_ instance of +GameRunner+
 (the <em>BackgrounDRb server</em> must be started before this occurs) and sends its
 game parameters to this object.
 
+# ---------------
+
+== Match Control Flow
+
+To start a match, the web application starts an instance of the dealer. If
+there are not enough users participating in the match according to the game
+type chosen by the host, bots must be selected by host to fill the void.
+Bots are started as background processes on the Beanstalkd server.
+
+Once it is established that there are enough participants to play the match
+and the dealer is started, the web application starts +WebApplicationPlayerProxy+
+in a background process on the Beanstalkd server to keep track of the match state
+and communicate with the dealer. The +WebApplicationPlayerProxy+ and web application
+communicate through a +WebApplicationCommunicator+ embedded in +WebApplicationPlayerProxy+.
++WebApplicationCommunicator+ is currently implemented with web sockets. They share
+match state through a database table. MongoDB is the current database implementation.
+The +WebApplicationPlayerProxy+ and the web application interact with the database table through
+the +Match+ model, which uses the Mongoid gem to interact with MongoDB.
+
+The table is instantiated by the web application as the match is starting.
+It fills table entries with the dealer instance's parameters. The web application
+then spawns the background process containing the +WebApplicationPlayerProxy+, which
+then proceeds to create objects to delegate tasks.
+
+It creates a +WebApplicationPlayerCore+ that spawns and returns the
+objects the +WebApplicationPlayerProxy+ will manage. The
++WebApplicationPlayerProxy+ also reads the initial entries in the database and
+provides them to +WebApplicationPlayerCore+.
+
+The +WebApplicationPlayerCore+ creates the +WebApplicationCommunicator+ and it
+connects to the web application. The +WebApplicationPlayerCore+ also creates a
++ProxyBot+ to connect to the dealer and keep track of game logic.
+
+Once +ProxyBot+ has connected to the dealer, the +WebApplicationPlayerProxy+ will
+request it to retrieve the first match state string. +ProxyBot+ will
+use it's internal +MatchStateStringReceiver+ object to request the match state
+string from the dealer, which in-turn, will ask the +DealerCommunicator+ to
+look for data in its TCP socket. Once the string is received, the +MatchStateStringReceiver+
+parses it and packages it into a more convenient +MatchStateString+ object. +ProxyBot+
+then updates its +MatchState+ with this new +MatchStateString+ data. Once the
+update is complete, the updated +MatchState+ is returned to the +WebApplicationPlayerProxy+, which
+stores it in the database and notifies the web application that the match state has been updated,
+through +WebApplicationCommunicator+. The +WebApplicationPlayerProxy+ then decides whether
+to wait for an action request from the web application or a match state string from the dealer, based
+on whether or not the web application's user is the next player to act.
+
+When an action is requested from the user, the +WebApplicationCommunicator+ is
+notified, which returns the request to the +WebApplicationPlayerProxy+, who
+forwards it to +ProxyBot+, who delagates to +ActionSender+, which knows how to
+format the action properly to conform with the ACPC protocol. +ActionSender+ forwards
+the properly formated string to +DealerCommunicator+, who finally sends it to the dealer.
+The +WebApplicationPlayerProxy+ requests the +ProxyBot+ to update its match state once it
+has sent the action.
+
+Once the +WebApplicationPlayerProxy+ realizes that the match has ended for any reason,
+it updates the database, notifies the web application, closes its connection to
+the web application, closes its connection to the database (if needed),
+requests that the ProxyBot close its connection with the dealer, and finally exits.
+
+
+# The following is outdated ---------------
+
 The +GameRunner+ instance starts a TCP connection by instantiating a
-+DealerCommunication+ object, which in turn creates a +TCPSocket+ and uses it
++AcpcDealerCommunicator+ object, which in turn creates a +TCPSocket+ and uses it
 to connect to the dealer.  It also creates a +GameCore+ instance, which creates
 objects to manage game logic and state, and updates the game state.
 
@@ -78,15 +141,17 @@ to use them seperates the creation and use of an object and
 therefore allows for easier unit testing with mock and fake objects.
 
 +GameCore+ also manages the flow of data from the
-dealer and the +GameState+, in the form of +MatchState+ instances and
+dealer and the +GameState+, in the form of +MatchstateString+ instances and
 <em>matchstate strings</em>.  When an updated state is requested,
-+GameCore+ tells +DealerCommunication+ to retrieve the next matchstate
++GameCore+ tells +AcpcDealerCommunicator+ to retrieve the next matchstate
 string from the dealer.  With that matchstate string, +GameCore+ generates
-a +MatchState+ object, which is simply a distillation of the data in the
-matchstate string.  +GameCore+ passes the new +MatchState+ to +GameState+,
-which updates it's own state and passes the +MatchState+ to +PlayerManager+ so
+a +MatchstateString+ object, which is simply a distillation of the data in the
+matchstate string.  +GameCore+ passes the new +MatchstateString+ to +GameState+,
+which updates it's own state and passes the +MatchstateString+ to +PlayerManager+ so
 that it can update the state of its +Players+.  When an action is taken by
 the user, a message is sent from the view, to a +PlayerActionsController+
 action, to +GameRunner+, to +GameCore+, to +GameState+, which returns a
 <em>client response</em> to +GameCore+, which sends the response to
-the dealer through +DealerCommunication+.
+the dealer through +AcpcDealerCommunicator+.
+
+#------------------------

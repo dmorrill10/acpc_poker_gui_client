@@ -6,11 +6,11 @@ module ModelTestHelper
    include ApplicationDefs
    
    # Initialization methods ---------------------------------------------------
-   def create_initial_match_state(number_of_players)
+   def create_initial_match_state(number_of_players = 2)
       user_position = 1;
       hand_number = 0
       hole_card_hand = arbitrary_hole_card_hand
-      initial_match_state = mock('MatchState')
+      initial_match_state = mock('MatchstateString')
       initial_match_state.stubs(:position_relative_to_dealer).returns(user_position)
       initial_match_state.stubs(:hand_number).returns(hand_number)
       initial_match_state.stubs(:list_of_board_cards).returns([])

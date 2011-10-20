@@ -1,0 +1,31 @@
+require 'spec_helper'
+
+describe ActionSender do
+   before(:each) do
+      @connection = mock('AcpcDealerCommunicator')
+      (@matchstate, user_position) = create_initial_match_state
+   end
+   
+   describe "#send_action" do
+      it 'does not send an illegal action and raises an exception' do
+         expect{ActionSender.send_action @connection, @matchstate, :illegal_action}.to raise_exception(ActionSender::IllegalAction)
+      end
+      it 'can send all legal actions through the provided connection without a modifier' do
+         action = :raise
+         action_that_should_be_sent = @matchstate.to_s + ":#{ACTION_TYPES[action]}"
+         
+         @connection.expects(:puts).once.with(action_that_should_be_sent)
+         
+         ActionSender.send_action @connection, @matchstate, action
+      end
+      it 'can send all legal actions through the provided connection with a modifier' do
+         action = :raise
+         modifier = 25
+         action_that_should_be_sent = @matchstate.to_s + ":#{ACTION_TYPES[action]}#{modifier}"
+         
+         @connection.expects(:puts).once.with(action_that_should_be_sent)
+         
+         ActionSender.send_action @connection, @matchstate, action, modifier
+      end
+   end
+end

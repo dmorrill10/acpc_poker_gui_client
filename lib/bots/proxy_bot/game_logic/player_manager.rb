@@ -37,7 +37,7 @@ class PlayerManager
   
    # Updates the state of the players managed by this instance.
    # 
-   # @param [MatchState] new_match_state
+   # @param [MatchstateString] new_match_state
    #     A new match state with which to update the game's state.
    def update_state!(match_state)
       log "update_state!"
@@ -54,7 +54,7 @@ class PlayerManager
    # Set internal state player states so that they are ready to start a
    #     new hand.
    #
-   # @param [MatchState] initial_match_state_for_new_hand
+   # @param [MatchstateString] initial_match_state_for_new_hand
    #     The initial match state for a new hand.
    def start_new_hand!(initial_match_state_for_new_hand)
       log 'start_new_hand!'
@@ -117,32 +117,32 @@ class PlayerManager
       @players.map { |player| player.stack }
    end
  
-   # (see MatchState#users_hole_cards)
+   # (see MatchstateString#users_hole_cards)
    def users_hole_cards
       user_player.hole_cards
    end
   
-   # (see MatchState#list_of_opponents_hole_cards)
+   # (see MatchstateString#list_of_opponents_hole_cards)
    def list_of_opponents_hole_cards
       @match_state.list_of_opponents_hole_cards
    end
  
-   # (see MatchState#list_of_betting_actions)
+   # (see MatchstateString#list_of_betting_actions)
    def list_of_betting_actions
       @match_state.list_of_betting_actions
    end
    
-   # (see MatchState#list_of_board_cards)
+   # (see MatchstateString#list_of_board_cards)
    def list_of_board_cards
       @match_state.list_of_board_cards
    end
  
-   # (see MatchState#hand_number)
+   # (see MatchstateString#hand_number)
    def hand_number
       @match_state.hand_number
    end
    
-   # (see MatchState#position_relative_to_dealer)
+   # (see MatchstateString#position_relative_to_dealer)
    def users_position
       @match_state.position_relative_to_dealer
    end
@@ -151,7 +151,7 @@ class PlayerManager
    def legal_actions
    end
    
-   # (see MatchState#round)
+   # (see MatchstateString#round)
    def round
       @match_state.round
    end
@@ -161,7 +161,7 @@ class PlayerManager
       @players.select { |player| player.is_active? }
    end
 
-   # (see MatchState#last_action)
+   # (see MatchstateString#last_action)
    def last_action
       @match_state.last_action
    end

@@ -22,7 +22,7 @@ class GameState
    end
    
       
-   # Interface to game logic ###################################################
+   # Interface to game logic ##################################################
   
    # Player state mutation methods --------------------------------------------
   

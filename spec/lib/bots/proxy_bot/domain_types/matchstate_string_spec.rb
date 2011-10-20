@@ -1,100 +1,104 @@
 require 'spec_helper'
 
 describe MatchstateString do
-   describe 'raises an exception if the raw matchstate string' do   
-      it 'is empty' do
-         test_match_state_error ""
-      end
-   
-      it 'is not in the proper format' do
-         test_match_state_error "hello world"
-      end
-   
-      it 'does not contain a position' do
-         test_match_state_error MATCH_STATE_LABEL + "::0::AhKd"
-      end
-   
-      it 'does not contain a hand number' do
-         test_match_state_error MATCH_STATE_LABEL + ":0:::AsKc"
-      end
-   
-      it 'does not contain cards' do
-         test_match_state_error MATCH_STATE_LABEL + ":0:0::"
-      end
-   end
-   
-   it "parses every possible action" do
-      partial_match_state = MATCH_STATE_LABEL + ":1:1:"
-      hole_cards = arbitrary_hole_card_hand
-      ACTION_TYPES.values.each do |action|
-         match_state = partial_match_state + action + ":#{hole_cards}"
-         
-         patient = test_match_state_success match_state
-         patient.last_action.should be == action
-      end
+   describe '#initialize' do
+      describe 'raises an exception if the raw matchstate string' do   
+         it 'is empty' do
+            test_match_state_error ""
+         end
       
-      # Check a no limit action as well
-      no_limit_action = ACTION_TYPES[:raise] + "123"
-      match_state = partial_match_state + no_limit_action + ":#{hole_cards}"
-      patient = test_match_state_success match_state
-      patient.last_action.should be == no_limit_action
-   end
+         it 'is not in the proper format' do
+            test_match_state_error "hello world"
+         end
+      
+         it 'does not contain a position' do
+            test_match_state_error MATCH_STATE_LABEL + "::0::AhKd"
+         end
+      
+         it 'does not contain a hand number' do
+            test_match_state_error MATCH_STATE_LABEL + ":0:::AsKc"
+         end
    
-   it "parses every possible hole card hand" do
-      partial_match_state = MATCH_STATE_LABEL + ":2:2::"
-      LIST_OF_HOLE_CARD_HANDS.each do |hand|
-         match_state = partial_match_state + hand
+         it 'does not contain cards' do
+            test_match_state_error MATCH_STATE_LABEL + ":0:0::"
+         end
+      end
+   
+      it "parses every possible action" do
+         partial_match_state = MATCH_STATE_LABEL + ":1:1:"
+         hole_cards = arbitrary_hole_card_hand
+         ACTION_TYPES.values.each do |action|
+            match_state = partial_match_state + action + ":#{hole_cards}"
+            
+            patient = test_match_state_success match_state
+            patient.last_action.should be == action
+         end
+      
+         # Check a no limit action as well
+         no_limit_action = ACTION_TYPES[:raise] + "123"
+         match_state = partial_match_state + no_limit_action + ":#{hole_cards}"
+         patient = test_match_state_success match_state
+         patient.last_action.should be == no_limit_action
+      end
+   
+      it "parses every possible hole card hand" do
+         partial_match_state = MATCH_STATE_LABEL + ":2:2::"
+         LIST_OF_HOLE_CARD_HANDS.each do |hand|
+            match_state = partial_match_state + hand
+            
+            test_match_state_success match_state
+         end
+      end
+   
+      it "parses valid limit match states in all rounds" do
+         test_all_rounds_with_given_action_string ACTION_TYPES.values.join ''
+      end
+   
+      it "parses valid no-limit match states in all rounds" do
+         test_all_rounds_with_given_action_string ACTION_TYPES[:raise], 1
+      end
+   
+      it "parses a valid two player final match state" do
+         partial_match_state = MATCH_STATE_LABEL + ":20:22:"
+         all_actions = ACTION_TYPES.values.join ''
+         betting = all_actions
+         (MAX_VALUES[:rounds]-1).times do
+            betting += "/#{all_actions}"
+         end
+         board_cards = arbitrary_roll_out
+         hands = arbitrary_hole_card_hand + "|" + arbitrary_hole_card_hand
+         match_state = partial_match_state + betting + ":" + hands + board_cards
+         
+         test_match_state_success match_state
+      end
+   
+      it "parses a valid three player final match state" do
+         partial_match_state = MATCH_STATE_LABEL + ":20:22:"
+         all_actions = ACTION_TYPES.values.join ''
+         betting = all_actions
+         (MAX_VALUES[:rounds]-1).times do
+            betting += "/#{all_actions}"
+         end
+         board_cards = arbitrary_roll_out
+         hands = arbitrary_hole_card_hand + "|" + arbitrary_hole_card_hand + "|" + arbitrary_hole_card_hand
+         match_state = partial_match_state + betting + ":" + hands + board_cards
          
          test_match_state_success match_state
       end
    end
    
-   it "parses valid limit match states in all rounds" do
-      test_all_rounds_with_given_action_string ACTION_TYPES.values.join ''
-   end
-   
-   it "parses valid no-limit match states in all rounds" do
-      test_all_rounds_with_given_action_string ACTION_TYPES[:raise], 1
-   end
-   
-   it "parses a valid two player final match state" do
-      partial_match_state = MATCH_STATE_LABEL + ":20:22:"
-      all_actions = ACTION_TYPES.values.join ''
-      betting = all_actions
-      (MAX_VALUES[:rounds]-1).times do
-         betting += "/#{all_actions}"
-      end
-      board_cards = arbitrary_roll_out
-      hands = arbitrary_hole_card_hand + "|" + arbitrary_hole_card_hand
-      match_state = partial_match_state + betting + ":" + hands + board_cards
-      
-      test_match_state_success match_state
-   end
-   
-   it "parses a valid three player final match state" do
-      partial_match_state = MATCH_STATE_LABEL + ":20:22:"
-      all_actions = ACTION_TYPES.values.join ''
-      betting = all_actions
-      (MAX_VALUES[:rounds]-1).times do
-         betting += "/#{all_actions}"
-      end
-      board_cards = arbitrary_roll_out
-      hands = arbitrary_hole_card_hand + "|" + arbitrary_hole_card_hand + "|" + arbitrary_hole_card_hand
-      match_state = partial_match_state + betting + ":" + hands + board_cards
-      
-      test_match_state_success match_state
-   end
-   
-   it "properly reports the current round number" do
-      partial_match_state = MATCH_STATE_LABEL + ":0:0:"
-      betting = ""
-      hands = arbitrary_hole_card_hand + "|"
-      (MAX_VALUES[:rounds]-1).times do |i|
-         match_state = partial_match_state + betting + ":" + hands
-         patient = test_match_state_success match_state
-         patient.round.should be == i
-         
-         betting += "/"
+   describe '#round' do
+      it "properly reports the current round number" do
+         partial_match_state = MATCH_STATE_LABEL + ":0:0:"
+         betting = ""
+         hands = arbitrary_hole_card_hand + "|"
+         (MAX_VALUES[:rounds]-1).times do |i|
+            match_state = partial_match_state + betting + ":" + hands
+            patient = test_match_state_success match_state
+            patient.round.should be == i
+               
+            betting += "/"
+         end
       end
    end
    

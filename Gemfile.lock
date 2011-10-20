@@ -33,6 +33,8 @@ GEM
     ansi (1.3.0)
     arel (2.2.1)
     beanstalk-client (1.1.1)
+    bson (1.4.1)
+    bson_ext (1.4.1)
     builder (3.0.0)
     capybara (1.0.0)
       mime-types (>= 1.16)
@@ -88,6 +90,12 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.16)
     mocha (0.9.12)
+    mongo (1.4.1)
+      bson (= 1.4.1)
+    mongoid (2.3.2)
+      activemodel (~> 3.1)
+      mongo (~> 1.4)
+      tzinfo (~> 0.3.22)
     multi_json (1.0.3)
     nifty-generators (0.4.6)
     nokogiri (1.5.0)
@@ -157,7 +165,6 @@ GEM
       hike (~> 1.2)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
-    sqlite3 (1.3.4)
     stalker (0.9.0)
       beanstalk-client
       json_pure
@@ -184,6 +191,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bson_ext (~> 1.4)
   capybara
   coffee-rails (~> 3.1.1)
   em-websocket
@@ -194,6 +202,7 @@ DEPENDENCIES
   launchy
   libnotify
   mocha
+  mongoid (~> 2.3)
   nifty-generators
   passenger
   rack (= 1.3.3)
@@ -202,7 +211,6 @@ DEPENDENCIES
   rb-inotify
   rspec-rails
   sass-rails (~> 3.1.4)
-  sqlite3
   stalker
   therubyracer
   turn

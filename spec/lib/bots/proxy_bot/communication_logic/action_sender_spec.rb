@@ -3,7 +3,7 @@ require 'spec_helper'
 describe ActionSender do
    before(:each) do
       @connection = mock('AcpcDealerCommunicator')
-      (@matchstate, user_position) = create_initial_match_state
+      @matchstate = create_initial_match_state.shift
    end
    
    describe "#send_action" do

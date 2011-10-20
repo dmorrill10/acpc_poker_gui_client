@@ -1,15 +1,13 @@
 require 'spec_helper'
 
 describe GameDefinition do
-   
-   it "parses all available game definitions properly" do      
-      GAME_DEFINITION_FILE_NAMES.values.each do |game_definition_file_name|
-         patient = catch(:game_definition_error) do
-            GameDefinition.new game_definition_file_name
+   describe '#initialize' do
+      it "parses all available game definitions properly" do      
+         GAME_DEFINITION_FILE_NAMES.values.each do |game_definition_file_name|
+            patient = GameDefinition.new game_definition_file_name
+            matched = parsed_game_definitions_match_original_definitions? patient, game_definition_file_name
+            matched.should eq(true)
          end
-         patient.should be_a_kind_of GameDefinition
-         matched = parsed_game_definitions_match_original_definitions? patient, game_definition_file_name
-         matched.should == true
       end
    end
    

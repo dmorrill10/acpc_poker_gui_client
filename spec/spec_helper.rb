@@ -23,5 +23,5 @@ RSpec.configure do |config|
    config.include ModelTestHelper
 
    # Since this app doesn't use ActiveRecord
-   config.use_transactional_fixtures = false
+   #config.use_transactional_fixtures = false
 end

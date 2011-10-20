@@ -20,18 +20,4 @@ describe ModelsHelper do
       line_is_comment_or_empty?(empty_line).should be == true
       line_is_comment_or_empty?(not_a_comment).should be == false
    end
-   
-   it 'converts the string representation of every card into its proper numeric ACPC representation' do
-      CARD_RANKS.values.each do |string_rank|
-         CARD_SUITS.values.each do |string_suit|
-            string_card = string_rank + string_suit
-            integer_rank = CARD_RANK_NUMBERS[string_rank]
-            integer_suit = CARD_SUIT_NUMBERS[string_suit]
-            integer_card = integer_rank * CARD_SUITS.length + integer_suit
-            
-            make_acpc_card(integer_rank, integer_suit).should be == integer_card
-            to_acpc_card_from_card_string(string_card).should be == integer_card
-         end
-      end
-   end
 end

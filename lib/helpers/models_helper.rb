@@ -55,24 +55,4 @@ module ModelsHelper
       
       !line.match(/^\s*[#;]/).nil? or line.empty?
    end
-   
-   # @param [Integer] integer_rank The integer ACPC representation of the card's rank.
-   # @param [Integer] integer_suit The integer ACPC representation of the card's suit.
-   # @return [Integer] The integer ACPC representation of the card.
-   def make_acpc_card(integer_rank, integer_suit)
-      integer_rank * CARD_SUITS.length + integer_suit
-   end
-   
-   # @param [String] string_card A card represented by a string of the form
-   #  '<rank><suit>'
-   # @return [Integer] The numeric ACPC representation of the card.
-   def to_acpc_card_from_card_string(string_card)
-      string_rank = string_card[0]
-      string_suit = string_card[1]
-      
-      integer_rank = CARD_RANK_NUMBERS[string_rank]
-      integer_suit = CARD_SUIT_NUMBERS[string_suit]
-            
-      make_acpc_card(integer_rank, integer_suit)
-   end
 end

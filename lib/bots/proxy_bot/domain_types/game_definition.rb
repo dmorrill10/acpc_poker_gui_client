@@ -1,12 +1,19 @@
+
+# Local modules
 require 'game_definition_helper'
 require 'models_helper'
 require 'application_defs'
+
+# Local mixins
+require 'easy_exceptions'
 
 # Class that parses and manages game definition information from a game definition file.
 class GameDefinition
    include ApplicationDefs
    include GameDefinitionHelper
    include ModelsHelper
+   
+   exceptions :game_definition_parse_error
       
    # @return [String] The string designating the betting type.
    attr_reader :betting_type
@@ -50,7 +57,7 @@ class GameDefinition
    attr_reader :list_of_blinds
 
    # @param [String] game_definition_file_name The name of the game definition file that this instance should parse.
-   # @raise [:game_error] Unable to read or open +game_definition_file_name+ error.
+   # @raise GameDefinitionParseError
    def initialize(game_definition_file_name)
       log "initialize"
 
@@ -58,7 +65,7 @@ class GameDefinition
       begin
          parse_game_definition! game_definition_file_name
       rescue => unable_to_read_or_open_file_error
-         throw :game_definition_error, unable_to_read_or_open_file_error.message
+         raise GameDefinitionParseError, unable_to_read_or_open_file_error.message
       end
       
       @list_of_player_stacks = default_list_of_player_stacks(@number_of_players) if @list_of_player_stacks.empty?
@@ -146,7 +153,8 @@ class GameDefinition
          log "Getting new line from game definition file"
       end      
    end
-
+   
+   # @raise GameDefinitionParseError
    def sanity_check_game_definitions
       log "sanity_check_game_definitions"
       
@@ -202,7 +210,7 @@ class GameDefinition
       rescue
          error_message = "Undefined instance variable"
       ensure
-         throw :game_definition_error, error_message unless error_message.empty?
+         raise GameDefinitionParseError, error_message unless error_message.empty?
       end
    end
 

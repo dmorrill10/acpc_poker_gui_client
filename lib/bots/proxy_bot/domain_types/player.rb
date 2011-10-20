@@ -1,4 +1,9 @@
+
+# Local modules
 require 'models_helper'
+
+# Local classes
+require 'stack'
 
 # Class to model a player.  This is a data model that contains minimal logic.
 class Player
@@ -32,8 +37,8 @@ class Player
    #     +true+ if this player is all-in, +false+ otherwise.
    attr_accessor :is_all_in
    
-   # @return [Integer] Stack amount in chips.
-   attr_accessor :stack
+   # @return [Stack] This player's stack.
+   attr_reader :stack
    
    # @return [Integer] The current wager this player faces.
    attr_accessor :current_wager_faced
@@ -115,6 +120,13 @@ class Player
       end
       
       acpc_cards
+   end
+   
+   # Take chips away from this player's stack.
+   # @param (see Stack#take_from!)
+   # @raise (see Stack#take_from!)
+   def take_from_stack!(number_of_chips)
+      @stack.take_from! number_of_chips
    end
    
    # All following methods are private ########################################

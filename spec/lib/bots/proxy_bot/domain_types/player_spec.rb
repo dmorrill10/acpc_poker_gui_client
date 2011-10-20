@@ -1,12 +1,37 @@
 require 'spec_helper'
 
-describe Player do   
+describe Player do
+   class FakeStack
+      attr_reader :value
+      def initialize(number)
+         @value = number
+      end
+      def +(number)
+         add_to number
+      end
+      def -(number)
+         take_from number
+      end
+      def add_to(number)
+         @value + number
+      end
+      def add_to!(number)
+         @value = add_to number
+      end
+      def take_from(number)
+         @value - number
+      end
+      def take_from!(number)
+         @value = take_from number
+      end
+   end
+   
    before(:each) do
       @name = 'p1'
       @seat = '1'
       @position_relative_to_dealer = '0'
       @position_relative_to_user = '1'
-      @stack = 2000
+      @stack = FakeStack.new 2000
       
       @patient = Player.new @name, @seat, @position_relative_to_dealer, @position_relative_to_user, @stack
    end

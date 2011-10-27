@@ -1,4 +1,7 @@
 
+# Database module
+require 'mongoid'
+
 # Local mixins
 require File.expand_path('../../../../mixins/easy_exceptions', __FILE__)
 
@@ -7,6 +10,8 @@ require File.expand_path('../chip_stack', __FILE__)
 
 # A side-pot of chips.
 class SidePot < ChipStack
+   include Mongoid::Fields::Serializable
+   
    exceptions :illegal_operation_on_side_pot, :no_chips_to_distribute, :no_players_to_take_chips
    
    # @return [Hash] The set of players involved in this side-pot and the amounts they've contributed to this side-pot.
@@ -21,6 +26,31 @@ class SidePot < ChipStack
       initiating_player.take_from_stack! initial_amount
       
       super initial_amount
+   end
+   
+   # @todo Mongoid method
+   def deserialize(players_involved_and_their_amounts_contributed)
+      side_pot
+      players_involved_and_their_amounts_contributed.each do |player, amount|
+         if side_pot
+            side_pot.contribute! player, amount if side_pot
+         else
+            side_pot = SidePot.new player, amount   
+         end
+      end
+      side_pot
+   end
+
+   # @todo Mongoid method
+   def serialize(side_pot)
+      side_pot.players_involved_and_their_amounts_contributed
+   end
+   
+   # @todo
+   def contribute!(player, amount)
+      @players_involved_and_their_amounts_contributed[player] = amount
+      
+      @value = @players_involved_and_their_amounts_contributed.values.inject(0){ |current_amount| sum += current_amount }
    end
    
    # Have the +calling_player+ call the bet in this side-pot.

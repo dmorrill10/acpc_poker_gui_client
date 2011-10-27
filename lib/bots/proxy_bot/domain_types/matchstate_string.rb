@@ -73,22 +73,23 @@ class MatchstateString
       raise IncompleteMatchstateString, raw_match_state if incomplete_match_state?      
    end
    
-   #@todo fix
-   def deserialize(attribute_map)
-      list_of_hole_card_hands = attribute_map[:list_of_hole_card_hands]
-      raw_match_state_string = build_match_state_string @position_relative_to_dealer, @hand_number,
-         @betting_sequence, string_of_hole_cards, @board_cards
-      initialize 
+   # @todo Mongoid method
+   def deserialize(raw_match_state_string)
+      MatchstateString.new raw_match_state_string
    end
 
-   # @todo fix
-  def serialize(matchstate_string)
-    { :x => object.x, :y => object.y }
-  end
+   # @todo Mongoid method
+   def serialize(matchstate_string)
+      matchstate_string.to_str
+   end
+
+   # @see to_str
+   def to_s
+      to_str
+   end
 
    # @return [String] The MatchstateString in raw text form.
-   def to_s
-      # @todo fix this
+   def to_str
       string_of_hole_cards = hole_card_strings @list_of_hole_card_hands
       
       build_match_state_string @position_relative_to_dealer, @hand_number,

@@ -1734,3 +1734,9 @@ MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "que
 MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
 MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
 MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)

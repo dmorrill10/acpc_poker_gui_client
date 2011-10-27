@@ -36,4 +36,4 @@ class TestingRubyBot
    end
 end
 
-TestingRubyBot.play # run independently
+TestingRubyBot.play if __FILE__ == $0

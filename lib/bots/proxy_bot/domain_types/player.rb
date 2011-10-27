@@ -1,9 +1,14 @@
 
+# Database module
+require 'mongoid'
+
 # Local classes
 require File.expand_path('../chip_stack', __FILE__)
 
 # Class to model a player.  This is a data model that contains minimal logic.
-class Player   
+class Player
+   include Mongoid::Fields::Serializable
+   
    # @return [String] The name of this player.
    attr_reader :name
    
@@ -40,7 +45,7 @@ class Player
    #  player loses.  Positive amounts are winnings, negative amounts are losses.
    attr_accessor :chip_balance
    
-   # @return [String] This player's hole cards or nil if none are known to the user.
+   # @return [Hand] This player's hole cards or nil if none are known to the user.
    # @example (see MatchstateString#users_hole_cards)
    attr_accessor :hole_cards
    
@@ -65,6 +70,24 @@ class Player
       @current_wager_faced = 0
       @chip_balance = 0
       @number_of_chips_in_the_pot = 0
+   end
+   
+   # @todo Mongoid method
+   def deserialize(attribute_hash)
+      #side_pot
+      #players_involved_and_their_amounts_contributed.each do |player, amount|
+      #   if side_pot
+      #      side_pot.contribute! player, amount if side_pot
+      #   else
+      #      side_pot = SidePot.new player, amount   
+      #   end
+      #end
+      #side_pot
+   end
+
+   # @todo Mongoid method
+   def serialize(player)
+      #player.players_involved_and_their_amounts_contributed
    end
    
    # @return [Boolean] Whether or not this player is active (has not folded

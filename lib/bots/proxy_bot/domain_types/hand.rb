@@ -11,19 +11,19 @@ require File.expand_path('../pile_of_cards', __FILE__)
 
 # A hand of cards.
 class Hand < PileOfCards
-   include ApplicationDefs
    include Mongoid::Fields::Serializable
-   
-   # @param [String] hand The string representation of this hand.
-   def self.draw_cards(hand)
-      if hand.kind_of? String
+   include ApplicationDefs
+      
+   # @param [String] hand_in_alternate_form An alternate representation of this hand.
+   def self.draw_cards(hand_in_alternate_form)
+      unless hand_in_alternate_form.kind_of?(Array)
          hand_array = []
-         for_every_card(hand) do |card|
+         for_every_card(hand_in_alternate_form) do |card|
             hand_array << card
          end
-         hand = hand_array
+         hand_in_alternate_form = hand_array
       end
-      Hand.new hand
+      Hand.new hand_in_alternate_form
    end
    
    # @todo Mongoid method

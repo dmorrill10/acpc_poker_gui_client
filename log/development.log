@@ -1740,3 +1740,53 @@ MongoDB logging. Please note that logging negatively impacts performance and sho
 MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
 MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
 MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['$cmd'].find({:create=>"matches"}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa3f811d41c83991000001')}).limit(-1).sort([[:_id, :asc]])
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa41401d41c839f1000001')}).limit(-1).sort([[:_id, :asc]])
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa41b61d41c83a1d000001')}).limit(-1).sort([[:_id, :asc]])
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eaa42b61d41c83a3f000001')}).limit(-1).sort([[:_id, :asc]])

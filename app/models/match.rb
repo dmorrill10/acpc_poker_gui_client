@@ -15,5 +15,5 @@ class Match
    
    field :parameters, type: Hash
    field :state, type: MatchstateString
-   field :pot, type: SidePot
+   #field :pot, type: SidePot
 end

@@ -63,12 +63,6 @@ class MatchstateString
          @list_of_hole_card_hands = parse_list_of_hole_card_hands $4
          @board_cards = parse_board_cards $5
       end
-      
-      log "initialize: @position_relative_to_dealer: #{@position_relative_to_dealer},     
-      @hand_number: #{@hand_number},
-      @betting_sequence: #{@betting_sequence},
-      @list_of_hole_card_hands: #{@list_of_hole_card_hands},
-      @board_cards: #{@board_cards}"
    
       raise IncompleteMatchstateString, raw_match_state if incomplete_match_state?      
    end

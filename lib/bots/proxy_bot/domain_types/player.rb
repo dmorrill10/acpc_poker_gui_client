@@ -1,9 +1,9 @@
 
 # Local modules
-require 'models_helper'
+require File.expand_path('../../../../helpers/models_helper', __FILE__)
 
 # Local classes
-require 'stack'
+require File.expand_path('../chip_stack', __FILE__)
 
 # Class to model a player.  This is a data model that contains minimal logic.
 class Player

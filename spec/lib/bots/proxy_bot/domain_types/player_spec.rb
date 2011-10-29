@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Player do
-   class FakeStack
+   class FakeChipStack
       attr_reader :value
       def initialize(number)
          @value = number
@@ -31,7 +31,7 @@ describe Player do
       @seat = '1'
       @position_relative_to_dealer = '0'
       @position_relative_to_user = '1'
-      @stack = FakeStack.new 2000
+      @stack = FakeChipStack.new 2000
       
       @patient = Player.new @name, @seat, @position_relative_to_dealer, @position_relative_to_user, @stack
    end
@@ -82,23 +82,5 @@ describe Player do
       @patient.current_wager_faced.should be == 0
       @patient.stack.should be == @stack + pot_size
       @patient.chip_balance.should be == pot_size
-   end
-   
-   it 'properly converts its hole cards to their numeric ACPC representation' do
-      all_ranks = CARD_RANKS.values.join ''
-      all_suits = CARD_SUITS.values.join ''
-      
-      LIST_OF_HOLE_CARD_HANDS.each do |string_hole_card_hand|
-         integer_hole_card_hand = []
-         
-         string_hole_card_hand.scan(/[#{all_ranks}][#{all_suits}]/).each do |string_card|
-            integer_hole_card_hand << to_acpc_card_from_card_string(string_card)
-         end
-         
-         log "integer_hole_card_hand: #{integer_hole_card_hand}"
-         
-         @patient.hole_cards = string_hole_card_hand
-         @patient.to_acpc_cards.should be == integer_hole_card_hand
-      end
    end
 end

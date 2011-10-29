@@ -1,6 +1,9 @@
 
 # Local modules
-require 'application_defs'
+require File.expand_path('../../application_defs', __FILE__)
+
+# Local classes
+require File.expand_path('../../bots/proxy_bot/domain_types/card', __FILE__)
 
 # Assortment of constant definitions and methods for generating default values.
 module ApplicationHelpers  
@@ -33,10 +36,10 @@ module ApplicationHelpers
    end
    
    # @yield [Card, Card] Iterate through every permutation of cards in the deck.
-   # @yieldparam (see #for_every_card_in_the_deck)
+   # @yieldparam (see #for_every_rank_and_suit_in_the_deck)
    def for_every_list_of_two_cards_in_the_deck
-      for_every_card_in_the_deck do |rank_1, suit_1|
-         for_every_card_in_the_deck do |rank_2, suit_2|
+      for_every_rank_and_suit_in_the_deck do |rank_1, suit_1|
+         for_every_rank_and_suit_in_the_deck do |rank_2, suit_2|
             card_1 = Card.new rank_1, suit_1
             card_2 = Card.new rank_2, suit_2
             
@@ -45,10 +48,18 @@ module ApplicationHelpers
       end
    end
    
-   # @yield [Symbol, Symbol] Iterate through every recognized card.
+   # @yield [Card] Iterate through every recognized card.
+   # @yieldparam (see #for_every_rank_and_suit_in_the_deck)
+   def for_every_card_in_the_deck
+      for_every_rank_and_suit_in_the_deck do |rank, suit|
+         yield Card.new rank, suit
+      end
+   end
+   
+   # @yield [Symbol, Symbol] Iterate through every combination of ranks and suits in the deck.
    # @yieldparam (see #for_every_suit_in_the_deck)
    # @yieldparam (see #for_every_rank_in_the_deck)
-   def for_every_card_in_the_deck
+   def for_every_rank_and_suit_in_the_deck
       for_every_rank_in_the_deck do |rank|
          for_every_suit_in_the_deck do |suit|   
             yield rank, suit

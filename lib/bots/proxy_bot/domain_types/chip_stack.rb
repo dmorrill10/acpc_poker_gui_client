@@ -1,9 +1,9 @@
 
 # Local mixins
-require 'easy_exceptions'
+require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
 
 # Programmatic representation of a stack of chips.
-class Stack
+class ChipStack
    exceptions :illegal_number_of_chips, :not_enough_chips_in_the_stack
    
    # @return [Integer] The number of chips to be made into a stack (must be a whole number).

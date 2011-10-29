@@ -1,18 +1,21 @@
 
-# Local classes
-require 'stack'
+# System classes
+require 'set'
 
-# Programmatic representation of a side pot of chips.
-class SidePot < Stack
+# Local classes
+require File.expand_path('../chip_stack', __FILE__)
+
+# A side pot of chips.
+class SidePot < ChipStack
    
-   # @return [Array] The players involved in this side pot.
+   # @return [Set] The set of players involved in this side pot.
    attr_reader :players_involved
    
    # @param [Player] initiating_player The player that initiated this side pot.
    # @param [Integer] initial_amount The initial value of this side pot.
    # @raise (see Stack#initialize)
    def initialize(initiating_player, initial_amount)
-      @players_involved = [initiating_player]
+      @players_involved = Set.new [initiating_player]
       
       initiating_player.take_from_stack! initial_amount
       

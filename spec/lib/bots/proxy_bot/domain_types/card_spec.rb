@@ -17,12 +17,12 @@ describe Card do
          end
       end
       it 'correctly understands all suits and ranks currently recognized' do
-         for_every_card_in_the_deck { |rank, suit| Card.new(rank, suit) }
+         for_every_rank_and_suit_in_the_deck { |rank, suit| Card.new(rank, suit) }
       end
    end
    describe '#to_i' do
       it 'converts every card into its proper integer ACPC representation' do
-         for_every_card_in_the_deck do |rank, suit|
+         for_every_rank_and_suit_in_the_deck do |rank, suit|
             patient = Card.new rank, suit
             
             string_rank = CARD_RANKS[rank]
@@ -38,7 +38,7 @@ describe Card do
    end
    describe '#to_s' do
       it 'converts every card into its proper string representation' do
-         for_every_card_in_the_deck do |rank, suit|
+         for_every_rank_and_suit_in_the_deck do |rank, suit|
             patient = Card.new rank, suit
             
             string_rank = CARD_RANKS[rank]

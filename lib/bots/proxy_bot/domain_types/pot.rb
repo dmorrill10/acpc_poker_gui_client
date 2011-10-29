@@ -1,5 +1,5 @@
 
-# Programmatic representation of a pot of chips.
+# A pot of chips.
 class Pot
    
 end

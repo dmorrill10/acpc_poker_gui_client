@@ -1,14 +1,7 @@
 
-# System classes
-require 'set'
+# Local classes
+require File.expand_path('../pile_of_cards', __FILE__)
 
 # A hand of cards.
-class Hand
-   
-   # @return [Set] The set of cards in this hand.
-   attr_reader :cards
-
-   def initialize(set_of_cards)
-      @cards = set_of_cards.to_set
-   end
+class Hand < PileOfCards
 end

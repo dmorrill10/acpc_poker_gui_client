@@ -1,36 +1,51 @@
 require 'spec_helper'
 
+require File.expand_path('../../../../../../lib/application_defs', __FILE__)
 require File.expand_path('../../../../../../lib/helpers/application_helpers', __FILE__)
 
 describe Card do
+   include ApplicationDefs
    include ApplicationHelpers
    
-   describe '#initialization' do
+   describe '#new' do
       describe 'raises an exception if' do
          it 'the given suit is invalid' do
-            expect{Card.new(:not_a_suit, :Ace)}.to raise_exception(Card::NotARecognizedSuit)
+            expect{Card.new(:ace, :not_a_suit)}.to raise_exception(Suit::NotARecognizedSuit)
          end
          it 'the given rank is invalid' do
-            expect{Card.new(:spades, :not_a_rank)}.to raise_exception(Card::NotARecognizedRank)
+            expect{Card.new(:not_a_rank, :spades)}.to raise_exception(Rank::NotARecognizedRank)
          end
       end
       it 'correctly understands all suits and ranks currently recognized' do
-         for_each_card_in_the_deck { |suit, rank| Card.new(suit, rank) }
+         for_every_card_in_the_deck { |rank, suit| Card.new(rank, suit) }
       end
    end
-   describe '#to_acpc' do
-      it 'converts every card into its proper numeric ACPC representation' do
-         for_each_card_in_the_deck do |suit, rank|
-            patient = Card.new suit, rank
+   describe '#to_i' do
+      it 'converts every card into its proper integer ACPC representation' do
+         for_every_card_in_the_deck do |rank, suit|
+            patient = Card.new rank, suit
             
-            string_rank = CARD_RANKS[:rank]
-            string_suit = CARD_SUITS[:suit]
+            string_rank = CARD_RANKS[rank]
+            string_suit = CARD_SUITS[suit]
                
             integer_rank = CARD_RANK_NUMBERS[string_rank]
             integer_suit = CARD_SUIT_NUMBERS[string_suit]
             integer_card = integer_rank * CARD_SUITS.length + integer_suit
             
-            patient.to_acpc.should eq(integer_card)
+            patient.to_i.should eq(integer_card)
+         end
+      end
+   end
+   describe '#to_s' do
+      it 'converts every card into its proper string representation' do
+         for_every_card_in_the_deck do |rank, suit|
+            patient = Card.new rank, suit
+            
+            string_rank = CARD_RANKS[rank]
+            string_suit = CARD_SUITS[suit]
+            string_card = string_rank + string_suit
+               
+            patient.to_s.should eq(string_card)
          end
       end
    end

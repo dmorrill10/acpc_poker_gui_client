@@ -1,9 +1,9 @@
 
 # Local modules
-require 'application_defs'
+require File.expand_path('../../../../../lib/application_defs', __FILE__)
 
 # Local mixins
-require 'easy_exceptions'
+require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
 
 class Rank
    include ApplicationDefs
@@ -11,7 +11,7 @@ class Rank
    exceptions :not_a_recognized_rank
    
    # @return [Symbol] This rank's symbol.
-   attr_reader :sybmol
+   attr_reader :symbol
    
    # @param [Symbol] rank This rank's symbol.
    # @raise (see #sanity_check_rank)
@@ -30,7 +30,6 @@ class Rank
    def to_s
       CARD_RANKS[@symbol]
    end
-   
    
    private
    

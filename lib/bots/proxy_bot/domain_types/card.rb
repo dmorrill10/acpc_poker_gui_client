@@ -1,14 +1,16 @@
 
 # Local modules
-require 'application_defs'
+require File.expand_path('../../../../../lib/application_defs', __FILE__)
 
 # Local mixins
-require 'easy_exceptions'
+require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
+
+# Local classes
+require File.expand_path('../rank', __FILE__)
+require File.expand_path('../suit', __FILE__)
 
 class Card
    include ApplicationDefs
-   
-   exceptions :not_a_recognized_suit, :not_a_recognized_rank
    
    # @return [Rank] This card's rank.
    attr_reader :rank
@@ -16,36 +18,26 @@ class Card
    # @return [Suit] This card's suit.
    attr_reader :suit
    
-   # @param [Integer] number_of_chips The number of chips to be made into a stack.
-   # @raise (see #sanity_check_suit), (see #sanity_check_rank)
-   def initialize(suit, rank)
-      sanity_check_suit suit
-      sanity_check_rank rank
-      
-      @suit = suit
-      @rank = rank
+   # @param [Rank] rank This card's rank.
+   # @param [Suit] suit This card's suit.
+   # @raise (see Rank#initialize)
+   # @raise (see Suit#initialize)
+   def initialize(rank, suit)
+      @rank = Rank.new rank
+      @suit = Suit.new suit
    end
    
    # @return (see #make_acpc_card)
-   def to_acpc
-      # TODO move
-      #integer_rank = CARD_RANK_NUMBERS[string_rank]
-      #integer_suit = CARD_SUIT_NUMBERS[string_suit]
-            
+   def to_i
       make_acpc_card(@rank.to_i, @suit.to_i)
    end
    
+   # @return [String] This card's string representation.
+   def to_s
+      @rank.to_s + @suit.to_s
+   end
+   
    private
-   
-   # @raise NotARecognizedSuit
-   def sanity_check_suit(suit)
-      raise NotARecognizedSuit, suit.to_s unless CARD_SUITS[suit]
-   end
-   
-   # @raise NotARecognizedRank
-   def sanity_check_rank(rank)
-      raise NotARecognizedRank, rank.to_s unless CARD_RANKS[rank]
-   end
    
    # @param [Integer] integer_rank The integer ACPC representation of the card's rank.
    # @param [Integer] integer_suit The integer ACPC representation of the card's suit.

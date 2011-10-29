@@ -1,9 +1,9 @@
 
 # Local modules
-require 'application_defs'
+require File.expand_path('../../../../../lib/application_defs', __FILE__)
 
 # Local mixins
-require 'easy_exceptions'
+require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
 
 class Suit
    include ApplicationDefs

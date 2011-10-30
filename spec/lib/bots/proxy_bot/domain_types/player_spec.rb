@@ -43,43 +43,30 @@ describe Player do
       @patient.position_relative_to_user.should be == @position_relative_to_user
       @patient.stack.should be == @stack
    end
-   
    it 'reports it is not active if it is all-in' do
       @patient.is_active?.should be == true
       @patient.is_all_in = true
       @patient.is_active?.should be == false
    end
-   
    it 'reports it is not active if it has folded' do
       @patient.is_active?.should be == true
       @patient.has_folded = true
       @patient.is_active?.should be == false
    end
-   
-   it 'properly changes its state when it calls the current wager that it faces' do
-      @patient.number_of_chips_in_the_pot.should be == 0
-      @patient.current_wager_faced.should be == 0
+   it 'properly changes its state when it contributes chips to a side-pot' do
       @patient.chip_balance.should be == 0
       
-      wager_amount = 20
-      @patient.current_wager_faced = wager_amount
-      @patient.call_current_wager!
+      @patient.take_from_stack! @stack.value
       
-      @patient.stack.should be == @stack - wager_amount
-      @patient.number_of_chips_in_the_pot.should be == wager_amount
-      @patient.current_wager_faced.should be == 0
-      @patient.chip_balance.should be == -wager_amount
+      @patient.stack.value.should be == 0
+      @patient.chip_balance.should be == -@stack.value
    end
-   
-   it 'properly changes its state when it wins the current pot' do
-      @patient.current_wager_faced.should be == 0
+   it 'properly changes its state when it wins chips' do
       @patient.chip_balance.should be == 0
       
       pot_size = 22
       @patient.take_winnings! pot_size
       
-      @patient.number_of_chips_in_the_pot.should be == 0
-      @patient.current_wager_faced.should be == 0
       @patient.stack.should be == @stack + pot_size
       @patient.chip_balance.should be == pot_size
    end

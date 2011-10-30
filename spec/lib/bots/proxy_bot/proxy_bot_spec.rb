@@ -12,6 +12,24 @@ describe ProxyBot do
    #   @patient.start_new_hand! @match_state
    #end
    #
+   describe '#initialize' do
+      it 'connects to the ACPC Dealer' do
+         pending 'creation of Table class'
+         patient = ProxyBot.new 
+      end
+   end
+  
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
    ## Match state strings generated properly for actions #######################
    #
    #it "generates call or check matchstate strings correctly" do

@@ -42,13 +42,12 @@ class PlayerActionsController < ApplicationController
          :player_names => player_names
       }
       
-      # TODO ensure that the background server is running by this point
+      # Initialize a game table record
+      
       
       # Start the player that represents the browser operator
       id = 0
       Stalker.enqueue("Game.start", :id => id)
-      Stalker.enqueue("Game.sendCall", :id => id)
-      #game_runner.start_game!(:arg => game_arguments)
       
       # Wait for the player to start and catch errors
       

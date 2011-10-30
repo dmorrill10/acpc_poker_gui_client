@@ -60,7 +60,6 @@ class ChipStack
       @value = take_from number_of_chips
    end
    
-
    private
    
    # raise IllegalNumberOfChips

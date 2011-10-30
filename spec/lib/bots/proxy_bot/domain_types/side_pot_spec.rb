@@ -1,8 +1,5 @@
 require 'spec_helper'
 
-# System classes
-require 'set'
-
 describe SidePot do
    before do
       @player1 = mock 'Player'
@@ -29,7 +26,7 @@ describe SidePot do
          (patient, players_and_their_contributions) = calling_test patient, players_and_their_contributions
          (patient, players_and_their_contributions) = betting_test patient, players_and_their_contributions
          
-         raise_test patient, players_and_their_contributions
+         raising_test patient, players_and_their_contributions
       end
    end
    
@@ -59,7 +56,7 @@ describe SidePot do
          (patient, players_and_their_contributions) = calling_test patient, players_and_their_contributions
          (patient, players_and_their_contributions) = betting_test patient, players_and_their_contributions
          
-         (patient,) = raise_test patient, players_and_their_contributions
+         (patient,) = raising_test patient, players_and_their_contributions
          
          patient.value.should be == 2 * (@initial_amount_in_side_pot + @amount_to_bet) + @amount_to_raise_by
       end
@@ -78,17 +75,58 @@ describe SidePot do
          @player2.stubs(:has_folded).returns(true)
          @player1.expects(:take_winnings!).once.with(chips_to_distribute)
          
-         patient.distribute_chips!
-         
-         patient.value.should be == 0
+         test_chip_distribution patient, players_and_their_contributions
       end
-      it 'distributes the chips it contains properly to all non-folded players involved' do
-         # The side pot looks at all the board cards and the cards of all non-folded players involved
-         # and decides which players deserve its chips
+      it 'distributes the chips it contains properly to two players that have not folded and have equal hand strength' do
+         (patient, players_and_their_contributions) = setup_succeeding_test
+         (patient, players_and_their_contributions) = calling_test patient, players_and_their_contributions
+         (patient,) = betting_test patient, players_and_their_contributions
+         
+         chips_to_distribute = 2 * @initial_amount_in_side_pot + @amount_to_bet
+         patient.value.should be == chips_to_distribute
+         
+         @player1.stubs(:has_folded).returns(false)
+         @player2.stubs(:has_folded).returns(false)
+         poker_hand_strength = 5
+         @player1.stubs(:poker_hand_strength).returns(poker_hand_strength)
+         @player2.stubs(:poker_hand_strength).returns(poker_hand_strength)
+         @player1.expects(:take_winnings!).once.with(chips_to_distribute/2.0)
+         @player2.expects(:take_winnings!).once.with(chips_to_distribute/2.0)
          
          
+         test_chip_distribution patient, players_and_their_contributions
+      end
+      it 'distributes the chips it contains properly to two players that have not folded and have unequal hand strength' do
+         (patient, players_and_their_contributions) = setup_succeeding_test
+         (patient, players_and_their_contributions) = calling_test patient, players_and_their_contributions
+         (patient,) = betting_test patient, players_and_their_contributions
          
-         pending 'waiting for Cards, Hands, and BoardCards'
+         chips_to_distribute = 2 * @initial_amount_in_side_pot + @amount_to_bet
+         patient.value.should be == chips_to_distribute
+         
+         @player1.stubs(:has_folded).returns(false)
+         @player2.stubs(:has_folded).returns(false)
+         @player1.stubs(:poker_hand_strength).returns(10)
+         @player2.stubs(:poker_hand_strength).returns(9)
+         @player1.expects(:take_winnings!).once.with(chips_to_distribute)
+         
+         test_chip_distribution patient, players_and_their_contributions
+      end
+      it 'raises an exception if there are no chips to distribute' do
+         initial_amount_in_side_pot = 0
+         @player1.expects(:take_from_stack!).once.with(initial_amount_in_side_pot)
+      
+         patient = SidePot.new @player1, initial_amount_in_side_pot
+      
+         players_and_their_contributions = {@player1 => initial_amount_in_side_pot}
+      
+         patient.players_involved_and_their_amounts_contributed.should eq(players_and_their_contributions)
+         
+         expect{patient.distribute_chips!}.to raise_exception(SidePot::NoChipsToDistribute)
+      end
+      it 'raises an exception if there are no players to take chips' do
+         pending 'multiplayer support'
+         #expect{patient.distribute_chips!}.to raise_exception(SidePot::NoPlayersToTakeChips)
       end
    end
    
@@ -100,7 +138,7 @@ describe SidePot do
       
       players_and_their_contributions = {@player1 => @initial_amount_in_side_pot}
       
-      patient.players_involved_and_their_amounts_contributed.should eq({@player1 => @initial_amount_in_side_pot})
+      patient.players_involved_and_their_amounts_contributed.should be == players_and_their_contributions
       
       [patient, players_and_their_contributions]
    end
@@ -128,7 +166,7 @@ describe SidePot do
       [patient, players_and_their_contributions]
    end
    
-   def raise_test(patient, players_and_their_contributions)
+   def raising_test(patient, players_and_their_contributions)
       @amount_to_raise_by = 22
       @total_amount = @amount_to_raise_by + @amount_to_bet + @initial_amount_in_side_pot
       
@@ -139,6 +177,17 @@ describe SidePot do
       
       patient.take_raise! @player2, @amount_to_raise_by
       
+      patient.players_involved_and_their_amounts_contributed.should be == players_and_their_contributions
+      
+      [patient, players_and_their_contributions]
+   end
+   
+   def test_chip_distribution(patient, players_and_their_contributions)
+      players_and_their_contributions = {}
+         
+      patient.distribute_chips!
+         
+      patient.value.should be == 0
       patient.players_involved_and_their_amounts_contributed.should be == players_and_their_contributions
       
       [patient, players_and_their_contributions]

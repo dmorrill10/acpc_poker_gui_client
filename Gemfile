@@ -55,6 +55,9 @@ group :development, :test do
   
   # Automatically run bundler to install gems when this Gemfile changes
   gem 'guard-bundler'
+  
+  # Factory gem
+  gem 'factory_girl_rails'
 end
 
 # JavaScript runtime

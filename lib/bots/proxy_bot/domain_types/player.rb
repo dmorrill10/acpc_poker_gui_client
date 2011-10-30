@@ -1,14 +1,9 @@
 
-# Local modules
-require File.expand_path('../../../../helpers/models_helper', __FILE__)
-
 # Local classes
 require File.expand_path('../chip_stack', __FILE__)
 
 # Class to model a player.  This is a data model that contains minimal logic.
-class Player
-   include ModelsHelper
-   
+class Player   
    # @return [String] The name of this player.
    attr_reader :name
    
@@ -40,13 +35,6 @@ class Player
    # @return [Stack] This player's stack.
    attr_reader :stack
    
-   # @return [Integer] The current wager this player faces.
-   attr_accessor :current_wager_faced
-   
-   # @return [Integer] The current number of chips this player has contributed
-   # to the pot.
-   attr_accessor :number_of_chips_in_the_pot
-   
    # @return [Integer] The amount this player has won or lost in the current
    #  match.  During a hand, this is a projected amount assuming that this
    #  player loses.  Positive amounts are winnings, negative amounts are losses.
@@ -57,7 +45,7 @@ class Player
    attr_accessor :hole_cards
    
    # @return [Integer] The strength of this player's hand.
-   attr_accessor :hand_strength
+   attr_accessor :poker_hand_strength
    
    # @param [String] name The name of this player.
    # @param [Integer] seat This player's seat.  This is a 1 indexed
@@ -85,41 +73,11 @@ class Player
       !(@has_folded || @is_all_in)
    end
    
-   # Calls the current wager this player faces.
-   # Puts chips from this player's +stack+ to the pot (thereby increasing the +number_of_chips_in_the_pot+ this player has contributed).
-   def call_current_wager!
-      put_chips_in_the_pot! @current_wager_faced
-      @current_wager_faced = 0
-   end
-   
-   # Places a wager.
-   # @param [Integer] raise_by_amount The amount to raise by.
-   def place_wager!(raise_by_amount)
-      put_chips_in_the_pot! raise_by_amount
-   end
-   
    # Adjusts this player's state when it takes chips from the pot.
    # @param [Integer] number_of_chips_from_the_pot The number of chips
    #  this player has won from the pot.
    def take_winnings!(number_of_chips_from_the_pot)
       take_chips_from_the_pot! number_of_chips_from_the_pot
-   end
-   
-   # Translates this player's hole cards into the representation used by
-   # the ACPC framework.
-   # @return [Array] The player's hole cards.  Each card is represented by
-   #  a single +Integer+.
-   # @todo Add example.
-   def to_acpc_cards
-      all_ranks = CARD_RANKS.values.join ''
-      all_suits = CARD_SUITS.values.join ''
-      
-      acpc_cards = []
-      @hole_cards.scan(/[#{all_ranks}][#{all_suits}]/).each do |string_card|
-         acpc_cards << to_acpc_card_from_card_string(string_card)
-      end
-      
-      acpc_cards
    end
    
    # Take chips away from this player's stack.

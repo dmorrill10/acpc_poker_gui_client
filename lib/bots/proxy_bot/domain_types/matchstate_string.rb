@@ -1,17 +1,21 @@
 
 # Local modules
-require 'models_helper'
-require 'matchstate_string_helper'
+require File.expand_path('../board_cards', __FILE__)
+require File.expand_path('../hand', __FILE__)
+require File.expand_path('../../../../../lib/helpers/models_helper', __FILE__)
+require File.expand_path('../../../../../lib/helpers/matchstate_string_helper', __FILE__)
+require File.expand_path('../rank', __FILE__)
+require File.expand_path('../suit', __FILE__)
 
 # Local mixins
-require 'easy_exceptions'
+require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
 
 # Model to parse and manage information from a given match state string.
 class MatchstateString
    include ModelsHelper
    include MatchstateStringHelper
    
-   exceptions :incomplete_matchstate_string
+   exceptions :incomplete_matchstate_string, :unable_to_parse_string_of_cards
    
    # @return [Integer] The position relative to the dealer of the player that
    #     received the match state string, indexed from 0, modulo the
@@ -28,21 +32,22 @@ class MatchstateString
    # @return [String] The sequence of betting actions.
    attr_reader :betting_sequence
    
-   # @return [String] All visible hole cards.
-   attr_reader :all_hole_cards
+   # @return [Array] The list of visible hole card sets for each player.
+   attr_reader :list_of_hole_card_hands
    
-   # @return [String] All visible community cards on the board.
+   # @return [BoardCards] All visible community cards on the board.
    attr_reader :board_cards
    
    
    # @param [String] raw_match_state A raw match state string to be parsed.
    # @raise IncompleteMatchstateString.
+   # @todo Use values from gamedef to structure objects like +number_of_board_cards_in_every_round+
    def initialize(raw_match_state)
       raise IncompleteMatchstateString, raw_match_state if line_is_comment_or_empty? raw_match_state
    
-      all_actions = ACTION_TYPES.values.join ''
-      all_ranks = CARD_RANKS.values.join ''
-      all_suits = CARD_SUITS.values.join ''
+      all_actions = ACTION_TYPES.values.join
+      all_ranks = CARD_RANKS.values.join
+      all_suits = CARD_SUITS.values.join
       all_card_tokens = all_ranks + all_suits
    
       if raw_match_state.match(
@@ -51,14 +56,14 @@ class MatchstateString
          @position_relative_to_dealer = $1.to_i
          @hand_number = $2.to_i
          @betting_sequence = $3
-         @all_hole_cards = $4
-         @board_cards = $5
+         @list_of_hole_card_hands = parse_list_of_hole_card_hands $4
+         @board_cards = parse_board_cards $5
       end
       
       log "initialize: @position_relative_to_dealer: #{@position_relative_to_dealer},     
       @hand_number: #{@hand_number},
       @betting_sequence: #{@betting_sequence},
-      @all_hole_cards: #{@all_hole_cards},
+      @list_of_hole_card_hands: #{@list_of_hole_card_hands},
       @board_cards: #{@board_cards}"
    
       raise IncompleteMatchstateString, raw_match_state if incomplete_match_state?      
@@ -67,7 +72,7 @@ class MatchstateString
    # @return [String] The MatchstateString in raw text form.
    def to_s
       build_match_state_string @position_relative_to_dealer, @hand_number,
-         @betting_sequence, @all_hole_cards, @board_cards
+         @betting_sequence, @list_of_hole_card_hands.join('|'), @board_cards
    end
    
    # @param [MatchstateString] another_matchstate_string A matchstate string to compare against this one.
@@ -90,30 +95,23 @@ class MatchstateString
    # @example An ace of diamonds and a 4 of clubs is represented as
    #     'Ad4c'
    def users_hole_cards
-      local_list_of_hole_card_sets = list_of_hole_card_sets
+      local_list_of_hole_card_hands = list_of_hole_card_hands
       
-      log "users_hole_cards: local_list_of_hole_card_sets: #{local_list_of_hole_card_sets}, @position_relative_to_dealer: #{@position_relative_to_dealer}"
+      log "users_hole_cards: local_list_of_hole_card_hands: #{local_list_of_hole_card_hands}, @position_relative_to_dealer: #{@position_relative_to_dealer}"
       
-      local_list_of_hole_card_sets[@position_relative_to_dealer]
+      local_list_of_hole_card_hands[@position_relative_to_dealer]
    end
    
    # @return [Array] The list of opponent hole cards that are visible.
    # @example If there are two opponents, one with AhKs and the other with QdJc, then
    #     list_of_opponents_hole_cards == ['AhKs', 'QdJc']
    def list_of_opponents_hole_cards
-      local_list_of_hole_card_sets = list_of_hole_card_sets
-      local_list_of_hole_card_sets.delete_at @position_relative_to_dealer
+      local_list_of_hole_card_hands = list_of_hole_card_hands
+      local_list_of_hole_card_hands.delete_at @position_relative_to_dealer
       
-      log "list_of_opponents_hole_cards: list_of_hole_card_sets: #{list_of_hole_card_sets}, @position_relative_to_dealer: #{@position_relative_to_dealer}, local_list_of_hole_card_sets: #{local_list_of_hole_card_sets}"
+      log "list_of_opponents_hole_cards: list_of_hole_card_hands: #{list_of_hole_card_hands}, @position_relative_to_dealer: #{@position_relative_to_dealer}, local_list_of_hole_card_hands: #{local_list_of_hole_card_hands}"
       
-      local_list_of_hole_card_sets
-   end
-
-   # @return [Array] The list of community cards on the board.
-   # @example In Texas hold'em, if the board shows AhKsQd/Jc/Td, then
-   #     list_of_board_cards == [Ah, Ks, Qd, Jc, Td]
-   def list_of_board_cards
-      @board_cards.split(/\//)
+      local_list_of_hole_card_hands
    end
    
    # @return [Integer] The zero indexed current round number.
@@ -143,13 +141,6 @@ class MatchstateString
       number_of_actions
    end
    
-   # @return [Array] The list of visible hole card sets for each player.
-   def list_of_hole_card_sets
-      @all_hole_cards.split(/\|/)
-   end
-   
-   
-   # All following methods are private ########################################
    private
    
    def list_of_actions(betting_sequence)
@@ -158,7 +149,60 @@ class MatchstateString
    end
    
    def incomplete_match_state?
-      !(@position_relative_to_dealer and @hand_number and @all_hole_cards)
+      !(@position_relative_to_dealer and @hand_number and @list_of_hole_card_hands)
    end
-
+   
+   def parse_list_of_hole_card_hands(string_of_hole_cards)      
+      list_of_hole_card_hands = []
+      for_every_set_of_cards(string_of_hole_cards, '\|') do |string_hand|
+         hand = Hand.new
+         for_every_card(string_hand) do |card|
+            hand << card
+         end
+         list_of_hole_card_hands << hand
+      end
+      
+      list_of_hole_card_hands
+   end
+   
+   def parse_board_cards(string_board_cards)
+      board_cards = BoardCards.new [3, 1, 1]
+      for_every_set_of_cards(string_board_cards, '\/') do |string_board_card_set|
+         next if string_board_card_set.match(/^\s*$/)
+         for_every_card(string_board_card_set) do |card|
+            board_cards << card
+         end
+      end
+      board_cards
+   end
+   
+   def parse_card(string_card)
+      all_ranks = CARD_RANKS.values.join
+      all_suits = CARD_SUITS.values.join
+      
+      if string_card.match(/([#{all_ranks}])([#{all_suits}])/)
+         rank = Rank.new CARD_RANKS.index($1)
+         suit = Suit.new CARD_SUITS.index($2)
+               
+         return Card.new(rank, suit)
+      else
+         raise UnableToParseStringOfCards, string_card
+      end
+   end
+   
+   def for_every_set_of_cards(string_of_card_sets, divider)
+      string_of_card_sets.split(/#{divider}/).each do |string_card_set|
+         yield string_card_set
+      end
+   end
+   
+   def for_every_card(string_of_cards)
+      all_ranks = CARD_RANKS.values.join
+      all_suits = CARD_SUITS.values.join
+      
+      string_of_cards.scan(/[#{all_ranks}][#{all_suits}]/).each do |string_card|
+         card = parse_card string_card
+         yield card
+      end
+   end
 end

@@ -1724,3 +1724,13 @@ Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/acti
 MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2f631d41c80d74000009')}).limit(-1).sort([[:_id, :asc]])
 MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2f841d41c80d7400000a')}).limit(-1).sort([[:_id, :asc]])
 MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2ff21d41c80d7400000b')}).limit(-1).sort([[:_id, :asc]])
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})

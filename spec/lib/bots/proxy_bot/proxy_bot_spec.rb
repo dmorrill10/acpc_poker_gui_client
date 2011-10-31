@@ -47,7 +47,7 @@ describe ProxyBot do
          @match_state.stubs(:list_of_opponents_hole_cards).returns(list_of_opponents_hole_cards)
       
          list_of_all_player_hole_cards = list_of_opponents_hole_cards.insert @match_state.position_relative_to_dealer, @match_state.users_hole_cards
-         @match_state.stubs(:list_of_hole_card_sets).returns(list_of_all_player_hole_cards)
+         @match_state.stubs(:list_of_hole_card_hands).returns(list_of_all_player_hole_cards)
       
          # TODO LOOKFIRST
          pending 'Need to stub :to_acpc_cards() for each player'

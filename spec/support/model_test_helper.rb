@@ -17,7 +17,7 @@ module ModelTestHelper
       initial_match_state.stubs(:list_of_betting_actions).returns([])
       initial_match_state.stubs(:users_hole_cards).returns(hole_card_hand)      
       initial_match_state.stubs(:list_of_opponents_hole_cards).returns([])
-      initial_match_state.stubs(:list_of_hole_card_sets).returns(list_of_hole_card_sets(user_position, hole_card_hand, number_of_players))
+      initial_match_state.stubs(:list_of_hole_card_hands).returns(list_of_hole_card_hands(user_position, hole_card_hand, number_of_players))
       initial_match_state.stubs(:last_action).returns(nil)
       initial_match_state.stubs(:round).returns(0)
       initial_match_state.stubs(:number_of_actions_in_current_round).returns(0)
@@ -28,7 +28,7 @@ module ModelTestHelper
       [initial_match_state, user_position]
    end
    
-   def list_of_hole_card_sets(user_position, user_hole_card_hand, number_of_players)
+   def list_of_hole_card_hands(user_position, user_hole_card_hand, number_of_players)
       if user_position == number_of_players - 1
          number_of_entries_in_the_list = number_of_players - 1
       else

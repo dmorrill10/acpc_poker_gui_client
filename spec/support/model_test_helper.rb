@@ -1,6 +1,8 @@
 require 'spec_helper'
 require 'application_defs'
 
+require 'card'
+
 # Assortment of methods to support model tests
 module ModelTestHelper   
    include ApplicationDefs

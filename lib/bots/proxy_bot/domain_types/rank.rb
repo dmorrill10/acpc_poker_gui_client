@@ -26,15 +26,20 @@ class Rank
       CARD_RANK_NUMBERS[to_s]
    end
    
-   # @return [String] String representation of this rank.
+   # @see #to_str
    def to_s
+      to_str
+   end
+   
+   # @return [String] String representation of this rank.
+   def to_str
       CARD_RANKS[@symbol]
    end
    
    private
    
    # @raise NotARecognizedRank
-   def sanity_check_rank(rank)
-      raise NotARecognizedRank, rank.to_s unless CARD_RANKS[rank]
+   def sanity_check_rank(symbol)
+      raise NotARecognizedRank, symbol.to_s unless CARD_RANKS[symbol]
    end
 end

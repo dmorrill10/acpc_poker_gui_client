@@ -18,15 +18,17 @@ class BoardCards < PileOfCards
       @number_of_board_cards_in_each_round = number_of_board_cards_in_each_round
    end
    
-   def to_s      
+   def to_s
       string = ''
+      return string if self.empty?
       count = 0
-      @number_of_board_cards_in_each_round.each do |number_of_board_cards|
+      @number_of_board_cards_in_each_round.each_index do |number_of_board_cards_index|
+         return string if self.length-3 == number_of_board_cards_index - 1
          string += '/'
          count_in_current_round = 0
          self.each_index do |card_index|
             next if card_index < count
-            if count_in_current_round < number_of_board_cards
+            if count_in_current_round < @number_of_board_cards_in_each_round[number_of_board_cards_index]
                string += self[card_index]
                count += 1
                count_in_current_round += 1

@@ -32,9 +32,13 @@ describe MatchstateString do
             
             patient = test_match_state_success match_state
             patient.last_action.should be == action
+            
+            match_state += '|'
          end
       
          # Check a no limit action as well
+         pending 'No-limit support'
+         
          no_limit_action = ACTION_TYPES[:raise] + "123"
          match_state = partial_match_state + no_limit_action + ":#{hole_cards}"
          patient = test_match_state_success match_state
@@ -73,6 +77,8 @@ describe MatchstateString do
       end
    
       it "parses a valid three player final match state" do
+         pending 'move game definition params into match state string'
+         
          partial_match_state = MATCH_STATE_LABEL + ":20:22:"
          all_actions = ACTION_TYPES.values.join ''
          betting = all_actions
@@ -91,7 +97,7 @@ describe MatchstateString do
       it "properly reports the current round number" do
          partial_match_state = MATCH_STATE_LABEL + ":0:0:"
          betting = ""
-         hands = arbitrary_hole_card_hand + "|"
+         hands = arbitrary_hole_card_hand
          (MAX_VALUES[:rounds]-1).times do |i|
             match_state = partial_match_state + betting + ":" + hands
             patient = test_match_state_success match_state
@@ -110,7 +116,7 @@ describe MatchstateString do
       partial_match_state = MATCH_STATE_LABEL + ":1:0:"
       
       users_hole_cards = arbitrary_hole_card_hand
-      list_of_opponents_hole_cards = [""]
+      list_of_opponents_hole_cards = [[]]
       
       (betting_string, list_of_betting_actions) = generate_betting_sequence action_string + raise_amount.to_s
       number_of_actions_in_current_round = list_of_betting_actions.length
@@ -134,7 +140,7 @@ describe MatchstateString do
          generate_betting_sequence betting_string, list_of_betting_actions, action_string + raise_amount.to_s
          
          list_of_board_cards << if round > 1 then (round+1).to_s + CARD_SUITS[:spades] else arbitrary_flop end
-         board_cards_string += "/" + list_of_board_cards[round_index]
+         board_cards_string += "/" + list_of_board_cards[round]
       end
    end
    
@@ -159,9 +165,9 @@ describe MatchstateString do
       
       patient.list_of_betting_actions.should be == list_of_betting_actions
       patient.last_action.should be == last_action
-      patient.users_hole_cards.should be == users_hole_cards
+      patient.users_hole_cards.to_s.should be == users_hole_cards.to_s
       patient.list_of_opponents_hole_cards.should be == list_of_opponents_hole_cards
-      patient.list_of_board_cards.should be == list_of_board_cards      
+      (if patient.board_cards.join.empty? then [] else [patient.board_cards.join] end).should be == list_of_board_cards
       patient.round.should be == round
       patient.number_of_actions_in_current_round.should be == number_of_actions_in_current_round
    end
@@ -191,7 +197,7 @@ describe MatchstateString do
    
    def arbitrary_roll_out
       board_cards = ""
-      (1..MAX_VALUES[:rounds]).each do |round|
+      (1..MAX_VALUES[:rounds]-1).each do |round|
          board_cards += "/" + if round > 1 then (round+1).to_s + CARD_SUITS[:spades] else arbitrary_flop end
       end
       board_cards

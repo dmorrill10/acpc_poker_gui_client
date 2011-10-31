@@ -71,8 +71,16 @@ class MatchstateString
 
    # @return [String] The MatchstateString in raw text form.
    def to_s
+      # @todo fix this
+      number_of_players = 2
+      #string_of_hole_cards = if 1 == @position_relative_to_dealer then '|' else '' end
+      string_of_hole_cards = ''
+      @list_of_hole_card_hands.each_index do |hand_index|
+         string_of_hole_cards += @list_of_hole_card_hands[hand_index]
+         string_of_hole_cards += '|' if hand_index < @list_of_hole_card_hands.length - 1
+      end
       build_match_state_string @position_relative_to_dealer, @hand_number,
-         @betting_sequence, @list_of_hole_card_hands.join('|'), @board_cards
+         @betting_sequence, string_of_hole_cards, @board_cards
    end
    
    # @param [MatchstateString] another_matchstate_string A matchstate string to compare against this one.
@@ -91,7 +99,7 @@ class MatchstateString
       list_of_actions @betting_sequence
    end
 
-   # @return [String] The user's hole cards.
+   # @return [Hand] The user's hole cards.
    # @example An ace of diamonds and a 4 of clubs is represented as
    #     'Ad4c'
    def users_hole_cards
@@ -176,20 +184,6 @@ class MatchstateString
       board_cards
    end
    
-   def parse_card(string_card)
-      all_ranks = CARD_RANKS.values.join
-      all_suits = CARD_SUITS.values.join
-      
-      if string_card.match(/([#{all_ranks}])([#{all_suits}])/)
-         rank = Rank.new CARD_RANKS.index($1)
-         suit = Suit.new CARD_SUITS.index($2)
-               
-         return Card.new(rank, suit)
-      else
-         raise UnableToParseStringOfCards, string_card
-      end
-   end
-   
    def for_every_set_of_cards(string_of_card_sets, divider)
       string_of_card_sets.split(/#{divider}/).each do |string_card_set|
          yield string_card_set
@@ -201,7 +195,9 @@ class MatchstateString
       all_suits = CARD_SUITS.values.join
       
       string_of_cards.scan(/[#{all_ranks}][#{all_suits}]/).each do |string_card|
-         card = parse_card string_card
+         puts "string_card: #{string_card}"
+         
+         card = Card.new string_card
          yield card
       end
    end

@@ -1,4 +1,7 @@
 
+# Local classes
+require File.expand_path('../dealer_information', __FILE__)
+
 # A table participants may join to play poker.
 class Table   
    # @return [DealerInformation] The information associated with this table's dealer.

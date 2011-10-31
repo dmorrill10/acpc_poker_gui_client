@@ -151,45 +151,6 @@ describe MatchState do
    #   end
    #end
    #
-   #it "correctly reports that the hand has not ended for all rounds in Texas Hold'em" do
-   #   for_every_round do |round|
-   #      @patient.hand_ended?.should == false
-   #   end
-   #end
-   #
-   #it "correctly reports that the hand has ended when only one player is active" do
-   #   (@players.length - 1).times do |i|
-   #      @players[i].stubs(:is_active?).returns(false)
-   #   end
-   #   
-   #   @patient.hand_ended?.should == true
-   #end
-   #
-   #it "correctly reports that the hand has ended when no player is active" do
-   #   (@players.length).times do |i|
-   #      @players[i].stubs(:is_active?).returns(false)
-   #   end
-   #   
-   #   @patient.hand_ended?.should == true
-   #end
-   #
-   #it "correctly reports that the hand has ended when there is a showdown" do
-   #   list_of_opponents_hole_cards = []
-   #   (@game_definition.number_of_players - 1).times do
-   #      list_of_opponents_hole_cards << arbitrary_hole_card_hand
-   #   end
-   #   @match_state.stubs(:list_of_opponents_hole_cards).returns(list_of_opponents_hole_cards)
-   #   
-   #   list_of_all_player_hole_cards = list_of_opponents_hole_cards.insert @match_state.position_relative_to_dealer, @match_state.users_hole_cards
-   #   @match_state.stubs(:list_of_hole_card_sets).returns(list_of_all_player_hole_cards)
-   #   
-   #   # TODO LOOKFIRST
-   #   pending 'Need to stub :to_acpc_cards() for each player'
-   #   
-   #   @patient.update_state! @match_state
-   #   
-   #   @patient.hand_ended?.should == true
-   #end
    #
    #it "correctly reports the first player to act for all rounds in Texas Hold'em" do
    #   for_every_round do |round|

@@ -1,11 +1,9 @@
 
 # Local modules
-require 'application_defs'
-
-# Local mixins
+require File.expand_path('../../../../../lib/application_defs', __FILE__)
 
 # Local classes
-require 'matchstate_string'
+require File.expand_path('../../domain_types/matchstate_string', __FILE__)
 
 # Receives and parses matchstate strings.
 class MatchstateStringReceiver

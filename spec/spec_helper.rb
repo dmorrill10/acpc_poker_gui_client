@@ -1,7 +1,11 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
+
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
+require 'active_model'
+require 'mongoid'
+require 'factory_girl_rails'
 
 require 'models_helper'
 require 'game_definition_helper'
@@ -24,4 +28,8 @@ RSpec.configure do |config|
 
    # Since this app doesn't use ActiveRecord
    #config.use_transactional_fixtures = false
+   
+   config.before :each do
+      Mongoid.master.collections.select {|c| c.name !~ /system/ }.each(&:drop)
+   end
 end

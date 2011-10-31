@@ -1,10 +1,10 @@
 
 # Local modules
-require 'application_defs'
+require File.expand_path('../../../../../lib/application_defs', __FILE__)
 
 # Local mixins
-require 'easy_exceptions'
-require 'socket_with_ready_methods'
+require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
+require File.expand_path('../../../../../lib/mixins/socket_with_ready_methods', __FILE__)
 
 
 # Communication service to the ACPC Dealer.

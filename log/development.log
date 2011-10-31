@@ -1079,3 +1079,648 @@ Started POST "/game_home" for 127.0.0.1 at 2011-10-13 13:30:52 -0600
 Rendered player_actions/_index.html.haml (0.1ms)
 Rendered shared_javascripts/replace_contents.js.haml (0.9ms)
 Completed 200 OK in 13ms (Views: 11.6ms | ActiveRecord: 0.0ms)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['$cmd'].find({:create=>"matches"}).limit(-1)
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+MONGODB acpc_poker_gui_client_development['matches'].find({:users_turn_to_act=>false})
+MONGODB acpc_poker_gui_client_development['matches'].find({:id=>BSON::ObjectId('4eae1cb01d41c80cba000002')})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae1cb01d41c80cba000002')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['$cmd'].find({"count"=>"matches", "query"=>{}, "fields"=>nil}).limit(-1)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 22:15:32 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (5.0ms)
+Rendered start_game/index.html.haml within layouts/application (138.3ms)
+Compiled application.css  (20ms)  (pid 3444)
+Compiled application.js  (23ms)  (pid 3444)
+Compiled jquery.js  (19ms)  (pid 3444)
+Compiled jquery_ujs.js  (1ms)  (pid 3444)
+Completed 200 OK in 567ms (Views: 566.4ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 22:15:33 -0600
+Served asset /application.css - 200 OK (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 22:15:33 -0600
+Served asset /jquery.js - 200 OK (14ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 22:15:33 -0600
+Served asset /application.js - 200 OK (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 22:15:33 -0600
+Served asset /jquery_ujs.js - 200 OK (3ms)
+
+
+Started POST "/new_game" for 127.0.0.1 at 2011-10-30 22:19:01 -0600
+  Processing by NewGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered new_game/_index.html.haml (8.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (17.4ms)
+Completed 200 OK in 65ms (Views: 64.1ms)
+
+
+Started POST "/" for 127.0.0.1 at 2011-10-30 22:19:05 -0600
+  Processing by StartGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered start_game/_index.html.haml (6.5ms)
+Rendered shared_javascripts/replace_contents.js.haml (10.7ms)
+Completed 200 OK in 32ms (Views: 31.7ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 22:19:06 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (9.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (11.8ms)
+Completed 200 OK in 36ms (Views: 34.4ms)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 22:19:07 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (5.2ms)
+Completed 200 OK in 25ms (Views: 24.5ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 22:19:09 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"96", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+Completed 500 Internal Server Error in 227ms
+
+SystemExit (exit):
+  app/controllers/player_actions_controller.rb:49:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (3.4ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (1.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (24.3ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 22:21:48 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (3.4ms)
+Rendered start_game/index.html.haml within layouts/application (4.7ms)
+Completed 200 OK in 22ms (Views: 21.3ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 22:21:49 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 22:21:49 -0600
+Served asset /jquery.js - 304 Not Modified (3ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 22:21:49 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 22:21:49 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 22:21:50 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (4.8ms)
+Rendered shared_javascripts/replace_contents.js.haml (6.4ms)
+Completed 200 OK in 30ms (Views: 29.5ms)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 22:21:57 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 26ms (Views: 25.8ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 22:22:02 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"23", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+Completed 500 Internal Server Error in 64ms
+
+SystemExit (exit):
+  app/controllers/player_actions_controller.rb:49:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (2.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (2.0ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.erb within rescues/layout (9.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 22:22:06 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.9ms)
+Rendered start_game/index.html.haml within layouts/application (4.3ms)
+Completed 200 OK in 18ms (Views: 17.1ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 22:22:06 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 22:22:06 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 22:22:06 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 22:22:06 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 22:22:49 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (7.8ms)
+Rendered shared_javascripts/replace_contents.js.haml (9.9ms)
+Completed 200 OK in 39ms (Views: 38.5ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 22:22:51 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 18ms (Views: 17.3ms)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 22:22:55 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"91", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae229f1d41c80d74000003')}).limit(-1).sort([[:_id, :asc]])
+Rendered player_actions/_index.html.haml (2.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.0ms)
+Completed 200 OK in 81ms (Views: 26.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 22:50:07 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (3.0ms)
+Rendered start_game/index.html.haml within layouts/application (4.9ms)
+Completed 200 OK in 20ms (Views: 19.1ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 22:50:08 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 22:50:08 -0600
+Served asset /jquery.js - 304 Not Modified (1ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 22:50:08 -0600
+Served asset /application.js - 304 Not Modified (1ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 22:50:08 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 22:50:15 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (71.5ms)
+Rendered shared_javascripts/replace_contents.js.haml (74.1ms)
+Completed 200 OK in 135ms (Views: 134.6ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 22:50:16 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.5ms)
+Completed 200 OK in 19ms (Views: 18.0ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 22:50:18 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"92", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae290a1d41c80d74000004')}).limit(-1).sort([[:_id, :asc]])
+Rendered player_actions/_index.html.haml (3.9ms)
+Rendered shared_javascripts/replace_contents.js.haml (5.4ms)
+Completed 200 OK in 77ms (Views: 21.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 22:50:25 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.4ms)
+Rendered start_game/index.html.haml within layouts/application (4.2ms)
+Completed 200 OK in 22ms (Views: 21.7ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 22:50:25 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 22:50:25 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 22:50:25 -0600
+Served asset /application.css - 304 Not Modified (3ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 22:50:25 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 22:50:36 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (78.0ms)
+Rendered shared_javascripts/replace_contents.js.haml (80.4ms)
+Completed 200 OK in 109ms (Views: 102.7ms)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 22:50:51 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 23ms (Views: 22.4ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 22:50:52 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"82", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae292c1d41c80d74000005')}).limit(-1).sort([[:_id, :asc]])
+Rendered player_actions/_index.html.haml (0.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (1.7ms)
+Completed 200 OK in 72ms (Views: 22.7ms)
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae292c1d41c80d74000005')}).limit(-1).sort([[:_id, :asc]])
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 22:54:58 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.9ms)
+Rendered start_game/index.html.haml within layouts/application (5.4ms)
+Completed 200 OK in 22ms (Views: 21.0ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 22:54:58 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 22:54:58 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 22:54:58 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 22:54:58 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 23:00:14 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (87.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (91.4ms)
+Completed 200 OK in 111ms (Views: 110.0ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 23:00:16 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 18ms (Views: 17.4ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 23:00:17 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"16", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2b611d41c80d74000006')}).limit(-1).sort([[:_id, :asc]])
+Rendered player_actions/_index.html.haml (2.9ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.9ms)
+Completed 200 OK in 88ms (Views: 26.1ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 23:03:41 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.1ms)
+Rendered start_game/index.html.haml within layouts/application (3.3ms)
+Completed 200 OK in 22ms (Views: 21.4ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 23:03:41 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 23:03:41 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 23:03:41 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 23:03:41 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (1ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 23:03:42 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (4.7ms)
+Rendered shared_javascripts/replace_contents.js.haml (6.3ms)
+Completed 200 OK in 36ms (Views: 29.8ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 23:03:43 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 47ms (Views: 45.9ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 23:03:44 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"83", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+Rendered player_actions/_index.html.haml (0.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.5ms)
+Completed 200 OK in 129ms (Views: 54.6ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 23:16:05 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (3.0ms)
+Rendered start_game/index.html.haml within layouts/application (10.5ms)
+Completed 200 OK in 41ms (Views: 40.6ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 23:16:06 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 23:16:06 -0600
+Served asset /jquery.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 23:16:06 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 23:16:06 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 23:16:08 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (10.4ms)
+Rendered shared_javascripts/replace_contents.js.haml (12.3ms)
+Completed 200 OK in 52ms (Views: 51.9ms)
+MongoDB logging. Please note that logging negatively impacts performance and should be disabled for high-performance production apps.
+MONGODB admin['$cmd'].find({:ismaster=>1}).limit(-1)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 23:16:21 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 30ms (Views: 29.9ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 23:16:23 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"80", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2f271d41c80d74000008')}).limit(-1).sort([[:_id, :asc]])
+Rendered player_actions/_index.html.haml (4.1ms)
+Rendered shared_javascripts/replace_contents.js.haml (5.4ms)
+Completed 500 Internal Server Error in 135ms
+
+ActionView::Template::Error (Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 8 spaces.):
+    7:         %script{:type => 'text/javascript',
+    8:         :src => 'js/web_socket.js'}
+    9: :javascript
+    10:    function init() {
+    11:       function debug(string) {
+    12:          var element = document.getElementById("debug");
+    13:          var p = document.createElement("p");
+  app/views/player_actions/_index.html.haml:10
+  app/views/shared_javascripts/replace_contents.js.haml:5:in `_app_views_shared_javascripts_replace_contents_js_haml__445893092324523283_34599740'
+  app/helpers/application_helper.rb:32:in `replace_page_contents'
+  app/helpers/player_actions_helper.rb:13:in `replace_page_contents_with_updated_game_view'
+  app/controllers/player_actions_controller.rb:53:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (2.4ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (1.5ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (7.6ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 23:17:22 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 19ms (Views: 18.1ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 23:17:23 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"66", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+Rendered player_actions/_index.html.haml (3.0ms)
+Rendered shared_javascripts/replace_contents.js.haml (4.2ms)
+Completed 500 Internal Server Error in 99ms
+
+ActionView::Template::Error (Inconsistent indentation: 3 spaces were used for indentation, but the rest of the document was indented using 8 spaces.):
+    4: %script{:type => 'text/javascript', :src => 'js/FABridge.js'}
+    5:         %script{:type => 'text/javascript', :src => 'js/web_socket.js'}
+    6: :javascript
+    7:    function init() {
+    8:       function debug(string) {
+    9:          var element = document.getElementById("debug");
+    10:          var p = document.createElement("p");
+  app/views/player_actions/_index.html.haml:7
+  app/views/shared_javascripts/replace_contents.js.haml:5:in `_app_views_shared_javascripts_replace_contents_js_haml__445893092324523283_34599740'
+  app/helpers/application_helper.rb:32:in `replace_page_contents'
+  app/helpers/player_actions_helper.rb:13:in `replace_page_contents_with_updated_game_view'
+  app/controllers/player_actions_controller.rb:53:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (1.8ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (7.5ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (12.2ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 23:17:55 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.3ms)
+Completed 200 OK in 19ms (Views: 18.8ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 23:17:56 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"15", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+Rendered player_actions/_index.html.haml (3.6ms)
+Rendered shared_javascripts/replace_contents.js.haml (5.0ms)
+Completed 500 Internal Server Error in 66ms
+
+ActionView::Template::Error (Illegal nesting: content can't be both given on the same line as %body and nested within it.):
+    23:       };
+    24:    };
+    25: %body {:onload => "init();"}
+    26:    %div#debug
+  app/views/player_actions/_index.html.haml:26
+  app/views/shared_javascripts/replace_contents.js.haml:5:in `_app_views_shared_javascripts_replace_contents_js_haml__445893092324523283_34599740'
+  app/helpers/application_helper.rb:32:in `replace_page_contents'
+  app/helpers/player_actions_helper.rb:13:in `replace_page_contents_with_updated_game_view'
+  app/controllers/player_actions_controller.rb:53:in `index'
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_trace.erb (2.1ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.erb (1.4ms)
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/template_error.erb within rescues/layout (7.1ms)
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2c311d41c80d74000007')}).limit(-1).sort([[:_id, :asc]])
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 23:19:45 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.4ms)
+Completed 200 OK in 19ms (Views: 18.6ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 23:19:46 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"37", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+Rendered player_actions/_index.html.haml (4.7ms)
+Rendered shared_javascripts/replace_contents.js.haml (6.2ms)
+Completed 200 OK in 73ms (Views: 22.5ms)
+
+
+Started GET "/js/swfobject.js?_=1320038386650" for 127.0.0.1 at 2011-10-30 23:19:46 -0600
+
+ActionController::RoutingError (No route matches [GET] "/js/swfobject.js"):
+  
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (0.8ms)
+
+
+Started GET "/js/FABridge.js?_=1320038386771" for 127.0.0.1 at 2011-10-30 23:19:46 -0600
+
+ActionController::RoutingError (No route matches [GET] "/js/FABridge.js"):
+  
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (1.0ms)
+
+
+Started GET "/js/web_socket.js?_=1320038386819" for 127.0.0.1 at 2011-10-30 23:19:46 -0600
+
+ActionController::RoutingError (No route matches [GET] "/js/web_socket.js"):
+  
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (0.9ms)
+
+
+Started GET "/" for 127.0.0.1 at 2011-10-30 23:20:07 -0600
+  Processing by StartGameController#index as HTML
+Rendered start_game/_index.html.haml (2.2ms)
+Rendered start_game/index.html.haml within layouts/application (3.7ms)
+Completed 200 OK in 18ms (Views: 17.1ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2011-10-30 23:20:07 -0600
+Served asset /application.css - 304 Not Modified (0ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2011-10-30 23:20:07 -0600
+Served asset /application.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2011-10-30 23:20:07 -0600
+Served asset /jquery_ujs.js - 304 Not Modified (0ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2011-10-30 23:20:07 -0600
+Served asset /jquery.js - 304 Not Modified (1ms)
+
+
+Started POST "/join_game" for 127.0.0.1 at 2011-10-30 23:20:09 -0600
+  Processing by JoinGameController#index as JS
+  Parameters: {"authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E="}
+Rendered join_game/_index.html.haml (7.3ms)
+Rendered shared_javascripts/replace_contents.js.haml (9.1ms)
+Completed 200 OK in 29ms (Views: 28.6ms)
+
+
+Started POST "/join_game/two_player_limit" for 127.0.0.1 at 2011-10-30 23:20:10 -0600
+  Processing by JoinGameController#two_player_limit as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "commit"=>"2 Player Limit"}
+Rendered shared_javascripts/send_parameters_to_connect_to_dealer.js.haml (0.4ms)
+Completed 200 OK in 26ms (Views: 25.5ms)
+
+
+Started POST "/game_home" for 127.0.0.1 at 2011-10-30 23:20:11 -0600
+  Processing by PlayerActionsController#index as JS
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"Ifx4EdQnK/2Tj2oTyHX56AYV49IztkOCFnkf5sMr39E=", "port_number"=>"", "match_name"=>"default", "game_definition_file_name"=>"/home/dmorrill/workspace/acpcpokerguiclient/external/project_acpc_server/holdem.limit.2p.reverse_blinds.game", "number_of_hands"=>"1", "random_seed"=>"31", "player_names"=>""}
+MONGODB acpc_poker_gui_client_development['system.namespaces'].find({})
+Rendered player_actions/_index.html.haml (0.2ms)
+Rendered shared_javascripts/replace_contents.js.haml (2.1ms)
+Completed 200 OK in 78ms (Views: 20.0ms)
+
+
+Started GET "/js/swfobject.js?_=1320038411472" for 127.0.0.1 at 2011-10-30 23:20:11 -0600
+
+ActionController::RoutingError (No route matches [GET] "/js/swfobject.js"):
+  
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (0.8ms)
+
+
+Started GET "/js/FABridge.js?_=1320038411519" for 127.0.0.1 at 2011-10-30 23:20:11 -0600
+
+ActionController::RoutingError (No route matches [GET] "/js/FABridge.js"):
+  
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (0.8ms)
+
+
+Started GET "/js/web_socket.js?_=1320038411569" for 127.0.0.1 at 2011-10-30 23:20:11 -0600
+
+ActionController::RoutingError (No route matches [GET] "/js/web_socket.js"):
+  
+
+Rendered /home/dmorrill/.rvm/gems/ruby-1.9.2-p290/gems/actionpack-3.1.1/lib/action_dispatch/middleware/templates/rescues/routing_error.erb within rescues/layout (0.8ms)
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2f631d41c80d74000009')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2f841d41c80d7400000a')}).limit(-1).sort([[:_id, :asc]])
+MONGODB acpc_poker_gui_client_development['matches'].find({:_id=>BSON::ObjectId('4eae2ff21d41c80d7400000b')}).limit(-1).sort([[:_id, :asc]])

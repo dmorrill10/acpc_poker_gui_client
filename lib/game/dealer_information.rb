@@ -1,7 +1,4 @@
 
-# Local mixins
-require File.expand_path('../../../../mixins/easy_exceptions', __FILE__)
-
 # A table participants may join to play poker.
 class DealerInformation  
    # @return [String] The host name of the dealer associated with this table.

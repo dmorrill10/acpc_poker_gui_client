@@ -25,6 +25,40 @@ class ProxyBot
    
    # @return [MatchState] 
    def update_match_state!()
+      @last_round = @match_state_string.round
       @match_state_string = MatchstateStringReceiver.receive_matchstate_string @dealer_communicator
+   end
+   
+   # @return [Boolean] +true+ if the hand has ended, +false+ otherwise.
+   def hand_ended?      
+      less_than_two_active_players? || reached_showdown?
+   end
+   
+   # @return [Boolean] +true+ if it is the user's turn to act, +false+ otherwise.
+   def users_turn_to_act?      
+      true
+      #users_turn_to_act = @position_relative_to_dealer_next_to_act == users_position
+      #
+      ## Check if the match has ended
+      #users_turn_to_act &= !match_ended?
+      #
+      #log "users_turn_to_act?: #{users_turn_to_act}"
+      #
+      #users_turn_to_act
+   end
+   
+   private
+   
+   #@todo This may not work if the dealer just immediately sends the next match state after a fold
+   def less_than_two_active_players
+      'f' == @match_state_string.last_action
+   end
+   
+   def reached_showdown?
+      opponents_cards_visible?
+   end
+   
+   def opponents_cards_visible?
+      are_visible = !((@match_state_string.list_of_opponents_hole_cards.reject { |hole_card_set| hole_card_set.empty? }).empty?)
    end
 end

@@ -19,65 +19,62 @@ require "stalker"
 #require "#{RAILS_ROOT}/lib/bots/testing_ruby_bot"
 
 ###########################
-# Rails environment
-require '/home/dmorrill/workspace/acpcpokerguiclient/config/environment'
-
-puts 'Loaded environment'
-
 # Local classes
-require 'game_core'
+require File.expand_path('../../app/models/match', __FILE__)
+#require File.expand_path('../../lib/web_application_player_proxy/web_application_communicator', __FILE__)
 
-puts 'Loaded game_core'
+require 'em-websocket'
 
-require 'dealer_communication'
+###########################
 
-puts 'Loaded dealer_communication'
-
-# Local modules
-require 'application_defs'
-
-puts 'Loaded application_defs'
-
-include ApplicationDefs
-
-puts 'Imported ApplicationDefs'
-
-###########################33
-
-
-@game_core = nil
 
 Stalker.job("Game.start") do |args|
    id = args["id"]
    puts "Stalker.job: id: #{id}"
-  
-   # TODO Look for the correct bot to run from the arguments
-   bot_arguments = {:port_number => 18791}
-   begin
-      port_number = 18791
-      dealer_communication_service = AcpcDealerCommunicator.new(port_number)
-
-      result = catch(:game_core_error) do
-         GameCore.new('default', GAME_DEFINITION_FILE_NAMES[:two_player_limit_texas_holdem_poker], 1, 1, 'p2, user', dealer_communication_service)
-      end
-
-      if result.kind_of?(GameCore) then @game_core = result; else puts "ERROR: #{result}\n" end
-
-      puts 'Created GameCore'
-      
-   rescue => e
-      puts "Unable to connect to dealer: #{e.message}"
-      raise
+   
+   # Initialize a game table record
+   match = Match.find(id)
+   
+   puts "match.attributes: #{match.attributes}"
+   
+   match.users_turn_to_act = true
+   
+   match.save!
+    
+   EventMachine::WebSocket.start(:host => "localhost", :port => 8080, :debug => true) do |ws|
+     ws.onopen { ws.send "Hello Client!"}
+     ws.onmessage { |msg| ws.send "Pong: #{msg}" }
+     ws.onclose { puts "WebSocket closed" }
+     ws.onerror { |e| puts "Error: #{e.message}" }
    end
+  
+   ## TODO Look for the correct bot to run from the arguments
+   #bot_arguments = {:port_number => 18791}
+   #begin
+   #   port_number = 18791
+   #   dealer_communication_service = AcpcDealerCommunicator.new(port_number)
+   #
+   #   result = catch(:game_core_error) do
+   #      GameCore.new('default', GAME_DEFINITION_FILE_NAMES[:two_player_limit_texas_holdem_poker], 1, 1, 'p2, user', dealer_communication_service)
+   #   end
+   #
+   #   if result.kind_of?(GameCore) then @game_core = result; else puts "ERROR: #{result}\n" end
+   #
+   #   puts 'Created GameCore'
+   #   
+   #rescue => e
+   #   puts "Unable to connect to dealer: #{e.message}"
+   #   raise
+   #end
 end
 
-Stalker.job("Game.sendCall") do |args|
-   puts 'In Game.sendCall'
-   
-   @game_core.make_call_action
-   
-   puts 'Made call action'
-end
+#Stalker.job("Game.sendCall") do |args|
+#   puts 'In Game.sendCall'
+#   
+#   @game_core.make_call_action
+#   
+#   puts 'Made call action'
+#end
 
 Stalker.work
 

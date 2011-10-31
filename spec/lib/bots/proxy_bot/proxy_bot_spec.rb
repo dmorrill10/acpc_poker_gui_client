@@ -1,25 +1,62 @@
 require 'spec_helper'
 
 describe ProxyBot do
-   #
-   #before(:each) do
-   #   @game_definition = create_game_definition
-   #   (@match_state, @user_position) = create_initial_match_state(@game_definition.number_of_players)
-   #   @player_manager = create_player_manager @game_definition
-   #   @player_manager.expects(:start_new_hand!).once
-   #   
-   #   @patient = GameState.new @game_definition, @player_manager
-   #   @patient.start_new_hand! @match_state
-   #end
-   #
+   before(:each) do
+      @match_state = create_initial_match_state
+   end
+
    describe '#initialize' do
       it 'connects to the ACPC Dealer' do
-         pending 'creation of Table class'
+         pending 'mock out dealer communicator'
          patient = ProxyBot.new 
       end
    end
-  
+
+   describe '#hand_ended?' do
+      it "correctly reports that the hand has not ended for all rounds in Texas Hold'em" do
+         pending 'mock out dealer communicator'
+         for_every_round do |round|
+            @patient.hand_ended?.should == false
+         end
+      end
    
+      it "correctly reports that the hand has ended when only one player is active" do
+         pending 'mock out dealer communicator'
+         (@players.length - 1).times do |i|
+            @players[i].stubs(:is_active?).returns(false)
+         end
+         
+         @patient.hand_ended?.should == true
+      end
+   
+      it "correctly reports that the hand has ended when no player is active" do
+         pending 'mock out dealer communicator'
+         (@players.length).times do |i|
+            @players[i].stubs(:is_active?).returns(false)
+         end
+      
+         @patient.hand_ended?.should == true
+      end
+   
+      it "correctly reports that the hand has ended when there is a showdown" do
+         pending 'mock out dealer communicator'
+         list_of_opponents_hole_cards = []
+         (@game_definition.number_of_players - 1).times do
+            list_of_opponents_hole_cards << arbitrary_hole_card_hand
+         end
+         @match_state.stubs(:list_of_opponents_hole_cards).returns(list_of_opponents_hole_cards)
+      
+         list_of_all_player_hole_cards = list_of_opponents_hole_cards.insert @match_state.position_relative_to_dealer, @match_state.users_hole_cards
+         @match_state.stubs(:list_of_hole_card_sets).returns(list_of_all_player_hole_cards)
+      
+         # TODO LOOKFIRST
+         pending 'Need to stub :to_acpc_cards() for each player'
+      
+         @patient.update_state! @match_state
+         
+         @patient.hand_ended?.should == true
+      end
+   end
    
    
    
@@ -198,16 +235,12 @@ describe ProxyBot do
    #
    ## Helper methods ###########################################################
    #
-   #def for_every_round
-   #   MAX_VALUES[:rounds].times do |round|
-   #      @match_state.stubs(:round).returns(round)
-   #      @match_state.stubs(:number_of_actions_in_current_round).returns(0)
-   #      
-   #      @player_manager.expects(:update_state!).once
-   #      
-   #      @patient.update_state! @match_state
-   #      
-   #      yield round
-   #   end
-   #end
+   def for_every_round
+      MAX_VALUES[:rounds].times do |round|
+         @match_state.stubs(:round).returns(round)
+         @match_state.stubs(:number_of_actions_in_current_round).returns(0)
+
+         yield round
+      end
+   end
 end

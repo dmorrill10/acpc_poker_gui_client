@@ -55,13 +55,13 @@ module ApplicationDefs
 
    # @return [String] File names of game definitions understood by this application.
    GAME_DEFINITION_FILE_NAMES = {
-           :two_player_limit_texas_holdem_poker => Rails.root.join('external', 'project_acpc_server', 'holdem.limit.2p.reverse_blinds.game'),
+           :two_player_limit_texas_holdem_poker => File.expand_path('external/project_acpc_server/holdem.limit.2p.reverse_blinds.game'),
            :two_player_no_limit_texas_holdem_poker =>
-                   Rails.root.join('external', 'project_acpc_server', 'holdem.nolimit.2p.reverse_blinds.game'),
+                   File.expand_path('external/project_acpc_server/holdem.nolimit.2p.reverse_blinds.game'),
            :three_player_limit_texas_holdem_poker =>
-                   Rails.root.join('external', 'project_acpc_server', 'holdem.limit.3p.game'),
+                   File.expand_path('external/project_acpc_server/holdem.limit.3p.game'),
            :three_player_no_limit_texas_holdem_poker =>
-                   Rails.root.join('external', 'project_acpc_server', 'holdem.nolimit.3p.game')
+                   File.expand_path('external/project_acpc_server/holdem.nolimit.3p.game')
    }
 
    # @return [String]  Label for match state strings.

@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+require File.expand_path('../../../../../../lib/bots/proxy_bot/domain_types/board_cards', __FILE__)
+
 describe MatchstateString do
    describe '#initialize' do
       describe 'raises an exception if the raw matchstate string' do   
@@ -23,8 +25,7 @@ describe MatchstateString do
             test_match_state_error MATCH_STATE_LABEL + ":0:0::"
          end
       end
-   
-      it "parses every possible action" do
+      it "parses every possible limit action" do
          partial_match_state = MATCH_STATE_LABEL + ":1:1:"
          hole_cards = arbitrary_hole_card_hand
          ACTION_TYPES.values.each do |action|
@@ -32,19 +33,8 @@ describe MatchstateString do
             
             patient = test_match_state_success match_state
             patient.last_action.should be == action
-            
-            match_state += '|'
          end
-      
-         # Check a no limit action as well
-         pending 'No-limit support'
-         
-         no_limit_action = ACTION_TYPES[:raise] + "123"
-         match_state = partial_match_state + no_limit_action + ":#{hole_cards}"
-         patient = test_match_state_success match_state
-         patient.last_action.should be == no_limit_action
       end
-   
       it "parses every possible hole card hand" do
          partial_match_state = MATCH_STATE_LABEL + ":2:2::"
          LIST_OF_HOLE_CARD_HANDS.each do |hand|
@@ -53,16 +43,54 @@ describe MatchstateString do
             test_match_state_success match_state
          end
       end
-   
+      it "parses opponent hole card hands in a two player game" do
+         partial_match_state = MATCH_STATE_LABEL + ":2:2::"
+         LIST_OF_HOLE_CARD_HANDS.each do |hand|
+            match_state = partial_match_state + arbitrary_hole_card_hand + '|' + hand
+            
+            test_match_state_success match_state
+         end
+      end
+      it 'parses board cards properly for the flop' do
+         partial_match_state = MATCH_STATE_LABEL + ":2:2::" + arbitrary_hole_card_hand
+         board_cards = BoardCards.new ['Ah', 'Kd', 'Qc']
+         flop_match_state = partial_match_state + board_cards
+         
+         patient = MatchstateString.new flop_match_state
+         
+         patient.board_cards.should be == board_cards
+      end
+      it 'parses board cards properly for the turn' do
+         partial_match_state = MATCH_STATE_LABEL + ":2:2::" + arbitrary_hole_card_hand
+         board_cards = BoardCards.new ['Ah', 'Kd', 'Qc', 'Jd']
+         turn_match_state = partial_match_state + board_cards
+         
+         patient = MatchstateString.new turn_match_state
+         
+         patient.board_cards.should be == board_cards
+      end
+      it 'parses board cards properly for the river' do
+         partial_match_state = MATCH_STATE_LABEL + ":2:2::" + arbitrary_hole_card_hand
+         board_cards = BoardCards.new ['Ah', 'Kd', 'Qc', 'Jd', 'Th']
+         river_match_state = partial_match_state + board_cards
+         
+         patient = MatchstateString.new river_match_state
+         
+         patient.board_cards.should be == board_cards
+      end
       it "parses valid limit match states in all rounds" do
+         pending 'need to look at this test'
+         
          test_all_rounds_with_given_action_string ACTION_TYPES.values.join ''
       end
-   
       it "parses valid no-limit match states in all rounds" do
+         pending 'no-limit support'
+         
          test_all_rounds_with_given_action_string ACTION_TYPES[:raise], 1
       end
-   
       it "parses a valid two player final match state" do
+         pending 'need to look at this test'
+         
          partial_match_state = MATCH_STATE_LABEL + ":20:22:"
          all_actions = ACTION_TYPES.values.join ''
          betting = all_actions
@@ -75,7 +103,6 @@ describe MatchstateString do
          
          test_match_state_success match_state
       end
-   
       it "parses a valid three player final match state" do
          pending 'move game definition params into match state string'
          
@@ -111,7 +138,7 @@ describe MatchstateString do
    # Non-test methods #########################################################
    
    # @param [Integer] An amount to append to actions.  If none is given,
-   # +raise_amount+ defaults to an empty string.
+   #  +raise_amount+ defaults to an empty string.
    def test_all_rounds_with_given_action_string(action_string, raise_amount = '')
       partial_match_state = MATCH_STATE_LABEL + ":1:0:"
       
@@ -151,9 +178,7 @@ describe MatchstateString do
       [betting_string, list_of_betting_actions]
    end
    
-   def last_action(list_of_betting_actions)
-      log "last_action: list_of_betting_actions: #{list_of_betting_actions}"
-      
+   def last_action(list_of_betting_actions)      
       list_of_betting_actions[-1]
    end
    
@@ -177,11 +202,9 @@ describe MatchstateString do
    end
    
    def test_match_state_success(match_state)
-      patient = catch(:incomplete_match_state) do
-         MatchstateString.new match_state
-      end
-      patient.should be_a_kind_of MatchstateString
+      patient = MatchstateString.new match_state
       patient.to_s.should be == match_state
+      
       patient
    end
    

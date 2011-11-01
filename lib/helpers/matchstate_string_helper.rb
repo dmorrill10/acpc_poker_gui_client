@@ -1,4 +1,6 @@
-require 'application_defs'
+# Local modules
+require File.expand_path('../../application_defs', __FILE__)
+require File.expand_path('../application_helpers', __FILE__)
 
 # Assortment of static helper methods for the MatchstateString model.
 module MatchstateStringHelper

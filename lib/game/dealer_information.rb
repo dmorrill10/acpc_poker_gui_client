@@ -1,5 +1,5 @@
 
-# A table participants may join to play poker.
+# Information about a dealer instance.
 class DealerInformation  
    # @return [String] The host name of the dealer associated with this table.
    attr_reader :host_name

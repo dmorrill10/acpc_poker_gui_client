@@ -1,22 +1,28 @@
 require 'spec_helper'
 
+# Local classes
+require File.expand_path('../../../../../lib/bots/proxy_bot/communication_logic/acpc_dealer_communicator', __FILE__)
+require File.expand_path('../../../../../lib/bots/proxy_bot/communication_logic/action_sender', __FILE__)
+require File.expand_path('../../../../../lib/bots/proxy_bot/communication_logic/matchstate_string_receiver', __FILE__)
+require File.expand_path('../../../../../lib/game/dealer_information', __FILE__)
+
 describe ProxyBot do
    before(:each) do
       @match_state = create_initial_match_state
-   end
-
-   describe '#initialize' do
-      it 'connects to the ACPC Dealer' do
-         pending 'mock out dealer communicator'
-         patient = ProxyBot.new 
-      end
+      
+      port_number = 9001
+      host_name = 'localhost'
+      delaer_info = DealerInformation.new host_name, port_number
+      AcpcDealerCommunicator.expects(:new).once.with(port_number, host_name)
+      
+      @patient = ProxyBot.new delaer_info
    end
 
    describe '#hand_ended?' do
       it "correctly reports that the hand has not ended for all rounds in Texas Hold'em" do
          pending 'mock out dealer communicator'
          for_every_round do |round|
-            @patient.hand_ended?.should == false
+            patient.hand_ended?.should == false
          end
       end
    

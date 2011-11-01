@@ -18,7 +18,13 @@ class BoardCards < PileOfCards
       @number_of_board_cards_in_each_round = number_of_board_cards_in_each_round
    end
    
+   # @see #to_str
    def to_s
+      to_str
+   end
+   
+   # @return [String] The string representation of these board cards.
+   def to_str
       string = ''
       return string if self.empty?
       count = 0

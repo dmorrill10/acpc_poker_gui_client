@@ -12,7 +12,7 @@ class ProxyBot
    
    # @param [DealerInformation] dealer_information Information about the dealer to which this bot should connect.
    def initialize(dealer_information)
-      dealer_communicator = AcpcDealerCommunicator.new dealer_information.port_number, dealer_information.host_name
+      @dealer_communicator = AcpcDealerCommunicator.new dealer_information.port_number, dealer_information.host_name
    end
    
    # @param [Symbol] action The action to be sent.
@@ -25,7 +25,8 @@ class ProxyBot
    
    # @return [MatchState] 
    def update_match_state!()
-      @last_round = @match_state_string.round
+      # @todo Not sure if I need to keep track of this
+      @last_round = @match_state_string.round if @match_state_string
       @match_state_string = MatchstateStringReceiver.receive_matchstate_string @dealer_communicator
    end
    
@@ -42,15 +43,13 @@ class ProxyBot
       ## Check if the match has ended
       #users_turn_to_act &= !match_ended?
       #
-      #log "users_turn_to_act?: #{users_turn_to_act}"
-      #
       #users_turn_to_act
    end
    
    private
    
    #@todo This may not work if the dealer just immediately sends the next match state after a fold
-   def less_than_two_active_players
+   def less_than_two_active_players?
       'f' == @match_state_string.last_action
    end
    

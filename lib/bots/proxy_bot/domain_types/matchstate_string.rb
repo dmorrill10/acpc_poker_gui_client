@@ -175,10 +175,7 @@ class MatchstateString
    def parse_list_of_hole_card_hands(string_of_hole_cards)      
       list_of_hole_card_hands = []
       for_every_set_of_cards(string_of_hole_cards, '\|') do |string_hand|
-         hand = Hand.new
-         for_every_card(string_hand) do |card|
-            hand << card
-         end
+         hand = Hand.new string_hand
          list_of_hole_card_hands << hand
       end
       
@@ -206,9 +203,7 @@ class MatchstateString
       all_ranks = CARD_RANKS.values.join
       all_suits = CARD_SUITS.values.join
       
-      string_of_cards.scan(/[#{all_ranks}][#{all_suits}]/).each do |string_card|
-         puts "string_card: #{string_card}"
-         
+      string_of_cards.scan(/[#{all_ranks}][#{all_suits}]/).each do |string_card|        
          card = Card.new string_card
          yield card
       end

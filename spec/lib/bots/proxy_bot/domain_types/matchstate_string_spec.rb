@@ -43,12 +43,24 @@ describe MatchstateString do
             test_match_state_success match_state
          end
       end
-      it "parses opponent hole card hands in a two player game" do
-         partial_match_state = MATCH_STATE_LABEL + ":2:2::"
+      it "parses opponent hole card hands in a two player game where the user is not the dealer" do
+         partial_match_state = MATCH_STATE_LABEL + ":0:2::"
          LIST_OF_HOLE_CARD_HANDS.each do |hand|
             match_state = partial_match_state + arbitrary_hole_card_hand + '|' + hand
             
-            test_match_state_success match_state
+            patient = test_match_state_success match_state
+            
+            (patient.list_of_opponents_hole_cards.map{|opponent_hand| opponent_hand.to_s}).should be ==([hand])
+         end
+      end
+      it "parses opponent hole card hands in a two player game where the user is the dealer" do
+         partial_match_state = MATCH_STATE_LABEL + ":1:2::"
+         LIST_OF_HOLE_CARD_HANDS.each do |hand|
+            match_state = partial_match_state + hand + '|' + arbitrary_hole_card_hand
+            
+            patient = test_match_state_success match_state
+            
+            (patient.list_of_opponents_hole_cards.map{|opponent_hand| opponent_hand.to_s}).should be ==([hand])
          end
       end
       it 'parses board cards properly for the flop' do

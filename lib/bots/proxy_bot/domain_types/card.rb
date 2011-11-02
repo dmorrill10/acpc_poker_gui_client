@@ -20,7 +20,6 @@ class Card
    # @return [Suit] This card's suit.
    attr_reader :suit
       
-
    def initialize(card_string_or_rank, suit=nil)
       if suit
          create_with_rank_and_suit card_string_or_rank, suit

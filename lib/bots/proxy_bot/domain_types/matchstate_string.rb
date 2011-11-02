@@ -112,7 +112,7 @@ class MatchstateString
    
    # @return [Array] The list of opponent hole cards that are visible.
    # @example If there are two opponents, one with AhKs and the other with QdJc, then
-   #     list_of_opponents_hole_cards == ['AhKs', 'QdJc']
+   #     list_of_opponents_hole_cards == [AhKs:Hand, QdJc:Hand]
    def list_of_opponents_hole_cards
       local_list_of_hole_card_hands = list_of_hole_card_hands
       local_list_of_hole_card_hands.delete_at @position_relative_to_dealer

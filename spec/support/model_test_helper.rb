@@ -1,7 +1,8 @@
 require 'spec_helper'
 require 'application_defs'
 
-require 'card'
+require File.expand_path('../../../lib/bots/proxy_bot/domain_types/card', __FILE__)
+require File.expand_path('../../../lib/bots/proxy_bot/domain_types/hand', __FILE__)
 
 # Assortment of methods to support model tests
 module ModelTestHelper   
@@ -108,8 +109,12 @@ module ModelTestHelper
    
    # Construct an arbitrary hole card hand.
    #
-   # @return [String] An arbitrary hole card hand.
+   # @return [Mock Hand] An arbitrary hole card hand.
    def arbitrary_hole_card_hand
-      CARD_RANKS[:two] + CARD_SUITS[:spades] + CARD_RANKS[:three] + CARD_SUITS[:hearts]
+      hand = mock('Hand')
+      hand.stubs(:to_str).returns(CARD_RANKS[:two] + CARD_SUITS[:spades] + CARD_RANKS[:three] + CARD_SUITS[:hearts])
+      hand.stubs(:to_s).returns(CARD_RANKS[:two] + CARD_SUITS[:spades] + CARD_RANKS[:three] + CARD_SUITS[:hearts])
+      
+      hand
    end
 end

@@ -56,7 +56,7 @@ class AcpcDealerCommunicator
       begin
          send_string_to_dealer string
       rescue
-         handle_error PutsToAcpcDealerError, "Unable to send the string, \"#{string}\", to the dealer"
+         handle_error PutToAcpcDealerError, "Unable to send the string, \"#{string}\", to the dealer"
       end
    end
    
@@ -83,7 +83,7 @@ class AcpcDealerCommunicator
       begin
          send_string_to_dealer version_string
       rescue
-         handle_error PutsToAcpcDealerError, "Unable to send version string, \"#{version_string}\", to the dealer"
+         handle_error PutToAcpcDealerError, "Unable to send version string, \"#{version_string}\", to the dealer"
       end
    end
    

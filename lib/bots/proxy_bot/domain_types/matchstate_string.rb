@@ -175,7 +175,7 @@ class MatchstateString
    def parse_list_of_hole_card_hands(string_of_hole_cards)      
       list_of_hole_card_hands = []
       for_every_set_of_cards(string_of_hole_cards, '\|') do |string_hand|
-         hand = Hand.new string_hand
+         hand = Hand.draw_cards string_hand
          list_of_hole_card_hands << hand
       end
       

@@ -18,7 +18,7 @@ describe Hand do
       end
       it 'understands every possible string hand' do
          LIST_OF_HOLE_CARD_HANDS.each do |string_hand|
-            patient = Hand.new string_hand
+            patient = Hand.draw_cards string_hand
             
             patient.to_s.should be == string_hand
          end

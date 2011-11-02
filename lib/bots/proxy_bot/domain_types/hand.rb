@@ -11,15 +11,15 @@ class Hand < PileOfCards
    include ApplicationDefs
    
    # @param [String] hand The string representation of this hand.
-   # @param [Array] hand The +Cards+ in this hand.
-   def initialize(hand)
+   def self.draw_cards(hand)
       if hand.kind_of? String
          hand_array = []
          for_every_card(hand) do |card|
             hand_array << card
          end
+         hand = hand_array
       end
-      super hand
+      Hand.new hand
    end
    # @see #to_str
    def to_s
@@ -32,7 +32,7 @@ class Hand < PileOfCards
    
    private
    
-   def for_every_card(string_of_cards)
+   def self.for_every_card(string_of_cards)
       all_ranks = CARD_RANKS.values.join
       all_suits = CARD_SUITS.values.join
       

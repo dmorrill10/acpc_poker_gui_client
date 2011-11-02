@@ -1,26 +1,39 @@
+#!/usr/bin/env ruby
 
-# Local modules
-#require 'models_helper'
+# Local classes
+require File.expand_path('../proxy_bot/proxy_bot', __FILE__)
+require File.expand_path('../../game/dealer_information', __FILE__)
 
-class TestingRubyBot # TODO < I_Bot
-   #include ModelsHelper
-   
-   trap("CLD") do
-      pid = Process.wait
-      puts "Child pid #{pid}: terminated"
-      exit
-   end
-   
-   def self.connect_to_dealer!(arguments)
-      #log "connect_to_dealer!: #{arguments}"
+class TestingRubyBot
+   def self.play
+      port_number = ARGV[0] || 18374
+      dealer_info = DealerInformation.new 'localhost', port_number
+      proxy_bot = ProxyBot.new dealer_info
       
-#      fake_acpc_client_path = Rails.root.join('external', 'fake_acpc_server', 'fake_acpc_client.rb')
-      fake_acpc_client_path = '/home/dmorrill/workspace/acpcpokerguiclient/external/fake_acpc_server/fake_acpc_client.rb'
+      puts 'Entering game loop'
       
-      puts "connect_to_dealer!: fake_acpc_client_path: #{fake_acpc_client_path}"
-      #log "connect_to_dealer!: fake_acpc_client_path: #{fake_acpc_client_path}"
+      proxy_bot.receive_match_state_string
       
-      #TODO Should a system, exec, or pipe be done here?
-      exec("#{fake_acpc_client_path} #{arguments[:port_number]} > outputFromFakeClient.txt") if fork == nil
+      puts 'Got first match state'
+      
+      counter = 0
+      while true do
+         begin
+            case (counter % 3)
+               when 0
+                  proxy_bot.send_action :call
+               when 1
+                  proxy_bot.send_action :fold
+               when 2
+                  proxy_bot.send_action :raise
+            end
+            counter += 1
+            proxy_bot.receive_match_state_string
+         rescue
+            exit
+         end
+      end
    end
 end
+
+TestingRubyBot.play # run independently

@@ -1,4 +1,7 @@
 
+# Database module
+require 'mongoid'
+
 # Local modules
 require File.expand_path('../board_cards', __FILE__)
 require File.expand_path('../hand', __FILE__)
@@ -14,6 +17,7 @@ require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
 class MatchstateString
    include ModelsHelper
    include MatchstateStringHelper
+   include Mongoid::Fields::Serializable
    
    exceptions :incomplete_matchstate_string, :unable_to_parse_string_of_cards
    
@@ -68,17 +72,25 @@ class MatchstateString
    
       raise IncompleteMatchstateString, raw_match_state if incomplete_match_state?      
    end
+   
+   #@todo fix
+   def deserialize(attribute_map)
+      list_of_hole_card_hands = attribute_map[:list_of_hole_card_hands]
+      raw_match_state_string = build_match_state_string @position_relative_to_dealer, @hand_number,
+         @betting_sequence, string_of_hole_cards, @board_cards
+      initialize 
+   end
+
+   # @todo fix
+  def serialize(matchstate_string)
+    { :x => object.x, :y => object.y }
+  end
 
    # @return [String] The MatchstateString in raw text form.
    def to_s
       # @todo fix this
-      number_of_players = 2
-      #string_of_hole_cards = if 1 == @position_relative_to_dealer then '|' else '' end
-      string_of_hole_cards = ''
-      @list_of_hole_card_hands.each_index do |hand_index|
-         string_of_hole_cards += @list_of_hole_card_hands[hand_index]
-         string_of_hole_cards += '|' if hand_index < @list_of_hole_card_hands.length - 1
-      end
+      string_of_hole_cards = hole_card_strings @list_of_hole_card_hands
+      
       build_match_state_string @position_relative_to_dealer, @hand_number,
          @betting_sequence, string_of_hole_cards, @board_cards
    end
@@ -200,5 +212,15 @@ class MatchstateString
          card = Card.new string_card
          yield card
       end
+   end
+   
+   def hole_card_strings(list_of_hole_card_hands)
+      number_of_players = 2
+      string_of_hole_cards = ''
+      list_of_hole_card_hands.each_index do |hand_index|
+         string_of_hole_cards += list_of_hole_card_hands[hand_index]
+         string_of_hole_cards += '|' if hand_index < list_of_hole_card_hands.length - 1
+      end
+      string_of_hole_cards
    end
 end

@@ -32,10 +32,10 @@ class SidePot < ChipStack
    def deserialize(players_involved_and_their_amounts_contributed)
       side_pot
       players_involved_and_their_amounts_contributed.each do |player, amount|
-         if side_pot
-            side_pot.contribute! player, amount if side_pot
+         unless side_pot
+            side_pot = SidePot.new player, amount
          else
-            side_pot = SidePot.new player, amount   
+            side_pot.contribute! player, amount if side_pot
          end
       end
       side_pot

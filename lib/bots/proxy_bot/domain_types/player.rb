@@ -61,6 +61,7 @@ class Player
    # @param [Integer] position_relative_to_user This player's position
    #     relative to the user, 0 indexed, modulo the number of players in
    #     the game.
+   # @param [Stack] stack This player's stack.
    def initialize(name, seat, position_relative_to_dealer, position_relative_to_user, stack)
       (@name, @seat, @position_relative_to_dealer, @position_relative_to_user, @stack) =
          [name, seat, position_relative_to_dealer, position_relative_to_user, stack]
@@ -87,7 +88,14 @@ class Player
 
    # @todo Mongoid method
    def serialize(player)
-      #player.players_involved_and_their_amounts_contributed
+      player.to_hash
+   end
+   
+   # @return [Hash] Hash map representation of this player.
+   def to_hash
+      hash_rep = {}
+      self.instance_variables.each { |var| hash_rep.store(var.to_s.delete("@"), self.instance_variable_get(var)) }
+      hash_rep
    end
    
    # @return [Boolean] Whether or not this player is active (has not folded

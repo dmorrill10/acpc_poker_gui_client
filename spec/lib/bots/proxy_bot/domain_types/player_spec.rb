@@ -31,9 +31,9 @@ describe Player do
       @seat = '1'
       @position_relative_to_dealer = '0'
       @position_relative_to_user = '1'
-      @stack = FakeChipStack.new 2000
+      @chip_stack = FakeChipStack.new 2000
       
-      @patient = Player.new @name, @seat, @position_relative_to_dealer, @position_relative_to_user, @stack
+      @patient = Player.new @name, @seat, @position_relative_to_dealer, @position_relative_to_user, @chip_stack
    end
    
    it 'reports its attributes correctly' do
@@ -41,7 +41,7 @@ describe Player do
       @patient.seat.should be == @seat
       @patient.position_relative_to_dealer.should be == @position_relative_to_dealer
       @patient.position_relative_to_user.should be == @position_relative_to_user
-      @patient.stack.should be == @stack
+      @patient.chip_stack.should be == @chip_stack
    end
    it 'reports it is not active if it is all-in' do
       @patient.is_active?.should be == true
@@ -56,10 +56,10 @@ describe Player do
    it 'properly changes its state when it contributes chips to a side-pot' do
       @patient.chip_balance.should be == 0
       
-      @patient.take_from_stack! @stack.value
+      @patient.take_from_chip_stack! @chip_stack.value
       
-      @patient.stack.value.should be == 0
-      @patient.chip_balance.should be == -@stack.value
+      @patient.chip_stack.value.should be == 0
+      @patient.chip_balance.should be == -@chip_stack.value
    end
    it 'properly changes its state when it wins chips' do
       @patient.chip_balance.should be == 0
@@ -67,7 +67,7 @@ describe Player do
       pot_size = 22
       @patient.take_winnings! pot_size
       
-      @patient.stack.should be == @stack + pot_size
+      @patient.chip_stack.should be == @chip_stack + pot_size
       @patient.chip_balance.should be == pot_size
    end
 end

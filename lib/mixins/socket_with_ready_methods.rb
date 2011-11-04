@@ -1,8 +1,6 @@
 
-require 'socket'
-
-# Mixin to add methods to the standard TCPSocket
-class TCPSocket
+# Mixin to add methods to IO so that they will also be inherited by TCPSocket.
+class IO
    # Checks if the socket is ready to be read from.
    # @return [Boolean] +true+ if the socket is ready to be read from, +false+ otherwise.
    def ready_to_read?

@@ -37,8 +37,8 @@ class Player
    #     +true+ if this player is all-in, +false+ otherwise.
    attr_accessor :is_all_in
    
-   # @return [Stack] This player's stack.
-   attr_reader :stack
+   # @return [ChipStack] This player's chip stack.
+   attr_reader :chip_stack
    
    # @return [Integer] The amount this player has won or lost in the current
    #  match.  During a hand, this is a projected amount assuming that this
@@ -61,10 +61,9 @@ class Player
    # @param [Integer] position_relative_to_user This player's position
    #     relative to the user, 0 indexed, modulo the number of players in
    #     the game.
-   # @param [Stack] stack This player's stack.
-   def initialize(name, seat, position_relative_to_dealer, position_relative_to_user, stack)
-      (@name, @seat, @position_relative_to_dealer, @position_relative_to_user, @stack) =
-         [name, seat, position_relative_to_dealer, position_relative_to_user, stack]
+   def initialize(name, seat, position_relative_to_dealer, position_relative_to_user, chip_stack)
+      (@name, @seat, @position_relative_to_dealer, @position_relative_to_user, @chip_stack) =
+         [name, seat, position_relative_to_dealer, position_relative_to_user, chip_stack]
       
       @has_folded = false
       @is_all_in = false
@@ -75,28 +74,23 @@ class Player
    
    # @todo Mongoid method
    def deserialize(attribute_hash)
-      #side_pot
-      #players_involved_and_their_amounts_contributed.each do |player, amount|
-      #   if side_pot
-      #      side_pot.contribute! player, amount if side_pot
-      #   else
-      #      side_pot = SidePot.new player, amount   
-      #   end
-      #end
-      #side_pot
-   end
-
-   # @todo Mongoid method
-   def serialize(player)
-      player.to_hash
+      Player.new attribute_hash[:name], attribute_hash[:seat],
+         attribute_hash[:position_relative_to_dealer],
+         attribute_hash[:position_relative_to_user],
+         attribute_hash[:chip_stack]
    end
    
-   # @return [Hash] Hash map representation of this player.
-   def to_hash
-      hash_rep = {}
-      self.instance_variables.each { |var| hash_rep.store(var.to_s.delete("@"), self.instance_variable_get(var)) }
-      hash_rep
+   # @todo Mongoid method
+   def serialize(player)
+		player.to_hash
    end
+   
+	# @return [Hash] Hash map representation of this player.
+	def to_hash
+      hash_rep = {}
+		self.instance_variables.each { |var| hash_rep.store(var.to_s.delete("@"), self.instance_variable_get(var)) }
+		hash_rep
+	end
    
    # @return [Boolean] Whether or not this player is active (has not folded
    #     or gone all-in).  +true+ if this player is active, +false+ otherwise.
@@ -111,11 +105,11 @@ class Player
       take_chips_from_the_pot! number_of_chips_from_the_pot
    end
    
-   # Take chips away from this player's stack.
-   # @param (see Stack#take_from!)
-   # @raise (see Stack#take_from!)
-   def take_from_stack!(number_of_chips)
-      @stack.take_from! number_of_chips
+   # Take chips away from this player's chip stack.
+   # @param (see ChipStack#take_from!)
+   # @raise (see ChipStack#take_from!)
+   def take_from_chip_stack!(number_of_chips)
+      @chip_stack.take_from! number_of_chips
    end
    
    # All following methods are private ########################################
@@ -123,13 +117,13 @@ class Player
    
    def take_chips_from_the_pot!(amount)
       @number_of_chips_in_the_pot = if amount > @number_of_chips_in_the_pot then 0 else @number_of_chips_in_the_pot - amount end
-      @stack += amount
+      @chip_stack += amount
       @chip_balance += amount
    end
    
    def put_chips_in_the_pot!(amount)
       @number_of_chips_in_the_pot += amount
-      @stack -= amount
+      @chip_stack -= amount
       @chip_balance -= amount
    end
 end

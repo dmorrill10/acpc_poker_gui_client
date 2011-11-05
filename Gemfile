@@ -58,6 +58,9 @@ group :development, :test do
   
   # Factory gem
   gem 'factory_girl_rails'
+  
+  # Higher level testing/acceptance requirements
+  gem 'cucumber'
 end
 
 # JavaScript runtime

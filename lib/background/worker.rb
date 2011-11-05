@@ -42,14 +42,17 @@ Stalker.job('Start Dealer') do |match_id, dealer_parameters|
    # Store the port numbers in the database so the web app. can access them
    match = Match.find match_id
    match.port_numbers = port_numbers
+   
+   puts 'Started dealer and exiting from Stalker job'
 end
 
 
 Stalker.job('Start WebApplicationPlayerProxy') do |match_id, host_name, port_number, game_definition_file_name|
    dealer_information = DealerInformation.new host_name, port_number
+   
    match_id = args[:match_id]
    match = Match.find match_id
-   @match_id_to_web_application_player_proxy_map[match_id] = WebApplicationPlayerProxy.new match, dealer_information
+   @match_id_to_web_application_player_proxy_map[match_id] = WebApplicationPlayerProxy.new match, dealer_information, game_definition_file_name
 end
 
 # @todo Catch errors

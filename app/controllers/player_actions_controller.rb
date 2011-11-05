@@ -42,11 +42,8 @@ class PlayerActionsController < ApplicationController
          :player_names => player_names
       }
       
-      # Initialize a game table record
-      match = Match.create(game_arguments)
-      
       # Start the player that represents the browser operator
-      Stalker.enqueue("Game.start", :id => match.id.to_s)
+      #Stalker.enqueue("Game.start", :id => match.id.to_s)
       
       # Wait for the player to start and catch errors
       

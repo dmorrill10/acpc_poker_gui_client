@@ -6,6 +6,9 @@
 require 'application_defs'
 require 'application_helper'
 
+# Local classes
+require 'match'
+
 # Controller for the 'start a new game' view.
 class NewGameController < ApplicationController
    include ApplicationDefs
@@ -19,15 +22,20 @@ class NewGameController < ApplicationController
 
    # Starts a new two-player limit game.
    def two_player_limit
-      (@port_number,
-       @match_name,
-       @game_definition_file_name,
-       @number_of_hands,
-       @random_seed,
-       @player_names) = two_player_limit_params
+      @match_params = two_player_limit_params params
             
-      dealer_arguments = [@match_name, @game_definition_file_name.to_s, @number_of_hands.to_s, @random_seed.to_s, @player_names.split(/\s*,?\s+/)].flatten
+      dealer_arguments = [@match_params[:match_name],
+                          @match_params[:game_definition_file_name].to_s,
+                          @match_params[:number_of_hands].to_s,
+                          @match_params[:random_seed].to_s,
+                          @match_params[:player_names].split(/\s*,?\s+/)].flatten
       
+      # Initialize a match
+      match = Match.create(parameters: @match_parameters)
+      
+      ## Start the player that represents the browser operator
+      #Stalker.enqueue("Game.start", :id => match.id.to_s)
+      #
       # TODO Make sure the background server is started at this point
       
       # Start the dealer

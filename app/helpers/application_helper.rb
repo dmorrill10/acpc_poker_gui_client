@@ -54,22 +54,23 @@ module ApplicationHelper
       end
    end
    
-   # @return [Array] An array containing the game parameters.
-   def two_player_limit_params
-      port_number = if params[:port_number] then params[:port_number] else 18791 end
-      match_name = if params[:match_name] then params[:match_name] else 'default' end
+   # @param [Hash] params Parameters from the view.
+   # @return [Hash] A hash containing the game parameters.
+   def two_player_limit_params(params)
+      port_number = params[:port_number] || 18791
+      match_name = params[:match_name] || 'default'
       game_definition_file_name = GAME_DEFINITION_FILE_NAMES[:two_player_limit_texas_holdem_poker]
-      number_of_hands = if params[:number_of_hands] then params[:number_of_hands] else 1 end
+      number_of_hands = params[:number_of_hands] || 1
       random_seed = if params[:random_seed] then
          params[:random_seed]
       else
-         # TODO not sure what the maximum random seed should be
+         # @todo not sure what the maximum random seed should be
          if NO_RANDOM then 1 else rand 100 end
       end
       
-      player_names = if params[:player_names] then params[:player_names] else "user, p2" end
+      player_names = params[:player_names] || 'user, p2'
       
-      [port_number, match_name, game_definition_file_name, number_of_hands, random_seed, player_names]
+      {port_number: port_number, match_name: match_name, game_definition_file_name: game_definition_file_name, number_of_hands: number_of_hands, random_seed: random_seed, player_names: player_names}
    end
    
 end

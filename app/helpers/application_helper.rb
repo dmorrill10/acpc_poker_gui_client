@@ -57,15 +57,15 @@ module ApplicationHelper
    # @param [Hash] params Parameters from the view.
    # @return [Hash] A hash containing the game parameters.
    def two_player_limit_params(params)
-      port_number = params[:port_number] || 18791
+      port_number = params[:port_number] || '18791'
       match_name = params[:match_name] || 'default'
       game_definition_file_name = GAME_DEFINITION_FILE_NAMES[:two_player_limit_texas_holdem_poker]
-      number_of_hands = params[:number_of_hands] || 1
+      number_of_hands = params[:number_of_hands] || '1'
       random_seed = if params[:random_seed] then
          params[:random_seed]
       else
          # @todo not sure what the maximum random seed should be
-         if NO_RANDOM then 1 else rand 100 end
+         if NO_RANDOM then '1' else (rand 100).to_s end
       end
       
       player_names = params[:player_names] || 'user, p2'

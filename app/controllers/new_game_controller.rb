@@ -1,6 +1,6 @@
 
 # Third party
-
+require 'stalker'
 
 # Local modules
 require 'application_defs'
@@ -21,22 +21,46 @@ class NewGameController < ApplicationController
    end
 
    # Starts a new two-player limit game.
+   # @todo turn this into a create method and get the game definition from the view
    def two_player_limit
       @match_params = two_player_limit_params params
-            
-      dealer_arguments = [@match_params[:match_name],
-                          @match_params[:game_definition_file_name].to_s,
-                          @match_params[:number_of_hands].to_s,
-                          @match_params[:random_seed].to_s,
-                          @match_params[:player_names].split(/\s*,?\s+/)].flatten
       
       # Initialize a match
-      match = Match.create(parameters: @match_parameters)
+      match = Match.new(parameters: @match_params)
       
+      unless match.save
+         flash[:notice] = 'Ah! The match did not save, please retry.'
+         redirect_to new_game_path, :remote => true
+      else
+         dealer_arguments = [@match_params[:match_name],
+                             @match_params[:game_definition_file_name].to_s,
+                             @match_params[:number_of_hands],
+                             @match_params[:random_seed],
+                             @match_params[:player_names].split(/\s*,?\s+/)].flatten
+         
+         id = match.id
+         
+         # @todo Make sure the background server is started at this point      
+         Stalker.enqueue('Dealer.start', :match_id => id, :dealer_arguments => dealer_arguments)
+         
+         # Busy waiting for the match to be changed by the background process
+         while !match.port_numbers
+            match = Match.find(id)
+            
+            # Tell the user that the dealer is starting up
+            # @todo Use a processing spinner            
+            flash[:notice] = 'The dealer is starting...'
+            puts flash[:notice]
+         end
+         
+         flash[:notice] = 'Port numbers: ' + match.port_numbers.to_s
+         
+         puts flash[:notice]
+         
       ## Start the player that represents the browser operator
       #Stalker.enqueue("Game.start", :id => match.id.to_s)
       #
-      # TODO Make sure the background server is started at this point
+      
       
       # Start the dealer
 
@@ -72,11 +96,9 @@ class NewGameController < ApplicationController
       #   # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
       #   warn "ERROR: Unable to add bot to table: #{unable_to_add_bot_to_table.message}\n"
       #   return
-      #end
-      
-      log 'two_player_limit: sending parameters to connect to dealer'
-      
-      send_parameters_to_connect_to_dealer
+      #end      
+         send_parameters_to_connect_to_dealer
+      end
    end
 
    # Starts a new two-player no-limit game.

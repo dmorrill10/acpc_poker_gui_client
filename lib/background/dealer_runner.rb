@@ -1,4 +1,7 @@
 
+# Local mixins
+require File.expand_path('../../mixins/socket_with_ready_methods', __FILE__)
+
 # Worker to run the ACPC dealer.
 class AcpcDealerRunner
    
@@ -15,13 +18,13 @@ class AcpcDealerRunner
    # Starts an ACPC dealer instance with the given +dealer_arguments+.
    # @param [Array] dealer_arguments Arguments to the new dealer instance.
    def initialize(dealer_arguments)
-      dealer_path = File.expand_path '../../../external/project_acpc_server/dealer'
+      dealer_path = File.expand_path('../../../external/project_acpc_server/dealer', __FILE__)
       dealer_start_command = dealer_arguments.unshift dealer_path.to_s
       
       begin
          puts "start_dealer!: dealer_start_command: #{dealer_start_command}"
          
-         @pipe_to_dealer = IO.popen(dealer_start_command << '> outputFromDealer.txt')
+         @pipe_to_dealer = IO.popen(dealer_start_command)
          
          puts "start_dealer!: @pipe_to_dealer.closed?: #{@pipe_to_dealer.closed?}"
       rescue

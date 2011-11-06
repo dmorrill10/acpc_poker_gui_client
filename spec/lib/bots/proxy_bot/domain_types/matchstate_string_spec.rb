@@ -1,8 +1,16 @@
 require 'spec_helper'
 
+# Local modules
+require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../support/model_test_helper', __FILE__)
+
+# Local classes
 require File.expand_path('../../../../../../lib/bots/proxy_bot/domain_types/board_cards', __FILE__)
 
 describe MatchstateString do
+   include ApplicationDefs
+   include ModelTestHelper
+   
    describe '#initialize' do
       describe 'raises an exception if the raw matchstate string' do   
          it 'is empty' do

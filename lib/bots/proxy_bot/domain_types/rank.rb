@@ -1,9 +1,9 @@
 
 # Local modules
-require File.expand_path('../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../application_defs', __FILE__)
 
 # Local mixins
-require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
+require File.expand_path('../../../../mixins/easy_exceptions', __FILE__)
 
 class Rank
    include ApplicationDefs

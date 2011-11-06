@@ -1,13 +1,12 @@
 require 'spec_helper'
-require 'application_defs'
+
+require File.expand_path('../../../lib/application_defs', __FILE__)
 
 require File.expand_path('../../../lib/bots/proxy_bot/domain_types/card', __FILE__)
 require File.expand_path('../../../lib/bots/proxy_bot/domain_types/hand', __FILE__)
 
 # Assortment of methods to support model tests
 module ModelTestHelper   
-   include ApplicationDefs
-   
    # Initialization methods ---------------------------------------------------
    def create_initial_match_state(number_of_players = 2)
       user_position = 1;
@@ -25,7 +24,7 @@ module ModelTestHelper
       initial_match_state.stubs(:round).returns(0)
       initial_match_state.stubs(:number_of_actions_in_current_round).returns(0)
       
-      raw_match_state =  MATCH_STATE_LABEL + ":#{user_position}:#{hand_number}::" + hole_card_hand
+      raw_match_state =  ApplicationDefs::MATCH_STATE_LABEL + ":#{user_position}:#{hand_number}::" + hole_card_hand
       initial_match_state.stubs(:to_s).returns(raw_match_state)
       
       [initial_match_state, user_position]
@@ -112,8 +111,8 @@ module ModelTestHelper
    # @return [Mock Hand] An arbitrary hole card hand.
    def arbitrary_hole_card_hand
       hand = mock('Hand')
-      hand.stubs(:to_str).returns(CARD_RANKS[:two] + CARD_SUITS[:spades] + CARD_RANKS[:three] + CARD_SUITS[:hearts])
-      hand.stubs(:to_s).returns(CARD_RANKS[:two] + CARD_SUITS[:spades] + CARD_RANKS[:three] + CARD_SUITS[:hearts])
+      hand.stubs(:to_str).returns(ApplicationDefs::CARD_RANKS[:two] + ApplicationDefs::CARD_SUITS[:spades] + ApplicationDefs::CARD_RANKS[:three] + ApplicationDefs::CARD_SUITS[:hearts])
+      hand.stubs(:to_s).returns(ApplicationDefs::CARD_RANKS[:two] + ApplicationDefs::CARD_SUITS[:spades] + ApplicationDefs::CARD_RANKS[:three] + ApplicationDefs::CARD_SUITS[:hearts])
       
       hand
    end

@@ -1,6 +1,14 @@
 require 'spec_helper'
 
+# Local modules
+require File.expand_path('../../../../../support/model_test_helper', __FILE__)
+
+# Local classes
+require File.expand_path('../../../../../../lib/bots/proxy_bot/domain_types/matchstate_string', __FILE__)
+
 describe MatchstateStringReceiver do
+   include ModelTestHelper
+   
    before(:each) do
       @connection = mock('AcpcDealerCommunicator')
       @matchstate = create_initial_match_state.shift

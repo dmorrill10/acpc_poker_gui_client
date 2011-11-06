@@ -5,22 +5,24 @@ require 'stalker'
 # Local modules
 require 'application_defs'
 require 'application_helper'
-# TODO refactor models helper
-require 'models_helper'
-
 
 
 # Controller for the main game view where the table and actions are presented to the player.
 # Impliments the actions in the main game view.
 class PlayerActionsController < ApplicationController
    include ApplicationDefs
-   include ModelsHelper
    include ApplicationHelper
    include PlayerActionsHelper
    
    # Sets up the game.  The params hash should contain a value for :port_number
    # and :game_definition_file_name.
    def index
+      @match_params = params
+      
+      # Start the player that represents the browser operator
+      #player_proxy_arguments = {match_id: id, host_name: 'localhost', port_number: port_numbers[0], game_definition_file_name: @match_params[:game_definition_file_name]}
+      #Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
+      
       #log 'index'
       #
       #port_number = params[:port_number]

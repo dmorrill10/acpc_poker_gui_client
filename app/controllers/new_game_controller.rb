@@ -56,12 +56,9 @@ class NewGameController < ApplicationController
          port_numbers = match.port_numbers
          flash[:notice] = 'Port numbers: ' + port_numbers.to_s
          
-         
          puts flash[:notice]
          
-         # Start the player that represents the browser operator
-         player_proxy_arguments = {match_id: id, host_name: 'localhost', port_number: port_numbers[0], game_definition_file_name: @match_params[:game_definition_file_name]}
-         Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
+         @opponent_port_number = port_numbers[1]
       
       
       # Start bots if there are not enough human players in the match
@@ -76,7 +73,9 @@ class NewGameController < ApplicationController
       #   # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
       #   warn "ERROR: Unable to add bot to table: #{unable_to_add_bot_to_table.message}\n"
       #   return
-      #end      
+      #end
+      
+      
          send_parameters_to_connect_to_dealer
       end
    end

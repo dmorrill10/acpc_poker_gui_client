@@ -33,6 +33,9 @@ require File.expand_path('../../lib/web_application_player_proxy/web_application
 # To run the dealer
 require File.expand_path('../../lib/background/dealer_runner', __FILE__)
 
+# For an opponent bot
+require File.expand_path('../../lib/bots/testing_ruby_bot', __FILE__)
+
 ###########################
 
 # Ensures that the map used to keep track of 
@@ -63,6 +66,16 @@ Stalker.job('PlayerProxy.start') do |params|
    background_processes = @match_id_to_background_processes[match_id] || {}
    background_processes[:player_proxy] = WebApplicationPlayerProxy.new match_id, dealer_information, params['game_definition_file_name']
    @match_id_to_background_processes[match_id] = background_processes
+end
+
+# @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'host_name'+, +'port_number'+, and +'game_definition_file_name'+.
+Stalker.job('Opponent.start') do |params|
+   dealer_information = DealerInformation.new params['host_name'], params['port_number']
+   
+   match_id = params['match_id']
+   background_processes = @match_id_to_background_processes[match_id] || {}
+   # @todo Fix this hack
+   background_processes[:opponent] = IO.popen("#{File.expand_path('../../lib/bots/testing_ruby_bot.rb', __FILE__)} #{params['port_number']}")
 end
 
 ## @todo Catch errors

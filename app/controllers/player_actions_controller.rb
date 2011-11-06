@@ -32,7 +32,13 @@ class PlayerActionsController < ApplicationController
          game_definition_file_name: @match_params[:game_definition_file_name]}
       Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
-      # @todo Wait for the player to start and catch errors
+      # Wait for the player to start and catch errors
+      @match = Match.find(@match_params[:match_id])
+      while !@match.state
+         @match = Match.find(@match_params[:match_id])
+         
+         # @todo Let the user know that the player is connecting
+      end
       
       replace_page_contents_with_updated_game_view
    end

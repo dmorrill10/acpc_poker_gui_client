@@ -31,7 +31,7 @@ describe NewGameController do
          post('two_player_limit', random_seed: match_params[:random_seed]).should redirect_to(new_game_path)
          flash[:notice].should_not be_nil
       end
-      it 'collects all necessary parameters for starting a match, creates a new Match, starts a dealer instance in the background, queries the Match for the port numbers, and sends the appropriate parameters to PlayerActionsController' do
+      it 'collects all necessary parameters for starting a match, creates a new Match, starts a dealer instance in the background, queries the Match for the port numbers, sends the appropriate parameters to PlayerActionsController, and starts the other players in the match' do
          match_params = generate_match_params
          
          # Mock and stub out the Match class and its instances
@@ -56,12 +56,15 @@ describe NewGameController do
          
          match_params[:port_number] = updated_match.port_numbers[0]
          
+         # Start an opponent in the background         
+         opponent_arguments = {match_id: match_params[:match_id], host_name: 'localhost',
+            port_number: updated_match.port_numbers[1],
+            game_definition_file_name: match_params[:game_definition_file_name]}
+         Stalker.expects(:enqueue).once.with('Opponent.start', opponent_arguments)
+         
          # Send a request to the controller and check that everything is working properly
          test_collects_all_necessary_parameters match_params
          flash[:notice].should == ('Port numbers: ' + updated_match.port_numbers.to_s)
-      end
-      it 'starts the other players in the match' do
-         pending
       end
    end
    

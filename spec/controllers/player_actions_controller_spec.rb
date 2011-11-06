@@ -9,7 +9,17 @@ describe PlayerActionsController do
    describe "POST 'index'" do
       it 'collects all necessary parameters for starting a player proxy, starts a player proxy in the background' do
          match_params = generate_match_params
+         
+         # Mock and stub out the Match class and its instances
+         match = mock('Match')
          match_params[:match_id] = '10'
+         id = match_params[:match_id]
+         match.stubs(:id).returns(id)
+         match.stubs(:state).returns(nil)
+         Match.stubs(:new).returns(match)
+         updated_match = mock('Match')
+         updated_match.stubs(:state).returns('match_state')
+         Match.stubs(:find).with(id).returns(updated_match)
          
          # Make sure a player proxy is started with the correct parameters
          player_proxy_arguments = {match_id: match_params[:match_id], host_name: 'localhost', port_number: match_params[:port_number], game_definition_file_name: match_params[:game_definition_file_name]}

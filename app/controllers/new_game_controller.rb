@@ -64,21 +64,15 @@ class NewGameController < ApplicationController
          @match_params[:port_number] = port_numbers[0]
          @opponent_port_number = port_numbers[1]
       
+         # @todo Start bots if there are not enough human players in the match
       
-      # Start bots if there are not enough human players in the match
-      
-      #bot_arguments = {:port_number => @opponent_port_number}
-
-      #begin
-      #   log 'two_player_limit: adding user to table'
-      #   
-      #   bot_user.add_user_to_table!(:arg => bot_arguments)
-      #rescue => unable_to_add_bot_to_table
-      #   # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
-      #   warn "ERROR: Unable to add bot to table: #{unable_to_add_bot_to_table.message}\n"
-      #   return
-      #end
-      
+         # Start an opponent
+         # @todo Make this better, with customization from the browser
+         opponent_arguments = {match_id: @match_params[:match_id],
+            host_name: 'localhost', port_number: @opponent_port_number,
+            game_definition_file_name: @match_params[:game_definition_file_name]}
+         
+         Stalker.enqueue('Opponent.start', opponent_arguments)      
       
          send_parameters_to_connect_to_dealer
       end

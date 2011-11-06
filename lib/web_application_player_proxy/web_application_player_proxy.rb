@@ -19,11 +19,10 @@ class WebApplicationPlayerProxy
       @game_definition = GameDefinition.new game_definition
       @max_number_of_hands = number_of_hands
       
-      start_new_hand!
+      update_match_state!
    end
    
    # Player action interface
-   # @todo Fix all of these
    def play!(action, modifier=nil)
       @proxy_bot.send_action action, modifier
       
@@ -33,22 +32,34 @@ class WebApplicationPlayerProxy
    end
    
    private
-   
-   # (see PlayerManager#start_new_hand!)
-   def start_new_hand!
-      update_match_state!
       
-      reset_players! initial_match_state_for_new_hand
-      
-      update! initial_match_state_for_new_hand
-   end
-   
    def update_match_state!
+      start_new_hand!
+      
       remember_values_from_last_round!
       
       @match_state = next_match_state
       
       update_database!
+   end
+   
+   # (see PlayerManager#start_new_hand!)
+   def start_new_hand!      
+      reset_players!
+   end
+   
+   def reset_players!
+      @players.each_index do |i|
+         @players[i].is_all_in = false
+         @players[i].has_folded = false
+         @players[i].stack = @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
+      end
+      
+      @pot.take_big_blind! player_who_submitted_big_blind
+      @pot.take_small_blind! player_who_submitted_small_blind
+      
+      user = user_player
+      user.hole_cards = users_hole_cards
    end
    
    # @todo Still works?
@@ -301,6 +312,10 @@ class WebApplicationPlayerProxy
       @match_state.position_relative_to_dealer
    end
    
+   def users_hole_cards
+      @match_state.users_hole_cards
+   end
+   
    # @see Pot#value
    def pot_size      
       @pot.value
@@ -318,33 +333,14 @@ class WebApplicationPlayerProxy
       @game_definition.number_of_players - 1
    end
    
-   def reset_players!(match_state)
-      @players.each_index do |i|
-         @players[i].is_all_in = false
-         @players[i].has_folded = false
-         @players[i].current_wager_faced = big_blind
-         @players[i].stack = @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
-      end
-      
-      adjust_big_blind_players_stack
-      adjust_small_blind_players_stack
-      
-      user = user_player
-      user.hole_cards = match_state.users_hole_cards
-   end
-   
    def list_of_opponent_players
       local_list_of_players = @players.dup
       local_list_of_players.delete_at USERS_INDEX
       local_list_of_players
    end
    
-   def adjust_big_blind_players_stack
-      big_blind_player = player_who_submitted_big_blind
-      big_blind_player.call_current_wager!
-   end
-   
-   def adjust_small_blind_players_stack
+   def take_small_blind!
+      @pot.take
       small_blind_player = player_who_submitted_small_blind
       small_blind_player.current_wager_faced = small_blind
       small_blind_player.call_current_wager!
@@ -380,5 +376,4 @@ class WebApplicationPlayerProxy
    def list_of_players_who_have_folded
       @players.select { |player| player.has_folded }
    end
-
 end

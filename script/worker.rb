@@ -46,6 +46,8 @@ end
 # @param [Hash] params Parameters for the dealer. Must contain values for +'match_id'+ and +'dealer_arguments'+.
 Stalker.job('Dealer.start') do |params|
    match_id = params['match_id']
+   
+   # @todo Need to keep track of this pipe?
    background_processes = @match_id_to_background_processes[match_id] || {}
    background_processes[:dealer] = AcpcDealerRunner.new params['dealer_arguments']
    @match_id_to_background_processes[match_id] = background_processes
@@ -74,17 +76,18 @@ Stalker.job('Opponent.start') do |params|
    
    match_id = params['match_id']
    background_processes = @match_id_to_background_processes[match_id] || {}
-   # @todo Fix this hack
+   # @todo Fix this hack (just abstract out to another class that can run arbitrary bots like this)
    background_processes[:opponent] = IO.popen("#{File.expand_path('../../lib/bots/testing_ruby_bot.rb', __FILE__)} #{params['port_number']}")
+end
+
+# @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.
+Stalker.job('PlayerProxy.play!') do |params|
+   @match_id_to_background_processes[params['match_id']][:player_proxy].play! params['action'], params['modifier']
 end
 
 ## @todo Catch errors
 #error do |e, job, args|
 #  Exceptional.handle(e)
-#end
-
-#Stalker.job('Take Action') do |match_id, action, modifier|
-#   @match_id_to_web_application_player_proxy_map[match_id].send_action action, modifier
 #end
 
 Stalker.work

@@ -33,12 +33,7 @@ class PlayerActionsController < ApplicationController
       Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
       # Wait for the player to start and catch errors
-      @match = Match.find(@match_params[:match_id])
-      while !@match.state
-         @match = Match.find(@match_params[:match_id])
-         
-         # @todo Let the user know that the player is connecting
-      end
+      @match = next_match_state @match_params[:match_id]
       
       replace_page_contents_with_updated_game_view
    end
@@ -49,9 +44,12 @@ class PlayerActionsController < ApplicationController
       log 'bet'
       
       # Make a betting action
-      result = catch(:game_core_error) do game_runner.make_bet_action end
+      
       
       # Show the user that the proper action was taken and catch errors
+      
+      # Get the next match state
+      @match = next_match_state params[:match_id]
 
       replace_page_contents_with_updated_game_view
    end
@@ -110,22 +108,9 @@ class PlayerActionsController < ApplicationController
    
    # Updates the game state
    def update_game_state
-      id = params[:match_id]
+      # @todo Need to get the last match state string from the view to do this properly
       
-      puts "update_game_state: id: #{id}"
-      
-      @match = Match.find id
-      
-      # Busy waiting for the match to be changed by the background process
-      # @todo Add a failsafe here
-      while !@match.state
-         puts "Trying to get match state with ID #{id}..."
-         
-         @match = Match.find id
-            
-         # @todo give user feedback?
-         # @todo Use a processing spinner
-      end
+      @match = next_match_state params[:match_id]#, params[:last_match_state]
       
       replace_page_contents_with_updated_game_view
    end
@@ -134,7 +119,7 @@ class PlayerActionsController < ApplicationController
    def leave_game
       log 'leave_game'
       
-      #close_dealer!
+      # @todo Still have no idea how this will effect background processes, was doing 'close_dealer!' in the old version
       
       replace_page_contents 'start_game/index'
    end

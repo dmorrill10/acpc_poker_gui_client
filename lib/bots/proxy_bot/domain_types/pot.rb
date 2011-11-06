@@ -4,7 +4,7 @@ class Pot
    # return [Array] The side-pots of which this pot is composed.
    attr_reader :side_pots
    
-   # @todo Not sure how I want to do this
+   # @todo None of this is right.
    def initialize(big_blind_amount, small_blind_amount)
       @big_blind_amount = big_blind_amount
       @small_blind_amount = small_blind_amount

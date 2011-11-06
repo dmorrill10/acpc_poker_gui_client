@@ -4,6 +4,7 @@ require File.expand_path('../../application_defs', __FILE__)
 
 # Local classes
 require File.expand_path('../../bots/proxy_bot/proxy_bot', __FILE__)
+# @todo How do I include everything in a directory?
 require File.expand_path('../../bots/proxy_bot/domain_types/*', __FILE__)
 
 # A proxy player for the web poker application.
@@ -13,13 +14,23 @@ class WebApplicationPlayerProxy
    # @param [String] match_id The ID of the match in which this player is participating.
    # @param [DealerInformation] dealer_information Information about the dealer to which this bot should connect.
    # @param [String] game_definition_file_name The name of the file containing the definition of the game, of which, this match is an instance.
+   # @param [String] player_names The names of the players in this match.
    # @param [Integer] number_of_hands The number of hands in this match.
-   def initialize(match_id, dealer_information, game_definition, number_of_hands=1)
+   def initialize(match_id, dealer_information, game_definition, player_names='user, p2', number_of_hands=1)
       @proxy_bot = ProxyBot.new dealer_information
       @game_definition = GameDefinition.new game_definition
       @max_number_of_hands = number_of_hands
       
-      update_match_state!
+      @match_state = next_match_state
+      
+      @players = create_players player_names
+      
+      assign_users_cards!
+      
+      # @todo Check that this actually works
+      @pot = create_new_pot
+      
+      update_database!
    end
    
    # Player action interface
@@ -28,18 +39,40 @@ class WebApplicationPlayerProxy
       
       update_match_state!
       
-      # @todo Need to do other stuff?
+      # @todo Need to do other stuff? Yes
+      #start_new_hand! # @todo if it is the first action of the first round
    end
    
    private
+   
+   def create_players(player_names)
+      list_of_player_names = player_names.split(/,?\s+/)
       
-   def update_match_state!
-      start_new_hand!
+      # @todo Ensure that list_of_player_names.length == number_of_players
       
+      # The array of players is built so that it's centered on the user.
+      # The user is at index USERS_INDEX = 0, the player to the user's immediate left is
+      # at index 1, etc.
+      players = []
+      number_of_players.times do |player_index|
+         name = list_of_player_names[player_index]
+         seat = player_index
+         position_relative_to_dealer = (position_relative_to_dealer + player_index) % number_of_players
+         position_relative_to_user = users_position_relative_to_user - player_index
+         stack = @game_definition.list_of_player_stacks[player_index]
+         
+         players << Player.new(name, seat, position_relative_to_dealer, position_relative_to_user, stack)
+      end
+      
+      players
+   end
+      
+   def update_match_state!      
       remember_values_from_last_round!
       
       @match_state = next_match_state
       
+      # @todo implement
       update_database!
    end
    
@@ -55,9 +88,18 @@ class WebApplicationPlayerProxy
          @players[i].stack = @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
       end
       
-      @pot.take_big_blind! player_who_submitted_big_blind
-      @pot.take_small_blind! player_who_submitted_small_blind
+      @pot = start_new_pot
       
+      assign_users_cards!
+   end
+   
+   def create_new_pot
+      pot = SidePot.new player_who_submitted_big_blind, big_blind
+      pot.contribute! player_who_submitted_small_blind, small_blind
+      pot
+   end
+   
+   def assign_users_cards!
       user = user_player
       user.hole_cards = users_hole_cards
    end
@@ -275,6 +317,11 @@ class WebApplicationPlayerProxy
    # @see GameDefinition#first_player_position_in_each_round
    def first_player_position_in_each_round
       @game_definition.first_player_position_in_each_round
+   end
+   
+   # @see GameDefinition#number_of_players
+   def number_of_players
+      @game_definition.number_of_players
    end
    
    # @return [Integer] The first player position in the current round.

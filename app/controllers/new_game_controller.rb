@@ -53,36 +53,16 @@ class NewGameController < ApplicationController
             puts flash[:notice]
          end
          
-         flash[:notice] = 'Port numbers: ' + match.port_numbers.to_s
+         port_numbers = match.port_numbers
+         flash[:notice] = 'Port numbers: ' + port_numbers.to_s
+         
          
          puts flash[:notice]
          
-      ## Start the player that represents the browser operator
-      #Stalker.enqueue("Game.start", :id => match.id.to_s)
-      #
+         # Start the player that represents the browser operator
+         player_proxy_arguments = {match_id: id, host_name: 'localhost', port_number: port_numbers[0], game_definition_file_name: @match_params[:game_definition_file_name]}
+         Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
-      
-      # Start the dealer
-
-      # Wait for the dealer to start and catch errors
-      
-      # TODO Replace this
-      #begin
-      #   dealer_runner.start_dealer!(:arg => dealer_arguments)
-      #rescue => unable_to_start_dealer
-      #   # TODO Not sure what is the best thing to do after printing the message since I can't use an else to contain a render for some reason
-      #   warn "ERROR: #{unable_to_start_dealer.message}\n"
-      #   return
-      #end
-      #
-      #log "two_player_limit: successfully started dealer"
-      #
-      #port_numbers = (dealer_runner.dealer_string).split(/\s+/)
-      #   
-      #log "two_player_limit: port_numbers: #{port_numbers}"
-      #   
-      #(@port_number, @opponent_port_number) = port_numbers
-      #
       
       # Start bots if there are not enough human players in the match
       

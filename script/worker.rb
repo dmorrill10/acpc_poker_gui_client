@@ -13,6 +13,7 @@
 #Bundler.setup(:default, RAILS_ENV.to_sym)
 #
 
+# @todo would like to remove this but Mongoid complains
 require File.expand_path('../../config/environment', __FILE__)
 
 require "stalker"
@@ -34,35 +35,41 @@ require File.expand_path('../../lib/background/dealer_runner', __FILE__)
 
 ###########################
 
+# Ensures that the map used to keep track of 
+before do |job|
+   @match_id_to_background_processes = {} unless @match_id_to_background_processes
+end
+
+# @param [Hash] params Parameters for the dealer. Must contain values for +'match_id'+ and +'dealer_arguments'+.
 Stalker.job('Dealer.start') do |params|
-   # Set up the DB
-   #puts "moingoid config path: #{File.expand_path('../../config/mongoid.yml', __FILE__)}"
-   #Mongoid.load!(File.expand_path('../../config/mongoid.yml', __FILE__))
-   
-   puts "params: #{params}"
    match_id = params['match_id']
-   @match_id_to_dealer_runner_map = {} unless @match_id_to_dealer_runner_map
-   @match_id_to_dealer_runner_map[match_id] = AcpcDealerRunner.new params['dealer_arguments']
-   port_numbers = (@match_id_to_dealer_runner_map[match_id].dealer_string).split(/\s+/)
+   background_processes = @match_id_to_background_processes[match_id] || {}
+   background_processes[:dealer] = AcpcDealerRunner.new params['dealer_arguments']
+   @match_id_to_background_processes[match_id] = background_processes
+   
+   port_numbers = (@match_id_to_background_processes[match_id][:dealer].dealer_string).split(/\s+/)
    
    # Store the port numbers in the database so the web app. can access them
    match = Match.find match_id
    match.port_numbers = port_numbers
    match.save
-   
-   puts 'Started dealer and exiting from Stalker job'
 end
 
-#
-#Stalker.job('WebApplicationPlayerProxy.start') do |match_id, host_name, port_number, game_definition_file_name|
-#   dealer_information = DealerInformation.new host_name, port_number
-#   
-#   match = Match.find match_id
-#   @match_id_to_web_application_player_proxy_map[match_id] = WebApplicationPlayerProxy.new match, dealer_information, game_definition_file_name
-#end
-#
+# @param [Hash] params Parameters for the player proxy. Must contain values for +'match_id'+, +'host_name'+, +'port_number'+, and +'game_definition_file_name'+.
+Stalker.job('PlayerProxy.start') do |params|
+   dealer_information = DealerInformation.new params['host_name'], params['port_number']
+   
+   match_id = params['match_id']
+   background_processes = @match_id_to_background_processes[match_id] || {}
+   background_processes[:player_proxy] = WebApplicationPlayerProxy.new match_id, dealer_information, params['game_definition_file_name']
+   @match_id_to_background_processes[match_id] = background_processes
+end
+
 ## @todo Catch errors
-#
+#error do |e, job, args|
+#  Exceptional.handle(e)
+#end
+
 #Stalker.job('Take Action') do |match_id, action, modifier|
 #   @match_id_to_web_application_player_proxy_map[match_id].send_action action, modifier
 #end

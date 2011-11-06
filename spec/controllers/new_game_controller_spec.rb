@@ -59,34 +59,35 @@ describe NewGameController do
       #   
       #   test_collects_all_necessary_parameters match_params
       #end
-      it 'collects all necessary parameters for starting a match, creates a new Match,
-      starts a dealer instance in the background, queries the Match for the port numbers' do
+      it 'collects all necessary parameters for starting a match, creates a new Match, starts a dealer instance in the background, queries the Match for the port numbers, starts a player proxy in the background' do
          match_params = generate_match_params
          
+         # Mock and stub out the Match class and its instances
          match = mock('Match')
          match.stubs(:save).returns(true)
          id = '10'
          match.stubs(:id).returns(id)
          match.stubs(:port_numbers).returns(nil)
          Match.stubs(:new).returns(match)
-         
          updated_match = mock('Match')
          updated_match.stubs(:port_numbers).returns([9001, 9002])
          Match.stubs(:find).with(id).returns(updated_match)
          
+         # Make sure the dealer is started with the correct parameters
          dealer_arguments = [match_params[:match_name],
                              match_params[:game_definition_file_name].to_s,
                              match_params[:number_of_hands],
                              match_params[:random_seed],
                              match_params[:player_names].split(/\s*,?\s+/)].flatten
-         
          Stalker.expects(:enqueue).once.with('Dealer.start', :match_id => id, :dealer_arguments => dealer_arguments)
          
+         # Make sure a player proxy is started with the correct parameters
+         player_proxy_arguments = {match_id: id, host_name: 'localhost', port_number: updated_match.port_numbers[0], game_definition_file_name: match_params[:game_definition_file_name]}
+         Stalker.expects(:enqueue).once.with('PlayerProxy.start', player_proxy_arguments)
+         
+         # Send a request to the controller and check that everything is working properly
          test_collects_all_necessary_parameters match_params
          flash[:notice].should == ('Port numbers: ' + updated_match.port_numbers.to_s)
-      end
-      it 'starts a player proxy in the background' do
-         pending
       end
       it 'starts the other players in the match' do
          pending
@@ -112,3 +113,6 @@ describe NewGameController do
          number_of_hands: '1', random_seed: '1', player_names: 'user, p2'}
    end
 end
+
+
+

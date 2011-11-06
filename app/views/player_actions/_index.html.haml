@@ -1,26 +1,161 @@
-%p= "Game started"
 
-%script{:type => 'text/javascript', :src => 'js/swfobject.js'}
-%script{:type => 'text/javascript', :src => 'js/FABridge.js'}
-%script{:type => 'text/javascript', :src => 'js/web_socket.js'}
+// Setup non-display information -------------------
+
+// Get game state data from the background worker process
+//- game_runner = MiddleMan.worker :game_runner
+
+
+// Things the view needs to know: #############################################
+
+//    Is it the user's turn to act?
+//- @users_turn_to_act = game_runner.users_turn_to_act?
+//
+////    Who has the dealer button?
+//- @player_with_the_dealer_button = game_runner.player_with_the_dealer_button
+//
+////    Who paid blinds?
+//- @player_who_submitted_big_blind = game_runner.player_who_submitted_big_blind
+//- @player_who_submitted_small_blind = game_runner.player_who_submitted_small_blind
+//
+////    Who's turn is it?
+//- @player_whose_turn_is_next = game_runner.player_whose_turn_is_next
+//
+////    Who was the last player to act?
+//- @player_who_acted_last = game_runner.player_who_acted_last
+//
+////    What is the pot size?
+//- @pot_size = game_runner.pot_size
+//
+////    What are the stack sizes of all the players?
+//- @stack_sizes = game_runner.list_of_player_stacks
+//
+////    What are the user's cards?
+//- @users_hole_cards = game_runner.users_hole_cards
+//
+////    What are the opponent's cards (after a showdown)?
+//- @list_of_opponents_hole_cards = game_runner.list_of_opponents_hole_cards
+//
+////    What were the sequence of actions in this hand?
+//- @list_of_betting_actions = game_runner.list_of_betting_actions
+//
+////    Which round is it?
+//- @round = game_runner.round
+//
+////    What are the board cards?
+//- @list_of_board_cards = game_runner.list_of_board_cards if @round > 0
+//
+////    What is the hand number?
+//- @hand_number = game_runner.hand_number
+//
+////    What is the name of the match?
+//- @match_name = game_runner.match_name
+//
+////    What is the user's position relative to the dealer?
+//- @users_position = game_runner.users_position
+//
+////    What was the last action?
+//- @last_action = game_runner.last_action
+//
+////    Which actions are legal?
+////- @legal_actions = game_runner.legal_actions
+//
+////    Which players are still active (only in multiplayer)?
+//- @active_players = game_runner.active_players
+//
+////    How many hands are alloted for this match?
+//- @max_number_of_hands = game_runner.max_number_of_hands
+//
+////    How many players are there?
+//- @number_of_players = @stack_sizes.length
+//
+////    Has the hand ended?
+//- @hand_ended = game_runner.hand_ended?
+//   
+////    Has the match ended?
+//- @match_ended = game_runner.match_ended?
+//
+////    What is the raise size in this round?
+//- @raise_size = game_runner.raise_size_in_this_round
+//
+////    What are the chip balances for each player?
+//- @chip_balances = game_runner.list_of_player_chip_balances
+
+// Hidden form to allow AJAX to update the game's state dynamically
+= hidden_update_state_form
+
+
+// Update the game state if it's not the user's turn to act and the match hasn't ended
+//- if @match_ended
+//   - close_dealer!
+//- elsif @users_turn_to_act
+//   // TODO Enable action buttons   
+//- else
 :javascript
-   function init() {
-      function debug(string) {
-         var element = document.getElementById("debug");
-         var p = document.createElement("p");
-         p.appendChild(document.createTextNode(string));
-         element.appendChild(p);
-      }
-
-      var Socket = "MozWebSocket" in window ? MozWebSocket : WebSocket;
-      var ws = new Socket("ws://localhost:8080/");
-      ws.onmessage = function(evt) { debug("Message: " + evt.data); };
-      ws.onclose = function() { debug("socket closed"); };
-      ws.onopen = function() {
-         debug("connected...");
-         ws.send("hello server");
-         ws.send("hello again");
-      };
+   //setTimeout("update_game_state()", 1000);
+   
+   // TODO Move this out of the view into a javascript helper file?
+   function update_game_state() {
+      alert("Updating game state");
+      $('.update_game_state_button').submit();
    };
-:javascript
-   init();
+
+// Display elements -----------------------
+//%h1= title
+%hr
+
+// Show game definitions
+//%p= label :post, 'Game Definitions:'
+//%p= text_area :game_definition, :to_s
+
+// Show the match states from the current hand
+//%p= label :post, 'Current match state:'
+//- @match_states_from_current_hand.each do |match_state|
+//   %p= match_state
+
+// Show game state information
+%p= label :post, 'Game state information:'
+%hr
+
+//%p= label :post, "match state: #{@match.state}"
+//%p= label :post, "User's turn to act?: #{@users_turn_to_act}"
+//%p= label :post, "Player with the dealer button: #{@player_with_the_dealer_button.name}" if @player_with_the_dealer_button
+//%p= label :post, "Player who posted the big blind: #{@player_who_submitted_big_blind.name}" if @player_who_submitted_big_blind
+//%p= label :post, "Player who posted the small blind: #{@player_who_submitted_small_blind.name}" if @player_who_submitted_small_blind
+//%p= label :post, "Player whose turn is next: #{@player_whose_turn_is_next.name}" if @player_whose_turn_is_next
+//%p= label :post, "Player who acted last: #{@player_who_acted_last.name}" if @player_who_acted_last.respond_to? :name
+//%p= label :post, "Pot size: #{@pot_size}"
+//%p= label :post, "Stack sizes: #{@stack_sizes}"
+//%p= label :post, "User's hole cards: #{@users_hole_cards}"
+//%p= label :post, "Opponent's hole cards: #{@list_of_opponents_hole_cards}"
+//%p= label :post, "Betting actions: #{@list_of_betting_actions}"
+//%p= label :post, "Board cards: #{@list_of_board_cards}"
+//%p= label :post, "Hand number: #{@hand_number}"
+//%p= label :post, "Maximum number of hands in this match: #{@max_number_of_hands}"
+//%p= label :post, "Match name: #{@match_name}"
+//%p= label :post, "User's position: #{@users_position}"
+//%p= label :post, "Last action: #{@last_action}"
+////    Which actions are legal?
+////- @legal_actions = game_runner.legal_actions
+//%p= label :post, "Round: #{@round}"
+//%p= label :post, "Active players: #{@active_players.map {|p| p.name}}" if @active_players
+//%p= label :post, "Number of players: #{@number_of_players}"
+//%p= label :post, "Has the hand ended?: #{@hand_ended}"
+//%p= label :post, "Has the match ended?: #{@match_ended}"
+//%p= label :post, "Raise size in this round: #{@raise_size}"
+//// TODO Only display the chip balance at the end of a hand
+//%p= label :post, "Chip balances for each player: #{@chip_balances}"
+
+   
+// Show user actions
+%p= label :post, 'Actions:'
+%hr
+//%p= button "Bet", bet_url, view_context.t('.bet')#, :amount_field => true
+%p= button "Call", call_url, 'call'
+//%p= button "Check", check_url, view_context.t('.check')
+%p= button "Fold", fold_url, 'fold'
+%p= button "Raise", raise_url, 'raise', :amount_field => true
+
+// Show meta-actions for the user
+%hr
+%p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
+

@@ -6,14 +6,14 @@ require File.expand_path('../../mixins/socket_with_ready_methods', __FILE__)
 class AcpcDealerRunner
    
    # @todo this worked before, but I'm not sure if it will work here
-   trap("CLD") do
-      @pipe_to_dealer.close
-      @pipe_to_dealer = nil
-      puts 'close!: Closed pipe'
-      pid = Process.wait
-      puts "Child pid #{pid}: terminated"
-      exit
-   end
+   #trap("CLD") do
+   #   @pipe_to_dealer.close
+   #   @pipe_to_dealer = nil
+   #   puts 'close!: Closed pipe'
+   #   pid = Process.wait
+   #   puts "Child pid #{pid}: terminated"
+   #   exit
+   #end
       
    # Starts an ACPC dealer instance with the given +dealer_arguments+.
    # @param [Array] dealer_arguments Arguments to the new dealer instance.

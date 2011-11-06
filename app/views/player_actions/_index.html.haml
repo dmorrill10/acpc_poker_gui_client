@@ -85,19 +85,21 @@
 
 
 // Update the game state if it's not the user's turn to act and the match hasn't ended
-//- if @match_ended
-//   - close_dealer!
-//- elsif @users_turn_to_act
-//   // TODO Enable action buttons   
-//- else
-:javascript
-   //setTimeout("update_game_state()", 1000);
+- if @match #@match_ended
+   //- close_dealer!
+- elsif @users_turn_to_act
+   // TODO Enable action buttons   
+- else
+   :javascript
+      setTimeout("update_game_state()", 1000);
    
-   // TODO Move this out of the view into a javascript helper file?
-   function update_game_state() {
-      alert("Updating game state");
-      $('.update_game_state_button').submit();
-   };
+      // @todo Move this out of the view into a javascript helper file?
+      function update_game_state() {      
+         alert("Updating game state");
+         var match_id = document.getElementById('match_id_hidden_field');
+         match_id.value = "#{@match_params[:match_id]}";      
+         $('.update_game_state_button').submit();
+      };
 
 // Display elements -----------------------
 //%h1= title
@@ -116,7 +118,7 @@
 %p= label :post, 'Game state information:'
 %hr
 
-//%p= label :post, "match state: #{@match.state}"
+%p= label :post, "match state: #{@match.state}" if @match
 //%p= label :post, "User's turn to act?: #{@users_turn_to_act}"
 //%p= label :post, "Player with the dealer button: #{@player_with_the_dealer_button.name}" if @player_with_the_dealer_button
 //%p= label :post, "Player who posted the big blind: #{@player_who_submitted_big_blind.name}" if @player_who_submitted_big_blind

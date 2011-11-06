@@ -37,7 +37,8 @@ describe NewGameController do
          # Mock and stub out the Match class and its instances
          match = mock('Match')
          match.stubs(:save).returns(true)
-         id = '10'
+         match_params[:match_id] = '10'
+         id = match_params[:match_id]
          match.stubs(:id).returns(id)
          match.stubs(:port_numbers).returns(nil)
          Match.stubs(:new).returns(match)
@@ -52,6 +53,8 @@ describe NewGameController do
                              match_params[:random_seed],
                              match_params[:player_names].split(/\s*,?\s+/)].flatten
          Stalker.expects(:enqueue).once.with('Dealer.start', :match_id => id, :dealer_arguments => dealer_arguments)
+         
+         match_params[:port_number] = updated_match.port_numbers[0]
          
          # Send a request to the controller and check that everything is working properly
          test_collects_all_necessary_parameters match_params

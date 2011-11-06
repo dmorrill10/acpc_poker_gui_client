@@ -38,12 +38,14 @@ class NewGameController < ApplicationController
                              @match_params[:random_seed],
                              @match_params[:player_names].split(/\s*,?\s+/)].flatten
          
-         id = match.id
+         @match_params[:match_id] = match.id
+         id = @match_params[:match_id]
          
          # @todo Make sure the background server is started at this point      
          Stalker.enqueue('Dealer.start', :match_id => id, :dealer_arguments => dealer_arguments)
          
          # Busy waiting for the match to be changed by the background process
+         # @todo Add a failsafe here
          while !match.port_numbers
             match = Match.find(id)
             
@@ -58,6 +60,8 @@ class NewGameController < ApplicationController
          
          puts flash[:notice]
          
+         # @todo Need to randomize this?
+         @match_params[:port_number] = port_numbers[0]
          @opponent_port_number = port_numbers[1]
       
       

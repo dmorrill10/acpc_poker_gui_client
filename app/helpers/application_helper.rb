@@ -41,7 +41,8 @@ module ApplicationHelper
    # submitted to the +PlayerActionsController+.
    def hidden_game_parameter_form
       form_tag game_home_url, :remote => true do
-         form = hidden_field_tag(:port_number, nil, :id => 'port_number_hidden_field')
+         form = hidden_field_tag(:match_id, nil, :id => 'match_id_hidden_field')
+         form << hidden_field_tag(:port_number, nil, :id => 'port_number_hidden_field')
          form << hidden_field_tag(:match_name, nil, :id => 'match_name_hidden_field')
          form << hidden_field_tag(:game_definition_file_name, nil, :id => 'game_definition_file_name_hidden_field')
          form << hidden_field_tag(:number_of_hands, nil, :id => 'number_of_hands_hidden_field')

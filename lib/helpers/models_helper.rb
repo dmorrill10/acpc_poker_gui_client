@@ -42,7 +42,8 @@ module ModelsHelper
    #
    # @param [String] line
    # @return [Boolean] True if +line+ is a comment or empty, false otherwise.
-   def line_is_comment_or_empty?(line)      
+   def line_is_comment_or_empty?(line)
+      return true unless line
       !line.match(/^\s*[#;]/).nil? or line.empty?
    end
 end

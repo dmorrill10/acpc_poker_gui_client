@@ -9,20 +9,20 @@ describe PlayerActionsController do
    describe "POST 'index'" do
       it 'collects all necessary parameters for starting a player proxy, starts a player proxy in the background' do
          match_params = generate_match_params
-         
-         
+         match_params[:match_id] = '10'
          
          # Make sure a player proxy is started with the correct parameters
-         #player_proxy_arguments = {match_id: id, host_name: 'localhost', port_number: updated_match.port_numbers[0], game_definition_file_name: match_params[:game_definition_file_name]}
-         #Stalker.expects(:enqueue).once.with('PlayerProxy.start', player_proxy_arguments)
+         player_proxy_arguments = {match_id: match_params[:match_id], host_name: 'localhost', port_number: match_params[:port_number], game_definition_file_name: match_params[:game_definition_file_name]}
+         Stalker.expects(:enqueue).once.with('PlayerProxy.start', player_proxy_arguments)
          
+         test_collects_all_necessary_parameters match_params
       end
    end
    
    def test_collects_all_necessary_parameters(match_params)
       post('index', match_params).should render_template('shared_javascripts/replace_contents.js')
       
-      assigns[replacement_partial].should be == 'player_actions/index'
+      assigns[:replacement_partial].should be == 'player_actions/index'
       
       match_params_string_keys = {}
       match_params.each { |key, value| match_params_string_keys[key.to_s] = value }

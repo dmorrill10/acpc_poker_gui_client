@@ -69,7 +69,8 @@ class MatchstateString
    
    # @todo Mongoid method
    def deserialize(raw_match_state_string)
-      MatchstateString.new raw_match_state_string
+      puts "deserialize: raw_match_state_string: #{raw_match_state_string}"
+      if raw_match_state_string then MatchstateString.new raw_match_state_string else raw_match_state_string end
    end
 
    # @todo Mongoid method

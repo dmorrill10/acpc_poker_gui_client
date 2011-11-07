@@ -5,50 +5,35 @@ require 'stalker'
 # Local modules
 require 'application_defs'
 require 'application_helper'
-# TODO refactor models helper
-require 'models_helper'
 
-
+# Local classes
+require 'match'
+require File.expand_path('../../../lib/bots/proxy_bot/domain_types/matchstate_string', __FILE__)
 
 # Controller for the main game view where the table and actions are presented to the player.
 # Impliments the actions in the main game view.
 class PlayerActionsController < ApplicationController
    include ApplicationDefs
-   include ModelsHelper
    include ApplicationHelper
    include PlayerActionsHelper
    
    # Sets up the game.  The params hash should contain a value for :port_number
    # and :game_definition_file_name.
    def index
-      log 'index'
-      
-      port_number = params[:port_number]
-      
-      log "index: port_number: #{port_number}"
-      
-      match_name = params[:match_name]
-      game_def = params[:game_definition_file_name]
-      number_of_hands = params[:number_of_hands]
-      random_seed = params[:random_seed]      
-      player_names = params[:player_names]
-      
-      game_arguments = {
-         :port_number => port_number,
-         :match_name => match_name,
-         :game_definition_file_name => game_def,
-         :number_of_hands => number_of_hands,
-         :random_seed => random_seed,
-         :player_names => player_names
-      }
-      
-      # Initialize a game table record
-      match = Match.create(game_arguments)
+      @match_params = {match_id: params[:match_id], port_number: params[:port_number],
+         match_name: params[:match_name],
+         game_definition_file_name: params[:game_definition_file_name],
+         number_of_hands: params[:number_of_hands],
+         random_seed: params[:random_seed], player_names: params[:player_names]}
       
       # Start the player that represents the browser operator
-      Stalker.enqueue("Game.start", :id => match.id.to_s)
+      player_proxy_arguments = {match_id: @match_params[:match_id],
+         host_name: 'localhost', port_number: @match_params[:port_number],
+         game_definition_file_name: @match_params[:game_definition_file_name]}
+      Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
       # Wait for the player to start and catch errors
+      @match = next_match_state @match_params[:match_id]
       
       replace_page_contents_with_updated_game_view
    end
@@ -59,9 +44,12 @@ class PlayerActionsController < ApplicationController
       log 'bet'
       
       # Make a betting action
-      result = catch(:game_core_error) do game_runner.make_bet_action end
+      
       
       # Show the user that the proper action was taken and catch errors
+      
+      # Get the next match state
+      @match = next_match_state params[:match_id]
 
       replace_page_contents_with_updated_game_view
    end
@@ -120,12 +108,9 @@ class PlayerActionsController < ApplicationController
    
    # Updates the game state
    def update_game_state
-      log 'update_game_state'
+      # @todo Need to get the last match state string from the view to do this properly
       
-      # Update the view's state of the game
-      #game_runner.update_state!
-      
-      # Close the pipe to the dealer if there is one open and the game has ended
+      @match = next_match_state params[:match_id]#, params[:last_match_state]
       
       replace_page_contents_with_updated_game_view
    end
@@ -134,7 +119,7 @@ class PlayerActionsController < ApplicationController
    def leave_game
       log 'leave_game'
       
-      #close_dealer!
+      # @todo Still have no idea how this will effect background processes, was doing 'close_dealer!' in the old version
       
       replace_page_contents 'start_game/index'
    end

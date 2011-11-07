@@ -1,15 +1,17 @@
 
 # Local modules
-require 'game_definition_helper'
-require 'models_helper'
-require 'application_defs'
+require File.expand_path('../../../../helpers/game_definition_helper', __FILE__)
+require File.expand_path('../../../../helpers/models_helper', __FILE__)
+require File.expand_path('../../../../application_defs', __FILE__)
+require File.expand_path('../../../../helpers/application_helpers', __FILE__)
 
 # Local mixins
-require 'easy_exceptions'
+require File.expand_path('../../../../mixins/easy_exceptions', __FILE__)
 
 # Class that parses and manages game definition information from a game definition file.
 class GameDefinition
    include ApplicationDefs
+   include ApplicationHelpers
    include GameDefinitionHelper
    include ModelsHelper
    

@@ -1,10 +1,6 @@
-# Local modules
-require File.expand_path('../../application_defs', __FILE__)
-require File.expand_path('../application_helpers', __FILE__)
 
 # Assortment of static helper methods for models and model tests.
 module ModelsHelper
-   include ApplicationDefs
 
    # Flatten a given array into a single element if there is only one element in the array.
    # That is, if the given array is a single element array, it returns that element,
@@ -13,8 +9,6 @@ module ModelsHelper
    # @param [Array] array The array to flatten into a single element.
    # @return +array+ if +array+ has more than one element, the single element in +array+ otherwise.
    def flatten_if_single_element_array(array)
-      log "flatten_if_single_element_array"
-      
       if 1 == array.length then array[0] else array end
    end
 
@@ -29,14 +23,10 @@ module ModelsHelper
          file = File.new file_name, "r"
       rescue
          raise "Unable to open #{file_name}"
-      else
-         log "Opened file #{file_name}"
-         
+      else         
          begin
             while line = file.gets do
                line.chomp!
-               
-               log "Read #{line} from #{file_name}"
                
                yield line
             end
@@ -53,8 +43,7 @@ module ModelsHelper
    # @param [String] line
    # @return [Boolean] True if +line+ is a comment or empty, false otherwise.
    def line_is_comment_or_empty?(line)
-      log "line_is_comment_or_empty?"
-      
+      return true unless line
       !line.match(/^\s*[#;]/).nil? or line.empty?
    end
 end

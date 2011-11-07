@@ -1,9 +1,14 @@
 
+# Database module
+require 'mongoid'
+
 # Local mixins
 require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
 
 # Programmatic representation of a stack of chips.
 class ChipStack
+   include Mongoid::Fields::Serializable
+   
    exceptions :illegal_number_of_chips, :not_enough_chips_in_the_stack
    
    # @return [Integer] The number of chips to be made into a stack (must be a whole number).
@@ -15,6 +20,16 @@ class ChipStack
       sanity_check_number_of_chips number_of_chips
       
       @value = number_of_chips
+   end
+   
+   # @todo Mongoid method
+   def deserialize(value)
+      ChipStack.new value
+   end
+
+   # @todo Mongoid method
+   def serialize(chip_stack)
+      chip_stack.value
    end
    
    # (see #add_to)

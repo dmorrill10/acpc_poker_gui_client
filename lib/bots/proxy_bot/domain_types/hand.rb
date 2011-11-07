@@ -3,7 +3,7 @@
 require 'mongoid'
 
 # Local modules
-require File.expand_path('../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../application_defs', __FILE__)
 
 # Local classes
 require File.expand_path('../card', __FILE__)

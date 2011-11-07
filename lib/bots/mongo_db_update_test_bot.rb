@@ -7,16 +7,20 @@ require File.expand_path('../proxy_bot/proxy_bot', __FILE__)
 require File.expand_path('../../../app/models/match', __FILE__)
 
 class MongoDbUpdateTestBot
-   def self.play
+   def self.play(dealer_info, match_id=nil)
       
       # Set up the DB
-      Mongoid.load!(File.expand_path('../../../config/mongoid.yml', __FILE__))
-      match = Match.create
+      match = nil
+      unless match_id
+         Mongoid.load!(File.expand_path('../../../config/mongoid.yml', __FILE__))
+         match = Match.create
+         match_id = match.id
+      else
+         match = Match.find match_id
+      end
       
-      puts "Setup match: match.id: #{match.id}"
+      puts "Setup match: match_id: #{match_id}"
       
-      port_number = ARGV[0] || 18374
-      dealer_info = DealerInformation.new 'localhost', port_number
       proxy_bot = ProxyBot.new dealer_info
       
       puts 'Entering game loop'
@@ -53,4 +57,7 @@ class MongoDbUpdateTestBot
    end
 end
 
-MongoDbUpdateTestBot.play if __FILE__ == $0
+if __FILE__ == $0
+   port_number = ARGV[0] || 18379
+   MongoDbUpdateTestBot.play DealerInformation.new('localhost', port_number)
+end

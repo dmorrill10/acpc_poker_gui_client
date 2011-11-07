@@ -82,6 +82,6 @@ module ApplicationHelpers
    # Prints a given string prepended by the current class name if +DEBUG+ is true.
    # @param [#to_s] object The object to print.
    def log(object)
-      puts "#{self.class}: #{object}" if DEBUG
+      puts "#{self.class}: #{object}" if ApplicationDefs::DEBUG
    end
 end

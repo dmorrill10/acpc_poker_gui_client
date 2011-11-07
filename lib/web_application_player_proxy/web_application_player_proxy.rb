@@ -97,16 +97,26 @@ class WebApplicationPlayerProxy
       assign_users_cards!
    end
    
-   def create_new_pot
+   def create_new_pot_
       pot = SidePot.new player_who_submitted_big_blind, big_blind
       pot.contribute! player_who_submitted_small_blind, small_blind
       pot
    end
    
+   # @todo check if this works
    def update_database!
-      match = Match.find(@match_id)
+      # Create a new database record with the current match state information
+      # Insert the ID of the next record into the last database record, creating a linked list for the web app. to follow.
+      previous_match_record = Match.find(@match_id)
       
-      # @todo implement   
+      # Initialize a match
+      new_match_record = Match.new(state: @match_state, pot: @pot, players: @players)
+      unless new_match_record.save
+         # @todo Raise error
+      else
+         previous_match_record.next_match_id = new_match_record.id
+         # raise error unless previous_match_record.save or do both in one statement
+      end
    end
    
    # @todo Is round zero indexed?

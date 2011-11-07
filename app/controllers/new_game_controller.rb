@@ -26,8 +26,8 @@ class NewGameController < ApplicationController
       @match_params = two_player_limit_params params
       
       # Initialize a match
+      # @todo Can this be made into a function to be used by this controller, the join a game controller, and the player proxy?
       match = Match.new(parameters: @match_params)
-      
       unless match.save
          flash[:notice] = 'Ah! The match did not save, please retry.'
          redirect_to new_game_path, :remote => true

@@ -14,4 +14,6 @@ class Match
    field :parameters, type: Hash
    field :state, type: MatchstateString
    field :pot, type: SidePot
+   field :players, type: Array
+   field :next_match_id, type: String
 end

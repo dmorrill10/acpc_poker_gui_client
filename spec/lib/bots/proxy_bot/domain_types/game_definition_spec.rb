@@ -1,6 +1,15 @@
 require 'spec_helper'
 
+# Local modules
+require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../../lib/helpers/models_helper', __FILE__)
+require File.expand_path('../../../../../../lib/helpers/game_definition_helper', __FILE__)
+
 describe GameDefinition do
+   include ApplicationDefs
+   include GameDefinitionHelper
+   include ModelsHelper
+   
    describe '#initialize' do
       it "parses all available game definitions properly" do      
          GAME_DEFINITION_FILE_NAMES.values.each do |game_definition_file_name|
@@ -19,8 +28,12 @@ describe GameDefinition do
       game_definition_array = game_definition_string.split("\n")
       remaining_lines = []
       
+      log "game_definition_file_name: #{game_definition_file_name}"
+      
       begin
          for_every_line_in_file game_definition_file_name do |definition|
+            log 'In for_every_line_in_file'
+            
             next if game_def_line_not_informative definition
             
             log "Past next if not informative with definition: #{definition}"

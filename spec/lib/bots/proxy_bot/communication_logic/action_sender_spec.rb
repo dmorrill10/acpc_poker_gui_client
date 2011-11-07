@@ -1,6 +1,13 @@
 require 'spec_helper'
 
+# Local modules
+require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../support/model_test_helper', __FILE__)
+
 describe ActionSender do
+   include ApplicationDefs
+   include ModelTestHelper
+   
    before(:each) do
       @connection = mock('AcpcDealerCommunicator')
       @matchstate = create_initial_match_state.shift

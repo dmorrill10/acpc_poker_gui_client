@@ -1,7 +1,14 @@
 require 'spec_helper'
 require 'socket'
 
+# Local modules
+require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../support/model_test_helper', __FILE__)
+
 describe AcpcDealerCommunicator do
+   include ApplicationDefs
+   include ModelTestHelper
+   
    before(:each) do
       start_test_connection 0
       @client_connection.gets.chomp.should eq("#{VERSION_LABEL}:#{VERSION_NUMBERS[:major]}.#{VERSION_NUMBERS[:minor]}.#{VERSION_NUMBERS[:revision]}\\r\\n")

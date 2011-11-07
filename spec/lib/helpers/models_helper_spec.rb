@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe ModelsHelper do
+   include ModelsHelper
+   
    it 'properly flattens an array to a single element if that is all the array contains and leaves it unchanged otherwise' do
       one_element_array = ['a']
       two_element_array = ['a', 'b']

@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 # Local classes
-require File.expand_path('../../../../../lib/bots/proxy_bot/communication_logic/acpc_dealer_communicator', __FILE__)
-require File.expand_path('../../../../../lib/bots/proxy_bot/communication_logic/action_sender', __FILE__)
-require File.expand_path('../../../../../lib/bots/proxy_bot/domain_types/card', __FILE__)
-require File.expand_path('../../../../../lib/bots/proxy_bot/communication_logic/matchstate_string_receiver', __FILE__)
-require File.expand_path('../../../../../lib/game/dealer_information', __FILE__)
+require File.expand_path('../../../../lib/bots/proxy_bot/communication_logic/acpc_dealer_communicator', __FILE__)
+require File.expand_path('../../../../lib/bots/proxy_bot/communication_logic/action_sender', __FILE__)
+require File.expand_path('../../../../lib/bots/proxy_bot/domain_types/card', __FILE__)
+require File.expand_path('../../../../lib/bots/proxy_bot/communication_logic/matchstate_string_receiver', __FILE__)
+require File.expand_path('../../../../lib/game/dealer_information', __FILE__)
 
 describe WebApplicationPlayerProxy do
    #before(:each) do

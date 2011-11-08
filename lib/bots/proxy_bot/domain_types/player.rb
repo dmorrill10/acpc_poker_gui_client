@@ -61,6 +61,7 @@ class Player
    # @param [Integer] position_relative_to_user This player's position
    #     relative to the user, 0 indexed, modulo the number of players in
    #     the game.
+   # @param [ChipStack] chip_stack This player's chip stack.
    def initialize(name, seat, position_relative_to_dealer, position_relative_to_user, chip_stack)
       (@name, @seat, @position_relative_to_dealer, @position_relative_to_user, @chip_stack) =
          [name, seat, position_relative_to_dealer, position_relative_to_user, chip_stack]

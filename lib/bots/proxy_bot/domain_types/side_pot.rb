@@ -23,7 +23,7 @@ class SidePot < ChipStack
    def initialize(initiating_player, initial_amount)
       @players_involved_and_their_amounts_contributed = {initiating_player => initial_amount}
       
-      initiating_player.take_from_stack! initial_amount
+      initiating_player.take_from_chip_stack! initial_amount
       
       super initial_amount
    end
@@ -50,7 +50,9 @@ class SidePot < ChipStack
    def contribute!(player, amount)
       @players_involved_and_their_amounts_contributed[player] = amount
       
-      @value = @players_involved_and_their_amounts_contributed.values.inject(0){ |current_amount| sum += current_amount }
+      puts "contribute!: @players_involved_and_their_amounts_contributed: #{@players_involved_and_their_amounts_contributed}"
+      
+      @value = @players_involved_and_their_amounts_contributed.values.inject(0){ |sum, current_amount| sum += current_amount }
    end
    
    # Have the +calling_player+ call the bet in this side-pot.
@@ -62,7 +64,7 @@ class SidePot < ChipStack
 
       amount_to_call = largest_amount_contributed - amount_contributed
       
-      calling_player.take_from_stack! amount_to_call
+      calling_player.take_from_chip_stack! amount_to_call
       
       @players_involved_and_their_amounts_contributed[calling_player] = amount_to_call + amount_contributed
       
@@ -75,7 +77,7 @@ class SidePot < ChipStack
    def take_bet!(betting_player, number_of_chips)
       raise IllegalOperationOnSidePot unless @players_involved_and_their_amounts_contributed[betting_player]
       
-      betting_player.take_from_stack! number_of_chips
+      betting_player.take_from_chip_stack! number_of_chips
       
       @players_involved_and_their_amounts_contributed[betting_player] += number_of_chips
       

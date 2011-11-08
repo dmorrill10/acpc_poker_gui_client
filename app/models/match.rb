@@ -13,7 +13,23 @@ class Match
    field :port_numbers, type: Array
    field :parameters, type: Hash
    field :state, type: MatchstateString
-   field :pot, type: SidePot
-   field :players, type: Array
+   #field :pot, type: SidePot
+   #field :players, type: Array
    field :next_match_id, type: String
+   
+   # Match interface
+   field :is_match_ended, type: Boolean
+   field :is_users_turn_to_act, type: Boolean
+   
+   def match_ended?
+      @is_match_ended
+   end
+   
+   def users_turn_to_act?
+      @is_users_turn_to_act
+   end
+   
+   def to_s
+      "Match state: #{@state}"
+   end
 end

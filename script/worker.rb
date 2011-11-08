@@ -81,7 +81,7 @@ Stalker.job('Opponent.start') do |params|
 end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.
-Stalker.job('PlayerProxy.play!') do |params|
+Stalker.job('PlayerProxy.play') do |params|
    @match_id_to_background_processes[params['match_id']][:player_proxy].play! params['action'], params['modifier']
 end
 

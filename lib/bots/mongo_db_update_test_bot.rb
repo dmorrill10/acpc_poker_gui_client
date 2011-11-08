@@ -12,7 +12,9 @@ class MongoDbUpdateTestBot
       # Set up the DB
       match = nil
       unless match_id
-         Mongoid.load!(File.expand_path('../../../config/mongoid.yml', __FILE__))
+         Mongoid.configure do |config|
+            config.master = Mongo::Connection.new.db("mongo_db_test")
+         end
          match = Match.create
          match_id = match.id
       else
@@ -58,6 +60,6 @@ class MongoDbUpdateTestBot
 end
 
 if __FILE__ == $0
-   port_number = ARGV[0] || 18379
+   port_number = ARGV[0] || 18374
    MongoDbUpdateTestBot.play DealerInformation.new('localhost', port_number)
 end

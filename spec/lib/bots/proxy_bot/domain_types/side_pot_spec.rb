@@ -114,7 +114,7 @@ describe SidePot do
       end
       it 'raises an exception if there are no chips to distribute' do
          initial_amount_in_side_pot = 0
-         @player1.expects(:take_from_stack!).once.with(initial_amount_in_side_pot)
+         @player1.expects(:take_from_chip_stack!).once.with(initial_amount_in_side_pot)
       
          patient = SidePot.new @player1, initial_amount_in_side_pot
       
@@ -132,7 +132,7 @@ describe SidePot do
    
    def setup_succeeding_test
       @initial_amount_in_side_pot = 10
-      @player1.expects(:take_from_stack!).once.with(@initial_amount_in_side_pot)
+      @player1.expects(:take_from_chip_stack!).once.with(@initial_amount_in_side_pot)
       
       patient = SidePot.new @player1, @initial_amount_in_side_pot
       
@@ -144,7 +144,7 @@ describe SidePot do
    end
    
    def calling_test(patient, players_and_their_contributions)
-      @player2.expects(:take_from_stack!).once.with(@initial_amount_in_side_pot)
+      @player2.expects(:take_from_chip_stack!).once.with(@initial_amount_in_side_pot)
       players_and_their_contributions[@player2] = @initial_amount_in_side_pot
       
       patient.take_call! @player2
@@ -156,7 +156,7 @@ describe SidePot do
    
    def betting_test(patient, players_and_their_contributions)
       @amount_to_bet = 34
-      @player1.expects(:take_from_stack!).once.with(@amount_to_bet)
+      @player1.expects(:take_from_chip_stack!).once.with(@amount_to_bet)
       players_and_their_contributions[@player1] += @amount_to_bet
       
       patient.take_bet! @player1, @amount_to_bet
@@ -170,8 +170,8 @@ describe SidePot do
       @amount_to_raise_by = 22
       @total_amount = @amount_to_raise_by + @amount_to_bet + @initial_amount_in_side_pot
       
-      @player2.expects(:take_from_stack!).once.with(@amount_to_bet)
-      @player2.expects(:take_from_stack!).once.with(@amount_to_raise_by)
+      @player2.expects(:take_from_chip_stack!).once.with(@amount_to_bet)
+      @player2.expects(:take_from_chip_stack!).once.with(@amount_to_raise_by)
       
       players_and_their_contributions[@player2] = @total_amount
       

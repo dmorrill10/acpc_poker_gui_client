@@ -4,8 +4,14 @@ require File.expand_path('../../application_defs', __FILE__)
 
 # Local classes
 require File.expand_path('../../bots/proxy_bot/proxy_bot', __FILE__)
-# @todo How do I include everything in a directory?
-require File.expand_path('../../bots/proxy_bot/domain_types/*', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/board_cards', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/card', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/chip_stack', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/game_definition', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/hand', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/matchstate_string', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/player', __FILE__)
+require File.expand_path('../../bots/proxy_bot/domain_types/side_pot', __FILE__)
 
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
@@ -61,12 +67,12 @@ class WebApplicationPlayerProxy
       players = []
       number_of_players.times do |player_index|
          name = list_of_player_names[player_index]
-         seat = player_index
-         position_relative_to_dealer = (position_relative_to_dealer + player_index) % number_of_players
+         seat = player_index         
+         my_position_relative_to_dealer = (position_relative_to_dealer + player_index) % number_of_players
          position_relative_to_user = users_position_relative_to_user - player_index
-         stack = @game_definition.list_of_player_stacks[player_index]
+         stack = ChipStack.new @game_definition.list_of_player_stacks[player_index]
          
-         players << Player.new(name, seat, position_relative_to_dealer, position_relative_to_user, stack)
+         players << Player.new(name, seat, my_position_relative_to_dealer, position_relative_to_user, stack)
       end
       
       players
@@ -89,35 +95,48 @@ class WebApplicationPlayerProxy
       @players.each_index do |i|
          @players[i].is_all_in = false
          @players[i].has_folded = false
-         @players[i].stack = @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
+         @players[i].stack = ChipStack.new @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
       end
       
-      @pot = start_new_pot
+      @pot = create_new_pot
       
       assign_users_cards!
    end
    
-   def create_new_pot_
+   def create_new_pot
       pot = SidePot.new player_who_submitted_big_blind, big_blind
       pot.contribute! player_who_submitted_small_blind, small_blind
       pot
    end
    
-   # @todo check if this works
+   # @todo check if this works. It doesn't but I have no idea why.
    def update_database!
-      # Create a new database record with the current match state information
-      # Insert the ID of the next record into the last database record, creating a linked list for the web app. to follow.
-      previous_match_record = Match.find(@match_id)
+      match = Match.find(@match_id)
       
       # Initialize a match
-      new_match_record = Match.new(state: @match_state, pot: @pot, players: @players)
-      unless new_match_record.save
-         # @todo Raise error
-      else
-         previous_match_record.next_match_id = new_match_record.id
-         # raise error unless previous_match_record.save or do both in one statement
-      end
+      match.update_attributes!(state: @match_state, is_match_ended: match_ended?, is_users_turn_to_act: users_turn_to_act?)
    end
+   
+   # @todo check if this works. It doesn't but I have no idea why.
+   #def update_database!
+   #   # Create a new database record with the current match state information
+   #   # Insert the ID of the next record into the last database record, creating a linked list for the web app. to follow.
+   #   previous_match_record = Match.find(@match_id)
+   #   
+   #   puts "update_database!: previous_match_record.id: #{previous_match_record.id}"
+   #   
+   #   # Initialize a match
+   #   next_match_record = Match.new(state: @match_state, is_match_ended: match_ended?, is_users_turn_to_act: users_turn_to_act?)
+   #   unless next_match_record.save
+   #      raise "Unable to save new match record"
+   #      # @todo Raise error
+   #   else
+   #      puts "update_database!: next_match_record.id: #{next_match_record.id}"
+   #      
+   #      # @todo Raise error unless
+   #      raise "Unable to save update 'next_match_id' attribute of match with ID: #{previous_match_record.id}" unless previous_match_record.update_attributes!(next_match_id: next_match_record.id)
+   #   end
+   #end
    
    # @todo Is round zero indexed?
    def first_action_of_the_first_round?
@@ -176,7 +195,7 @@ class WebApplicationPlayerProxy
    end
    
    def next_match_state
-      proxy_bot.receive_match_state_string
+      @proxy_bot.receive_match_state_string
    end 
    
    # @return [Boolean] +true+ if it is the user's turn to act, +false+ otherwise.
@@ -269,6 +288,10 @@ class WebApplicationPlayerProxy
       (first_player_position_in_current_round - 1 + number_of_actions_in_current_round) % number_of_active_players
    end
    
+   def users_position_relative_to_user
+      number_of_players - 1
+   end
+   
    # (see GameCore#list_of_player_stacks)
    def list_of_player_stacks
       @players.map { |player| player.stack }
@@ -353,7 +376,7 @@ class WebApplicationPlayerProxy
    
    # @see MatchstateString#position_relative_to_dealer
    def position_relative_to_dealer
-      @match_state_string.position_relative_to_dealer
+      @match_state.position_relative_to_dealer
    end
    
    # @see MatchstateString#list_of_betting_actions

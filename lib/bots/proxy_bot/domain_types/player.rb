@@ -70,6 +70,7 @@ class Player
       @is_all_in = false
       @current_wager_faced = 0
       @chip_balance = 0
+      # @todo Remove this instance variable
       @number_of_chips_in_the_pot = 0
    end
    
@@ -78,12 +79,16 @@ class Player
       Player.new attribute_hash[:name], attribute_hash[:seat],
          attribute_hash[:position_relative_to_dealer],
          attribute_hash[:position_relative_to_user],
-         attribute_hash[:chip_stack]
+         ChipStack.new(attribute_hash[:chip_stack_value])
    end
    
    # @todo Mongoid method
    def serialize(player)
-		player.to_hash
+		{name: player.name, seat: player.seat,
+         position_relative_to_dealer: player.position_relative_to_dealer,
+         position_relative_to_user: player.position_relative_to_user,
+         chip_stack_value: player.chip_stack.value}
+      # @todo to_hash doesn't appear to work here
    end
    
 	# @return [Hash] Hash map representation of this player.

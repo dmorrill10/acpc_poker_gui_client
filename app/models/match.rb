@@ -43,6 +43,7 @@ class Match
       is_users_turn_to_act
    end
    
+   # @todo This is just for testing
    def to_s
       "state_string: #{state_string}, is_users_turn_to_act: #{is_users_turn_to_act}, is_match_ended: #{is_match_ended}"
    end

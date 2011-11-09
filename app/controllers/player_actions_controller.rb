@@ -33,7 +33,7 @@ class PlayerActionsController < ApplicationController
       Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
       # Wait for the player to start and catch errors
-      @match = next_match_state @match_params[:match_id]
+      @match = Match.find @match_params[:match_id]
       
       replace_page_contents_with_updated_game_view
    end
@@ -108,9 +108,7 @@ class PlayerActionsController < ApplicationController
    
    # Updates the game state
    def update_game_state
-      # @todo Need to get the last match state string from the view to do this properly
-      
-      @match = next_match_state params[:match_id]#, params[:last_match_state]
+      @match = next_match_state params[:match_id]
       
       replace_page_contents_with_updated_game_view
    end

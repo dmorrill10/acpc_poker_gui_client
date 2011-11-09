@@ -7,8 +7,14 @@
 
 // Things the view needs to know: #############################################
 
+//    What is the match state?
+- @match_state = MatchstateString.new @match.state_string
+
+//    Who are the players in this game?
+- @players = @match.players
+
 //    Is it the user's turn to act?
-//- @users_turn_to_act = game_runner.users_turn_to_act?
+- @users_turn_to_act = @match.users_turn_to_act?
 //
 ////    Who has the dealer button?
 //- @player_with_the_dealer_button = game_runner.player_with_the_dealer_button
@@ -24,7 +30,7 @@
 //- @player_who_acted_last = game_runner.player_who_acted_last
 //
 ////    What is the pot size?
-//- @pot_size = game_runner.pot_size
+- @pot_size = @match.pot[0]
 //
 ////    What are the stack sizes of all the players?
 //- @stack_sizes = game_runner.list_of_player_stacks
@@ -39,22 +45,22 @@
 //- @list_of_betting_actions = game_runner.list_of_betting_actions
 //
 ////    Which round is it?
-//- @round = game_runner.round
+- @round = @match_state.round
 //
 ////    What are the board cards?
-//- @list_of_board_cards = game_runner.list_of_board_cards if @round > 0
+- @board_cards = @match_state.board_cards if @round > 0
 //
 ////    What is the hand number?
-//- @hand_number = game_runner.hand_number
+- @hand_number = @match_state.hand_number
 //
 ////    What is the name of the match?
-//- @match_name = game_runner.match_name
+- @match_name = @match.parameters[:match_name]
 //
 ////    What is the user's position relative to the dealer?
 //- @users_position = game_runner.users_position
 //
 ////    What was the last action?
-//- @last_action = game_runner.last_action
+- @last_action = @match_state.last_action
 //
 ////    Which actions are legal?
 ////- @legal_actions = game_runner.legal_actions
@@ -69,10 +75,10 @@
 //- @number_of_players = @stack_sizes.length
 //
 ////    Has the hand ended?
-//- @hand_ended = game_runner.hand_ended?
+- @hand_ended = @match.hand_ended?
 //   
 ////    Has the match ended?
-//- @match_ended = game_runner.match_ended?
+- @match_ended = @match.match_ended?
 //
 ////    What is the raise size in this round?
 //- @raise_size = game_runner.raise_size_in_this_round
@@ -85,13 +91,13 @@
 
 
 // Update the game state if it's not the user's turn to act and the match hasn't ended
-- if @match #@match_ended
+- if @match_ended
    //- close_dealer!
 - elsif @users_turn_to_act
    // TODO Enable action buttons   
 - else
    :javascript
-      setTimeout("update_game_state()", 1000);
+      setTimeout("update_game_state()", 500);
    
       // @todo Move this out of the view into a javascript helper file?
       function update_game_state() {      
@@ -118,31 +124,32 @@
 %p= label :post, 'Game state information:'
 %hr
 
-%p= label :post, "match state: #{@match.state}" if @match
-//%p= label :post, "User's turn to act?: #{@users_turn_to_act}"
+%p= label :post, "match state: #{@match_state}"
+%p= label :post, "players: #{@players}"
+%p= label :post, "User's turn to act?: #{@users_turn_to_act}"
 //%p= label :post, "Player with the dealer button: #{@player_with_the_dealer_button.name}" if @player_with_the_dealer_button
 //%p= label :post, "Player who posted the big blind: #{@player_who_submitted_big_blind.name}" if @player_who_submitted_big_blind
 //%p= label :post, "Player who posted the small blind: #{@player_who_submitted_small_blind.name}" if @player_who_submitted_small_blind
 //%p= label :post, "Player whose turn is next: #{@player_whose_turn_is_next.name}" if @player_whose_turn_is_next
 //%p= label :post, "Player who acted last: #{@player_who_acted_last.name}" if @player_who_acted_last.respond_to? :name
-//%p= label :post, "Pot size: #{@pot_size}"
+%p= label :post, "Pot size: #{@pot_size}"
 //%p= label :post, "Stack sizes: #{@stack_sizes}"
 //%p= label :post, "User's hole cards: #{@users_hole_cards}"
 //%p= label :post, "Opponent's hole cards: #{@list_of_opponents_hole_cards}"
 //%p= label :post, "Betting actions: #{@list_of_betting_actions}"
-//%p= label :post, "Board cards: #{@list_of_board_cards}"
+%p= label :post, "Board cards: #{@board_cards}"
 //%p= label :post, "Hand number: #{@hand_number}"
 //%p= label :post, "Maximum number of hands in this match: #{@max_number_of_hands}"
-//%p= label :post, "Match name: #{@match_name}"
+%p= label :post, "Match name: #{@match_name}"
 //%p= label :post, "User's position: #{@users_position}"
-//%p= label :post, "Last action: #{@last_action}"
+%p= label :post, "Last action: #{@last_action}"
 ////    Which actions are legal?
 ////- @legal_actions = game_runner.legal_actions
-//%p= label :post, "Round: #{@round}"
+%p= label :post, "Round: #{@round}"
 //%p= label :post, "Active players: #{@active_players.map {|p| p.name}}" if @active_players
 //%p= label :post, "Number of players: #{@number_of_players}"
-//%p= label :post, "Has the hand ended?: #{@hand_ended}"
-//%p= label :post, "Has the match ended?: #{@match_ended}"
+%p= label :post, "Has the hand ended?: #{@hand_ended}"
+%p= label :post, "Has the match ended?: #{@match_ended}"
 //%p= label :post, "Raise size in this round: #{@raise_size}"
 //// TODO Only display the chip balance at the end of a hand
 //%p= label :post, "Chip balances for each player: #{@chip_balances}"

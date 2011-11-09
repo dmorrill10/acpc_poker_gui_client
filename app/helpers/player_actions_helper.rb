@@ -15,19 +15,16 @@ module PlayerActionsHelper
       replace_page_contents 'player_actions/index'
    end
    
-   # @todo
-   def next_match_state(match_id, last_match_state=nil)
-      match = Match.find match_id
-      
+   # @todo document
+   def next_match_state(previous_match_id)      
       # Busy waiting for the match to be changed by the background process
-      while new_match_state_unavailable?(match, last_match_state)
-         match = Match.find match_id
+      while !(next_match_id = Match.find(previous_match_id).next_match_id)
          # @todo Add a failsafe here
          # @todo Let the user know that the match's state is being updated
          # @todo Use a processing spinner
       end
       
-      match
+      Match.find next_match_id
    end
    
    # @todo

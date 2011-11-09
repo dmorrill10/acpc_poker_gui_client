@@ -70,7 +70,6 @@ class AcpcDealerCommunicator
       @dealer_socket.ready_to_read?
    end
    
-   # The following methods are private ########################################
    private
    
    def handle_error(exception, message)

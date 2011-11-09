@@ -78,39 +78,18 @@ class StdinStdoutPlayerProxy
       match
    end
    
-   # @todo
-   #def self.next_match_state(previous_match_id)
-   #   match = Match.find previous_match_id
-   #   
-   #   # Busy waiting for the match to be changed by the background process
-   #   while !(match.state_string)
-   #      match = Match.find previous_match_id
-   #      
-   #      # @todo Add a failsafe here
-   #      # @todo Let the user know that the match's state is being updated
-   #      # @todo Use a processing spinner
-   #   end
-   #   
-   #   match
-   #end
-   
-   # @todo Don't know why this doesn't work. +previous_match_id+ appears to be somehow linked to every other instance that has its value.
-   def self.next_match_state(previous_match_id)
-      
-      puts "self.next_match_state: before loop: previous_match_id: #{previous_match_id}"
-      
+   # @todo document
+   def self.next_match_state(previous_match_id)      
       # Busy waiting for the match to be changed by the background process
       while !(next_match_id = Match.find(previous_match_id).next_match_id)
-         puts "self.next_match_state: busy waiting: previous_match_id: #{previous_match_id}, next_match_id: #{next_match_id}"
          # @todo Add a failsafe here
          # @todo Let the user know that the match's state is being updated
          # @todo Use a processing spinner
       end
       
-      puts "next_match_state: Found the next match ID: #{next_match_id}"
-      
-      next_match = Match.find next_match_id
+      Match.find next_match_id
    end
+   
 end
 
 

@@ -57,6 +57,7 @@ class SidePot < ChipStack
    
    # Have the +calling_player+ call the bet in this side-pot.
    # @param [Player] calling_player The player calling the current bet in this side-pot.
+   # @return [Integer] The number of chips put in this side-pot.
    def take_call!(calling_player)
       amount_contributed = @players_involved_and_their_amounts_contributed[calling_player] || 0
       
@@ -87,9 +88,9 @@ class SidePot < ChipStack
    # Have the +raising_player+ make a bet in this side-pot.
    # @param [Player] raising_player The player making a bet in this side-pot.
    # @param [Player] number_of_chips The number of chips to bet in this side-pot.
-   def take_raise!(raising_player, number_of_chips_to_raise_by)
+   def take_raise!(raising_player, number_of_chips_to_raise_to)
       take_call! raising_player
-      take_bet! raising_player, number_of_chips_to_raise_by
+      take_bet! raising_player, number_of_chips_to_raise_to - @players_involved_and_their_amounts_contributed[raising_player]
    end
    
    # Distribute chips to all winning players

@@ -40,9 +40,9 @@ class StdinStdoutPlayerProxy
       while !match.match_ended? do
          if match.users_turn_to_act?
             print 'Your turn to act: '; STDOUT.flush
-            action_and_modifier = gets
-            action = action_and_modifier.delete_at 0
-            modifier = if action_and_modifier.empty? then nil else action_and_modifier end
+            action_and_modifier = STDIN.gets.chomp
+            action = action_and_modifier[0]
+            modifier = if 1 == action_and_modifier.length then nil else action_and_modifier end
             case action
                when ACTION_TYPES[:call]
                   Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :call)
@@ -83,7 +83,7 @@ class StdinStdoutPlayerProxy
       match = Match.find previous_match_id
       
       # Busy waiting for the match to be changed by the background process
-      while !(match.state)
+      while !(match.state_string)
          match = Match.find previous_match_id
          
          # @todo Add a failsafe here

@@ -1,7 +1,4 @@
 
-# Database module
-require 'mongoid'
-
 # Local modules
 require File.expand_path('../board_cards', __FILE__)
 require File.expand_path('../hand', __FILE__)
@@ -17,7 +14,6 @@ require File.expand_path('../../../../../lib/mixins/easy_exceptions', __FILE__)
 class MatchstateString
    include ModelsHelper
    include MatchstateStringHelper
-   include Mongoid::Fields::Serializable
    
    exceptions :incomplete_matchstate_string, :unable_to_parse_string_of_cards
    
@@ -66,17 +62,6 @@ class MatchstateString
    
       raise IncompleteMatchstateString, raw_match_state if incomplete_match_state?      
    end
-   
-   # @todo Mongoid method
-   # @todo Test
-   def deserialize(raw_match_state_string)
-      if raw_match_state_string then MatchstateString.new raw_match_state_string else raw_match_state_string end
-   end
-
-   # @todo Mongoid method
-   def serialize(matchstate_string)
-      matchstate_string.to_str
-   end
 
    # @see to_str
    def to_s
@@ -111,18 +96,14 @@ class MatchstateString
    # @example An ace of diamonds and a 4 of clubs is represented as
    #     'Ad4c'
    def users_hole_cards
-      local_list_of_hole_card_hands = list_of_hole_card_hands
-      
-      log "users_hole_cards: local_list_of_hole_card_hands: #{local_list_of_hole_card_hands}, @position_relative_to_dealer: #{@position_relative_to_dealer}"
-      
-      local_list_of_hole_card_hands[@position_relative_to_dealer]
+      list_of_hole_card_hands[@position_relative_to_dealer]
    end
    
    # @return [Array] The list of opponent hole cards that are visible.
    # @example If there are two opponents, one with AhKs and the other with QdJc, then
    #     list_of_opponents_hole_cards == [AhKs:Hand, QdJc:Hand]
    def list_of_opponents_hole_cards
-      local_list_of_hole_card_hands = list_of_hole_card_hands
+      local_list_of_hole_card_hands = list_of_hole_card_hands.dup
       local_list_of_hole_card_hands.delete_at @position_relative_to_dealer
       
       log "list_of_opponents_hole_cards: list_of_hole_card_hands: #{list_of_hole_card_hands}, @position_relative_to_dealer: #{@position_relative_to_dealer}, local_list_of_hole_card_hands: #{local_list_of_hole_card_hands}"
@@ -179,6 +160,7 @@ class MatchstateString
    end
    
    def parse_board_cards(string_board_cards)
+      # @todo Game definition should be used here instead
       board_cards = BoardCards.new [3, 1, 1]
       for_every_set_of_cards(string_board_cards, '\/') do |string_board_card_set|
          next if string_board_card_set.match(/^\s*$/)
@@ -206,12 +188,13 @@ class MatchstateString
    end
    
    def hole_card_strings(list_of_hole_card_hands)
+      # @todo Game definition should be used here instead
       number_of_players = 2
-      string_of_hole_cards = ''
-      list_of_hole_card_hands.each_index do |hand_index|
-         string_of_hole_cards += list_of_hole_card_hands[hand_index]
-         string_of_hole_cards += '|' if hand_index < list_of_hole_card_hands.length - 1
+      list_of_hands = list_of_hole_card_hands.dup
+      while list_of_hands.length < number_of_players
+         list_of_hands << ''
       end
-      string_of_hole_cards
+      
+      (list_of_hands.inject('') { |string, hand|  string += hand.to_s + '|' }).chop
    end
 end

@@ -2,29 +2,30 @@
 # Database module
 require 'mongoid'
 
-# Local classes
-require File.expand_path('../../../lib/bots/proxy_bot/domain_types/matchstate_string', __FILE__)
-require File.expand_path('../../../lib/bots/proxy_bot/domain_types/player', __FILE__)
-require File.expand_path('../../../lib/bots/proxy_bot/domain_types/side_pot', __FILE__)
-
 class Match
    include Mongoid::Document
 
    field :port_numbers, type: Array
    field :parameters, type: Hash
-   field :state, type: MatchstateString
-   field :pot, type: SidePot
+   field :state_string, type: String
+   
+   # @return [Array<Integer>] This match's pot of chips, which consists of an array of side pot values.
+   #  It is parrallel to +seat_of_players_in_side_pots+.
+   field :pot, type: Array
+   
+   # @return [Array<Array>] The seats of the players in this match's side pots.
+   #  It is parrallel to +pot+.
+   field :seats_of_players_in_side_pots, type: Array
+   
+   # @return [Array<Hash>] The hash forms of the players in this match.
    field :players, type: Array
+   
+   # @todo either make this work or make this class into MatchSlice and hold an array of them in a Match
    field :next_match_id, type: String
    
    # Match interface
    field :is_match_ended, type: Boolean
    field :is_users_turn_to_act, type: Boolean
-   
-   # @todo for testing
-   field :player, type: Player
-   
-   field :states, type: Array
    
    def match_ended?
       is_match_ended
@@ -35,6 +36,6 @@ class Match
    end
    
    def to_s
-      "Match state: #{state}"
+      "state_string: #{state_string}, is_users_turn_to_act: #{is_users_turn_to_act}, is_match_ended: #{is_match_ended}"
    end
 end

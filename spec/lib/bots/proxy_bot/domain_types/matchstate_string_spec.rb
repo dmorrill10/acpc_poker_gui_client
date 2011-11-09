@@ -37,7 +37,7 @@ describe MatchstateString do
          partial_match_state = MATCH_STATE_LABEL + ":1:1:"
          hole_cards = arbitrary_hole_card_hand
          ACTION_TYPES.values.each do |action|
-            match_state = partial_match_state + action + ":#{hole_cards}"
+            match_state = partial_match_state + action + ":#{hole_cards}|"
             
             patient = test_match_state_success match_state
             patient.last_action.should be == action
@@ -46,7 +46,7 @@ describe MatchstateString do
       it "parses every possible hole card hand" do
          partial_match_state = MATCH_STATE_LABEL + ":2:2::"
          LIST_OF_HOLE_CARD_HANDS.each do |hand|
-            match_state = partial_match_state + hand
+            match_state = partial_match_state + hand + '|'
             
             test_match_state_success match_state
          end
@@ -144,9 +144,9 @@ describe MatchstateString do
       it "properly reports the current round number" do
          partial_match_state = MATCH_STATE_LABEL + ":0:0:"
          betting = ""
-         hands = arbitrary_hole_card_hand
+         hand = arbitrary_hole_card_hand
          (MAX_VALUES[:rounds]-1).times do |i|
-            match_state = partial_match_state + betting + ":" + hands
+            match_state = partial_match_state + betting + ":" + '|' + hand
             patient = test_match_state_success match_state
             patient.round.should be == i
                

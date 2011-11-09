@@ -58,7 +58,7 @@ describe SidePot do
          
          (patient,) = raising_test patient, players_and_their_contributions
          
-         patient.value.should be == 2 * (@initial_amount_in_side_pot + @amount_to_bet) + @amount_to_raise_by
+         patient.value.should be == @initial_amount_in_side_pot + @amount_to_bet + @amount_to_raise_to
       end
    end
    
@@ -167,15 +167,14 @@ describe SidePot do
    end
    
    def raising_test(patient, players_and_their_contributions)
-      @amount_to_raise_by = 22
-      @total_amount = @amount_to_raise_by + @amount_to_bet + @initial_amount_in_side_pot
-      
+      @amount_to_raise_to = 111
+      @total_amount = @amount_to_raise_to
       @player2.expects(:take_from_chip_stack!).once.with(@amount_to_bet)
-      @player2.expects(:take_from_chip_stack!).once.with(@amount_to_raise_by)
+      @player2.expects(:take_from_chip_stack!).once.with(@amount_to_raise_to - (@amount_to_bet + @initial_amount_in_side_pot))
       
       players_and_their_contributions[@player2] = @total_amount
       
-      patient.take_raise! @player2, @amount_to_raise_by
+      patient.take_raise! @player2, @amount_to_raise_to
       
       patient.players_involved_and_their_amounts_contributed.should be == players_and_their_contributions
       

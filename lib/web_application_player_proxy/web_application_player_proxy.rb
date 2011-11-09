@@ -38,20 +38,19 @@ class WebApplicationPlayerProxy
       @pot = create_new_pot
       
       update_database!
+      
+      update_match_state! unless users_turn_to_act?
    end
    
    # Player action interface
    def play!(action, modifier=nil)
+      puts "play!: action: #{action}, modifier: #{modifier}"
+      
       @proxy_bot.send_action action, modifier
       
+      puts "play!: action sent, update_match_state!"
+      
       update_match_state!
-      
-      evaluate_end_of_hand! if hand_ended?
-      
-      while !users_turn_to_act?
-         update_match_state!
-         start_new_hand! if first_action_of_the_first_round?
-      end
    end
    
    private
@@ -80,10 +79,15 @@ class WebApplicationPlayerProxy
       
    def update_match_state!      
       remember_values_from_last_round!
-      
       @match_state = next_match_state
-      
+      if first_state_of_the_first_round?
+         start_new_hand!
+      else
+         update_state_of_players!
+         evaluate_end_of_hand! if hand_ended?
+      end
       update_database!
+      update_match_state! unless users_turn_to_act?
    end
    
    # (see PlayerManager#start_new_hand!)
@@ -113,8 +117,10 @@ class WebApplicationPlayerProxy
    def update_database!
       match = Match.find(@match_id)
       
+      puts "update_database!: @match_state: #{@match_state}"
+      
       # Initialize a match
-      match.update_attributes!(state: @match_state, is_match_ended: match_ended?, is_users_turn_to_act: users_turn_to_act?)
+      match.update_attributes!(state_string: @match_state.to_s, is_match_ended: match_ended?, is_users_turn_to_act: users_turn_to_act?)
    end
    
    # @todo check if this works. It doesn't but I have no idea why.
@@ -139,8 +145,8 @@ class WebApplicationPlayerProxy
    #end
    
    # @todo Is round zero indexed?
-   def first_action_of_the_first_round?
-      0 == round && 1 == number_of_actions_in_current_round
+   def first_state_of_the_first_round?
+      0 == round && 0 == number_of_actions_in_current_round
    end
    
    def assign_users_cards!
@@ -149,10 +155,8 @@ class WebApplicationPlayerProxy
    end
    
    def assign_hole_cards_to_opponents!
-      local_list_of_hole_cards = @match_state.list_of_hole_card_sets
-
       list_of_opponent_players.each do |opponent|
-         opponent.hole_cards = local_list_of_hole_cards[opponent.position_relative_to_dealer] unless opponent.has_folded
+         opponent.hole_cards = @match_state.list_of_hole_card_hands[opponent.position_relative_to_dealer] unless opponent.has_folded
       end
    end
    
@@ -161,27 +165,15 @@ class WebApplicationPlayerProxy
       @pot.distribute_chips!
    end
    
-   # @todo Doesn't still work. Need to use the Pot to manipulate chips rather than players.
    def update_state_of_players!
       last_player_to_act = @players[player_who_acted_last_index]
       case last_action
          when ACTION_TYPES[:call]
-            last_player_to_act.call_current_wager!
+            @pot.take_call! last_player_to_act
          when ACTION_TYPES[:fold]
             last_player_to_act.has_folded = true
-         when ACTION_TYPES[:raise]            
-            # TODO this will become a problem during no-limit but will be fine for limit
-            last_player_to_act.call_current_wager!
-            
-            raise_size = raise_size_in_this_round
-            
-            last_player_to_act.place_wager! raise_size
-            
-            players_who_did_not_act_last = @players.reject { |player| player.position_relative_to_dealer == @position_relative_to_dealer_acted_last }
-            players_who_did_not_act_last.map { |player| player.current_wager_faced += raise_size }
-      end
-      if hand_ended?
-         evaluate_end_of_hand!
+         when ACTION_TYPES[:raise]
+            @pot.take_raise! last_player_to_act, raise_size_in_this_round
       end
    end
    
@@ -324,7 +316,7 @@ class WebApplicationPlayerProxy
    
    # @return [Boolean] +true+ if any opponents cards are visible, +false+ otherwise.
    def opponents_cards_visible?
-      are_visible = (list_of_opponents_hole_cards.length > 0)
+      are_visible = (list_of_opponents_hole_cards.length > 0 && !list_of_opponents_hole_cards[0].empty?)
    end
    
    # @return [Boolean] +true+ if the match has ended, +false+ otherwise.

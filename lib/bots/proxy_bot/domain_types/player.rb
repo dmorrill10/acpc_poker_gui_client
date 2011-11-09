@@ -1,14 +1,9 @@
 
-# Database module
-require 'mongoid'
-
 # Local classes
 require File.expand_path('../chip_stack', __FILE__)
 
 # Class to model a player.  This is a data model that contains minimal logic.
-class Player
-   include Mongoid::Fields::Serializable
-   
+class Player   
    # @return [String] The name of this player.
    attr_reader :name
    
@@ -49,9 +44,6 @@ class Player
    # @example (see MatchstateString#users_hole_cards)
    attr_accessor :hole_cards
    
-   # @return [Integer] The strength of this player's hand.
-   attr_accessor :poker_hand_strength
-   
    # @param [String] name The name of this player.
    # @param [Integer] seat This player's seat.  This is a 1 indexed
    #     number that represents the order that the player joined the dealer.
@@ -62,33 +54,14 @@ class Player
    #     relative to the user, 0 indexed, modulo the number of players in
    #     the game.
    # @param [ChipStack] chip_stack This player's chip stack.
-   def initialize(name, seat, position_relative_to_dealer, position_relative_to_user, chip_stack)
-      (@name, @seat, @position_relative_to_dealer, @position_relative_to_user, @chip_stack) =
-         [name, seat, position_relative_to_dealer, position_relative_to_user, chip_stack]
-      
-      @has_folded = false
-      @is_all_in = false
-      @current_wager_faced = 0
-      @chip_balance = 0
-      # @todo Remove this instance variable
-      @number_of_chips_in_the_pot = 0
-   end
-   
-   # @todo Mongoid method
-   def deserialize(attribute_hash)
-      Player.new attribute_hash[:name], attribute_hash[:seat],
-         attribute_hash[:position_relative_to_dealer],
-         attribute_hash[:position_relative_to_user],
-         ChipStack.new(attribute_hash[:chip_stack_value])
-   end
-   
-   # @todo Mongoid method
-   def serialize(player)
-		{name: player.name, seat: player.seat,
-         position_relative_to_dealer: player.position_relative_to_dealer,
-         position_relative_to_user: player.position_relative_to_user,
-         chip_stack_value: player.chip_stack.value}
-      # @todo to_hash doesn't appear to work here
+   # @param [Integer] chip_balance This player's chip balance.
+   def initialize(name, seat, position_relative_to_dealer, position_relative_to_user,
+                  chip_stack, chip_balance=0, hole_cards=nil, has_folded=false,
+                  is_all_in=false)
+      (@name, @seat, @position_relative_to_dealer, @position_relative_to_user,
+       @chip_stack, @chip_balance, @hole_cards, @has_folded, @is_all_in) =
+         [name, seat, position_relative_to_dealer, position_relative_to_user,
+          chip_stack, chip_balance, hole_cards, has_folded, is_all_in]
    end
    
 	# @return [Hash] Hash map representation of this player.
@@ -97,18 +70,27 @@ class Player
 		self.instance_variables.each { |var| hash_rep.store(var.to_s.delete("@"), self.instance_variable_get(var)) }
 		hash_rep
 	end
+	
+	def folded?
+      @has_folded
+	end
+	
+	def all_in?
+      @is_all_in
+	end
    
    # @return [Boolean] Whether or not this player is active (has not folded
    #     or gone all-in).  +true+ if this player is active, +false+ otherwise.
    def is_active?
-      !(@has_folded || @is_all_in)
+      !(folded? || all_in?)
    end
    
    # Adjusts this player's state when it takes chips from the pot.
    # @param [Integer] number_of_chips_from_the_pot The number of chips
    #  this player has won from the pot.
    def take_winnings!(number_of_chips_from_the_pot)
-      take_chips_from_the_pot! number_of_chips_from_the_pot
+      @chip_stack.add_to! number_of_chips_from_the_pot
+      @chip_balance += number_of_chips_from_the_pot
    end
    
    # Take chips away from this player's chip stack.
@@ -116,20 +98,6 @@ class Player
    # @raise (see ChipStack#take_from!)
    def take_from_chip_stack!(number_of_chips)
       @chip_stack.take_from! number_of_chips
-   end
-   
-   # All following methods are private ########################################
-   private
-   
-   def take_chips_from_the_pot!(amount)
-      @number_of_chips_in_the_pot = if amount > @number_of_chips_in_the_pot then 0 else @number_of_chips_in_the_pot - amount end
-      @chip_stack += amount
-      @chip_balance += amount
-   end
-   
-   def put_chips_in_the_pot!(amount)
-      @number_of_chips_in_the_pot += amount
-      @chip_stack -= amount
-      @chip_balance -= amount
+      @chip_balance -= number_of_chips
    end
 end

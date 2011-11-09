@@ -6,6 +6,7 @@ require 'mongoid'
 require File.expand_path('../../../../mixins/easy_exceptions', __FILE__)
 
 # Local classes
+require File.expand_path('../board_cards', __FILE__)
 require File.expand_path('../chip_stack', __FILE__)
 
 # A side-pot of chips.
@@ -94,7 +95,8 @@ class SidePot < ChipStack
    end
    
    # Distribute chips to all winning players
-   def distribute_chips!
+   # @param [BoardCards] board_cards The community board cards.
+   def distribute_chips!(board_cards)
       raise NoChipsToDistribute unless @value > 0
       
       players_to_distribute_to = list_of_players_who_have_not_folded
@@ -105,7 +107,7 @@ class SidePot < ChipStack
          players_to_distribute_to[0].take_winnings! @value
          take_from! @value
       elsif
-         distribute_winnings_amongst_multiple_players! players_to_distribute_to
+         distribute_winnings_amongst_multiple_players! players_to_distribute_to, board_cards
       end
       
       @players_involved_and_their_amounts_contributed = {}
@@ -118,10 +120,23 @@ class SidePot < ChipStack
       @players_involved_and_their_amounts_contributed.keys.reject { |player| player.has_folded }
    end
    
-   def distribute_winnings_amongst_multiple_players!(list_of_players)
-      strength_of_the_strongest_hand = (list_of_players.max_by { |player| player.poker_hand_strength }).poker_hand_strength
-   
-      winning_players = list_of_players.select { |player| strength_of_the_strongest_hand == player.poker_hand_strength }
+   def distribute_winnings_amongst_multiple_players!(list_of_players, board_cards)
+      strength_of_the_strongest_hand = 0
+      list_of_strongest_hands = []
+      winning_players = []
+      list_of_players.each do |player|
+         hand_strength = PileOfCards.new(board_cards + player.hand).to_poker_hand_strength         
+         if hand_strength >= strength_of_the_strongest_hand
+            strength_of_the_strongest_hand = hand_strength
+            if !list_of_strongest_hands.empty? && hand_strength > list_of_strongest_hands.max
+               winning_players = [player]
+               list_of_strongest_hands = [hand_strength]
+            else
+               list_of_strongest_hands << hand_strength
+               winning_players << player
+            end
+         end         
+      end
       
       # Split the side-pot's value among the winners
       amount_each_player_wins = (@value/winning_players.length).floor

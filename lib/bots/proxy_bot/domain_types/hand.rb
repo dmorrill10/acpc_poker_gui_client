@@ -1,7 +1,4 @@
 
-# Database module
-require 'mongoid'
-
 # Local modules
 require File.expand_path('../../../../application_defs', __FILE__)
 
@@ -11,7 +8,6 @@ require File.expand_path('../pile_of_cards', __FILE__)
 
 # A hand of cards.
 class Hand < PileOfCards
-   include Mongoid::Fields::Serializable
    include ApplicationDefs
       
    # @param [String] hand_in_alternate_form An alternate representation of this hand.
@@ -25,17 +21,7 @@ class Hand < PileOfCards
       end
       Hand.new hand_in_alternate_form
    end
-   
-   # @todo Mongoid method
-   def deserialize(string_hand)
-      Hand.draw_cards string_hand
-   end
-
-   # @todo Mongoid method
-   def serialize(hand)
-      hand.to_str
-   end
-   
+      
    # @see #to_str
    def to_s
       to_str

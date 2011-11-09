@@ -5,8 +5,15 @@ require 'mongoid'
 class Match
    include Mongoid::Document
 
+   # Table parameters
    field :port_numbers, type: Array
    field :parameters, type: Hash
+   
+   # @todo either make this work or make this class into MatchSlice and hold an array of them in a Match
+   field :next_match_id, type: String
+   
+   # @todo Move the below properties to MatchSlice class
+   
    field :state_string, type: String
    
    # @return [Array<Integer>] This match's pot of chips, which consists of an array of side pot values.
@@ -20,12 +27,13 @@ class Match
    # @return [Array<Hash>] The hash forms of the players in this match.
    field :players, type: Array
    
-   # @todo either make this work or make this class into MatchSlice and hold an array of them in a Match
-   field :next_match_id, type: String
+   
    
    # Match interface
    field :is_match_ended, type: Boolean
    field :is_users_turn_to_act, type: Boolean
+   
+   # @todo add to this
    
    def match_ended?
       is_match_ended

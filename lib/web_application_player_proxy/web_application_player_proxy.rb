@@ -112,37 +112,29 @@ class WebApplicationPlayerProxy
       pot.contribute! player_who_submitted_small_blind, small_blind
       pot
    end
-   
-   # @todo check if this works. It doesn't but I have no idea why.
+
+   # @todo check if this works.
    def update_database!
-      match = Match.find(@match_id)
+      # Create a new database record with the current match state information
+      # Insert the ID of the next record into the last database record, creating a linked list for the web app. to follow.
+      previous_match_record = Match.find(@match_id)
       
-      puts "update_database!: @match_state: #{@match_state}"
+      puts "update_database!: previous_match_record.id: #{previous_match_record.id}"
       
       # Initialize a match
-      match.update_attributes!(state_string: @match_state.to_s, is_match_ended: match_ended?, is_users_turn_to_act: users_turn_to_act?)
+      next_match_record = Match.new(state_string: @match_state.to_s, pot: [pot_size], is_match_ended: match_ended?, is_users_turn_to_act: users_turn_to_act?)
+      unless next_match_record.save
+         raise "Unable to save new match record"
+         # @todo Raise error
+      else
+         @match_id = next_match_record.id
+         
+         # @todo Raise error unless
+         unless previous_match_record.update_attributes!(next_match_id: next_match_record.id)
+            raise "Unable to save update 'next_match_id' attribute of match with ID: #{previous_match_record.id}"
+         end
+      end
    end
-   
-   # @todo check if this works. It doesn't but I have no idea why.
-   #def update_database!
-   #   # Create a new database record with the current match state information
-   #   # Insert the ID of the next record into the last database record, creating a linked list for the web app. to follow.
-   #   previous_match_record = Match.find(@match_id)
-   #   
-   #   puts "update_database!: previous_match_record.id: #{previous_match_record.id}"
-   #   
-   #   # Initialize a match
-   #   next_match_record = Match.new(state: @match_state, is_match_ended: match_ended?, is_users_turn_to_act: users_turn_to_act?)
-   #   unless next_match_record.save
-   #      raise "Unable to save new match record"
-   #      # @todo Raise error
-   #   else
-   #      puts "update_database!: next_match_record.id: #{next_match_record.id}"
-   #      
-   #      # @todo Raise error unless
-   #      raise "Unable to save update 'next_match_id' attribute of match with ID: #{previous_match_record.id}" unless previous_match_record.update_attributes!(next_match_id: next_match_record.id)
-   #   end
-   #end
    
    # @todo Is round zero indexed?
    def first_state_of_the_first_round?

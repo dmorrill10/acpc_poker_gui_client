@@ -75,7 +75,7 @@ describe SidePot do
          @player2.stubs(:has_folded).returns(true)
          @player1.expects(:take_winnings!).once.with(chips_to_distribute)
          
-         test_chip_distribution patient, players_and_their_contributions
+         test_chip_distribution patient, players_and_their_contributions, mock('BoardCards')
       end
       it 'distributes the chips it contains properly to two players that have not folded and have equal hand strength' do
          (patient, players_and_their_contributions) = setup_succeeding_test
@@ -87,14 +87,21 @@ describe SidePot do
          
          @player1.stubs(:has_folded).returns(false)
          @player2.stubs(:has_folded).returns(false)
-         poker_hand_strength = 5
-         @player1.stubs(:poker_hand_strength).returns(poker_hand_strength)
-         @player2.stubs(:poker_hand_strength).returns(poker_hand_strength)
-         @player1.expects(:take_winnings!).once.with(chips_to_distribute/2.0)
-         @player2.expects(:take_winnings!).once.with(chips_to_distribute/2.0)
+         @player1.stubs(:hand).returns(mock 'Hand')
+         @player2.stubs(:hand).returns(mock 'Hand')
+         
+         pile_of_cards = mock 'PileOfCards'
+         pile_of_cards.stubs(:to_poker_hand_strength).returns(5)
+         PileOfCards.stubs(:new).returns(pile_of_cards)
+         
+         board_cards = mock 'BoardCards'
+         board_cards.stubs(:+).returns(pile_of_cards)
+         
+         @player1.expects(:take_winnings!).once.with(chips_to_distribute/2)
+         @player2.expects(:take_winnings!).once.with(chips_to_distribute/2)
          
          
-         test_chip_distribution patient, players_and_their_contributions
+         test_chip_distribution patient, players_and_their_contributions, board_cards
       end
       it 'distributes the chips it contains properly to two players that have not folded and have unequal hand strength' do
          (patient, players_and_their_contributions) = setup_succeeding_test
@@ -106,11 +113,26 @@ describe SidePot do
          
          @player1.stubs(:has_folded).returns(false)
          @player2.stubs(:has_folded).returns(false)
-         @player1.stubs(:poker_hand_strength).returns(10)
-         @player2.stubs(:poker_hand_strength).returns(9)
-         @player1.expects(:take_winnings!).once.with(chips_to_distribute)
+         hand1 = mock 'Hand'
+         hand2 = mock 'Hand'
+         @player1.stubs(:hand).returns(hand1)
+         @player2.stubs(:hand).returns(hand2)
          
-         test_chip_distribution patient, players_and_their_contributions
+         pile_of_cards1 = mock 'PileOfCards'
+         pile_of_cards1.stubs(:to_poker_hand_strength).returns(9)
+         PileOfCards.stubs(:new).with(pile_of_cards1).returns(pile_of_cards1)
+         
+         pile_of_cards2 = mock 'PileOfCards'
+         pile_of_cards2.stubs(:to_poker_hand_strength).returns(10)
+         PileOfCards.stubs(:new).with(pile_of_cards2).returns(pile_of_cards2)
+         
+         board_cards = mock 'BoardCards'
+         board_cards.stubs(:+).once.with(hand1).returns(pile_of_cards1)
+         board_cards.stubs(:+).once.with(hand2).returns(pile_of_cards2)
+         
+         @player2.expects(:take_winnings!).once.with(chips_to_distribute)
+         
+         test_chip_distribution patient, players_and_their_contributions, board_cards
       end
       it 'raises an exception if there are no chips to distribute' do
          initial_amount_in_side_pot = 0
@@ -122,7 +144,7 @@ describe SidePot do
       
          patient.players_involved_and_their_amounts_contributed.should eq(players_and_their_contributions)
          
-         expect{patient.distribute_chips!}.to raise_exception(SidePot::NoChipsToDistribute)
+         expect{patient.distribute_chips! mock('BoardCards')}.to raise_exception(SidePot::NoChipsToDistribute)
       end
       it 'raises an exception if there are no players to take chips' do
          pending 'multiplayer support'
@@ -181,10 +203,10 @@ describe SidePot do
       [patient, players_and_their_contributions]
    end
    
-   def test_chip_distribution(patient, players_and_their_contributions)
+   def test_chip_distribution(patient, players_and_their_contributions, board_cards)
       players_and_their_contributions = {}
          
-      patient.distribute_chips!
+      patient.distribute_chips! board_cards
          
       patient.value.should be == 0
       patient.players_involved_and_their_amounts_contributed.should be == players_and_their_contributions

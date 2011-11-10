@@ -87,7 +87,7 @@ class WebApplicationPlayerProxy
          evaluate_end_of_hand! if hand_ended?
       end
       update_database!
-      update_match_state! unless users_turn_to_act?
+      update_match_state! unless (users_turn_to_act? or match_ended?)
    end
    
    # (see PlayerManager#start_new_hand!)
@@ -161,7 +161,7 @@ class WebApplicationPlayerProxy
    
    def evaluate_end_of_hand!
       assign_hole_cards_to_opponents!
-      @pot.distribute_chips!
+      @pot.distribute_chips! board_cards
    end
    
    def update_state_of_players!

@@ -5,8 +5,8 @@ require File.expand_path('../proxy_bot/proxy_bot', __FILE__)
 require File.expand_path('../../game/dealer_information', __FILE__)
 
 class TestingRubyBot
-   def self.play(port_number=18374)
-      dealer_info = DealerInformation.new 'localhost', port_number
+   def self.play(port_number)
+      dealer_info = DealerInformation.new 'localhost', port_number.to_i
       proxy_bot = ProxyBot.new dealer_info
       
       puts 'Entering game loop'
@@ -35,4 +35,4 @@ class TestingRubyBot
    end
 end
 
-TestingRubyBot.play(ARGV[0]) if __FILE__ == $0
+TestingRubyBot.play(ARGV[0].chomp) if __FILE__ == $0

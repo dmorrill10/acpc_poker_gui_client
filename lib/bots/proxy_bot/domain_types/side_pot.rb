@@ -125,7 +125,7 @@ class SidePot < ChipStack
       list_of_strongest_hands = []
       winning_players = []
       list_of_players.each do |player|
-         hand_strength = PileOfCards.new(board_cards + player.hand).to_poker_hand_strength         
+         hand_strength = PileOfCards.new(board_cards + player.hole_cards).to_poker_hand_strength         
          if hand_strength >= strength_of_the_strongest_hand
             strength_of_the_strongest_hand = hand_strength
             if !list_of_strongest_hands.empty? && hand_strength > list_of_strongest_hands.max

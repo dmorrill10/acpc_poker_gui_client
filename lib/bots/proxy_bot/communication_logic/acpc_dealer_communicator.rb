@@ -1,4 +1,7 @@
 
+# System classes
+require 'socket'
+
 # Local modules
 require File.expand_path('../../../../application_defs', __FILE__)
 

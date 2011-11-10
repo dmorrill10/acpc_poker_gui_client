@@ -1,4 +1,8 @@
 
+# Local modules
+require File.expand_path('../../../../ext/hand_evaluator', __FILE__)
+
+
 # A set of cards.
 class PileOfCards < Array
    

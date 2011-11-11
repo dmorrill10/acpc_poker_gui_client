@@ -127,6 +127,7 @@ class WebApplicationPlayerProxy
       players = @players.map { |player| player.to_hash }
       next_match_record = Match.new(state_string: @match_state.to_s, pot: [pot_size],
                                     seats_of_players_in_side_pots: seats_of_players_in_side_pots,
+                                    is_hand_ended: hand_ended?,
                                     is_match_ended: match_ended?,
                                     is_users_turn_to_act: users_turn_to_act?,
                                     players: players)

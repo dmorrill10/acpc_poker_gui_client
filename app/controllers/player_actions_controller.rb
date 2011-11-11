@@ -33,7 +33,8 @@ class PlayerActionsController < ApplicationController
       Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
       # Wait for the player to start and catch errors
-      @match = Match.find @match_params[:match_id]
+      @match = next_match_state @match_params[:match_id]
+      @match_params[:match_id] = @match.id
       
       replace_page_contents_with_updated_game_view
    end
@@ -108,7 +109,10 @@ class PlayerActionsController < ApplicationController
    
    # Updates the game state
    def update_game_state
+      
       @match = next_match_state params[:match_id]
+      @match_params = {}
+      @match_params[:match_id] = @match.id
       
       replace_page_contents_with_updated_game_view
    end

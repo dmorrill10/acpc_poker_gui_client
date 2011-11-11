@@ -30,10 +30,15 @@ class Match
    
    
    # Match interface
+   field :is_hand_ended, type: Boolean
    field :is_match_ended, type: Boolean
    field :is_users_turn_to_act, type: Boolean
    
    # @todo add to this
+   
+   def hand_ended?
+      is_hand_ended
+   end
    
    def match_ended?
       is_match_ended

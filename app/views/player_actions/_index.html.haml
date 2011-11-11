@@ -7,6 +7,9 @@
 
 // Things the view needs to know: #############################################
 
+//    What are the parameters of this match?
+- @parameters = @match.parameters
+
 //    What is the match state?
 - @match_state = MatchstateString.new @match.state_string
 
@@ -54,7 +57,7 @@
 - @hand_number = @match_state.hand_number
 //
 ////    What is the name of the match?
-- @match_name = @match.parameters[:match_name]
+//- @match_name = @match.parameters[:match_name]
 //
 ////    What is the user's position relative to the dealer?
 //- @users_position = game_runner.users_position
@@ -87,7 +90,8 @@
 //- @chip_balances = game_runner.list_of_player_chip_balances
 
 // Hidden form to allow AJAX to update the game's state dynamically
-= hidden_update_state_form
+= "@match_params[:match_id] #{@match_params[:match_id]}"
+= hidden_update_state_form @match_params[:match_id]
 
 
 // Update the game state if it's not the user's turn to act and the match hasn't ended
@@ -102,8 +106,8 @@
       // @todo Move this out of the view into a javascript helper file?
       function update_game_state() {      
          alert("Updating game state");
-         var match_id = document.getElementById('match_id_hidden_field');
-         match_id.value = "#{@match_params[:match_id]}";      
+         //var match_id = document.getElementById('match_id_hidden_field');
+         //match_id.value = "#{@match_params[:match_id]}";
          $('.update_game_state_button').submit();
       };
 
@@ -124,6 +128,7 @@
 %p= label :post, 'Game state information:'
 %hr
 
+%p= label :post, "match parameters: #{@parameters}"
 %p= label :post, "match state: #{@match_state}"
 %p= label :post, "players: #{@players}"
 %p= label :post, "User's turn to act?: #{@users_turn_to_act}"
@@ -140,7 +145,7 @@
 %p= label :post, "Board cards: #{@board_cards}"
 //%p= label :post, "Hand number: #{@hand_number}"
 //%p= label :post, "Maximum number of hands in this match: #{@max_number_of_hands}"
-%p= label :post, "Match name: #{@match_name}"
+//%p= label :post, "Match name: #{@match_name}"
 //%p= label :post, "User's position: #{@users_position}"
 %p= label :post, "Last action: #{@last_action}"
 ////    Which actions are legal?

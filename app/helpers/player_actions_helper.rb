@@ -3,9 +3,9 @@
 module PlayerActionsHelper
    
    # Places a hidden form in a view to allow AJAX to update the game's state dynamically
-   def hidden_update_state_form
+   def hidden_update_state_form(match_id)
       form_tag update_game_state_url, :remote => true do
-         form = hidden_field_tag(:match_id, nil, :id => 'match_id_hidden_field')
+         form = hidden_field_tag(:match_id, match_id, :id => 'match_id_hidden_field')
          form << submit_tag('Hidden', :class => 'update_game_state_button', :style => 'visibility: hidden')
       end
    end

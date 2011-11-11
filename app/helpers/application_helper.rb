@@ -17,6 +17,7 @@ module ApplicationHelper
          end
          # TODO Fix the naming here
          s << number_field_tag(:port_number) if options[:amount_field]
+         s << hidden_field_tag(:match_id, options[:match_id], :id => 'match_id_hidden_field') if options[:match_id]
          s
       end
    end

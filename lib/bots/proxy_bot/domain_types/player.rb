@@ -2,7 +2,7 @@
 # Local classes
 require File.expand_path('../chip_stack', __FILE__)
 
-# Class to model a player.  This is a data model that contains minimal logic.
+# Class to model a player.
 class Player   
    # @return [String] The name of this player.
    attr_reader :name
@@ -62,6 +62,11 @@ class Player
        @chip_stack, @chip_balance, @hole_cards, @has_folded, @is_all_in) =
          [name, seat, position_relative_to_dealer, position_relative_to_user,
           chip_stack, chip_balance, hole_cards, has_folded, is_all_in]
+   end
+   
+   # @return [String] String representation of this player.
+   def to_s
+      to_hash.to_s
    end
    
 	# @return [Hash] Hash map representation of this player.

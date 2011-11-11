@@ -10,6 +10,7 @@ class Match
    field :parameters, type: Hash
    
    # @todo either make this work or make this class into MatchSlice and hold an array of them in a Match
+   field :first_match_id, type: String
    field :next_match_id, type: String
    
    # @todo Move the below properties to MatchSlice class

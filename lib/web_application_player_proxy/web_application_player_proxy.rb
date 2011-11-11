@@ -23,6 +23,7 @@ class WebApplicationPlayerProxy
    # @param [String] player_names The names of the players in this match.
    # @param [Integer] number_of_hands The number of hands in this match.
    def initialize(match_id, dealer_information, game_definition, player_names='user, p2', number_of_hands=1)
+      @first_match_id = match_id
       @match_id = match_id
       @proxy_bot = ProxyBot.new dealer_information
       @game_definition = GameDefinition.new game_definition
@@ -130,7 +131,8 @@ class WebApplicationPlayerProxy
                                     is_hand_ended: hand_ended?,
                                     is_match_ended: match_ended?,
                                     is_users_turn_to_act: users_turn_to_act?,
-                                    players: players)
+                                    players: players,
+                                    first_match_id: @first_match_id)
       unless next_match_record.save
          raise "Unable to save new match record"
          # @todo Raise error
@@ -167,13 +169,19 @@ class WebApplicationPlayerProxy
    
    def update_state_of_players!
       last_player_to_act = @players[player_who_acted_last_index]
-      case last_action
+      
+      puts "update_state_of_players!: last_player_to_act: #{last_player_to_act}, action: #{last_action}"      
+      
+      case last_action_type
          when ACTION_TYPES[:call]
             @pot.take_call! last_player_to_act
          when ACTION_TYPES[:fold]
             last_player_to_act.has_folded = true
          when ACTION_TYPES[:raise]
-            @pot.take_raise! last_player_to_act, raise_size_in_this_round
+            amount_to_raise_to = raise_amount || raise_size_in_this_round +
+                                                @pot.players_involved_and_their_amounts_contributed[last_player_to_act] +
+                                                @pot.amount_to_call(last_player_to_act)
+            @pot.take_raise! last_player_to_act, amount_to_raise_to
       end
    end
    
@@ -334,6 +342,16 @@ class WebApplicationPlayerProxy
    # @see MatchstateString#last_action
    def last_action
       @match_state.last_action
+   end
+   
+   # @see MatchstateString#last_action_type
+   def last_action_type
+      @match_state.last_action_type
+   end
+   
+   # @see MatchstateString#raise_amount
+   def raise_amount
+      @match_state.raise_amount
    end
    
    # @see MatchstateString#round

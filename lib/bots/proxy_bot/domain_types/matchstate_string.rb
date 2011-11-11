@@ -86,6 +86,17 @@ class MatchstateString
    def last_action
       list_of_betting_actions[-1]
    end
+   
+   # @return [String] The type of the last action taken.
+   def last_action_type
+      all_actions = ACTION_TYPES.values.join ''
+      last_action[/[#{all_actions}]/]
+   end
+   
+   # @return [String] The raise amount of the last action taken or nil if none was provided.
+   def raise_amount
+      last_action[/\d+/]
+   end
 
    # @return [Array] The list of betting actions.
    def list_of_betting_actions

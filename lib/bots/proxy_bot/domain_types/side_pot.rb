@@ -1,7 +1,4 @@
 
-# Database module
-require 'mongoid'
-
 # Local mixins
 require File.expand_path('../../../../mixins/easy_exceptions', __FILE__)
 
@@ -11,7 +8,6 @@ require File.expand_path('../chip_stack', __FILE__)
 
 # A side-pot of chips.
 class SidePot < ChipStack
-   include Mongoid::Fields::Serializable
    
    exceptions :illegal_operation_on_side_pot, :no_chips_to_distribute, :no_players_to_take_chips
    
@@ -22,36 +18,16 @@ class SidePot < ChipStack
    # @param [Integer] initial_amount The initial value of this side-pot.
    # @raise (see Stack#initialize)
    def initialize(initiating_player, initial_amount)
-      @players_involved_and_their_amounts_contributed = {initiating_player => initial_amount}
-      
       initiating_player.take_from_chip_stack! initial_amount
+      @players_involved_and_their_amounts_contributed = {initiating_player => initial_amount}
       
       super initial_amount
    end
-   
-   # @todo Mongoid method
-   def deserialize(players_involved_and_their_amounts_contributed)
-      side_pot
-      players_involved_and_their_amounts_contributed.each do |player, amount|
-         unless side_pot
-            side_pot = SidePot.new player, amount
-         else
-            side_pot.contribute! player, amount if side_pot
-         end
-      end
-      side_pot
-   end
-
-   # @todo Mongoid method
-   def serialize(side_pot)
-      side_pot.players_involved_and_their_amounts_contributed
-   end
-   
+      
    # @todo
    def contribute!(player, amount)
+      player.take_from_chip_stack! amount
       @players_involved_and_their_amounts_contributed[player] = amount
-      
-      puts "contribute!: @players_involved_and_their_amounts_contributed: #{@players_involved_and_their_amounts_contributed}"
       
       @value = @players_involved_and_their_amounts_contributed.values.inject(0){ |sum, current_amount| sum += current_amount }
    end
@@ -59,18 +35,29 @@ class SidePot < ChipStack
    # Have the +calling_player+ call the bet in this side-pot.
    # @param [Player] calling_player The player calling the current bet in this side-pot.
    # @return [Integer] The number of chips put in this side-pot.
-   def take_call!(calling_player)
-      amount_contributed = @players_involved_and_their_amounts_contributed[calling_player] || 0
+   def take_call!(calling_player)      
+      # @todo This only applies in no-limit and multiplayer and is not correct yet.
+      #  If the calling player has a smaller stack than the amount to call, a
+      #  new side-pot needs to be created where all players who already contributed
+      #  to this one, have a portion of their chips moved into it, while the other
+      #  portion stays in this side-pot. If this happens in two player, the
+      #  player who contributed the most should simply be refunded the extra amount.
+      #  This should be handled in Pot.
+      #if calling_player.chip_stack.value < amount_to_call
+      #   amount_to_call = calling_player.chip_stack.value
+      #   players_who_contributed_the_most = @players_involved_and_their_amounts_contributed.keys.collect { |player| largest_amount_contributed == @players_involved_and_their_amounts_contributed[player] }
+      #end
       
+      amount_for_this_player_to_call = amount_to_call calling_player
+      calling_player.take_from_chip_stack! amount_for_this_player_to_call
+      @players_involved_and_their_amounts_contributed[calling_player] += amount_for_this_player_to_call
+      add_to! amount_for_this_player_to_call
+   end
+   
+   def amount_to_call(player)
+      amount_contributed = @players_involved_and_their_amounts_contributed[player] || 0
       largest_amount_contributed = @players_involved_and_their_amounts_contributed.values.max
-
-      amount_to_call = largest_amount_contributed - amount_contributed
-      
-      calling_player.take_from_chip_stack! amount_to_call
-      
-      @players_involved_and_their_amounts_contributed[calling_player] = amount_to_call + amount_contributed
-      
-      add_to! amount_to_call
+      largest_amount_contributed - amount_contributed
    end
    
    # Have the +betting_player+ make a bet in this side-pot.
@@ -90,6 +77,8 @@ class SidePot < ChipStack
    # @param [Player] raising_player The player making a bet in this side-pot.
    # @param [Player] number_of_chips The number of chips to bet in this side-pot.
    def take_raise!(raising_player, number_of_chips_to_raise_to)
+      puts "   take_raise!: raising_player: #{raising_player}, number_of_chips_to_raise_to: #{number_of_chips_to_raise_to}, @players_involved_and_their_amounts_contributed: #{@players_involved_and_their_amounts_contributed}"
+      
       take_call! raising_player
       take_bet! raising_player, number_of_chips_to_raise_to - @players_involved_and_their_amounts_contributed[raising_player]
    end

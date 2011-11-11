@@ -50,7 +50,9 @@ class PlayerActionsController < ApplicationController
 
    # game_action
    def call      
-      Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :call)
+      Stalker.enqueue('PlayerProxy.play', match_id: params[:match_id], action: :call)
+      update_match!
+      
       replace_page_contents_with_updated_game_view
    end
 
@@ -63,7 +65,7 @@ class PlayerActionsController < ApplicationController
 
    # game_action
    def fold
-      Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :fold)
+      Stalker.enqueue('PlayerProxy.play', match_id: params[:match_id], action: :fold)
       update_match!
       
       # Show the user that the proper action was taken and catch errors
@@ -73,9 +75,8 @@ class PlayerActionsController < ApplicationController
 
    # Allows the user to make a raise action
    def raise_action
-      #@raise_amount = params[:amount]      
-      Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :raise, modifier: modifier)
-      
+      modifier = params[:amount]
+      Stalker.enqueue('PlayerProxy.play', match_id: params[:match_id], action: :raise, modifier: modifier)
       update_match!
       
       # Show the user that the proper action was taken and catch errors

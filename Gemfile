@@ -5,8 +5,10 @@ gem 'rails', '3.1.1'
 gem 'rack', '1.3.3'
 
 # Database library
-gem "mongoid", "~> 2.3"
-gem "bson_ext", "~> 1.4"
+gem "mongoid", "= 2.3.0"
+gem 'bson', '= 1.4.0'
+gem 'bson_ext', '= 1.4.0'
+#gem "bson_ext", "~> 1.4"
 #gem 'sqlite3'
 
 # Gems used only for assets and not required

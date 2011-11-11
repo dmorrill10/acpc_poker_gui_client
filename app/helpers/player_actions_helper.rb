@@ -15,6 +15,13 @@ module PlayerActionsHelper
       replace_page_contents 'player_actions/index'
    end
    
+   # Updates the current match state.
+   def update_match!
+      @match = next_match_state params[:match_id]
+      @match_params = {}
+      @match_params[:match_id] = @match.id
+   end
+   
    # @todo document
    def next_match_state(previous_match_id)      
       # Busy waiting for the match to be changed by the background process

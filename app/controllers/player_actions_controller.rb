@@ -42,41 +42,20 @@ class PlayerActionsController < ApplicationController
    # @macro [new] game_action
    # Allows the user to make a +$1+ action
    def bet
-      log 'bet'
-      
-      # Make a betting action
-      
       
       # Show the user that the proper action was taken and catch errors
-      
-      # Get the next match state
-      @match = next_match_state params[:match_id]
 
       replace_page_contents_with_updated_game_view
    end
 
    # game_action
-   def call
-      log 'call'
-      
-      # Make a call action
-      #result = catch(:game_core_error) do game_runner.make_call_action end
-      
-      # Show the user that the proper action was taken and catch errors
-      
+   def call      
+      Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :call)
       replace_page_contents_with_updated_game_view
    end
 
    # game_action
    def check
-      log 'check'
-      
-      # Make a check action
-      #result = catch(:game_core_error) do game_runner.make_check_action end
-      
-      #TODO Handle error
-      warn "ERROR: #{result}\n" if result.kind_of?(String)
-      
       # Show the user that the proper action was taken and catch errors
       
       replace_page_contents_with_updated_game_view
@@ -84,10 +63,8 @@ class PlayerActionsController < ApplicationController
 
    # game_action
    def fold
-      log 'fold'
-      
-      # Make a fold action
-      #result = catch(:game_core_error) do game_runner.make_fold_action end
+      Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :fold)
+      update_match!
       
       # Show the user that the proper action was taken and catch errors
       
@@ -96,11 +73,10 @@ class PlayerActionsController < ApplicationController
 
    # Allows the user to make a raise action
    def raise_action
-      #@raise_amount = params[:amount]
-      log 'raise_action'
+      #@raise_amount = params[:amount]      
+      Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :raise, modifier: modifier)
       
-      # Make a raise action
-      result = catch(:game_core_error) do game_runner.make_raise_action end
+      update_match!
       
       # Show the user that the proper action was taken and catch errors
       
@@ -109,18 +85,12 @@ class PlayerActionsController < ApplicationController
    
    # Updates the game state
    def update_game_state
-      
-      @match = next_match_state params[:match_id]
-      @match_params = {}
-      @match_params[:match_id] = @match.id
-      
+      update_match!
       replace_page_contents_with_updated_game_view
    end
    
    # Leaves the game and closes the dealer
-   def leave_game
-      log 'leave_game'
-      
+   def leave_game      
       # @todo Still have no idea how this will effect background processes, was doing 'close_dealer!' in the old version
       
       replace_page_contents 'start_game/index'

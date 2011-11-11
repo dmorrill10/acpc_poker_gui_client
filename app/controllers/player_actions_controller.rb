@@ -23,13 +23,14 @@ class PlayerActionsController < ApplicationController
       @match_params = {match_id: params[:match_id], port_number: params[:port_number],
          match_name: params[:match_name],
          game_definition_file_name: params[:game_definition_file_name],
-         number_of_hands: params[:number_of_hands],
+         number_of_hands: '2',#params[:number_of_hands],
          random_seed: params[:random_seed], player_names: params[:player_names]}
       
       # Start the player that represents the browser operator
       player_proxy_arguments = {match_id: @match_params[:match_id],
          host_name: 'localhost', port_number: @match_params[:port_number],
-         game_definition_file_name: @match_params[:game_definition_file_name]}
+         game_definition_file_name: @match_params[:game_definition_file_name],
+         number_of_hands: @match_params[:number_of_hands]}
       Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
       # Wait for the player to start and catch errors

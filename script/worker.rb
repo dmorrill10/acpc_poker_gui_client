@@ -60,13 +60,15 @@ Stalker.job('Dealer.start') do |params|
    match.save
 end
 
-# @param [Hash] params Parameters for the player proxy. Must contain values for +'match_id'+, +'host_name'+, +'port_number'+, and +'game_definition_file_name'+.
+# @param [Hash] params Parameters for the player proxy. Must contain values for
+#  +'match_id'+, +'host_name'+, +'port_number'+, +'game_definition_file_name'+,
+#  and +'number_of_hands'+.
 Stalker.job('PlayerProxy.start') do |params|
    dealer_information = DealerInformation.new params['host_name'], params['port_number']
    
    match_id = params['match_id']
    background_processes = @match_id_to_background_processes[match_id] || {}
-   background_processes[:player_proxy] = WebApplicationPlayerProxy.new match_id, dealer_information, params['game_definition_file_name']
+   background_processes[:player_proxy] = WebApplicationPlayerProxy.new match_id, dealer_information, params['game_definition_file_name'], params['number_of_hands']
    @match_id_to_background_processes[match_id] = background_processes
 end
 

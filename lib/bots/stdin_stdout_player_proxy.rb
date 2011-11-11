@@ -26,7 +26,8 @@ class StdinStdoutPlayerProxy
       # Start the player that represents the browser operator
       player_proxy_arguments = {match_id: match_id,
          host_name: host_name, port_number: port_number,
-         game_definition_file_name: game_definition_file_name}
+         game_definition_file_name: game_definition_file_name,
+         number_of_hands: number_of_hands}
       Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       
       puts 'Getting first match slice...'

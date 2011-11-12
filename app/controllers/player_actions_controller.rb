@@ -30,6 +30,7 @@ class PlayerActionsController < ApplicationController
       player_proxy_arguments = {match_id: @match_params[:match_id],
          host_name: 'localhost', port_number: @match_params[:port_number],
          game_definition_file_name: @match_params[:game_definition_file_name],
+         player_names: @match_params[:player_names],
          number_of_hands: @match_params[:number_of_hands]}
       Stalker.enqueue('PlayerProxy.start', player_proxy_arguments)
       

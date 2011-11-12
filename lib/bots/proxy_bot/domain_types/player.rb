@@ -14,7 +14,7 @@ class Player
    # @return [Integer] This player's position relative to the dealer,
    #     0 indexed, modulo the number of players in the game.
    # @example (see MatchstateString#position_relative_to_dealer)
-   attr_reader :position_relative_to_dealer
+   attr_accessor :position_relative_to_dealer
    
    # @return [Integer] This player's position relative to the user,
    #     0 indexed, modulo the number of players in the game.

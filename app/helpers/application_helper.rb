@@ -69,9 +69,12 @@ module ApplicationHelper
          if NO_RANDOM then '1' else (rand 100).to_s end
       end
       
-      player_names = params[:player_names] || 'user, p2'
+      player_names = params[:player_names] || 'user p2'
       
-      {port_number: port_number, match_name: match_name, game_definition_file_name: game_definition_file_name, number_of_hands: number_of_hands, random_seed: random_seed, player_names: player_names}
+      {port_number: port_number, match_name: match_name,
+         game_definition_file_name: game_definition_file_name,
+         number_of_hands: number_of_hands, random_seed: random_seed,
+         player_names: player_names}
    end
    
 end

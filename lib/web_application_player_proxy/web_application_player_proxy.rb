@@ -35,16 +35,12 @@ class WebApplicationPlayerProxy
       @max_number_of_hands = number_of_hands
       
       @match_state = next_match_state
-      
       @players = create_players player_names
-      
       assign_users_cards!
       
-      # @todo Check that this actually works
       @pot = create_new_pot
       
       update_database!
-      
       update_match_state! unless users_turn_to_act?
    end
    
@@ -72,12 +68,8 @@ class WebApplicationPlayerProxy
       players = []
       number_of_players.times do |player_index|
          name = list_of_player_names[player_index]
-         
-         # @todo Not sure why this doesn't seem to be working
-         puts "create_players: player_index: #{player_index}, name: #{name}"
-         
          seat = player_index         
-         my_position_relative_to_dealer = (position_relative_to_dealer + player_index) % number_of_players
+         my_position_relative_to_dealer = position_relative_to_dealer seat
          position_relative_to_user = users_position_relative_to_user - player_index
          stack = ChipStack.new @game_definition.list_of_player_stacks[player_index]
          
@@ -109,11 +101,11 @@ class WebApplicationPlayerProxy
       @players.each_index do |i|
          @players[i].is_all_in = false
          @players[i].has_folded = false
-         @players[i].chip_stack = ChipStack.new @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
+         @players[i].chip_stack = ChipStack.new @game_definition.list_of_player_stacks[i] # @todo if @is_doyles_game
+         @players[i].position_relative_to_dealer = position_relative_to_dealer @players[i].seat
       end
       
       @pot = create_new_pot
-      
       assign_users_cards!
    end
    
@@ -145,7 +137,6 @@ class WebApplicationPlayerProxy
       end
    end
    
-   # @todo Is round zero indexed?
    def first_state_of_the_first_round?
       0 == round && 0 == number_of_actions_in_current_round
    end
@@ -199,7 +190,7 @@ class WebApplicationPlayerProxy
    
    # @return [Boolean] +true+ if it is the user's turn to act, +false+ otherwise.
    def users_turn_to_act?      
-      users_turn_to_act = position_relative_to_dealer_next_to_act == position_relative_to_dealer
+      users_turn_to_act = position_relative_to_dealer_next_to_act == users_position_relative_to_dealer
       users_turn_to_act &= !hand_ended?
    end
    
@@ -248,11 +239,7 @@ class WebApplicationPlayerProxy
  
    def player_who_submitted_big_blind_index
       big_blind_position = if is_reverse_blinds? then BLIND_POSITIONS_RELATIVE_TO_DEALER_REVERSE_BLINDS[:submits_big_blind] else BLIND_POSITIONS_RELATIVE_TO_DEALER_NORMAL_BLINDS[:submits_big_blind] end
-      index = @players.index do |player|
-         player.position_relative_to_dealer == big_blind_position
-      end
-      
-      index
+      @players.index { |player| player.position_relative_to_dealer == big_blind_position }
    end
    
    def player_who_submitted_small_blind_index
@@ -272,12 +259,12 @@ class WebApplicationPlayerProxy
    
    # @return [Boolean] +true+ if the current hand is the last in the match.
    def last_hand?
-      hand_number >= @max_number_of_hands
+      # @todo make sure +hand_number+ is not greater than @max_number_of_hands
+      hand_number == @max_number_of_hands - 1
    end
    
-   #@todo This may not work if the dealer just immediately sends the next match state after a fold and it definitely doesn't work in 3-player
    def less_than_two_active_players?
-      'f' == last_action
+      active_players.length < 2
    end
       
    # @return [Integer] The position relative to the dealer that is next to act.
@@ -328,6 +315,10 @@ class WebApplicationPlayerProxy
    # @return [Boolean] +true+ if the match has ended, +false+ otherwise.
    def match_ended?      
       hand_ended? && last_hand?
+   end
+   
+   def position_relative_to_dealer(seat)
+      (users_position_relative_to_dealer + seat) % number_of_players
    end
    
    # Wrappers for methods found in instance variables.
@@ -383,7 +374,7 @@ class WebApplicationPlayerProxy
    end
    
    # @see MatchstateString#position_relative_to_dealer
-   def position_relative_to_dealer
+   def users_position_relative_to_dealer
       @match_state.position_relative_to_dealer
    end
    

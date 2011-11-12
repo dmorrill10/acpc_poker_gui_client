@@ -34,7 +34,7 @@ class NewGameController < ApplicationController
       else
          dealer_arguments = [@match_params[:match_name],
                              @match_params[:game_definition_file_name].to_s,
-                             @match_params[:number_of_hands],
+                             '2',#@match_params[:number_of_hands],
                              @match_params[:random_seed],
                              @match_params[:player_names].split(/\s*,?\s+/)].flatten
          

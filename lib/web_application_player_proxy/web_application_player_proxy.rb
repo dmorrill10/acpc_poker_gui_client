@@ -27,7 +27,7 @@ class WebApplicationPlayerProxy
    # @param [String] game_definition_file_name The name of the file containing the definition of the game, of which, this match is an instance.
    # @param [String] player_names The names of the players in this match.
    # @param [Integer] number_of_hands The number of hands in this match.
-   def initialize(match_id, dealer_information, game_definition, player_names='user, p2', number_of_hands=1)
+   def initialize(match_id, dealer_information, game_definition, player_names='user p2', number_of_hands=1)
       @match_id = match_id
       @match_slice_index = 0
       @proxy_bot = ProxyBot.new dealer_information

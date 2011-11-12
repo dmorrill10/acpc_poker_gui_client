@@ -68,7 +68,10 @@ Stalker.job('PlayerProxy.start') do |params|
    
    match_id = params['match_id']
    background_processes = @match_id_to_background_processes[match_id] || {}
-   background_processes[:player_proxy] = WebApplicationPlayerProxy.new match_id, dealer_information, params['game_definition_file_name'], params['number_of_hands']
+   background_processes[:player_proxy] = WebApplicationPlayerProxy.new match_id,
+                                          dealer_information,
+                                          params['game_definition_file_name'],
+                                          params['number_of_hands']
    @match_id_to_background_processes[match_id] = background_processes
 end
 

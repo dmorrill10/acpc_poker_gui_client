@@ -15,9 +15,10 @@ module ApplicationHelper
          else
             s = submit_tag button_string, :class => class_div
          end
-         # TODO Fix the naming here
+         # @todo Use centralized string names rather than local ones
          s << number_field_tag(:port_number) if options[:amount_field]
          s << hidden_field_tag(:match_id, options[:match_id], :id => 'match_id_hidden_field') if options[:match_id]
+         s << hidden_field_tag(:match_slice_index, options[:match_slice_index], id: 'match_slice_index_hidden_field') if options[:match_slice_index]
          s
       end
    end

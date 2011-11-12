@@ -22,7 +22,7 @@ describe PlayerActionsController do
          Match.stubs(:find).with(id).returns(updated_match)
          
          # Make sure a player proxy is started with the correct parameters
-         player_proxy_arguments = {match_id: match_params[:match_id], host_name: 'localhost', port_number: match_params[:port_number], game_definition_file_name: match_params[:game_definition_file_name]}
+         player_proxy_arguments = {match_id: match_params[:match_id], host_name: 'localhost', port_number: match_params[:port_number], game_definition_file_name: match_params[:game_definition_file_name], number_of_hands: match_params[:number_of_hands]}
          Stalker.expects(:enqueue).once.with('PlayerProxy.start', player_proxy_arguments)
          
          test_collects_all_necessary_parameters match_params

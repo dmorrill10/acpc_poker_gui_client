@@ -33,7 +33,7 @@ class Player
    attr_accessor :is_all_in
    
    # @return [ChipStack] This player's chip stack.
-   attr_reader :chip_stack
+   attr_accessor :chip_stack
    
    # @return [Integer] The amount this player has won or lost in the current
    #  match.  During a hand, this is a projected amount assuming that this

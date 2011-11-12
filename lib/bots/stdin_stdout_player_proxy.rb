@@ -14,17 +14,17 @@ require File.expand_path('../../application_defs', __FILE__)
 class StdinStdoutPlayerProxy
    include ApplicationDefs
    
-   def self.play!(port_number, match_name, game_definition_file_name, number_of_hands, list_of_player_names, host_name='localhost')            
+   def play!(port_number, match_name, game_definition_file_name, number_of_hands, list_of_player_names, host_name='localhost')            
       
       # Set up the DB
       Mongoid.load!(File.expand_path('../../../config/mongoid.yml', __FILE__))
       
       # Create a new DB record
-      match = Match.create
-      match_id = match.id
+      match = Match.create!(slices: [])
+      @match_id = match.id
       
       # Start the player that represents the browser operator
-      player_proxy_arguments = {match_id: match_id,
+      player_proxy_arguments = {match_id: @match_id,
          host_name: host_name, port_number: port_number,
          game_definition_file_name: game_definition_file_name,
          number_of_hands: number_of_hands}
@@ -33,64 +33,56 @@ class StdinStdoutPlayerProxy
       puts 'Getting first match slice...'
       
       # Wait for the player to start and catch errors
-      match = show_next_match_slice match_id
+      match_slice = show_next_match_slice!
       
-      puts match.to_s
+      puts match_slice.to_s
       
       counter = 0
-      while !match.match_ended? do
-         if match.users_turn_to_act?
+      while !match_slice.match_ended? do
+         if match_slice.users_turn_to_act?
             print 'Your turn to act: '; STDOUT.flush
             action_and_modifier = STDIN.gets.chomp
             action = action_and_modifier[0]
             modifier = if 1 == action_and_modifier.length then nil else action_and_modifier end
             case action
                when ACTION_TYPES[:call]
-                  Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :call)
+                  Stalker.enqueue('PlayerProxy.play', match_id: @match_id, action: :call)
                when ACTION_TYPES[:fold]
-                  Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :fold)
+                  Stalker.enqueue('PlayerProxy.play', match_id: @match_id, action: :fold)
                when ACTION_TYPES[:raise]            
-                  Stalker.enqueue('PlayerProxy.play', match_id: match_id, action: :raise, modifier: modifier)
+                  Stalker.enqueue('PlayerProxy.play', match_id: @match_id, action: :raise, modifier: modifier)
             end
          end
-         match = show_next_match_slice match.id
+         match_slice = show_next_match_slice!
       end
    end
-   
-   #def self.show_first_match_slice(match_id)
-   #   match = Match.find match_id
-   #   
-   #   while !match.state
-   #      match = Match.find match_id
-   #      
-   #      puts "show_first_match_slice: busy waiting: match_id: #{match_id}, match: #{match}"
-   #   end
-   #   
-   #   puts "show_first_match_slice: Found match with state: #{match.state}"
-   #   
-   #   puts match.to_s
-   #   
-   #   match
-   #end
-      
-   def self.show_next_match_slice(match_id)
-      match = next_match_state match_id
-      puts match.to_s
-      match
+
+   def show_next_match_slice!
+      match_slice = next_match_slice!
+      puts match_slice.to_s
+      match_slice
    end
    
    # @todo document
-   def self.next_match_state(previous_match_id)      
+   def next_match_slice!
+      @match_slice_index = 0 unless @match_slice_index
+      
       # Busy waiting for the match to be changed by the background process
-      while !(next_match_id = Match.find(previous_match_id).next_match_id)
+      match = Match.find @match_id
+      
+      puts "next_match_slice: @match_id: #{@match_id}, @match_slice_index: #{@match_slice_index}, match.slices.length: #{match.slices.length}"
+      
+      while match.slices.length < @match_slice_index + 1
+         match = Match.find @match_id
          # @todo Add a failsafe here
          # @todo Let the user know that the match's state is being updated
          # @todo Use a processing spinner
       end
+      slice = match.slices[@match_slice_index]
+      @match_slice_index += 1
       
-      Match.find next_match_id
+      slice
    end
-   
 end
 
 
@@ -105,5 +97,5 @@ if __FILE__ == $0
       puts "#{ARGV[2]} does not exist, please provide a valid game definition."
       exit
    end
-   StdinStdoutPlayerProxy.play! ARGV[0], ARGV[1], game_definition_file_name, ARGV[3], ARGV[4..ARGV.length-1]
+   StdinStdoutPlayerProxy.new.play! ARGV[0], ARGV[1], game_definition_file_name, ARGV[3], ARGV[4..ARGV.length-1]
 end

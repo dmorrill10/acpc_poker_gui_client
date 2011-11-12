@@ -84,8 +84,7 @@ end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.
 Stalker.job('PlayerProxy.play') do |params|
-   match_id = Match.find(params['match_id']).first_match_id
-   @match_id_to_background_processes[match_id][:player_proxy].play! params['action'].to_sym, params['modifier']
+   @match_id_to_background_processes[params['match_id']][:player_proxy].play! params['action'].to_sym, params['modifier']
 end
 
 ## @todo Catch errors

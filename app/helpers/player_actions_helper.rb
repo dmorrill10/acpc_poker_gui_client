@@ -3,9 +3,10 @@
 module PlayerActionsHelper
    
    # Places a hidden form in a view to allow AJAX to update the game's state dynamically
-   def hidden_update_state_form(match_id)
+   def hidden_update_state_form(match_id, match_slice_index)
       form_tag update_game_state_url, :remote => true do
-         form = hidden_field_tag(:match_id, match_id, :id => 'match_id_hidden_field')
+         form = hidden_field_tag(:match_id, match_id, id: 'match_id_hidden_field')
+         form << hidden_field_tag(:match_slice_index, match_slice_index, id: 'match_slice_index_hidden_field')
          form << submit_tag('Hidden', :class => 'update_game_state_button', :style => 'visibility: hidden')
       end
    end
@@ -17,25 +18,27 @@ module PlayerActionsHelper
    
    # Updates the current match state.
    def update_match!
-      @match = next_match_state params[:match_id]
-      @match_params = {}
-      @match_params[:match_id] = @match.id
+      @match_slice_index = params[:match_slice_index].to_i || 0
+      @match_id = params[:match_id]
+      @match_slice = next_match_slice!
+      @match_slice_index += 1
    end
    
    # @todo document
-   def next_match_state(previous_match_id)      
+   def next_match_slice!
+      @match = Match.find @match_id
       # Busy waiting for the match to be changed by the background process
-      while !(next_match_id = Match.find(previous_match_id).next_match_id)
+      while new_match_state_unavailable?
+         @match = Match.find @match_id
          # @todo Add a failsafe here
          # @todo Let the user know that the match's state is being updated
          # @todo Use a processing spinner
       end
-      
-      Match.find next_match_id
+      @match.slices[@match_slice_index]
    end
    
    # @todo
-   def new_match_state_unavailable?(match, last_match_state)
-      !match.state || match.state == last_match_state
+   def new_match_state_unavailable?
+      @match.slices.length < @match_slice_index + 1
    end
 end

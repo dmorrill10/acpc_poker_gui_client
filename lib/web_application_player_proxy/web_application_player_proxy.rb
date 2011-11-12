@@ -2,6 +2,9 @@
 # Local modules
 require File.expand_path('../../application_defs', __FILE__)
 
+# Local mixins
+require File.expand_path('../../mixins/easy_exceptions', __FILE__)
+
 # Local classes
 require File.expand_path('../../bots/proxy_bot/proxy_bot', __FILE__)
 require File.expand_path('../../bots/proxy_bot/domain_types/board_cards', __FILE__)
@@ -17,14 +20,16 @@ require File.expand_path('../../bots/proxy_bot/domain_types/side_pot', __FILE__)
 class WebApplicationPlayerProxy
    include ApplicationDefs
    
+   exceptions :unable_to_create_match_slice
+   
    # @param [String] match_id The ID of the match in which this player is participating.
    # @param [DealerInformation] dealer_information Information about the dealer to which this bot should connect.
    # @param [String] game_definition_file_name The name of the file containing the definition of the game, of which, this match is an instance.
    # @param [String] player_names The names of the players in this match.
    # @param [Integer] number_of_hands The number of hands in this match.
    def initialize(match_id, dealer_information, game_definition, player_names='user, p2', number_of_hands=1)
-      @first_match_id = match_id
       @match_id = match_id
+      @match_slice_index = 0
       @proxy_bot = ProxyBot.new dealer_information
       @game_definition = GameDefinition.new game_definition
       @max_number_of_hands = number_of_hands
@@ -100,7 +105,7 @@ class WebApplicationPlayerProxy
       @players.each_index do |i|
          @players[i].is_all_in = false
          @players[i].has_folded = false
-         @players[i].stack = ChipStack.new @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
+         @players[i].chip_stack = ChipStack.new @game_definition.list_of_player_stacks[i] # TODO if @is_doyles_game
       end
       
       @pot = create_new_pot
@@ -116,33 +121,23 @@ class WebApplicationPlayerProxy
 
    # @todo check if this works.
    def update_database!
-      # Create a new database record with the current match state information
-      # Insert the ID of the next record into the last database record, creating a linked list for the web app. to follow.
-      previous_match_record = Match.find(@match_id)
+      match = Match.find(@match_id)
       
-      puts "update_database!: previous_match_record.id: #{previous_match_record.id}"
-      
-      # Initialize a match
       # @todo This only works for two player
       seats_of_players_in_side_pots = @pot.players_involved_and_their_amounts_contributed.keys.map { |player| player.seat }
       players = @players.map { |player| player.to_hash }
-      next_match_record = Match.new(state_string: @match_state.to_s, pot: [pot_size],
-                                    seats_of_players_in_side_pots: seats_of_players_in_side_pots,
-                                    is_hand_ended: hand_ended?,
-                                    is_match_ended: match_ended?,
-                                    is_users_turn_to_act: users_turn_to_act?,
-                                    players: players,
-                                    first_match_id: @first_match_id)
-      unless next_match_record.save
-         raise "Unable to save new match record"
-         # @todo Raise error
-      else
-         @match_id = next_match_record.id
-         
-         # @todo Raise error unless
-         unless previous_match_record.update_attributes!(next_match_id: next_match_record.id)
-            raise "Unable to save update 'next_match_id' attribute of match with ID: #{previous_match_record.id}"
-         end
+      
+      begin
+         match.slices.create!(state_string: @match_state.to_s, pot: [pot_size],
+                                        seats_of_players_in_side_pots: seats_of_players_in_side_pots,
+                                        is_hand_ended: hand_ended?,
+                                        is_match_ended: match_ended?,
+                                        is_users_turn_to_act: users_turn_to_act?,
+                                        players: players,
+                                        first_match_id: @first_match_id)
+         match.save
+      rescue => e
+         raise UnableToCreateMatchSlice, e.message
       end
    end
    
@@ -274,7 +269,7 @@ class WebApplicationPlayerProxy
    
    # @return [Boolean] +true+ if the current hand is the last in the match.
    def last_hand?
-      @max_number_of_hands - 1 == hand_number
+      hand_number >= @max_number_of_hands
    end
    
    #@todo This may not work if the dealer just immediately sends the next match state after a fold and it definitely doesn't work in 3-player

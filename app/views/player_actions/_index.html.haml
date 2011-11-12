@@ -1,9 +1,9 @@
 
+// @todo move all this to a helper method
 // Setup non-display information -------------------
 
 // Get game state data from the background worker process
 //- game_runner = MiddleMan.worker :game_runner
-
 
 // Things the view needs to know: #############################################
 
@@ -11,13 +11,13 @@
 - @parameters = @match.parameters
 
 //    What is the match state?
-- @match_state = MatchstateString.new @match.state_string
+- @match_state = MatchstateString.new @match_slice.state_string
 
 //    Who are the players in this game?
-- @players = @match.players
+- @players = @match_slice.players
 
 //    Is it the user's turn to act?
-- @users_turn_to_act = @match.users_turn_to_act?
+- @users_turn_to_act = @match_slice.users_turn_to_act?
 //
 ////    Who has the dealer button?
 //- @player_with_the_dealer_button = game_runner.player_with_the_dealer_button
@@ -33,7 +33,7 @@
 //- @player_who_acted_last = game_runner.player_who_acted_last
 //
 ////    What is the pot size?
-- @pot_size = @match.pot[0]
+- @pot_size = @match_slice.pot[0]
 //
 ////    What are the stack sizes of all the players?
 //- @stack_sizes = game_runner.list_of_player_stacks
@@ -80,10 +80,10 @@
 //- @number_of_players = @stack_sizes.length
 //
 ////    Has the hand ended?
-- @hand_ended = @match.hand_ended?
+- @hand_ended = @match_slice.hand_ended?
 //   
 ////    Has the match ended?
-- @match_ended = @match.match_ended?
+- @match_ended = @match_slice.match_ended?
 //
 ////    What is the raise size in this round?
 //- @raise_size = game_runner.raise_size_in_this_round
@@ -92,8 +92,7 @@
 //- @chip_balances = game_runner.list_of_player_chip_balances
 
 // Hidden form to allow AJAX to update the game's state dynamically
-= "@match_params[:match_id] #{@match_params[:match_id]}"
-= hidden_update_state_form @match_params[:match_id]
+= hidden_update_state_form @match_id, @match_slice_index
 
 
 // Update the game state if it's not the user's turn to act and the match hasn't ended
@@ -129,6 +128,7 @@
 %hr
 
 %p= label :post, "match parameters: #{@parameters}"
+%p= label :post, "match slice index: #{@match_slice_index}"
 %p= label :post, "match state: #{@match_state}"
 %p= label :post, "players: #{@players}"
 %p= label :post, "User's turn to act?: #{@users_turn_to_act}"
@@ -165,10 +165,10 @@
 %p= label :post, 'Actions:'
 %hr
 //%p= button "Bet", bet_url, view_context.t('.bet')#, :amount_field => true
-%p= button "Call", call_url, 'call', match_id: @match_params[:match_id]
+%p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index
 //%p= button "Check", check_url, view_context.t('.check')
-%p= button "Fold", fold_url, 'fold', match_id: @match_params[:match_id]
-%p= button "Raise", raise_url, 'raise', amount_field: true, match_id: @match_params[:match_id]
+%p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
+%p= button "Raise", raise_url, 'raise', amount_field: true, match_id: @match_id, match_slice_index: @match_slice_index
 
 // Show meta-actions for the user
 %hr

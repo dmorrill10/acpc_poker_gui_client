@@ -72,6 +72,10 @@ class WebApplicationPlayerProxy
       players = []
       number_of_players.times do |player_index|
          name = list_of_player_names[player_index]
+         
+         # @todo Not sure why this doesn't seem to be working
+         puts "create_players: player_index: #{player_index}, name: #{name}"
+         
          seat = player_index         
          my_position_relative_to_dealer = (position_relative_to_dealer + player_index) % number_of_players
          position_relative_to_user = users_position_relative_to_user - player_index
@@ -196,8 +200,7 @@ class WebApplicationPlayerProxy
    # @return [Boolean] +true+ if it is the user's turn to act, +false+ otherwise.
    def users_turn_to_act?      
       users_turn_to_act = position_relative_to_dealer_next_to_act == position_relative_to_dealer
-      
-      users_turn_to_act &= !match_ended?
+      users_turn_to_act &= !hand_ended?
    end
    
    # Convienence methods for retrieving particular players

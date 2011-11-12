@@ -21,4 +21,4 @@ production:
   #   - host: slave2.local
   #     port: 27019
    host: localhost
-   database: acpc_poker_gui_client_production
+   database: acpc_poker_gui_client_development

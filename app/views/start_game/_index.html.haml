@@ -1,4 +1,5 @@
+
 %hr
-//TODO This doesn't seem to work in rails3.1: view_context.t('.new_game')
-%p= button_to "Start a new game", new_game_url, :remote => true, :class => 'new_game',:id => 'new_game'
-%p= button_to "Join a game", join_game_url, :remote => true, :class => 'join_game', :id => 'join_game'
+
+%p= button_to("Start a new game", new_game_url, :remote => true, :class => t(:start_game)[:new_game], :id => t(:start_game)[:new_game])
+//%p= button_to "Join a game", join_game_url, :remote => true, :class => 'join_game', :id => 'join_game'

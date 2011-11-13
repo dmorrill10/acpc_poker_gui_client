@@ -75,6 +75,9 @@ gem 'em-websocket'
 group :development do
   # Improved generators
   gem 'nifty-generators'
+  
+  # Improved forms
+  gem 'simple_form'
 end
 
 # Enable HAML format views.  Prettier than ERB format views, I find.

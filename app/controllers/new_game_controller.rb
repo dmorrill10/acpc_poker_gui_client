@@ -13,16 +13,22 @@ require 'match'
 class NewGameController < ApplicationController
    include ApplicationDefs
    include ApplicationHelper
+   include NewGameHelper
    
    # Presents the main 'start a new game' view.   
-   def index
-      # TODO move this string into a shared resource
-      replace_page_contents 'new_game/index'
+   def new
+      @match = Match.new
+      respond_to do |format|
+         format.html {}
+         format.js do
+            replace_page_contents NEW_MATCH_PARTIAL
+         end
+      end
    end
 
-   # Starts a new two-player limit game.
+   # Creates a new match.
    # @todo turn this into a create method and get the game definition from the view
-   def two_player_limit
+   def create
       @match_params = two_player_limit_params params
       
       # Initialize a match

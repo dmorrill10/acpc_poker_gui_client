@@ -174,6 +174,9 @@ GEM
       ffi (>= 1.0.7)
       json_pure
       rubyzip
+    simple_form (1.5.2)
+      actionpack (~> 3.0)
+      activemodel (~> 3.0)
     sprockets (2.0.2)
       hike (~> 1.2)
       rack (~> 1.0)
@@ -228,6 +231,7 @@ DEPENDENCIES
   rb-inotify
   rspec-rails
   sass-rails (~> 3.1.4)
+  simple_form
   stalker
   therubyracer
   turn

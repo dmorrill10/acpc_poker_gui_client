@@ -1,16 +1,14 @@
 
 en:
    start_game:
-      index:
-         title: "Start a Game"
-         new_game: "new_game"
-         join_game: "join_game"
+      title: "Start a Game"
+      new_game: "new_game"
+      join_game: "join_game"
    player_actions:
-      index:
-         title: "Game Home"
-         leave: "leave_game"
-         bet: "bet"
-         call: "call"
-         check: "check"
-         fold: "fold"
-         raise: "raise"
+      title: "Game Home"
+      leave: "leave_game"
+      bet: "bet"
+      call: "call"
+      check: "check"
+      fold: "fold"
+      raise: "raise"

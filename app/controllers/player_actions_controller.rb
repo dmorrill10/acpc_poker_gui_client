@@ -95,7 +95,7 @@ class PlayerActionsController < ApplicationController
    def leave_game      
       # @todo Still have no idea how this will effect background processes, was doing 'close_dealer!' in the old version
       
-      replace_page_contents 'start_game/index'
+      redirect_to root_path, :remote => true
    end
 end
 

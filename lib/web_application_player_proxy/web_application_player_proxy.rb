@@ -15,6 +15,9 @@ require File.expand_path('../../bots/proxy_bot/domain_types/hand', __FILE__)
 require File.expand_path('../../bots/proxy_bot/domain_types/matchstate_string', __FILE__)
 require File.expand_path('../../bots/proxy_bot/domain_types/player', __FILE__)
 require File.expand_path('../../bots/proxy_bot/domain_types/side_pot', __FILE__)
+require File.expand_path('../../config/database_config', __FILE__)
+require File.expand_path('../../../app/models/match', __FILE__)
+
 
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy

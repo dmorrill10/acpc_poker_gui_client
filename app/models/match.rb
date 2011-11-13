@@ -3,7 +3,7 @@
 require 'mongoid'
 
 # Local class
-require 'match_slice'
+require File.expand_path('../match_slice', __FILE__)
 
 class Match
    include Mongoid::Document

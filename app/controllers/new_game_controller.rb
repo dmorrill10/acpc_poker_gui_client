@@ -39,7 +39,7 @@ class NewGameController < ApplicationController
       @match.game_definition_file_name = GAME_DEFINITION_FILE_NAMES[@match.game_definition_key]
       unless @match.save
          flash[:notice] = 'Ah! The match did not save, please retry.'
-         redirect_to new_game_path, :remote => true
+         redirect_to root_path, :remote => true
       else
          dealer_arguments = [@match.match_name,
                              @match.game_definition_file_name,

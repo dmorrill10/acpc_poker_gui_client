@@ -1,4 +1,4 @@
-require 'models_helper'
+require File.expand_path('../models_helper', __FILE__)
 
 # Assortment of static helper methods for the GameDefinition model.
 module GameDefinitionHelper

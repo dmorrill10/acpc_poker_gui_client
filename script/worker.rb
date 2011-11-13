@@ -3,18 +3,10 @@
 # Join standard out and standard error
 STDERR.sync = STDOUT.sync = true
 
-# Include the Rails environment
-RAILS_ENV = ENV.fetch("RAILS_ENV", "development")
-RAILS_ROOT = File.expand_path("../..", __FILE__)
-
-## TODO Not sure why this needs to be done
-#ENV["BUNDLE_GEMFILE"] = "#{RAILS_ROOT}/Gemfile"
-#require "bundler"
-#Bundler.setup(:default, RAILS_ENV.to_sym)
-#
-
 # @todo would like to remove this but Mongoid complains
-require File.expand_path('../../config/environment', __FILE__)
+#require File.expand_path('../../config/environment', __FILE__)
+# Load the database configuration without the Rails environment
+require File.expand_path('../../lib/config/database_config', __FILE__)
 
 require "stalker"
 

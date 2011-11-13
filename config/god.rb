@@ -7,7 +7,7 @@ God.watch do |w|
    #w.env = {"RAILS_ENV" => "production"}
    w.env = {"RAILS_ENV" => "development"}
    w.start = "stalk #{RAILS_ROOT}/script/worker.rb"
-   w.log = "#{RAILS_ROOT}/log/worker.log"
+   #w.log = "#{RAILS_ROOT}/log/worker.log"
 
    w.start_if do |start|
       start.condition(:process_running) do |c|

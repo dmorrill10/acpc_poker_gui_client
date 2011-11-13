@@ -11,11 +11,18 @@ class Match
 
    # Table parameters
    field :port_numbers, type: Array
-   #field :parameters, type: Hash
+   field :player_names
    
    field :match_name
+   field :game_definition_key, type: Symbol
    field :game_definition_file_name
    field :number_of_hands, type: Integer
    field :random_seed, type: Integer
-   field :player_names
+   
+   def parameters
+      {'Match name:' => match_name,
+         'Game definition file name:' => game_definition_file_name,
+         'Number of hands:' => number_of_hands,
+         'Random seed:' => random_seed}
+   end
 end

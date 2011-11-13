@@ -29,31 +29,31 @@ class NewGameController < ApplicationController
    # Creates a new match.
    # @todo turn this into a create method and get the game definition from the view
    def create
-      @match_params = two_player_limit_params params
-      
-      # Initialize a match
-      # @todo Can this be made into a function to be used by this controller, the join a game controller, and the player proxy?
-      match = Match.new(parameters: @match_params)
-      unless match.save
+      @match = Match.new params[:match]
+      # @todo not sure what the maximum random seed should be
+      @match.random_seed = rand(100) unless @match.random_seed
+      # @todo make this variable depending on the participants
+      @match.player_names = 'user, testing_ruby_bot'
+      # @todo Move this default to the view
+      @match.number_of_hands = 1 unless @match.number_of_hands
+      @match.game_definition_file_name = GAME_DEFINITION_FILE_NAMES[@match.game_definition_key]
+      unless @match.save
          flash[:notice] = 'Ah! The match did not save, please retry.'
          redirect_to new_game_path, :remote => true
       else
-         dealer_arguments = [@match_params[:match_name],
-                             @match_params[:game_definition_file_name].to_s,
-                             '2',#@match_params[:number_of_hands],
-                             @match_params[:random_seed],
-                             @match_params[:player_names].split(/\s*,?\s+/)].flatten
-         
-         @match_params[:match_id] = match.id
-         id = @match_params[:match_id]
+         dealer_arguments = [@match.match_name,
+                             @match.game_definition_file_name,
+                             @match.number_of_hands.to_s,
+                             @match.random_seed.to_s,
+                             @match.player_names.split(/\s*,?\s+/)].flatten
          
          # @todo Make sure the background server is started at this point      
-         Stalker.enqueue('Dealer.start', :match_id => id, :dealer_arguments => dealer_arguments)
+         Stalker.enqueue('Dealer.start', :match_id => @match.id, :dealer_arguments => dealer_arguments)
          
          # Busy waiting for the match to be changed by the background process
          # @todo Add a failsafe here
-         while !match.port_numbers
-            match = Match.find(id)
+         while !@match.port_numbers
+            @match = Match.find(@match.id)
             
             # Tell the user that the dealer is starting up
             # @todo Use a processing spinner            
@@ -61,22 +61,22 @@ class NewGameController < ApplicationController
             puts flash[:notice]
          end
          
-         port_numbers = match.port_numbers
+         port_numbers = @match.port_numbers
          flash[:notice] = 'Port numbers: ' + port_numbers.to_s
          
          puts flash[:notice]
          
          # @todo Need to randomize this?
-         @match_params[:port_number] = port_numbers[0]
+         @port_number = port_numbers[0]
          @opponent_port_number = port_numbers[1]
       
          # @todo Start bots if there are not enough human players in the match
       
          # Start an opponent
          # @todo Make this better, with customization from the browser
-         opponent_arguments = {match_id: @match_params[:match_id],
+         opponent_arguments = {match_id: @match.id,
             host_name: 'localhost', port_number: @opponent_port_number,
-            game_definition_file_name: @match_params[:game_definition_file_name]}
+            game_definition_file_name: @match.game_definition_file_name}
          
          Stalker.enqueue('Opponent.start', opponent_arguments)      
       

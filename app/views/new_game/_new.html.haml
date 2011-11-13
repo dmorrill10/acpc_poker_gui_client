@@ -1,17 +1,13 @@
 //%h1= title
 %hr
 
-= simple_form_for @match, url: create_new_match_url, html: {class: 'create_new_match_form'} do |f|
+= simple_form_for @match, url: create_new_match_url, remote: true, html: {class: 'create_new_match_form'} do |f|
    = f.input :match_name
-   = f.input :game_definition_file_name, label: 'Game definition:', collection: ApplicationDefs::GAME_DEFINITION_NAMES, value_method: :first, label_method: :last, include_blank: false
+   // @todo parse this as given to get the number of players
+   = f.input :game_definition_key, label: 'Game definition:', collection: ApplicationDefs::GAME_DEFINITION_NAMES, value_method: :first, label_method: :last, include_blank: false
    = f.input :number_of_hands, as: :integer
    = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed picked at random between 1 and 100'
+   // @todo offer the user to select which _competitors_ to play against (requires know the number of players in the currently selected game definition and the names of other competitors)
    = f.button :submit
-
-
-//%p= button_to "2 Player limit", new_two_player_limit_url, :remote => true
-//%p= button_to "2 Player no-limit", new_two_player_no_limit_url, :remote => true
-//%p= button_to "3 Player limit", new_three_player_limit_url, :remote => true
-//%p= button_to "3 Player no-limit", new_three_player_no_limit_url, :remote => true
 
 = hidden_game_parameter_form

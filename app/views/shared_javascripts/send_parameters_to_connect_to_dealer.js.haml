@@ -17,12 +17,12 @@ var number_of_hands = document.getElementById('number_of_hands_hidden_field');
 var random_seed = document.getElementById('random_seed_hidden_field')
 var player_names = document.getElementById('player_names_hidden_field')
 
-match_id.value = "#{@match_params[:match_id]}";
-port_number.value = "#{@match_params[:port_number]}";
-match_name.value = "#{@match_params[:match_name]}";
-game_definition_file_name.value = "#{@match_params[:game_definition_file_name]}";
-number_of_hands.value = "#{@match_params[:number_of_hands]}";
-random_seed.value = "#{@match_params[:random_seed]}";
-player_names.value = "#{@match_params[:player_names]}";
+match_id.value = "#{@match.id}";
+port_number.value = "#{@port_number}";
+match_name.value = "#{@match.match_name}";
+game_definition_file_name.value = "#{@match.game_definition_file_name}";
+number_of_hands.value = "#{@match.number_of_hands}";
+random_seed.value = "#{@match.random_seed}";
+player_names.value = "#{@match.player_names}";
 
 $('.game_home_hidden_button').submit();

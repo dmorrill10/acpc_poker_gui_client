@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
 # Join standard out and standard error
-#STDERR.sync = STDOUT.sync = true
-#
-## Include the Rails environment
-#RAILS_ENV = ENV.fetch("RAILS_ENV", "development")
-#RAILS_ROOT = File.expand_path("../..", __FILE__)
-#
+STDERR.sync = STDOUT.sync = true
+
+# Include the Rails environment
+RAILS_ENV = ENV.fetch("RAILS_ENV", "development")
+RAILS_ROOT = File.expand_path("../..", __FILE__)
+
 ## TODO Not sure why this needs to be done
 #ENV["BUNDLE_GEMFILE"] = "#{RAILS_ROOT}/Gemfile"
 #require "bundler"

@@ -97,3 +97,6 @@ gem 'passenger'
 
 # Beanstalkd wrapper
 gem 'stalker'
+
+# To manage background processes
+gem 'god'

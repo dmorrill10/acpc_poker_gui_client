@@ -22,10 +22,10 @@ end
 # JavaScript library
 gem 'jquery-rails'
 
-# To use ActiveModel has_secure_password TODO lookup whether this is better or viable, or helpful at all
+# To use ActiveModel has_secure_password @todo lookup whether this is better or viable, or helpful at all
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
-# Deploy with Capistrano TODO lookup whether this is better or viable, or helpful at all
+# Deploy with Capistrano @todo lookup whether this is better or viable, or helpful at all
 # gem 'capistrano'
 
 # To use debugger
@@ -75,9 +75,6 @@ gem 'em-websocket'
 group :development do
   # Improved generators
   gem 'nifty-generators'
-  
-  # Improved forms
-  gem 'simple_form'
 end
 
 # Enable HAML format views.  Prettier than ERB format views, I find.
@@ -100,3 +97,6 @@ gem 'stalker'
 
 # To manage background processes
 gem 'god'
+
+# Improved forms
+gem 'simple_form'

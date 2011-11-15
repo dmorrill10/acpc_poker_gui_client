@@ -40,10 +40,9 @@ class WebApplicationPlayerProxy
       @match_state = next_match_state
       @players = create_players player_names
       assign_users_cards!
-      
       @pot = create_new_pot
-      
       update_database!
+      
       update_match_state! unless users_turn_to_act?
    end
    

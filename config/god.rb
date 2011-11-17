@@ -1,13 +1,16 @@
 # run with: god -c config/god.rb
 RAILS_ROOT = File.expand_path("../..", __FILE__)
 
+God.pid_file_directory = "#{RAILS_ROOT}/tmp/pids"
+
 God.watch do |w|
+   w.dir = "#{RAILS_ROOT}/log"
    w.name = "acpcpokerguiclient-worker"
    w.interval = 30.seconds
-   #w.env = {"RAILS_ENV" => "production"}
-   w.env = {"RAILS_ENV" => "development"}
+   w.env = {"RAILS_ROOT" => RAILS_ROOT, "RAILS_ENV" => "production"}
+   #w.env = {"RAILS_ROOT" => RAILS_ROOT, "RAILS_ENV" => "development"}
    w.start = "stalk #{RAILS_ROOT}/script/worker.rb"
-   #w.log = "#{RAILS_ROOT}/log/worker.log"
+   w.log = "#{RAILS_ROOT}/log/worker.log"
 
    w.start_if do |start|
       start.condition(:process_running) do |c|

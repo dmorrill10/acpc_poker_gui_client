@@ -26,7 +26,7 @@ require File.expand_path('../../lib/web_application_player_proxy/web_application
 require File.expand_path('../../lib/background/dealer_runner', __FILE__)
 
 # For an opponent bot
-require File.expand_path('../../lib/bots/testing_ruby_bot', __FILE__)
+require File.expand_path('../../lib/background/bot_runner', __FILE__)
 
 ###########################
 
@@ -73,9 +73,8 @@ Stalker.job('Opponent.start') do |params|
    dealer_information = DealerInformation.new params['host_name'], params['port_number']
    
    match_id = params['match_id']
-   background_processes = @match_id_to_background_processes[match_id] || {}
-   # @todo Fix this hack (just abstract out to another class that can run arbitrary bots like this)
-   background_processes[:opponent] = IO.popen("#{File.expand_path('../../lib/bots/testing_ruby_bot.rb', __FILE__)} #{params['port_number']}")
+   background_processes = @match_id_to_background_processes[match_id] || {}   
+   background_processes[:opponent] = BotRunner.new "#{File.expand_path('../../lib/bots/testing_ruby_bot.rb', __FILE__)} #{params['port_number']}"
 end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.

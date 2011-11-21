@@ -27,7 +27,9 @@ module ApplicationHelper
    # of the current page with new contents.  In essence, it acts like a
    # page refresh.
    # @param [String] replacement_partial The partial with which the page should be replaced.
-   def replace_page_contents(replacement_partial)
+   # @param [String] alert_message An alert message to be displayed.
+   def replace_page_contents(replacement_partial, alert_message=nil)
+      @alert_message = alert_message if alert_message
       @replacement_partial = replacement_partial
       render 'shared_javascripts/replace_contents.js.haml'
    end

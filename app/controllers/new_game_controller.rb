@@ -38,8 +38,7 @@ class NewGameController < ApplicationController
       @match.number_of_hands = 1 unless @match.number_of_hands
       @match.game_definition_file_name = GAME_DEFINITION_FILE_NAMES[@match.game_definition_key]
       unless @match.save
-         flash[:notice] = 'Ah! The match did not save, please retry.'
-         redirect_to root_path, :remote => true
+         replace_page_contents NEW_MATCH_PARTIAL, 'Ah! The match did not save, please retry.'
       else
          dealer_arguments = [@match.match_name,
                              @match.game_definition_file_name,
@@ -47,24 +46,26 @@ class NewGameController < ApplicationController
                              @match.random_seed.to_s,
                              @match.player_names.split(/\s*,?\s+/)].flatten
          
-         # @todo Make sure the background server is started at this point      
+         # @todo Make sure the background server is started at this point
          Stalker.enqueue('Dealer.start', :match_id => @match.id, :dealer_arguments => dealer_arguments)
          
          # Busy waiting for the match to be changed by the background process
-         # @todo Add a failsafe here
+         # If the new match state can't be found in ten seconds, there is something wrong so alert the user and leave this game
+         time_beginning_to_wait_for_match = Time.now
          while !@match.port_numbers
             @match = Match.find(@match.id)
             
             # Tell the user that the dealer is starting up
             # @todo Use a processing spinner            
-            flash[:notice] = 'The dealer is starting...'
-            puts flash[:notice]
+            puts = 'The dealer is starting...'
+            
+            if Time.now > time_beginning_to_wait_for_match + 10
+               replace_page_contents NEW_MATCH_PARTIAL, 'Unable to start match, returning to new game menu.'
+               return
+            end
          end
          
          port_numbers = @match.port_numbers
-         flash[:notice] = 'Port numbers: ' + port_numbers.to_s
-         
-         puts flash[:notice]
          
          # @todo Need to randomize this?
          @port_number = port_numbers[0]

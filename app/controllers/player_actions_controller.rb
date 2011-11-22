@@ -50,7 +50,7 @@ class PlayerActionsController < ApplicationController
    end
 
    # game_action
-   def call      
+   def call
       Stalker.enqueue('PlayerProxy.play', match_id: params[:match_id], action: :call)
       update_match!
       

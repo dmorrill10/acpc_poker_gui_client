@@ -31,7 +31,7 @@ AcpcPokerGuiClient::Application.routes.draw do
   match 'call' => 'player_actions#call', :as => :call
   match 'fold' => 'player_actions#fold', :as => :fold
   match 'raise' => 'player_actions#raise_action', :as => :raise
-  match 'check_for_new_match_state' => 'player_actions#check_for_new_match_state', as: check_for_new_match_state
+  match 'check_for_new_match_state' => 'player_actions#check_for_new_match_state', as: :check_for_new_match_state
   match 'update_game_state' => 'player_actions#update_game_state', as: :update_game_state
   match 'leave_game' => 'player_actions#leave_game', :as => :leave_game
 

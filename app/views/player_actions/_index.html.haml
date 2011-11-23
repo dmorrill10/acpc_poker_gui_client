@@ -2,125 +2,32 @@
 // @todo move all this to a helper method
 // Setup non-display information -------------------
 
-// Get game state data from the background worker process
-//- game_runner = MiddleMan.worker :game_runner
-
-// Things the view needs to know: #############################################
-
-//    What are the parameters of this match?
-- @parameters = @match.parameters
-
-//    What is the match state?
-- @match_state = MatchstateString.new @match_slice.state_string
-
-//    Who are the players in this game?
-- @players = @match_slice.players
-
-//    Is it the user's turn to act?
-- @users_turn_to_act = @match_slice.users_turn_to_act?
-//
-////    Who has the dealer button?
-//- @player_with_the_dealer_button = game_runner.player_with_the_dealer_button
-//
-////    Who paid blinds?
-//- @player_who_submitted_big_blind = game_runner.player_who_submitted_big_blind
-//- @player_who_submitted_small_blind = game_runner.player_who_submitted_small_blind
-//
-////    Who's turn is it?
-//- @player_whose_turn_is_next = game_runner.player_whose_turn_is_next
-//
-////    Who was the last player to act?
-//- @player_who_acted_last = game_runner.player_who_acted_last
-//
-////    What is the pot size?
-- @pot_size = @match_slice.pot[0]
-//
-////    What are the stack sizes of all the players?
-//- @stack_sizes = game_runner.list_of_player_stacks
-//
-////    What are the user's cards?
-//- @users_hole_cards = game_runner.users_hole_cards
-//
-////    What are the opponent's cards (after a showdown)?
-//- @list_of_opponents_hole_cards = game_runner.list_of_opponents_hole_cards
-//
-////    What were the sequence of actions in this hand?
-//- @list_of_betting_actions = game_runner.list_of_betting_actions
-//
-////    Which round is it?
-- @round = @match_state.round
-//
-////    What are the board cards?
-- @board_cards = @match_state.board_cards if @round > 0
-//
-////    What is the hand number?
-- @hand_number = @match_state.hand_number
-//
-////    What is the name of the match?
-//- @match_name = @match.parameters[:match_name]
-//
-////    What is the user's position relative to the dealer?
-//- @users_position = game_runner.users_position
-////    What are the list of betting actions so far in this match?
-- @betting_actions = @match_state.list_of_betting_actions
-//
-////    What was the last action?
-- @last_action = @match_state.last_action
-//
-////    Which actions are legal?
-////- @legal_actions = game_runner.legal_actions
-//
-////    Which players are still active (only in multiplayer)?
-//- @active_players = game_runner.active_players
-//
-////    How many hands are alloted for this match?
-//- @max_number_of_hands = game_runner.max_number_of_hands
-//
-////    How many players are there?
-//- @number_of_players = @stack_sizes.length
-//
-////    Has the hand ended?
-- @hand_ended = @match_slice.hand_ended?
-//   
-////    Has the match ended?
-- @match_ended = @match_slice.match_ended?
-//
-////    What is the raise size in this round?
-//- @raise_size = game_runner.raise_size_in_this_round
-//
-////    What are the chip balances for each player?
-//- @chip_balances = game_runner.list_of_player_chip_balances
-
-= check_
-
 // If a new state is available, display a message to the user and allow the user to update the match state
 - if @match_ended
    //- close_dealer!
 - elsif @users_turn_to_act
-   // TODO Enable action buttons
+   // Show user actions
+   .actions
+      %h2 Actions
+      //%p= button "Bet", bet_url, view_context.t('.bet')#, :amount_field => true
+      %p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index
+      //%p= button "Check", check_url, view_context.t('.check')
+      %p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
+      %p= button "Raise", raise_url, 'raise', amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index
 - else
    // Check if the state can be updated
+   = hidden_check_for_new_match_state_form @match_id, @match_slice_index
+   // Hidden form to allow AJAX to update the game's state
+   // @todo The submit button is actually displayed so this function may not have the best name
+   .new_state_available
+      %h2 New state available
+   = hidden_update_state_form @match_id, @match_slice_index
    :javascript
       setTimeout("check_for_new_match_state()", 100);
-   
       // @todo Move this out of the view into a javascript helper file?
       function check_for_new_match_state() {
-         alert("Checking for new match state");
          $('.check_for_new_match_state_button').submit();
       };
-
-
-// Hidden form to allow AJAX to update the game's state
-// @todo The submit button is actually displayed so this function may not have the best name
-= hidden_update_state_form @match_id, @match_slice_index
-
-// Save the state of the end of the last hand
-- if @hand_ended
-   - @last_hand_slice
-
-
-
-
 
 
 // Update the game state if it's not the user's turn to act and the match hasn't ended
@@ -176,17 +83,6 @@
 //// TODO Only display the chip balance at the end of a hand
 //%p= label :post, "Chip balances for each player: #{@chip_balances}"
 
-   
-// Show user actions
-%p= label :post, 'Actions:'
-%hr
-//%p= button "Bet", bet_url, view_context.t('.bet')#, :amount_field => true
-%p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index
-//%p= button "Check", check_url, view_context.t('.check')
-%p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
-%p= button "Raise", raise_url, 'raise', amount_field: true, match_id: @match_id, match_slice_index: @match_slice_index
-
 // Show meta-actions for the user
 %hr
 %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
-

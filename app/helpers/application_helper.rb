@@ -78,5 +78,4 @@ module ApplicationHelper
          number_of_hands: number_of_hands, random_seed: random_seed,
          player_names: player_names}
    end
-   
 end

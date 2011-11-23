@@ -85,6 +85,11 @@ class PlayerActionsController < ApplicationController
       replace_page_contents_with_updated_game_view
    end
    
+   def check_for_new_match_state
+      @new_match_state_available = new_match_state_available?
+      replace_page_contents_with_updated_game_view if @new_match_state_available # @todo Will this work?
+   end
+   
    # Updates the game state
    def update_game_state
       update_match!

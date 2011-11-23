@@ -91,24 +91,40 @@
 ////    What are the chip balances for each player?
 //- @chip_balances = game_runner.list_of_player_chip_balances
 
-// Hidden form to allow AJAX to update the game's state dynamically
-= hidden_update_state_form @match_id, @match_slice_index
+= check_
 
-
-// Update the game state if it's not the user's turn to act and the match hasn't ended
+// If a new state is available, display a message to the user and allow the user to update the match state
 - if @match_ended
    //- close_dealer!
 - elsif @users_turn_to_act
-   // TODO Enable action buttons   
+   // TODO Enable action buttons
 - else
+   // Check if the state can be updated
    :javascript
-      setTimeout("update_game_state()", 500);
+      setTimeout("check_for_new_match_state()", 100);
    
       // @todo Move this out of the view into a javascript helper file?
-      function update_game_state() {      
-         alert("Updating game state");
-         $('.update_game_state_button').submit();
+      function check_for_new_match_state() {
+         alert("Checking for new match state");
+         $('.check_for_new_match_state_button').submit();
       };
+
+
+// Hidden form to allow AJAX to update the game's state
+// @todo The submit button is actually displayed so this function may not have the best name
+= hidden_update_state_form @match_id, @match_slice_index
+
+// Save the state of the end of the last hand
+- if @hand_ended
+   - @last_hand_slice
+
+
+
+
+
+
+// Update the game state if it's not the user's turn to act and the match hasn't ended
+
 
 // Display elements -----------------------
 //%h1= title

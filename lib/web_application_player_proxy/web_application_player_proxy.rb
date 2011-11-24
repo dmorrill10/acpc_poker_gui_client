@@ -37,36 +37,35 @@ class WebApplicationPlayerProxy
       @match_id = match_id
       @match_slice_index = 0
       @player_proxy = PlayerProxy.new dealer_information, game_definition_file_name, player_names, number_of_hands
-      # @todo
       update_match_state!
    end
    
    # Player action interface
    def play!(action, modifier=nil)      
       @player_proxy.play! action, modifier
-      # @todo
       update_match_state!
    end
       
    def update_match_state!
-      update_database!
+      @player_proxy.match_snapshots.each do |match_state|
+         update_database! match_state
+      end
    end
    
-   def update_database!
+   def update_database!(match_state)
       match = Match.find(@match_id)
       
       # @todo This only works for two player
-      seats_of_players_in_side_pots = @pot.players_involved_and_their_amounts_contributed.keys.map { |player| player.seat }
-      players = @players.map { |player| player.to_hash }
+      seats_of_players_in_side_pots = match_state.pot.players_involved_and_their_amounts_contributed.keys.map { |player| player.seat }
+      players = match_state.players.map { |player| player.to_hash }
       
       begin
-         match.slices.create!(state_string: @match_state.to_s, pot: [pot_size],
-                                        seats_of_players_in_side_pots: seats_of_players_in_side_pots,
-                                        is_hand_ended: hand_ended?,
-                                        is_match_ended: match_ended?,
-                                        is_users_turn_to_act: users_turn_to_act?,
-                                        players: players,
-                                        first_match_id: @first_match_id)
+         match.slices.create!(state_string: match_state_string.to_s, pot: [match_state.pot_size],
+                                        seats_of_players_in_side_pots: match_state.seats_of_players_in_side_pots,
+                                        is_hand_ended: match_state.hand_ended?,
+                                        is_match_ended: match_state.match_ended?,
+                                        is_users_turn_to_act: match_state.users_turn_to_act?,
+                                        players: players)
          match.save
       rescue => e
          raise UnableToCreateMatchSlice, e.message

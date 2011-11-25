@@ -16,6 +16,8 @@
 #require File.expand_path('../../bots/proxy_bot/domain_types/side_pot', __FILE__)
 
 # Gems
+require 'acpc_poker_types'
+require 'acpc_poker_match_state'
 require 'acpc_poker_player_proxy'
 
 require File.expand_path('../../config/database_config', __FILE__)
@@ -24,7 +26,7 @@ require File.expand_path('../../../app/models/match', __FILE__)
 
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    
    exceptions :unable_to_create_match_slice
    

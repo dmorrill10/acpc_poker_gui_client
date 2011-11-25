@@ -56,7 +56,7 @@ end
 #  +'match_id'+, +'host_name'+, +'port_number'+, +'game_definition_file_name'+,
 #  +'player_names'+, and +'number_of_hands'+.
 Stalker.job('PlayerProxy.start') do |params|
-   dealer_information = DealerInformation.new params['host_name'], params['port_number']
+   dealer_information = AcpcDealerInformation.new params['host_name'], params['port_number']
    
    match_id = params['match_id']
    background_processes = @match_id_to_background_processes[match_id] || {}
@@ -70,7 +70,7 @@ end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'host_name'+, +'port_number'+, and +'game_definition_file_name'+.
 Stalker.job('Opponent.start') do |params|
-   dealer_information = DealerInformation.new params['host_name'], params['port_number']
+   dealer_information = AcpcDealerInformation.new params['host_name'], params['port_number']
    
    match_id = params['match_id']
    background_processes = @match_id_to_background_processes[match_id] || {}   

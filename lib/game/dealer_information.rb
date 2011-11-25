@@ -1,6 +1,6 @@
 
 # Information about a dealer instance.
-class DealerInformation  
+class AcpcDealerInformation  
    # @return [String] The host name of the dealer associated with this table.
    attr_reader :host_name
    

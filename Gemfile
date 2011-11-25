@@ -100,6 +100,3 @@ gem 'god'
 
 # Improved forms
 gem 'simple_form'
-
-# Poker logic
-gem 'acpc_poker_player_proxy'

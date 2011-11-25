@@ -6,7 +6,7 @@ require File.expand_path('../../game/dealer_information', __FILE__)
 
 class TestingRubyBot
    def self.play(port_number)
-      dealer_info = DealerInformation.new 'localhost', port_number.to_i
+      dealer_info = AcpcDealerInformation.new 'localhost', port_number.to_i
       proxy_bot = ProxyBot.new dealer_info
       
       puts 'Entering game loop'

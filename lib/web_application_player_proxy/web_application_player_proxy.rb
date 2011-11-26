@@ -62,8 +62,8 @@ class WebApplicationPlayerProxy
       players = match_state.players.map { |player| player.to_hash }
       
       begin
-         match.slices.create!(state_string: match_state_string.to_s, pot: [match_state.pot_size],
-                                        seats_of_players_in_side_pots: match_state.seats_of_players_in_side_pots,
+         match.slices.create!(state_string: match_state.match_state_string.to_s, pot: [match_state.pot_size],
+                                        seats_of_players_in_side_pots: seats_of_players_in_side_pots,
                                         is_hand_ended: match_state.hand_ended?,
                                         is_match_ended: match_state.match_ended?,
                                         is_users_turn_to_act: match_state.users_turn_to_act?,

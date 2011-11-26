@@ -74,7 +74,7 @@ Stalker.job('Opponent.start') do |params|
    
    match_id = params['match_id']
    background_processes = @match_id_to_background_processes[match_id] || {}   
-   background_processes[:opponent] = BotRunner.new "#{File.expand_path('../../lib/bots/testing_ruby_bot.rb', __FILE__)} #{params['port_number']}"
+   background_processes[:opponent] = BotRunner.new "#{File.expand_path('../../lib/bots/testing_bot.rb', __FILE__)} #{params['port_number']}"
 end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.

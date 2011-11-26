@@ -1,13 +1,12 @@
 #!/usr/bin/env ruby
 
-# Local classes
-require File.expand_path('../proxy_bot/proxy_bot', __FILE__)
-require File.expand_path('../../game/dealer_information', __FILE__)
+# Gems
+require 'acpc_poker_basic_proxy'
 
-class TestingRubyBot
+class TestingBot
    def self.play(port_number)
       dealer_info = AcpcDealerInformation.new 'localhost', port_number.to_i
-      proxy_bot = ProxyBot.new dealer_info
+      proxy_bot = BasicProxy.new dealer_info
       
       puts 'Entering game loop'
       
@@ -35,4 +34,10 @@ class TestingRubyBot
    end
 end
 
-TestingRubyBot.play(ARGV[0].chomp) if __FILE__ == $0
+if __FILE__ == $0
+   unless ARGV.length > 0
+      puts "Usage: ./#{$0} <port number>"
+      exit
+   end
+   TestingBot.play ARGV[0].chomp
+end

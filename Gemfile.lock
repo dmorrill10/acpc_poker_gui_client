@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    acpc_poker_types (0.0.1)
     actionmailer (3.1.1)
       actionpack (= 3.1.1)
       mail (~> 2.3.0)
@@ -209,6 +210,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  acpc_poker_types
   bson (= 1.4.0)
   bson_ext (= 1.4.0)
   capybara

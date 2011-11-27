@@ -17,10 +17,10 @@ require "stalker"
 require File.expand_path('../../app/models/match', __FILE__)
 
 # To encapsulate dealer information
-require File.expand_path('../../lib/game/dealer_information', __FILE__)
+require 'acpc_poker_basic_proxy'
 
 # For game logic
-require File.expand_path('../../lib/web_application_player_proxy/web_application_player_proxy', __FILE__)
+require File.expand_path('../../lib/web_application_player_proxy', __FILE__)
 
 # To run the dealer
 require File.expand_path('../../lib/background/dealer_runner', __FILE__)

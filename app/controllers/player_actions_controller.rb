@@ -1,19 +1,18 @@
 
-# Third party
+# Gems
+require 'acpc_poker_types'
 require 'stalker'
 
 # Local modules
-require 'application_defs'
 require 'application_helper'
 
 # Local classes
 require 'match'
-require File.expand_path('../../../lib/bots/proxy_bot/domain_types/matchstate_string', __FILE__)
 
 # Controller for the main game view where the table and actions are presented to the player.
 # Impliments the actions in the main game view.
 class PlayerActionsController < ApplicationController
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    include ApplicationHelper
    include PlayerActionsHelper
    

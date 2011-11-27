@@ -20,8 +20,8 @@ require 'acpc_poker_types'
 require 'acpc_poker_match_state'
 require 'acpc_poker_player_proxy'
 
-require File.expand_path('../../config/database_config', __FILE__)
-require File.expand_path('../../../app/models/match', __FILE__)
+require File.expand_path('../config/database_config', __FILE__)
+require File.expand_path('../../app/models/match', __FILE__)
 
 
 # A proxy player for the web poker application.

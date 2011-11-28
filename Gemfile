@@ -103,3 +103,4 @@ gem 'simple_form'
 
 # Poker logic
 gem 'acpc_poker_types', :path => "#{File.expand_path('../vendor/gems/acpc_poker_types-0.0.1', __FILE__)}"
+gem 'acpc_poker_player_proxy', :path => "#{File.expand_path('../vendor/gems/acpc_poker_player_proxy-0.0.1', __FILE__)}"

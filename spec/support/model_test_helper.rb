@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-require File.expand_path('../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../lib/acpc_poker_types', __FILE__)
 
 require File.expand_path('../../../lib/bots/proxy_bot/domain_types/card', __FILE__)
 require File.expand_path('../../../lib/bots/proxy_bot/domain_types/hand', __FILE__)
@@ -24,7 +24,7 @@ module ModelTestHelper
       initial_match_state.stubs(:round).returns(0)
       initial_match_state.stubs(:number_of_actions_in_current_round).returns(0)
       
-      raw_match_state =  ApplicationDefs::MATCH_STATE_LABEL + ":#{user_position}:#{hand_number}::" + hole_card_hand
+      raw_match_state =  AcpcPokerTypesDefs::MATCH_STATE_LABEL + ":#{user_position}:#{hand_number}::" + hole_card_hand
       initial_match_state.stubs(:to_s).returns(raw_match_state)
       
       [initial_match_state, user_position]
@@ -111,8 +111,8 @@ module ModelTestHelper
    # @return [Mock Hand] An arbitrary hole card hand.
    def arbitrary_hole_card_hand
       hand = mock('Hand')
-      hand.stubs(:to_str).returns(ApplicationDefs::CARD_RANKS[:two] + ApplicationDefs::CARD_SUITS[:spades] + ApplicationDefs::CARD_RANKS[:three] + ApplicationDefs::CARD_SUITS[:hearts])
-      hand.stubs(:to_s).returns(ApplicationDefs::CARD_RANKS[:two] + ApplicationDefs::CARD_SUITS[:spades] + ApplicationDefs::CARD_RANKS[:three] + ApplicationDefs::CARD_SUITS[:hearts])
+      hand.stubs(:to_str).returns(AcpcPokerTypesDefs::CARD_RANKS[:two] + AcpcPokerTypesDefs::CARD_SUITS[:spades] + AcpcPokerTypesDefs::CARD_RANKS[:three] + AcpcPokerTypesDefs::CARD_SUITS[:hearts])
+      hand.stubs(:to_s).returns(AcpcPokerTypesDefs::CARD_RANKS[:two] + AcpcPokerTypesDefs::CARD_SUITS[:spades] + AcpcPokerTypesDefs::CARD_RANKS[:three] + AcpcPokerTypesDefs::CARD_SUITS[:hearts])
       
       hand
    end

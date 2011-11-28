@@ -3,15 +3,17 @@ require 'spec_helper'
 # Third party
 require 'stalker'
 
+# Gems
+require 'acpc_poker_types'
+
 # Local modules
-require File.expand_path('../../../lib/application_defs', __FILE__)
 require File.expand_path('../../support/controller_test_helper', __FILE__)
 
 # Local classes
 require 'match'
 
 describe NewGameController do
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    include ControllerTestHelper
 
    describe "GET 'index'" do

@@ -1,6 +1,6 @@
 
 # Local modules
-require File.expand_path('../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../lib/acpc_poker_types', __FILE__)
 
 # Helpers for controller tests.
 module ControllerTestHelper
@@ -10,7 +10,7 @@ module ControllerTestHelper
    end
    def generate_match_params
       {port_number: '18791', match_name: 'default',
-         game_definition_file_name: ApplicationDefs::GAME_DEFINITION_FILE_NAMES[:two_player_limit_texas_holdem_poker],
+         game_definition_file_name: AcpcPokerTypesDefs::GAME_DEFINITION_FILE_NAMES[:two_player_limit_texas_holdem_poker],
          number_of_hands: '1', random_seed: '1', player_names: 'user, p2'}
    end
 end

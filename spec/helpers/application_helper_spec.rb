@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-require File.expand_path('../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../lib/acpc_poker_types', __FILE__)
 
 describe ApplicationHelper do
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    
    describe '#two_player_limit_params' do
       it 'returns a game parameter hash filled with all the necessary arguments to start a two-player limit match properly defined to defaults' do

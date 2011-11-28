@@ -9,10 +9,10 @@ require File.expand_path('../../../config/environment', __FILE__)
 
 # Local classes
 require File.expand_path('../../../app/models/match', __FILE__)
-require File.expand_path('../../application_defs', __FILE__)
+require File.expand_path('../../acpc_poker_types', __FILE__)
 
 class StdinStdoutPlayerProxy
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    
    def play!(port_number, match_name, game_definition_file_name, number_of_hands, list_of_player_names, host_name='localhost')            
       

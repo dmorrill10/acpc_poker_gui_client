@@ -1,14 +1,14 @@
 require 'spec_helper'
 
 # Local modules
-require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../../lib/acpc_poker_types', __FILE__)
 require File.expand_path('../../../../../support/model_test_helper', __FILE__)
 
 # Local classes
 require File.expand_path('../../../../../../lib/bots/proxy_bot/domain_types/board_cards', __FILE__)
 
 describe MatchstateString do
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    include ModelTestHelper
    
    describe '#initialize' do

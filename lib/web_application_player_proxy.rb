@@ -1,7 +1,7 @@
 
 # @todo Only need certain classes
 ## Local modules
-#require File.expand_path('../../application_defs', __FILE__)
+#require File.expand_path('../../acpc_poker_types', __FILE__)
 ## Local mixins
 #require File.expand_path('../../mixins/easy_exceptions', __FILE__)
 ## Local classes

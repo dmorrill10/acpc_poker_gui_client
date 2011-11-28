@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 # Local modules
-require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../../lib/acpc_poker_types', __FILE__)
 require File.expand_path('../../../../../support/model_test_helper', __FILE__)
 
 describe ActionSender do
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    include ModelTestHelper
    
    before(:each) do

@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../../lib/acpc_poker_types', __FILE__)
 require File.expand_path('../../../../../../lib/helpers/application_helpers', __FILE__)
 
 describe Suit do
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    include ApplicationHelpers
    
    describe '#new' do

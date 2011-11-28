@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 # Local modules
-require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../../lib/acpc_poker_types', __FILE__)
 require File.expand_path('../../../../../../lib/helpers/models_helper', __FILE__)
 require File.expand_path('../../../../../../lib/helpers/game_definition_helper', __FILE__)
 
 describe GameDefinition do
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    include GameDefinitionHelper
    include ModelsHelper
    

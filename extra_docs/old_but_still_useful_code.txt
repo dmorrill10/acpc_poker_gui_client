@@ -1,10 +1,10 @@
 From GameCore tests: ##########################################################
 require 'spec_helper'
-#require 'application_defs'
+#require 'acpc_poker_types'
 
 describe GameCore do
 
-   #include ApplicationDefs
+   #include AcpcPokerTypesDefs
    
    #before(:each) do
    #   @dealer_communication = mock('AcpcDealerCommunicator')

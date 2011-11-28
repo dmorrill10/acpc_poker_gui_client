@@ -15,13 +15,13 @@ require 'dealer_communication'
 puts 'Loaded dealer_communication'
 
 # Local modules
-require 'application_defs'
+require 'acpc_poker_types'
 
-puts 'Loaded application_defs'
+puts 'Loaded acpc_poker_types'
 
-include ApplicationDefs
+include AcpcPokerTypesDefs
 
-puts 'Imported ApplicationDefs'
+puts 'Imported AcpcPokerTypesDefs'
 
 # TODO Abstract this out into BotCore
 port_number = if ARGV[0] then ARGV[0] else 18374 end

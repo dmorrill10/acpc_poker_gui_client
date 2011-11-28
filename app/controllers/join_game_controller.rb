@@ -1,9 +1,9 @@
-require 'application_defs'
+require 'acpc_poker_types'
 require 'application_helper'
 
 # Controller for the 'join a game' view.
 class JoinGameController < ApplicationController
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
    include ApplicationHelper
    
    # Presents the main 'join a game' view.

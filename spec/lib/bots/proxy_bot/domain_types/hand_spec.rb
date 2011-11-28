@@ -1,12 +1,12 @@
 require 'spec_helper'
 
 # Local modules
-require File.expand_path('../../../../../../lib/application_defs', __FILE__)
+require File.expand_path('../../../../../../lib/acpc_poker_types', __FILE__)
 require File.expand_path('../../../../../../lib/helpers/application_helpers', __FILE__)
 
 describe Hand do
    include ApplicationHelpers
-   include ApplicationDefs
+   include AcpcPokerTypesDefs
 
    describe '#initialize' do
       it 'understands every posspaible card combination' do

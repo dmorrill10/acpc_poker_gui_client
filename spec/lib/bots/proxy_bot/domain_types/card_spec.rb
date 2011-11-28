@@ -1,11 +1,10 @@
 require 'spec_helper'
 
-require File.expand_path('../../../../../../lib/application_defs', __FILE__)
-require File.expand_path('../../../../../../lib/helpers/application_helpers', __FILE__)
+require 'acpc_poker_types'
 
 describe Card do
-   include ApplicationDefs
-   include ApplicationHelpers
+   include AcpcPokerTypesDefs
+   include AcpcPokerTypesHelpers
    
    describe '#new' do
       describe 'raises an exception if' do

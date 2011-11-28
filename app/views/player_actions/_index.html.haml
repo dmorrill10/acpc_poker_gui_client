@@ -15,20 +15,27 @@
       %p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
       %p= button "Raise", raise_url, 'raise', amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index
 - else
-   // Check if the state can be updated
-   = hidden_check_for_new_match_state_form @match_id, @match_slice_index
-   // Hidden form to allow AJAX to update the game's state
-   // @todo The submit button is actually displayed so this function may not have the best name
    .new_state_available
       %h2 New state available
-   = hidden_update_state_form @match_id, @match_slice_index
-   :javascript
-      setTimeout("check_for_new_match_state()", 100);
-      // @todo Move this out of the view into a javascript helper file?
-      function check_for_new_match_state() {
-         $('.check_for_new_match_state_button').submit();
-      };
-
+      // Hidden form to allow AJAX to update the game's state
+      // @todo The submit button is actually displayed so this function may not have the best name
+      = hidden_update_state_form @match_id, @match_slice_index
+   - if @hand_ended
+      // Check if the state can be updated
+      = hidden_check_for_new_match_state_form @match_id, @match_slice_index   
+      :javascript
+         setTimeout("check_for_new_match_state()", 100);
+         // @todo Move this out of the view into a javascript helper file?
+         function check_for_new_match_state() {
+            $('.check_for_new_match_state_button').submit();
+         };
+   - else
+      :javascript
+         setTimeout("update_game_state()", 100);
+         // @todo Move this out of the view into a javascript helper file?
+         function update_game_state() {
+            $('.update_match_state_button').submit();
+         };
 
 // Update the game state if it's not the user's turn to act and the match hasn't ended
 

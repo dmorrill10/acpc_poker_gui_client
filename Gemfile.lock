@@ -1,4 +1,19 @@
 PATH
+  remote: vendor/gems/acpc_poker_basic_proxy-0.0.1
+  specs:
+    acpc_poker_basic_proxy (0.0.1)
+
+PATH
+  remote: vendor/gems/acpc_poker_match_state-0.0.1
+  specs:
+    acpc_poker_match_state (0.0.1)
+
+PATH
+  remote: vendor/gems/acpc_poker_player_proxy-0.0.1
+  specs:
+    acpc_poker_player_proxy (0.0.1)
+
+PATH
   remote: vendor/gems/acpc_poker_types-0.0.1
   specs:
     acpc_poker_types (0.0.1)
@@ -214,6 +229,9 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  acpc_poker_basic_proxy!
+  acpc_poker_match_state!
+  acpc_poker_player_proxy!
   acpc_poker_types!
   bson (= 1.4.0)
   bson_ext (= 1.4.0)

@@ -93,6 +93,7 @@ gem 'railroady'
 gem 'passenger'
 
 # Beanstalkd wrapper
+gem 'beanstalk-client'
 gem 'stalker'
 
 # To manage background processes
@@ -102,7 +103,7 @@ gem 'god'
 gem 'simple_form'
 
 # Poker logic
-gem 'acpc_poker_types', :path => "#{File.expand_path('../vendor/gems/acpc_poker_types-0.0.1', __FILE__)}"
-gem 'acpc_poker_basic_proxy', :path => "#{File.expand_path('../vendor/gems/acpc_poker_basic_proxy-0.0.1', __FILE__)}"
-gem 'acpc_poker_match_state', :path => "#{File.expand_path('../vendor/gems/acpc_poker_match_state-0.0.1', __FILE__)}"
-gem 'acpc_poker_player_proxy', :path => "#{File.expand_path('../vendor/gems/acpc_poker_player_proxy-0.0.1', __FILE__)}"
+gem 'acpc_poker_types'#, :git => "git@bitbucket.org:morrill/acpcpokertypes.git", :tag => '0.0.6' #:path => "#{File.expand_path('../vendor/gems/acpc_poker_types-0.0.1', __FILE__)}"
+#gem 'acpc_poker_basic_proxy', :path => "#{File.expand_path('../vendor/gems/acpc_poker_basic_proxy-0.0.1', __FILE__)}"
+#gem 'acpc_poker_match_state', :path => "#{File.expand_path('../vendor/gems/acpc_poker_match_state-0.0.1', __FILE__)}"
+#gem 'acpc_poker_player_proxy', :path => "#{File.expand_path('../vendor/gems/acpc_poker_player_proxy-0.0.1', __FILE__)}"

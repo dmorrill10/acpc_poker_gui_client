@@ -3,7 +3,7 @@
 
 // If a new state is available, display a message to the user and allow the user to update the match state
 - if @match_ended
-   //- close_dealer!
+   %h2 Match has ended, thanks for playing!
 - elsif @users_turn_to_act
    // Show user actions
    #action_dashboard
@@ -44,8 +44,6 @@
    %h2 Match information:
    // @todo Get information from the game def
    %p= label :post, "match parameters: #{@parameters}"
-   - if @match_ended
-      %h2 Match has ended, thanks for playing!
 .match_state
    %p= label :post, "match state from the dealer: #{@match_state}"
    %ul.players_information

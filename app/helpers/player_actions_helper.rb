@@ -2,11 +2,12 @@
 # Helpers for +PlayerActions+ controller and views.
 module PlayerActionsHelper
    
+   # @todo make this better
    # Places a hidden form in a view to allow AJAX to update the game's state dynamically
    def hidden_update_state_form(match_id, match_slice_index)
       form_tag update_game_state_url, :remote => true do
          form = hidden_match_fields match_id, match_slice_index
-         form << submit_tag('Update match state', :class => 'update_match_state_button')
+         form << submit_tag('Proceed to the next hand', :class => 'update_match_state_button')
       end
    end
    

@@ -1,0 +1,20 @@
+
+%ul.player_information
+   %li.title= "#{player['name']}"
+   
+   //@todo generalize this
+   - if 1 == player['position_relative_to_dealer']
+      %li.seat= "Is in seat #{player['seat']} and is the dealer."
+   - else
+      %li.seat= "Is in seat #{player['seat']} and is #{player['position_relative_to_dealer'] + 1} seats to the dealer's left."
+   
+   - if player['chip_balance'] > 0
+      %li.chip_balance= "Has won #{player['chip_balance']} chips."
+   - elsif player['chip_balance'] < 0
+      %li.chip_balance= "Has lost #{-player['chip_balance']} chips."
+   - else
+      %li.chip_balance= "Has not won any chips."
+   
+   //@todo make this look nicer
+   %li.last_action= "Last action was #{player['last_action']}"
+   %li.cards= "Holds #{player['hole_cards']}"

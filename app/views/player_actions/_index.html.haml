@@ -15,27 +15,8 @@
    - opponent = @players[1]
    #information_about_opponents
       #opponent_information
-         //@todo extract this to a function
-         %ul.player_information
-            %li.title= "#{opponent['name']}"
-            
-            //@todo generalize this
-            - if 1 == opponent['position_relative_to_dealer']
-               %li.seat= "Is in seat #{opponent['seat']} and is the dealer."
-            - else
-               %li.seat= "Is in seat #{opponent['seat']} and is #{opponent['position_relative_to_dealer'] + 1} seats to the dealer's left."
-            
-            - if opponent['chip_balance'] > 0
-               %li.chip_balance= "Has won #{opponent['chip_balance']} chips."
-            - elsif opponent['chip_balance'] < 0
-               %li.chip_balance= "Has lost #{-opponent['chip_balance']} chips."
-            - else
-               %li.chip_balance= "Has not won any chips."
-            
-            //@todo make this look nicer
-            %li.last_action= "Last action was #{opponent['last_action']}"
-            %li.cards= "Holds #{opponent['hole_cards']}"
-
+         = render partial: 'player', locals: {player: opponent}
+         
 .information_container
    %ul#community_information
       %li#board_cards= "Board cards: #{@board_cards}"
@@ -44,49 +25,54 @@
       - if @match_ended
          %li Match has ended, thanks for playing!
 
-//@todo show the users information
+.information_container
+   // @todo generalize this to multiple players (use the USER_INDEX variable in acpc_poker_match_state)
+   - user = @players[0]
+   #user_information
+      = render partial: 'player', locals: {player: user}
 
 //@todo deal with this
-#action_dashboard
-   - if @match_ended
-   - elsif @users_turn_to_act
-      // Show user actions
-   
-      %h2 Actions
-      //%p= button "Bet", bet_url, view_context.t('.bet')#, :amount_field => true
-      .action
-         %p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index
-         //%p= button "Check", check_url, view_context.t('.check')
-      .action
-         %p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
-      .action
-         %p= button "Raise", raise_url, 'raise', amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index
-   - else
-      // Hidden form to allow AJAX to update the game's state
-      // @todo The submit button is actually displayed so this function may not have the best name
-      .meta_action
-         = hidden_update_state_form @match_id, @match_slice_index
-      - if @hand_ended
-         #new_hand_available
-            %h2 Hand ended.
-            // Check if the state can be updated
-            = hidden_check_for_new_match_state_form @match_id, @match_slice_index   
-            :javascript
-               setTimeout("check_for_new_match_state()", 100);
-               // @todo Move this out of the view into a javascript helper file?
-               function check_for_new_match_state() {
-                  $('.check_for_new_match_state_button').submit();
-               };
+.information_container
+   #action_dashboard
+      - if @match_ended
+      - elsif @users_turn_to_act
+         // Show user actions
+      
+         %h2 Actions
+         //%p= button "Bet", bet_url, view_context.t('.bet')#, :amount_field => true
+         .action
+            %p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index
+            //%p= button "Check", check_url, view_context.t('.check')
+         .action
+            %p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
+         .action
+            %p= button "Raise", raise_url, 'raise', amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index
       - else
-         .updating_match_state
-            %h3 Updating match state...
-            :javascript
-               setTimeout("update_game_state()", 100);
-               // @todo Move this out of the view into a javascript helper file?
-               function update_game_state() {
-                  $('.update_match_state_button').submit();
-               };
-   .meta_action
-      %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
+         // Hidden form to allow AJAX to update the game's state
+         // @todo The submit button is actually displayed so this function may not have the best name
+         .meta_action
+            = hidden_update_state_form @match_id, @match_slice_index
+         - if @hand_ended
+            #new_hand_available
+               %h2 Hand ended.
+               // Check if the state can be updated
+               = hidden_check_for_new_match_state_form @match_id, @match_slice_index   
+               :javascript
+                  setTimeout("check_for_new_match_state()", 100);
+                  // @todo Move this out of the view into a javascript helper file?
+                  function check_for_new_match_state() {
+                     $('.check_for_new_match_state_button').submit();
+                  };
+         - else
+            .updating_match_state
+               %h3 Updating match state...
+               :javascript
+                  setTimeout("update_game_state()", 100);
+                  // @todo Move this out of the view into a javascript helper file?
+                  function update_game_state() {
+                     $('.update_match_state_button').submit();
+                  };
+      .meta_action
+         %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
 %hr
 

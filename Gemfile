@@ -104,3 +104,4 @@ gem 'simple_form'
 
 # Poker logic
 gem 'acpc_poker_types'
+gem 'acpc_poker_match_state'

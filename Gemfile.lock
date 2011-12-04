@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    acpc_poker_match_state (0.0.2)
     acpc_poker_types (0.0.7)
     actionmailer (3.1.1)
       actionpack (= 3.1.1)
@@ -209,6 +210,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  acpc_poker_match_state
   acpc_poker_types
   beanstalk-client
   bson (= 1.4.0)

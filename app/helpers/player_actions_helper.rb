@@ -1,4 +1,6 @@
 
+require 'acpc_poker_match_state'
+
 # Helpers for +PlayerActions+ controller and views.
 module PlayerActionsHelper
    
@@ -31,14 +33,13 @@ module PlayerActionsHelper
    
    # Things the view needs to know
    def setup_match_view
-      # What are the parameters of this match?
-      @parameters = @match.parameters
-
       # What is the match state?
       @match_state = MatchstateString.new @match_slice.state_string
 
       # Who are the players in this game?
-      @players = @match_slice.players
+      players = @match_slice.players
+      @user = players.delete_at(AcpcPokerMatchStateDefs::USERS_INDEX)
+      @opponents = players
 
       # Is it the user's turn to act?
       @users_turn_to_act = @match_slice.users_turn_to_act?

@@ -11,11 +11,10 @@
       %li Log file: <log file path>
 
 .information_container
-   // @todo generalize this to multiple players (use the USER_INDEX variable in acpc_poker_match_state)
-   - opponent = @players[1]
-   #information_about_opponents
-      #opponent_information
-         = render partial: 'player', locals: {player: opponent}
+   %ul#information_about_opponents
+      - @opponents.each do |opponent|
+         %li#information_about_an_opponent
+            = render partial: 'player', locals: {player: opponent}
          
 .information_container
    %ul#community_information
@@ -26,23 +25,18 @@
          %li Match has ended, thanks for playing!
 
 .information_container
-   // @todo generalize this to multiple players (use the USER_INDEX variable in acpc_poker_match_state)
-   - user = @players[0]
-   #user_information
-      = render partial: 'player', locals: {player: user}
+   #users_information
+      = render partial: 'player', locals: {player: @user}
 
-//@todo deal with this
 .information_container
    #action_dashboard
       - if @match_ended
       - elsif @users_turn_to_act
          // Show user actions
-      
+         // @todo Change so that buttons are disabled when it isn't the user's turn to act (disabled: true).
          %h2 Actions
-         //%p= button "Bet", bet_url, view_context.t('.bet')#, :amount_field => true
          .action
             %p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index
-            //%p= button "Check", check_url, view_context.t('.check')
          .action
             %p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
          .action
@@ -74,5 +68,5 @@
                   };
       .meta_action
          %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
-%hr
+         
 

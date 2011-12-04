@@ -1,0 +1,95 @@
+$no_buffer: 0 0 0 0;
+.information_container {
+   margin: $no_buffer;
+}
+
+ul {
+   list-style: none;
+   padding: $no_buffer;
+   margin: $no_buffer;
+}
+
+$border_width: 5px;
+
+@mixin test_border($color) {
+   border: $border_width $color solid;
+}
+
+$vertical_buffer: 10px;
+$horizontal_buffer: $vertical_buffer;
+
+$player_information_height: 90px;
+$player_information_width: 200px;
+
+$community_information_height: $player_information_height * 2;
+$community_information_width: $player_information_width;
+
+$page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 6 * $border_width;
+
+$match_information_height: 200px;
+$match_information_width: 200px;
+$action_dashboard_width: 200px;
+
+$page_width: $match_information_width + 2 * $horizontal_buffer + $player_information_width + $action_dashboard_width + 6 * $border_width;
+
+#container {
+   height: $page_height;
+   width: $page_width;
+   padding: $no_buffer;
+}
+
+.player_information {
+   height: $player_information_height;
+   width: $player_information_width;
+   @include test_border(#f00);
+   margin-top: 0;
+   margin-bottom: 0;
+   margin-left: $horizontal_buffer;
+   margin-right: $horizontal_buffer;
+}
+
+#users_information {
+   margin-top: $vertical_buffer;
+   margin-bottom: 0;
+   position: absolute;
+   top: $page_height - ($player_information_height + $vertical_buffer + 2 * $border_width);
+   left: $match_information_width + 3 * $border_width;
+}
+
+#information_about_opponents {
+   margin-top: 0;
+   margin-bottom: $vertical_buffer;
+   width: $page_width;
+   display: inline;
+}
+
+#community_information {
+   @include test_border(#0f0);
+   
+   height: $community_information_height;
+   width: $community_information_width;
+   
+   margin-top: $vertical_buffer;
+   margin-bottom: $vertical_buffer;
+   margin-left: $horizontal_buffer;
+   margin-right: $horizontal_buffer;
+   
+   position: absolute;
+   top: $player_information_height + 3 * $border_width;
+   left: $match_information_width + 3 * $border_width;
+}
+
+#match_information {
+   width: $match_information_width;
+   height: $match_information_height;
+   @include test_border(#0ff);
+   position: absolute;
+   top: $page_height - ($match_information_height + 2 * $border_width);
+   margin: $no_buffer;
+}
+
+#action_dashboard {
+   @include test_border(#00f);
+   width: $action_dashboard_width;
+   position: absolute;
+}

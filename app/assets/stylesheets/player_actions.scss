@@ -1,3 +1,7 @@
+@import 'sassy-buttons';
+@import 'compass/css3/images';
+@import "compass/utilities/color/contrast";
+
 $no_buffer: 0 0 0 0;
 .information_container {
    margin: $no_buffer;
@@ -9,10 +13,29 @@ ul {
    margin: $no_buffer;
 }
 
+li {
+   padding: 3px;
+}
+
 $border_width: 5px;
 
 @mixin test_border($color) {
    border: $border_width $color solid;
+}
+
+/*@todo Thanks to http://jaredhardy.com/sassy-buttons/css/screen.css for this*/
+@mixin shiny($background_color, $text_color) {
+   @include background-image(linear-gradient(scale-lightness($background_color, 25), $background_color));
+   color: $text_color;
+}
+
+$background_color: #000;
+$text_color: contrast-color($background_color);
+
+@mixin container_formatting {
+   $background_color: #000;
+   $text_color: contrast-color($background_color);
+   @include shiny($background_color, $text_color);
 }
 
 $vertical_buffer: 10px;
@@ -40,14 +63,21 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    padding: $no_buffer;
 }
 
+.information_container {
+}
+
 .player_information {
    height: $player_information_height;
    width: $player_information_width;
+   
    @include test_border(#f00);
+   
    margin-top: 0;
    margin-bottom: 0;
    margin-left: $horizontal_buffer;
    margin-right: $horizontal_buffer;
+   
+   @include container_formatting;
 }
 
 #users_information {
@@ -87,19 +117,32 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    position: absolute;
    top: $player_information_height + 2 * $border_width;
    left: $match_information_width + 2 * $border_width;
+   
+   @include container_formatting;
 }
 
 #match_information {
    width: $match_information_width;
    height: $match_information_height;
+   
    @include test_border(#0ff);
+   
    position: absolute;
    top: $page_height - ($match_information_height + 2 * $border_width);
+   
    margin: $no_buffer;
+   
+   @include container_formatting;
 }
 
 #action_dashboard {
    @include test_border(#00f);
+   
+   @include container_formatting;
+   
+   .action input {
+      @include sassy-button('shiny', 5px, 15px, $background_color, $background_color, $text_color);
+   }
    
    width: $action_dashboard_width;
    height: $action_dashboard_height;

@@ -17,6 +17,14 @@ group :assets do
   gem 'sass-rails',   '~> 3.1.4'
   gem 'coffee-rails', '~> 3.1.1'
   gem 'uglifier', '>= 1.0.3'
+  
+  # For convenient styling macros
+  gem 'compass', '~> 0.12.alpha'       # also using the compass framework for SASS
+  
+  # For nice looking buttons
+  gem 'sassy-buttons'
+  gem 'chunky_png'    # compass uses this for sprites
+  gem 'oily_png'      # native c library for png routines to speed up chunky_png
 end
 
 # JavaScript library

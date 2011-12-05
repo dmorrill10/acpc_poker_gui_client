@@ -70,8 +70,6 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    height: $player_information_height;
    width: $player_information_width;
    
-   @include test_border(#f00);
-   
    margin-top: 0;
    margin-bottom: 0;
    margin-left: $horizontal_buffer;
@@ -103,9 +101,7 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    display: block;
 }
 
-#community_information {
-   @include test_border(#0f0);
-   
+#community_information {   
    height: $community_information_height;
    width: $community_information_width;
    
@@ -125,8 +121,6 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    width: $match_information_width;
    height: $match_information_height;
    
-   @include test_border(#0ff);
-   
    position: absolute;
    top: $page_height - ($match_information_height + 2 * $border_width);
    
@@ -135,9 +129,7 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    @include container_formatting;
 }
 
-#action_dashboard {
-   @include test_border(#00f);
-   
+#action_dashboard {   
    @include container_formatting;
    
    .action input {

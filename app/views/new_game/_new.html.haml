@@ -1,49 +1,13 @@
+//%h1= title
+%hr
 
-- @match = {match_name: 'experiment', number_of_hands: '2', game_definition_file_name: 'path to game def'}
+= simple_form_for @match, url: create_new_match_url, remote: true, html: {class: 'create_new_match_form'} do |f|
+   = f.input :match_name
+   // @todo parse this as given to get the number of players
+   = f.input :game_definition_key, label: 'Game definition:', collection: ApplicationDefs::GAME_DEFINITION_NAMES, value_method: :first, label_method: :last, include_blank: false
+   = f.input :number_of_hands, as: :integer
+   = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed picked at random between 1 and 100'
+   // @todo offer the user to select which _competitors_ to play against (requires know the number of players in the currently selected game definition and the names of other competitors)
+   = f.button :submit
 
-.information_container
-   %ul#match_information
-      %li.title Match Information
-      %li= "Name: #{@match[:match_name]}"
-      %ul#game_definition
-         %li.title Game Definition
-         %li= "Path: #{@match[:game_definition_file_name]}"
-         %li= "<Game def prop>: <game def val>"
-      %li= "Hand: <hand #>/#{@match[:number_of_hands]}"
-      %li Log file: <log file path>
-
-.information_container
-   %ul#information_about_opponents
-      - @opponents = [{'name' => 'opp1', 'seat' => 0, 'position_relative_to_dealer' => 1, 'chip_balance' => 100}]
-      - @opponents.each do |opponent|
-         %li#information_about_an_opponent
-            = render partial: 'player_actions/player', locals: {player: opponent}
-         
-.information_container
-   #users_information
-      = render partial: 'player_actions/player', locals: {player: {'name' => 'user', 'seat' => 0, 'position_relative_to_dealer' => 1, 'chip_balance' => 100}}
-
-.information_container
-   %ul#community_information
-      %li#board_cards= "Board cards: #{@board_cards}"
-      %li#pot= "Pot: #{@pot_size}"
-      %li#round= "Round: #{@round}"
-      - if @match_ended
-         %li Match has ended, thanks for playing!
-         
-.information_container
-   #action_dashboard
-      %h2 Actions
-      .action
-         %p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index
-      .action
-         %p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index
-      .action
-         %p= button "Raise", raise_url, 'raise', amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index
-      // Hidden form to allow AJAX to update the game's state
-      // @todo The submit button is actually displayed so this function may not have the best name
-      .meta_action
-         = hidden_update_state_form @match_id, @match_slice_index
-      .meta_action
-         %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
-         
+= hidden_game_parameter_form

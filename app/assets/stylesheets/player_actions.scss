@@ -18,16 +18,18 @@ $border_width: 5px;
 $vertical_buffer: 10px;
 $horizontal_buffer: $vertical_buffer;
 
-$player_information_height: 90px;
-$player_information_width: 200px;
+$player_information_height: 120px;
+$player_information_width: 300px;
 
-$community_information_height: $player_information_height * 2;
+$community_information_height: $player_information_height * 1.5;
 $community_information_width: $player_information_width;
 
 $page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 6 * $border_width;
 
 $match_information_height: 200px;
 $match_information_width: 200px;
+
+$action_dashboard_height: 300px;
 $action_dashboard_width: 200px;
 
 $page_width: $match_information_width + 2 * $horizontal_buffer + $player_information_width + $action_dashboard_width + 6 * $border_width;
@@ -53,14 +55,22 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    margin-bottom: 0;
    position: absolute;
    top: $page_height - ($player_information_height + $vertical_buffer + 2 * $border_width);
-   left: $match_information_width + 3 * $border_width;
+   left: $match_information_width + 2 * $border_width;
 }
 
+/* @todo Want this to be either a box in which information_about_an_opponent list elements can be centered, or a centered expandable box. Not sure how to do either.*/
 #information_about_opponents {
    margin-top: 0;
    margin-bottom: $vertical_buffer;
-   width: $page_width;
+   
+   position: absolute;
+   left: $match_information_width + 2 * $border_width;
+   
    display: inline;
+}
+
+#information_about_an_opponent {   
+   display: block;
 }
 
 #community_information {
@@ -75,8 +85,8 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    margin-right: $horizontal_buffer;
    
    position: absolute;
-   top: $player_information_height + 3 * $border_width;
-   left: $match_information_width + 3 * $border_width;
+   top: $player_information_height + 2 * $border_width;
+   left: $match_information_width + 2 * $border_width;
 }
 
 #match_information {
@@ -90,6 +100,13 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
 
 #action_dashboard {
    @include test_border(#00f);
+   
    width: $action_dashboard_width;
+   height: $action_dashboard_height;
+   
+   margin-left: $horizontal_buffer;
+   
    position: absolute;
+   left: $match_information_width + $player_information_width + 6 * $border_width;
+   top: $page_height - ($action_dashboard_height + 2 * $border_width);
 }

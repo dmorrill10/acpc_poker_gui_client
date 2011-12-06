@@ -3,18 +3,28 @@
    %li.title= "#{player['name']}"
    
    //@todo generalize this
+   // @todo not sure how strings should be arranged to maximize reusability
+   - seat_message = "Is in seat #{player['seat']}"
+   - is_the_dealer_message = "is the dealer"
+   - is_next_to_the_dealer_message = "is #{player['position_relative_to_dealer'] + 1} #1 to the dealer's left"
    - if 1 == player['position_relative_to_dealer']
-      %li.seat= "Is in seat #{player['seat']} and is the dealer."
+      %li.seat= "#{seat_message} and #{is_the_dealer_message}."
+   - elsif 0 == player['position_relative_to_dealer']
+      %li.seat= "#{seat_message} and #{is_next_to_the_dealer_message.sub(/#1/, 'seat')}."
    - else
-      %li.seat= "Is in seat #{player['seat']} and is #{player['position_relative_to_dealer'] + 1} seats to the dealer's left."
+      %li.seat= "#{seat_message} and #{is_next_to_the_dealer_message.sub(/#1/, 'seats')}."
    
-   - if player['chip_balance'] > 0
+   - if player['chip_balance'] == 1
+      %li.chip_balance= "Has won #{player['chip_balance']} chip."
+   - elsif player['chip_balance'] > 1
       %li.chip_balance= "Has won #{player['chip_balance']} chips."
-   - elsif player['chip_balance'] < 0
+   - elsif player['chip_balance'] == -1
+      %li.chip_balance= "Has lost #{-player['chip_balance']} chip."
+   - elsif player['chip_balance'] < -1
       %li.chip_balance= "Has lost #{-player['chip_balance']} chips."
    - else
       %li.chip_balance= "Has not won any chips."
    
    //@todo make this look nicer
-   %li.last_action= "Last action was #{player['last_action']}"
+   //%li.last_action= "Last action was #{player['last_action']}"
    %li.cards= "Holds #{player['hole_cards']}"

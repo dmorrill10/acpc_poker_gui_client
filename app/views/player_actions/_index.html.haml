@@ -1,14 +1,13 @@
 
 .information_container
    %ul#match_information
-      %li.title Match Information
-      %li= "Name: #{@match.match_name}"
+      %li.title= "Match: #{@match.match_name}"
       %ul#game_definition
-         %li.title Game Definition
-         %li= "Path: #{@match.game_definition_file_name}"
-         %li= "<Game def prop>: <game def val>"
-      %li= "Hand: <hand #>/#{@match.number_of_hands}"
-      %li Log file: <log file path>
+         %li.title= "Game Definition: #{@match.game_definition_file_name}"
+         // @todo %li= "<Game def prop>: <game def val>"
+      %li= "This match has #{@match.number_of_hands} hands"
+      // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
+      // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
 
 .information_container
    %ul#information_about_opponents
@@ -19,8 +18,8 @@
 .information_container
    %ul#community_information
       %li#board_cards= "Board cards: #{@board_cards}"
-      %li#pot= "Pot: #{@pot_size}"
-      %li#round= "Round: #{@round}"
+      %li#pot= "Pot size: #{@pot_size}"
+      %li#round= "Round number: #{@round + 1}"
       - if @match_ended
          %li Match has ended, thanks for playing!
 

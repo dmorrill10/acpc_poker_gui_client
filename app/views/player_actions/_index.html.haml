@@ -57,14 +57,15 @@
                      $('.check_for_new_match_state_button').submit();
                   };
          - else
-            .updating_match_state
-               %h3 Updating match state...
-               :javascript
-                  setTimeout("update_game_state()", 100);
-                  // @todo Move this out of the view into a javascript helper file?
-                  function update_game_state() {
-                     $('.update_match_state_button').submit();
-                  };
+            %h3= "Hand ended?: #{@hand_ended}"
+            //.updating_match_state
+            //   %h3 Updating match state...
+            //   :javascript
+            //      setTimeout("update_game_state()", 100);
+            //      // @todo Move this out of the view into a javascript helper file?
+            //      function update_game_state() {
+            //         $('.update_match_state_button').submit();
+            //      };
       .meta_action
          %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
          

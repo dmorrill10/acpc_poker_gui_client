@@ -8108,3 +8108,544 @@ The structure of this application's directories is as follows:
        └── sockets
    
    96 directories, 247 files
+   .
+   ├── acpcpokerguiclient.komodoproject
+   ├── app
+   │   ├── assets
+   │   │   ├── images
+   │   │   │   └── rails.png
+   │   │   ├── javascripts
+   │   │   │   └── application.js
+   │   │   └── stylesheets
+   │   │       ├── application.scss
+   │   │       ├── layout.scss
+   │   │       ├── player_actions.scss
+   │   │       └── _sassybuttons.scss
+   │   ├── controllers
+   │   │   ├── application_controller.rb
+   │   │   ├── join_game_controller.rb
+   │   │   ├── new_game_controller.rb
+   │   │   ├── player_actions_controller.rb
+   │   │   └── start_game_controller.rb
+   │   ├── helpers
+   │   │   ├── application_helper.rb
+   │   │   ├── error_messages_helper.rb
+   │   │   ├── join_game_helper.rb
+   │   │   ├── layout_helper.rb
+   │   │   ├── new_game_helper.rb
+   │   │   ├── player_actions_helper.rb
+   │   │   ├── start_game_helper.rb
+   │   │   └── view_helper.js.haml
+   │   ├── mailers
+   │   ├── models
+   │   │   ├── match.rb
+   │   │   └── match_slice.rb
+   │   └── views
+   │       ├── join_game
+   │       │   └── _index.html.haml
+   │       ├── layouts
+   │       │   └── application.html.haml
+   │       ├── new_game
+   │       │   ├── _new.experiment.html.haml
+   │       │   ├── _new.html.haml
+   │       │   └── new.html.haml
+   │       ├── player_actions
+   │       │   ├── _index.html.haml
+   │       │   ├── _index.web_sockets.html.haml
+   │       │   └── _player.html.haml
+   │       ├── shared_javascripts
+   │       │   ├── replace_contents.js.haml
+   │       │   └── send_parameters_to_connect_to_dealer.js.haml
+   │       └── start_game
+   │           ├── _index.html.haml
+   │           └── index.html.haml
+   ├── config
+   │   ├── application.rb
+   │   ├── boot.rb
+   │   ├── database.yml
+   │   ├── environment.rb
+   │   ├── environments
+   │   │   ├── development.rb
+   │   │   ├── production.rb
+   │   │   └── test.rb
+   │   ├── god.rb
+   │   ├── initializers
+   │   │   ├── backtrace_silencers.rb
+   │   │   ├── inflections.rb
+   │   │   ├── mime_types.rb
+   │   │   ├── secret_token.rb
+   │   │   ├── session_store.rb
+   │   │   ├── simple_form.rb
+   │   │   └── wrap_parameters.rb
+   │   ├── locales
+   │   │   ├── en.yml
+   │   │   └── simple_form.en.yml
+   │   ├── mongoid.yml
+   │   └── routes.rb
+   ├── config.ru
+   ├── db
+   │   ├── development.sqlite3
+   │   ├── seeds.rb
+   │   └── test.sqlite3
+   ├── Dec5Test5.log
+   ├── Dec5Test6.log
+   ├── Dec6Test2.log
+   ├── doc
+   │   ├── AcpcDealerCommunicator.html
+   │   ├── ActionSender.html
+   │   ├── ApplicationController.html
+   │   ├── ApplicationDefs.html
+   │   ├── ApplicationHelper.html
+   │   ├── ApplicationHelpers.html
+   │   ├── BoardCards.html
+   │   ├── Card.html
+   │   ├── Class.html
+   │   ├── class_list.html
+   │   ├── css
+   │   │   ├── common.css
+   │   │   ├── full_list.css
+   │   │   └── style.css
+   │   ├── DealerCommunication.html
+   │   ├── diagrams
+   │   │   ├── class_diagram.svg
+   │   │   └── WebApplicationPlayerProxy.Design.svg
+   │   ├── file.AppDesign.html
+   │   ├── file.AppStatus.html
+   │   ├── file.FileStructure.html
+   │   ├── file.Glossary.html
+   │   ├── file_list.html
+   │   ├── file.README.html
+   │   ├── frames.html
+   │   ├── GameCore.html
+   │   ├── GameDefinitionHelper.html
+   │   ├── GameDefinition.html
+   │   ├── GameState.html
+   │   ├── Hand.html
+   │   ├── _index.html
+   │   ├── index.html
+   │   ├── JoinGameController.html
+   │   ├── JoinGameHelper.html
+   │   ├── js
+   │   │   ├── app.js
+   │   │   ├── full_list.js
+   │   │   └── jquery.js
+   │   ├── LayoutHelper.html
+   │   ├── MatchStateHelper.html
+   │   ├── MatchState.html
+   │   ├── MatchstateStringHelper.html
+   │   ├── MatchstateString.html
+   │   ├── MatchstateStringReceiver.html
+   │   ├── method_list.html
+   │   ├── ModelsHelper.html
+   │   ├── ModelTestHelper.html
+   │   ├── NewGameController.html
+   │   ├── NewGameHelper.html
+   │   ├── PlayerActionsController.html
+   │   ├── PlayerActionsHelper.html
+   │   ├── Player.html
+   │   ├── PlayerManager.html
+   │   ├── Pot.html
+   │   ├── Rank.html
+   │   ├── README_FOR_APP
+   │   ├── SidePot.html
+   │   ├── Stack.html
+   │   ├── StartGameController.html
+   │   ├── StartGameHelper.html
+   │   ├── Suit.html
+   │   ├── TCPSocket.html
+   │   ├── TestingRubyBot.html
+   │   └── top-level-namespace.html
+   ├── external
+   │   ├── fake_acpc_server
+   │   │   ├── fake_acpc_client.rb
+   │   │   └── fake_dealer.rb
+   │   └── project_acpc_server
+   │       ├── dealer
+   │       ├── dealer.c
+   │       ├── evalHandTables
+   │       ├── example_player
+   │       ├── example_player.c
+   │       ├── example_player.limit.2p.sh
+   │       ├── example_player.limit.3p.sh
+   │       ├── example_player.nolimit.2p.sh
+   │       ├── example_player.nolimit.3p.sh
+   │       ├── game.c
+   │       ├── game.h
+   │       ├── holdem.limit.2p.reverse_blinds.game
+   │       ├── holdem.limit.3p.game
+   │       ├── holdem.nolimit.2p.reverse_blinds.game
+   │       ├── holdem.nolimit.3p.game
+   │       ├── LICENCE
+   │       ├── Makefile
+   │       ├── play_match.pl
+   │       ├── protocol.odt
+   │       ├── protocol.pdf
+   │       ├── README
+   │       ├── rng.c
+   │       ├── rng.h
+   │       ├── test.err
+   │       ├── test.log
+   │       ├── test.player0.err
+   │       ├── test.player0.std
+   │       ├── test.player1.err
+   │       └── test.player1.std
+   ├── extra_docs
+   │   ├── AppDesign
+   │   ├── AppStatus
+   │   ├── FileStructure
+   │   ├── Glossary
+   │   ├── instructionsToDeployApp.txt
+   │   ├── old_but_still_useful_code.txt
+   │   └── temp_app_tree
+   ├── features
+   │   ├── step_definitions
+   │   │   └── mongoid_steps.rb
+   │   └── support
+   │       ├── env.rb
+   │       └── hooks.rb
+   ├── Gemfile
+   ├── Gemfile.lock
+   ├── Guardfile
+   ├── lib
+   │   ├── application_defs.rb
+   │   ├── assets
+   │   ├── background
+   │   │   ├── bot_runner.rb
+   │   │   ├── dealer_runner.rb
+   │   │   └── process_runner.rb
+   │   ├── bots
+   │   │   ├── stdin_stdout_player_proxy.rb
+   │   │   └── testing_bot.rb
+   │   ├── config
+   │   │   └── database_config.rb
+   │   ├── tasks
+   │   ├── templates
+   │   │   └── erb
+   │   │       └── scaffold
+   │   │           └── _form.html.erb
+   │   └── web_application_player_proxy.rb
+   ├── log
+   │   ├── development.log
+   │   └── worker.log
+   ├── mongoDB
+   │   ├── data
+   │   │   └── db
+   │   │       ├── acpc_poker_gui_client_development.0
+   │   │       ├── acpc_poker_gui_client_development.1
+   │   │       ├── acpc_poker_gui_client_development.ns
+   │   │       ├── acpc_poker_gui_client_test.0
+   │   │       ├── acpc_poker_gui_client_test.1
+   │   │       ├── acpc_poker_gui_client_test.ns
+   │   │       ├── journal
+   │   │       │   ├── j._0
+   │   │       │   ├── lsn
+   │   │       │   ├── prealloc.1
+   │   │       │   └── prealloc.2
+   │   │       ├── match_state_test.0
+   │   │       ├── match_state_test.1
+   │   │       ├── match_state_test.ns
+   │   │       ├── mongo_db_test.0
+   │   │       ├── mongo_db_test.1
+   │   │       ├── mongo_db_test.ns
+   │   │       └── mongod.lock
+   │   └── mongodb-linux-x86_64-2.0.1
+   │       ├── bin
+   │       │   ├── bsondump
+   │       │   ├── mongo
+   │       │   ├── mongod
+   │       │   ├── mongodump
+   │       │   ├── mongoexport
+   │       │   ├── mongofiles
+   │       │   ├── mongoimport
+   │       │   ├── mongorestore
+   │       │   ├── mongos
+   │       │   ├── mongosniff
+   │       │   ├── mongostat
+   │       │   └── mongotop
+   │       ├── GNU-AGPL-3.0
+   │       ├── README
+   │       └── THIRD-PARTY-NOTICES
+   ├── public
+   │   ├── 404.html
+   │   ├── 422.html
+   │   ├── 500.html
+   │   ├── favicon.ico
+   │   ├── robots.txt
+   │   └── stylesheets
+   │       ├── application.css
+   │       ├── layout.css
+   │       └── player_actions.css
+   ├── Rakefile
+   ├── README
+   ├── script
+   │   ├── beanstalkd
+   │   ├── generate_documentation.sh
+   │   ├── install_poker_gems.rb
+   │   ├── outputFromFakeClient.txt
+   │   ├── rails
+   │   └── worker.rb
+   ├── spec
+   │   ├── controllers
+   │   │   ├── join_game_controller_spec.rb
+   │   │   ├── new_game_controller_spec.rb
+   │   │   ├── player_actions_controller_spec.rb
+   │   │   └── start_game_controller_spec.rb
+   │   ├── factories.rb
+   │   ├── helpers
+   │   │   ├── application_helper_spec.rb
+   │   │   ├── join_game_helper_spec.rb
+   │   │   ├── new_game_helper_spec.rb
+   │   │   ├── player_actions_helper_spec.rb
+   │   │   └── start_game_helper_spec.rb
+   │   ├── lib
+   │   │   ├── bots
+   │   │   │   └── proxy_bot
+   │   │   │       ├── communication_logic
+   │   │   │       │   ├── acpc_dealer_communicator_spec.rb
+   │   │   │       │   ├── action_sender_spec.rb
+   │   │   │       │   └── matchstate_string_receiver_spec.rb
+   │   │   │       ├── domain_types
+   │   │   │       │   ├── board_cards_spec.rb
+   │   │   │       │   ├── card_spec.rb
+   │   │   │       │   ├── chip_stack_spec.rb
+   │   │   │       │   ├── game_definition_spec.rb
+   │   │   │       │   ├── hand_spec.rb
+   │   │   │       │   ├── matchstate_string_spec.rb
+   │   │   │       │   ├── pile_of_cards_spec.rb
+   │   │   │       │   ├── player_spec.rb
+   │   │   │       │   ├── pot_spec.rb
+   │   │   │       │   ├── rank_spec.rb
+   │   │   │       │   ├── side_pot_spec.rb
+   │   │   │       │   └── suit_spec.rb
+   │   │   │       ├── game_logic
+   │   │   │       │   └── match_state_spec.rb
+   │   │   │       └── proxy_bot_spec.rb
+   │   │   ├── game
+   │   │   │   ├── dealer_information_spec.rb
+   │   │   │   └── table_spec.rb
+   │   │   ├── helpers
+   │   │   │   ├── application_helpers_spec.rb
+   │   │   │   ├── game_definition_helper_spec.rb
+   │   │   │   ├── matchstate_string_helper_spec.rb
+   │   │   │   └── models_helper_spec.rb
+   │   │   └── web_application_player_proxy
+   │   │       ├── web_application_communicator_spec.rb
+   │   │       └── web_application_player_proxy_spec.rb
+   │   ├── requests
+   │   │   ├── player_action_spec.rb
+   │   │   └── start_games_spec.rb
+   │   ├── spec_helper.rb
+   │   ├── support
+   │   │   ├── controller_test_helper.rb
+   │   │   └── model_test_helper.rb
+   │   └── views
+   │       ├── join_game
+   │       │   ├── go_back.html.erb_spec.rb
+   │       │   ├── index.html.erb_spec.rb
+   │       │   ├── three_player_limit.js.haml_spec.rb
+   │       │   ├── three_player_no_limit.js.haml_spec.rb
+   │       │   ├── two_player_limit.js.haml_spec.rb
+   │       │   └── two_player_no_limit.js.haml_spec.rb
+   │       └── new_game
+   │           ├── index.html.erb_spec.rb
+   │           ├── three_player_limit.html.erb_spec.rb
+   │           ├── three_player_no_limit.html.erb_spec.rb
+   │           ├── two_player_limit.html.erb_spec.rb
+   │           └── two_player_no_limit.html.erb_spec.rb
+   ├── tmp
+   │   ├── cache
+   │   │   ├── assets
+   │   │   │   ├── CDD
+   │   │   │   │   └── 990
+   │   │   │   ├── CE8
+   │   │   │   │   └── 420
+   │   │   │   ├── CF0
+   │   │   │   │   └── DA0
+   │   │   │   ├── CFA
+   │   │   │   │   └── 780
+   │   │   │   ├── CFF
+   │   │   │   │   └── E00
+   │   │   │   ├── D24
+   │   │   │   │   └── 310
+   │   │   │   ├── D32
+   │   │   │   │   └── A10
+   │   │   │   ├── D54
+   │   │   │   │   └── ED0
+   │   │   │   ├── D74
+   │   │   │   │   └── 5E0
+   │   │   │   ├── D84
+   │   │   │   │   └── 210
+   │   │   │   ├── D89
+   │   │   │   │   └── CF0
+   │   │   │   ├── D8C
+   │   │   │   │   └── 3B0
+   │   │   │   ├── D99
+   │   │   │   │   └── 000
+   │   │   │   ├── DA9
+   │   │   │   │   └── 620
+   │   │   │   ├── DC9
+   │   │   │   │   └── 490
+   │   │   │   ├── DD6
+   │   │   │   │   └── 730
+   │   │   │   └── E04
+   │   │   │       └── 890
+   │   │   └── sass
+   │   │       └── 44b553597b000e8c28356bcfa0a574ce710da165
+   │   ├── pids
+   │   ├── sass-cache
+   │   │   ├── 3b6b6457ab659a7d26e2403ec0012913f1dce8a7
+   │   │   ├── 3f4c0f515524ca1e2df9d327dca5b35bfd56468e
+   │   │   ├── 44b553597b000e8c28356bcfa0a574ce710da165
+   │   │   ├── 594c8e33f3a3e4422e3a22a3294f8cf86a79aa16
+   │   │   ├── 5c5e918b2423e81ff9049cb06f3461788f449079
+   │   │   ├── 6d9989e8e884ae4ff3ac8c22ec33909efd16be22
+   │   │   ├── 82bfdcf4734403ad84f0a8f08daa229829a75865
+   │   │   ├── 9dab132384fbbb434cd7b2eec58a59e4b0208f6e
+   │   │   ├── bc62f2502d263dce0e43afd713a844c1ae2df097
+   │   │   ├── c2fabd5d30d0b3270dbfa73ec5b1e240ad50d9fe
+   │   │   └── d7bcae34fcd454674bf77d4cbf971ef801c63ea7
+   │   ├── sessions
+   │   └── sockets
+   └── vendor
+       └── gems
+           ├── acpc_poker_basic_proxy-0.0.2
+           │   ├── acpc_poker_basic_proxy-0.0.2.gem
+           │   ├── acpc_poker_basic_proxy.gemspec
+           │   ├── lib
+           │   │   ├── acpc_poker_basic_proxy
+           │   │   │   └── version.rb
+           │   │   └── acpc_poker_basic_proxy.rb
+           │   ├── Rakefile
+           │   ├── src
+           │   │   ├── acpc_poker_basic_proxy_defs.rb
+           │   │   ├── basic_proxy.rb
+           │   │   ├── communication_logic
+           │   │   │   ├── acpc_dealer_communicator.rb
+           │   │   │   ├── acpc_dealer_information.rb
+           │   │   │   ├── action_sender.rb
+           │   │   │   └── matchstate_string_receiver.rb
+           │   │   └── mixins
+           │   │       └── socket_with_ready_methods.rb
+           │   └── tasks.rb
+           ├── acpc_poker_match_state-0.0.2
+           │   ├── acpc_poker_match_state-0.0.2.gem
+           │   ├── acpc_poker_match_state.gemspec
+           │   ├── lib
+           │   │   ├── acpc_poker_match_state
+           │   │   │   └── version.rb
+           │   │   └── acpc_poker_match_state.rb
+           │   ├── Rakefile
+           │   ├── src
+           │   │   ├── acpc_poker_match_state_defs.rb
+           │   │   └── match_state.rb
+           │   └── tasks.rb
+           ├── acpc_poker_player_proxy-0.0.2
+           │   ├── acpc_poker_player_proxy-0.0.2.gem
+           │   ├── acpc_poker_player_proxy.gemspec
+           │   ├── lib
+           │   │   ├── acpc_poker_player_proxy
+           │   │   │   └── version.rb
+           │   │   └── acpc_poker_player_proxy.rb
+           │   ├── Rakefile
+           │   ├── src
+           │   │   └── player_proxy.rb
+           │   └── tasks.rb
+           └── acpc_poker_types-0.0.7
+               ├── acpc_poker_types-0.0.7.gem
+               ├── acpc_poker_types.gemspec
+               ├── ext
+               │   ├── hand_evaluator
+               │   │   ├── extconf.rb
+               │   │   └── hand_evaluator.c
+               │   └── project_acpc_server
+               │       ├── dealer
+               │       ├── dealer.c
+               │       ├── evalHandTables
+               │       ├── example_player
+               │       ├── example_player.c
+               │       ├── example_player.limit.2p.sh
+               │       ├── example_player.limit.3p.sh
+               │       ├── example_player.nolimit.2p.sh
+               │       ├── example_player.nolimit.3p.sh
+               │       ├── game.c
+               │       ├── game.h
+               │       ├── holdem.limit.2p.reverse_blinds.game
+               │       ├── holdem.limit.3p.game
+               │       ├── holdem.nolimit.2p.reverse_blinds.game
+               │       ├── holdem.nolimit.3p.game
+               │       ├── LICENCE
+               │       ├── Makefile
+               │       ├── play_match.pl
+               │       ├── protocol.odt
+               │       ├── protocol.pdf
+               │       ├── README
+               │       ├── rng.c
+               │       ├── rng.h
+               │       ├── test.err
+               │       ├── test.log
+               │       ├── test.player0.err
+               │       ├── test.player0.std
+               │       ├── test.player1.err
+               │       └── test.player1.std
+               ├── lib
+               │   ├── acpc_poker_types
+               │   │   └── version.rb
+               │   ├── acpc_poker_types.rb
+               │   └── hand_evaluator.so
+               ├── pkg
+               │   └── acpc_poker_types-0.0.7.gem
+               ├── Rakefile
+               ├── spec
+               │   ├── helpers
+               │   │   ├── acpc_poker_types_helpers_spec.rb
+               │   │   ├── game_definition_helper_spec.rb
+               │   │   ├── matchstate_string_helper_spec.rb
+               │   │   └── models_helper_spec.rb
+               │   ├── support
+               │   │   ├── model_test_helper.rb
+               │   │   └── spec_helper.rb
+               │   └── types
+               │       ├── board_cards_spec.rb
+               │       ├── card_spec.rb
+               │       ├── chip_stack_spec.rb
+               │       ├── game_definition_spec.rb
+               │       ├── hand_spec.rb
+               │       ├── matchstate_string_spec.rb
+               │       ├── pile_of_cards_spec.rb
+               │       ├── player_spec.rb
+               │       ├── pot_spec.rb
+               │       ├── rank_spec.rb
+               │       ├── side_pot_spec.rb
+               │       └── suit_spec.rb
+               ├── src
+               │   ├── acpc_poker_types_defs.rb
+               │   ├── helpers
+               │   │   ├── acpc_poker_types_helper.rb
+               │   │   ├── game_definition_helper.rb
+               │   │   └── matchstate_string_helper.rb
+               │   ├── mixins
+               │   │   └── easy_exceptions.rb
+               │   ├── not_type_defs.rb
+               │   └── types
+               │       ├── board_cards.rb
+               │       ├── card.rb
+               │       ├── chip_stack.rb
+               │       ├── game_definition.rb
+               │       ├── hand.rb
+               │       ├── matchstate_string.rb
+               │       ├── pile_of_cards.rb
+               │       ├── player.rb
+               │       ├── pot.rb
+               │       ├── rank.rb
+               │       ├── side_pot.rb
+               │       └── suit.rb
+               ├── tasks.rb
+               └── tmp
+                   └── x86_64-linux
+                       └── hand_evaluator
+                           └── 1.9.2
+                               ├── hand_evaluator.o
+                               ├── hand_evaluator.so
+                               └── Makefile
+   
+   157 directories, 381 files

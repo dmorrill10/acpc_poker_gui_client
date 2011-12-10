@@ -19,7 +19,6 @@ class Match
    field :number_of_hands, type: Integer
    field :random_seed, type: Integer
    
-   # @todo Still need this?
    def parameters
       {'Match name:' => match_name,
          'Game definition file name:' => game_definition_file_name,

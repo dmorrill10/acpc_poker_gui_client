@@ -10,10 +10,10 @@ module ApplicationHelper
    # @param [Hash] options = Hash.new
    def button(button_string, url, class_div, options = Hash.new)
       form_tag url, :id => class_div, :remote => true do
-         if !options[:confirm].nil?
-            s = submit_tag button_string, :class => class_div, :confirm => options[:confirm]
+         s = if options[:confirm]
+            submit_tag button_string, :class => class_div, :confirm => options[:confirm], disabled: options[:disabled]
          else
-            s = submit_tag button_string, :class => class_div
+            submit_tag button_string, :class => class_div, disabled: options[:disabled]
          end
          # @todo Use centralized string names rather than local ones
          s << number_field_tag(:port_number) if options[:amount_field]

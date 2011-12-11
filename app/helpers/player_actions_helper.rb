@@ -6,10 +6,10 @@ module PlayerActionsHelper
    
    # @todo make this better
    # Places a hidden form in a view to allow AJAX to update the game's state dynamically
-   def hidden_update_state_form(match_id, match_slice_index)
+   def hidden_update_state_form(match_id, match_slice_index, hand_ended=true)
       form_tag update_game_state_url, :remote => true do
          form = hidden_match_fields match_id, match_slice_index
-         form << submit_tag('Proceed to the next hand', :class => 'update_match_state_button')
+         form << submit_tag('Proceed to the next hand', :class => 'update_match_state_button', disabled: !hand_ended)
       end
    end
    
@@ -100,6 +100,9 @@ module PlayerActionsHelper
       # What is the raise size in this round?
 
       # What are the chip balances for each player?
+      
+      puts "   PlayerActionsHelper: setup_match_view: @match_slice_index: #{@match_slice_index}, @match_state: #{@match_state}"
+      
    end
    
    # Updates the current match state.
@@ -112,24 +115,32 @@ module PlayerActionsHelper
    
    # @todo document
    def next_match_slice!
-      new_match_state_available?
-      @match.slices[@match_slice_index]
+      if new_match_state_available?
+         @match = current_match
+      end
+      next_match_slice = @match.slices[@match_slice_index] 
+      puts "   PlayerActionsHelper: @match_slice_index: #{@match_slice_index}, next_match_slice!: #{next_match_slice}"
+      next_match_slice
    end
    
    # @todo
-   def new_match_state?
-      @match.slices.length > @match_slice_index
+   def new_match_state?(match)
+      match.slices.length > @match_slice_index
    end
    
    def new_match_state_available?
-      @match = Match.find @match_id
+      match = current_match
       # Busy waiting for the match to be changed by the background process
-      while !new_match_state?
-         @match = Match.find @match_id
+      while !new_match_state? match
+         match = current_match
          # @todo Add a failsafe here
          # @todo Let the user know that the match's state is being updated
          # @todo Use a processing spinner
       end
       true
+   end
+   
+   def current_match
+      Match.find @match_id
    end
 end

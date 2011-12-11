@@ -18,13 +18,13 @@ class MatchState
    attr_reader :number_of_hands
    attr_reader :match_state_string
    
-   # @param [String] game_definition_file_name The name of the file containing the definition of the game, of which, this match is an instance.
+   # @param [GameDefinition] game_definition The definition of the game being played.
    # @param [MatchstateString] match_state_string The initial state of this match.
    # @param [Array] player_names The names of the players in this match.
    # @param [Integer] number_of_hands The number of hands in this match.
    # @todo bundle player names and number of hands into something
-   def initialize(game_definition_file_name, match_state_string, player_names, number_of_hands)
-      @game_definition = GameDefinition.new game_definition_file_name
+   def initialize(game_definition, match_state_string, player_names, number_of_hands)
+      @game_definition = game_definition
       # @todo Ensure that @player_names.length == number_of_players
       @player_names = player_names
       @number_of_hands = number_of_hands
@@ -35,7 +35,8 @@ class MatchState
       @pot = create_new_pot!
    end
    
-   # @param [MatchstateString] match_state_string The current match state.
+   # @param [MatchstateString] match_state_string The next match state.
+   # @return [MatchState] The updated version of this +MatchState+.
    def update!(match_state_string)
       remember_values_from_last_round!
       @match_state_string = match_state_string
@@ -45,6 +46,8 @@ class MatchState
          update_state_of_players!
          evaluate_end_of_hand! if hand_ended?
       end
+      
+      self
    end
    
    # @return [Boolean] +true+ if the match has ended, +false+ otherwise.
@@ -159,12 +162,17 @@ class MatchState
    end
    
    # @return [Boolean] +true+ if the hand has ended, +false+ otherwise.
-   def hand_ended?      
-      less_than_two_active_players? || reached_showdown?
+   def hand_ended?
+      puts "   MatchState: hand_ended?: @match_state_string: #{@match_state_string}, player information: #{@players}"
+      hand_ended = less_than_two_active_players? || reached_showdown?
+      puts "   MatchState: hand_ended?: #{hand_ended}"
+      hand_ended
    end
    
    def less_than_two_active_players?      
-      active_players.length < 2
+      bool = active_players.length < 2
+      puts "   MatchState: less_than_two_active_players?: #{bool}"
+      bool
    end
    
    def reached_showdown?
@@ -345,8 +353,16 @@ class MatchState
          @players[i].position_relative_to_dealer = position_relative_to_dealer @players[i].seat
       end
       
+      reset_actions_taken_in_current_round!
+      
       @pot = create_new_pot!
       assign_users_cards!
+   end
+   
+   def reset_actions_taken_in_current_round!
+      @players.each do |player|
+         player.actions_taken_in_current_round.clear
+      end
    end
    
    def create_new_pot!
@@ -378,6 +394,16 @@ class MatchState
    def update_state_of_players!
       last_player_to_act = @players[player_who_acted_last_index]
       
+      puts "   MatchState: update_state_of_players!: @last_round: #{@last_round}, round: #{round}, last_player_to_act.actions_taken_in_current_round: #{last_player_to_act.actions_taken_in_current_round}"
+      
+      if @last_round != round
+         reset_actions_taken_in_current_round!
+      else
+         last_player_to_act.actions_taken_in_current_round << last_action
+      end
+      
+      puts "   MatchState: update_state_of_players!: last_player_to_act.actions_taken_in_current_round: #{last_player_to_act.actions_taken_in_current_round}"
+      
       case last_action.to_acpc
          when 'c'
             @pot.take_call! last_player_to_act
@@ -393,9 +419,9 @@ class MatchState
    
    def remember_values_from_last_round!
       if @match_state_string
-         # @todo Not sure if I need to keep track of this
-         @last_round = round 
+         @last_round = round
          @position_relative_to_dealer_acted_last = position_relative_to_dealer_next_to_act
+         # @todo Not sure if I need to keep track of this
          @last_match_state = @match_state_string
       end
    end

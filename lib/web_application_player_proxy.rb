@@ -50,9 +50,12 @@ class WebApplicationPlayerProxy
    end
       
    def update_match_state!
-      @player_proxy.match_snapshots.each do |match_state|
+      number_of_match_states_saved = 0
+      @player_proxy.match_snapshots.rest(@match_slice_index).each do |match_state|
          update_database! match_state
+         number_of_match_states_saved += 1
       end
+      @match_slice_index += number_of_match_states_saved
    end
    
    def update_database!(match_state)
@@ -62,13 +65,16 @@ class WebApplicationPlayerProxy
       seats_of_players_in_side_pots = match_state.pot.players_involved_and_their_amounts_contributed.keys.map { |player| player.seat }
       players = match_state.players.map { |player| player.to_hash }
       
+      puts "   WebApplicationPlayerProxy: update_database!: index of the next match state: #{match.slices.length}, match_state.match_state_string: #{match_state.match_state_string}, match_state.hand_ended?: #{match_state.hand_ended?}"
+      
       begin
-         match.slices.create!(state_string: match_state.match_state_string.to_s, pot: [match_state.pot_size],
-                                        seats_of_players_in_side_pots: seats_of_players_in_side_pots,
-                                        is_hand_ended: match_state.hand_ended?,
-                                        is_match_ended: match_state.match_ended?,
-                                        is_users_turn_to_act: match_state.users_turn_to_act?,
-                                        players: players)
+         match.slices.create!(state_string: match_state.match_state_string.to_s,
+                              pot: [match_state.pot_size],
+                              seats_of_players_in_side_pots: seats_of_players_in_side_pots,
+                              hand_has_ended: match_state.hand_ended?,
+                              match_has_ended: match_state.match_ended?,
+                              users_turn_to_act: match_state.users_turn_to_act?,
+                              players: players)
          match.save
       rescue => e
          raise UnableToCreateMatchSlice, e.message

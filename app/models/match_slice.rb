@@ -22,26 +22,26 @@ class MatchSlice
    
    
    # Match interface
-   field :is_hand_ended, type: Boolean
-   field :is_match_ended, type: Boolean
-   field :is_users_turn_to_act, type: Boolean
+   field :hand_has_ended, type: Boolean
+   field :match_has_ended, type: Boolean
+   field :users_turn_to_act, type: Boolean
    
    # @todo add to this
    
    def hand_ended?
-      is_hand_ended
+      hand_has_ended
    end
    
    def match_ended?
-      is_match_ended
+      match_has_ended
    end
    
    def users_turn_to_act?
-      is_users_turn_to_act
+      users_turn_to_act
    end
    
    # @todo This is just for testing
    def to_s
-      "state_string: #{state_string}, is_users_turn_to_act: #{is_users_turn_to_act}, is_match_ended: #{is_match_ended}"
+      "state_string: #{state_string}, match_ended?: #{match_ended?}, hand_ended?: #{hand_ended?}, users_turn_to_act?: #{users_turn_to_act?}"
    end
 end

@@ -23,7 +23,6 @@ $border_width: 5px;
    border: $border_width $color solid;
 }
 
-/*@todo Thanks to http://jaredhardy.com/sassy-buttons/css/screen.css for this*/
 @mixin shiny($background_color, $text_color) {
    @include background-image(linear-gradient(scale-lightness($background_color, 25), $background_color));
    color: $text_color;
@@ -49,8 +48,8 @@ $community_information_width: $player_information_width;
 
 $page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 6 * $border_width;
 
-$match_information_height: 200px;
-$match_information_width: 200px;
+$match_information_height: 400px;
+$match_information_width: 300px;
 
 $action_dashboard_height: 300px;
 $action_dashboard_width: 200px;

@@ -42,10 +42,8 @@ class PlayerActionsController < ApplicationController
    # @macro [new] game_action
    # Allows the user to make a +$1+ action
    def bet
-      
       # Show the user that the proper action was taken and catch errors
-
-      replace_page_contents_with_updated_game_view
+      #replace_page_contents_with_updated_game_view
    end
 
    # game_action
@@ -59,17 +57,14 @@ class PlayerActionsController < ApplicationController
    # game_action
    def check
       # Show the user that the proper action was taken and catch errors
-      
-      replace_page_contents_with_updated_game_view
+      #replace_page_contents_with_updated_game_view
    end
 
    # game_action
    def fold
       Stalker.enqueue('PlayerProxy.play', match_id: params[:match_id], action: :fold)
       update_match!
-      
-      # Show the user that the proper action was taken and catch errors
-      
+
       replace_page_contents_with_updated_game_view
    end
 
@@ -78,8 +73,6 @@ class PlayerActionsController < ApplicationController
       modifier = params[:amount]
       Stalker.enqueue('PlayerProxy.play', match_id: params[:match_id], action: :raise, modifier: modifier)
       update_match!
-      
-      # Show the user that the proper action was taken and catch errors
       
       replace_page_contents_with_updated_game_view
    end

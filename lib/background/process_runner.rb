@@ -7,11 +7,11 @@ class ProcessRunner
       pid = Process.wait
       puts "Child pid #{pid}: terminated"
       puts "   trap: @@pipes: #{@@pipes.inspect}"
-      pipes_to_close = @@pipes.select  { |pipe| pid == pipe.pid }
+      pipes_to_close = @@pipes.select  { |pipe| !pipe.closed? && pid == pipe.pid }
       unless pipes_to_close.empty?
          pipe_to_close = pipes_to_close[0]
          puts "   trap: pipe_to_close: #{pipe_to_close.inspect}"
-         pipe_to_close.close unless pipe_to_close.closed?
+         pipe_to_close.close
          @@pipes.delete pipe_to_close
       end
    end

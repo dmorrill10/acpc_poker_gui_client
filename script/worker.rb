@@ -19,6 +19,9 @@ require File.expand_path('../../app/models/match', __FILE__)
 # To encapsulate dealer information
 require 'acpc_poker_basic_proxy'
 
+# To encapsulate poker actions
+require 'acpc_poker_types'
+
 # For game logic
 require File.expand_path('../../lib/web_application_player_proxy', __FILE__)
 
@@ -79,7 +82,7 @@ end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.
 Stalker.job('PlayerProxy.play') do |params|
-   @match_id_to_background_processes[params['match_id']][:player_proxy].play! params['action'].to_sym, params['modifier']
+   @match_id_to_background_processes[params['match_id']][:player_proxy].play! PokerAction.new(params['action'].to_sym, params['modifier'])
 end
 
 ## @todo Catch errors

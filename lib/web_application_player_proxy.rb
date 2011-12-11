@@ -43,8 +43,9 @@ class WebApplicationPlayerProxy
    end
    
    # Player action interface
-   def play!(action, modifier=nil)      
-      @player_proxy.play! action, modifier
+   # @see PlayerProxy#play!
+   def play!(action)      
+      @player_proxy.play! action
       update_match_state!
    end
       

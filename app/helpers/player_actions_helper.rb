@@ -78,7 +78,7 @@ module PlayerActionsHelper
       # What is the user's position relative to the dealer?
       
       # What are the list of betting actions so far in this match?
-      @betting_actions = @match_state.list_of_betting_actions
+      #@betting_actions
 
       # What was the last action?
       @last_action = @match_state.last_action

@@ -192,16 +192,6 @@ class MatchState
       @match_state_string.last_action
    end
    
-   # @see MatchstateString#last_action_type
-   def last_action_type
-      @match_state_string.last_action_type
-   end
-   
-   # @see MatchstateString#raise_amount
-   def raise_amount
-      @match_state_string.raise_amount
-   end
-   
    # @see MatchstateString#round
    def round
       @match_state_string.round
@@ -388,15 +378,13 @@ class MatchState
    def update_state_of_players!
       last_player_to_act = @players[player_who_acted_last_index]
       
-      puts "   update_state_of_players!: last_player_to_act: #{last_player_to_act}, action: #{last_action}, pot: #{@pot.inspect}"      
-      
-      case last_action_type
-         when ACTION_TYPES[:call]
+      case last_action.to_acpc
+         when 'c'
             @pot.take_call! last_player_to_act
-         when ACTION_TYPES[:fold]
+         when 'f'
             last_player_to_act.has_folded = true
-         when ACTION_TYPES[:raise]
-            amount_to_raise_to = raise_amount || raise_size_in_this_round +
+         when 'r'
+            amount_to_raise_to = last_action.modifier || raise_size_in_this_round +
                                                 @pot.players_involved_and_their_amounts_contributed[last_player_to_act] +
                                                 @pot.amount_to_call(last_player_to_act)
             @pot.take_raise! last_player_to_act, amount_to_raise_to

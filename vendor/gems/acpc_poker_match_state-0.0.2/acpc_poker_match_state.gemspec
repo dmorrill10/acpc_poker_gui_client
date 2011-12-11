@@ -12,6 +12,10 @@ Gem::Specification.new do |s|
   s.description = %q{Match state data manager.}
   
   s.add_development_dependency 'acpc_poker_types'
+  
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'mocha'
+  s.add_development_dependency 'simplecov'
 
   s.rubyforge_project = "acpc_poker_match_state"
 

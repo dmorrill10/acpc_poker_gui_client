@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 # Gems
+require 'acpc_poker_types'
 require 'acpc_poker_basic_proxy'
 
 class TestingBot
@@ -19,11 +20,11 @@ class TestingBot
          begin
             case (counter % 3)
                when 0
-                  proxy_bot.send_action :call
+                  proxy_bot.send_action PokerAction.new(:call)
                when 1
-                  proxy_bot.send_action :fold
+                  proxy_bot.send_action PokerAction.new(:fold)
                when 2
-                  proxy_bot.send_action :raise
+                  proxy_bot.send_action PokerAction.new(:raise)
             end
             counter += 1
             proxy_bot.receive_match_state_string

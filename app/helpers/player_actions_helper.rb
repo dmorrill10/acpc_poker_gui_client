@@ -1,4 +1,6 @@
 
+# Gems
+require 'acpc_poker_types'
 require 'acpc_poker_match_state'
 
 # Helpers for +PlayerActions+ controller and views.
@@ -38,8 +40,19 @@ module PlayerActionsHelper
 
       # Who are the players in this game?
       players = @match_slice.players
+      
+      # What are the chip balances for each player?
+      @chip_balances = players.inject({}) do |balances, player|
+         balances[player['name']] = player['chip_balance']
+         balances
+      end
+      
       @user = players.delete_at(AcpcPokerMatchStateDefs::USERS_INDEX)
+      @user['hole_cards'] = Hand.draw_cards @user['hole_cards']
       @opponents = players
+      @opponents.each do |opponent|
+         opponent['hole_cards'] = Hand.draw_cards opponent['hole_cards']
+      end
 
       # Is it the user's turn to act?
       @users_turn_to_act = @match_slice.users_turn_to_act?
@@ -96,13 +109,6 @@ module PlayerActionsHelper
    
       # Has the match ended?
       @match_ended = @match_slice.match_ended?
-
-      # What is the raise size in this round?
-
-      # What are the chip balances for each player?
-      
-      puts "   PlayerActionsHelper: setup_match_view: @match_slice_index: #{@match_slice_index}, @match_state: #{@match_state}"
-      
    end
    
    # Updates the current match state.

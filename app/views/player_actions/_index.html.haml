@@ -17,12 +17,15 @@
       %li= "This match has #{@match.number_of_hands} hands"
       // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
       // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
-      
+      %ul#chip_balances
+         %li.title Chip balances:
+         - @chip_balances.each do |player_name, balance|
+            %li= "#{player_name}: #{balance}"
       // @todo The submit button is actually displayed so this function may not have the best name
       %li.meta_action
          = hidden_update_state_form @match_id, @match_slice_index, !(@users_turn_to_act || @match_ended)
-      .meta_action
-         %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?"
+      %li.meta_action
+         %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended
 
 .information_container
    %ul#information_about_opponents

@@ -40,7 +40,7 @@ $text_color: contrast-color($background_color);
 $vertical_buffer: 10px;
 $horizontal_buffer: $vertical_buffer;
 
-$player_information_height: 120px;
+$player_information_height: 300px;
 $player_information_width: 300px;
 
 $community_information_height: $player_information_height * 1.5;
@@ -51,7 +51,7 @@ $page_height: 2 * $player_information_height + $community_information_height + 2
 $match_information_height: 400px;
 $match_information_width: 300px;
 
-$action_dashboard_height: 300px;
+$action_dashboard_height: 200px;
 $action_dashboard_width: 200px;
 
 $page_width: $match_information_width + 2 * $horizontal_buffer + $player_information_width + $action_dashboard_width + 6 * $border_width;

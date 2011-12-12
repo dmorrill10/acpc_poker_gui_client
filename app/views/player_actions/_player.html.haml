@@ -2,6 +2,8 @@
 %ul.player_information
    %li.title= "#{player['name']}"
    
+   %li= "#{player['chip_stack']}"
+   
    //@todo generalize this
    // @todo not sure how strings should be arranged to maximize reusability
    - seat_message = "Is in seat #{player['seat']}"
@@ -14,18 +16,10 @@
    - else
       %li.seat= "#{seat_message} and #{is_next_to_the_dealer_message.sub(/#1/, 'seats')}."
    
-   - if player['chip_balance'] == 1
-      %li.chip_balance= "Has won #{player['chip_balance']} chip."
-   - elsif player['chip_balance'] > 1
-      %li.chip_balance= "Has won #{player['chip_balance']} chips."
-   - elsif player['chip_balance'] == -1
-      %li.chip_balance= "Has lost #{-player['chip_balance']} chip."
-   - elsif player['chip_balance'] < -1
-      %li.chip_balance= "Has lost #{-player['chip_balance']} chips."
-   - else
-      %li.chip_balance= "Has not won any chips."
-   
    //@todo make this look nicer
    //%li.last_action= "Last action was #{player['last_action']}"
-   %li.cards= "Holds: #{player['hole_cards']}"
+   %ul.cards
+      - player['hole_cards'].each do |card|
+         %li#card= image_tag "#{card.image_path}"
+   
    %li.actions_taken_in_current_round= "Actions taken in the current round: #{player['actions_taken_in_current_round']}"

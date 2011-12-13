@@ -41,10 +41,10 @@ $text_color: contrast-color($background_color);
 $vertical_buffer: 10px;
 $horizontal_buffer: $vertical_buffer;
 
-$player_information_height: 300px;
+$player_information_height: 250px;
 $player_information_width: 300px;
 
-$community_information_height: $player_information_height * 1.5;
+$community_information_height: $player_information_height * 1;
 $community_information_width: $player_information_width;
 
 $page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 6 * $border_width;
@@ -146,28 +146,21 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    top: $page_height - ($action_dashboard_height + 2 * $border_width);
 }
 
-.cards {
+ul.cards {
    @include horizontal-list(false);
    margin: 0;
-   height: 300px;
-   width: 400px;
 }
 
-li.card {
+.card {
    $horizontal_margin: -180px;
-   /*padding: -100px;*/
+   padding: -100px;
    margin: {
       top: -100px;
       left: $horizontal_margin;
       right: $horizontal_margin;
-      bottom: 100px;
+      bottom: -100px;
    }
-   padding: -100px;
-   
-   height: 300px;
-   width: 200px;
    
    position: relative;
-   top: -65px;
    left: -65px;
 }

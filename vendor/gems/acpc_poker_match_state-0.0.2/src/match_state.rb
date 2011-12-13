@@ -163,16 +163,11 @@ class MatchState
    
    # @return [Boolean] +true+ if the hand has ended, +false+ otherwise.
    def hand_ended?
-      puts "   MatchState: hand_ended?: @match_state_string: #{@match_state_string}, player information: #{@players}"
-      hand_ended = less_than_two_active_players? || reached_showdown?
-      puts "   MatchState: hand_ended?: #{hand_ended}"
-      hand_ended
+      less_than_two_active_players? || reached_showdown?
    end
    
    def less_than_two_active_players?      
-      bool = active_players.length < 2
-      puts "   MatchState: less_than_two_active_players?: #{bool}"
-      bool
+      active_players.length < 2
    end
    
    def reached_showdown?
@@ -345,12 +340,13 @@ class MatchState
       reset_players!
    end
    
-   def reset_players!
+   def reset_players!      
       @players.each_index do |i|
          @players[i].is_all_in = false
          @players[i].has_folded = false
          @players[i].chip_stack = ChipStack.new @game_definition.list_of_player_stacks[i] # @todo if @is_doyles_game
          @players[i].position_relative_to_dealer = position_relative_to_dealer @players[i].seat
+         @players[i].hole_cards = Hand.new
       end
       
       reset_actions_taken_in_current_round!

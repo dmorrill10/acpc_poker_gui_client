@@ -51,7 +51,15 @@ module PlayerActionsHelper
       @user['hole_cards'] = Hand.draw_cards @user['hole_cards']
       @opponents = players
       @opponents.each do |opponent|
-         opponent['hole_cards'] = Hand.draw_cards opponent['hole_cards']
+         opponent['hole_cards'] = if opponent['hole_cards'].empty?
+            # @todo need game def info to do this properly should do something like this:
+            #  cards_for_each_player = (0..@game_definition.number_of_hole_cards-1).inject(Hand.new) do |hand, i|
+            #     hand << Card.new
+            #  end
+            (0..1).inject(Hand.new) { |hand, i| hand << Card.new }
+         else
+            Hand.draw_cards opponent['hole_cards']
+         end
       end
 
       # Is it the user's turn to act?

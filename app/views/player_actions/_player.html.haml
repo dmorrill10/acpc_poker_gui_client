@@ -15,11 +15,7 @@
       %li.seat= "#{seat_message} and #{is_next_to_the_dealer_message.sub(/#1/, 'seat')}."
    - else
       %li.seat= "#{seat_message} and #{is_next_to_the_dealer_message.sub(/#1/, 'seats')}."
-   
-   //@todo make this look nicer
-   //%li.last_action= "Last action was #{player['last_action']}"
+   %li.actions_taken_in_current_round= "Actions taken in the current round: #{player['actions_taken_in_current_round']}"
    %ul.cards
       - player['hole_cards'].each do |card|
-         %li#card= image_tag "#{card.image_path}"
-   
-   %li.actions_taken_in_current_round= "Actions taken in the current round: #{player['actions_taken_in_current_round']}"
+         %li.card= image_tag "#{card.image_path}", size: '200x300'

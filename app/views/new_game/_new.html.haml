@@ -1,6 +1,5 @@
 //%h1= title
 %hr
-
 = simple_form_for @match, url: create_new_match_url, remote: true, html: {class: 'create_new_match_form'} do |f|
    = f.input :match_name
    // @todo parse this as given to get the number of players

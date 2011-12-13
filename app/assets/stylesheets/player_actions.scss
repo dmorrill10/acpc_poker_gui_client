@@ -1,6 +1,7 @@
 @import 'sassy-buttons';
 @import 'compass/css3/images';
 @import "compass/utilities/color/contrast";
+@import "compass/typography/lists/horizontal-list";
 
 $no_buffer: 0 0 0 0;
 .information_container {
@@ -143,4 +144,30 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    position: absolute;
    left: $match_information_width + $player_information_width + 6 * $border_width;
    top: $page_height - ($action_dashboard_height + 2 * $border_width);
+}
+
+.cards {
+   @include horizontal-list(false);
+   margin: 0;
+   height: 300px;
+   width: 400px;
+}
+
+li.card {
+   $horizontal_margin: -180px;
+   /*padding: -100px;*/
+   margin: {
+      top: -100px;
+      left: $horizontal_margin;
+      right: $horizontal_margin;
+      bottom: 100px;
+   }
+   padding: -100px;
+   
+   height: 300px;
+   width: 200px;
+   
+   position: relative;
+   top: -65px;
+   left: -65px;
 }

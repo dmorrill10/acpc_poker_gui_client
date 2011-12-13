@@ -4,7 +4,6 @@
       setTimeout("update_game_state()", 100);
       // @todo Move this out of the view into a javascript helper file?
       function update_game_state() {
-         alert('Updating match state');
          $('.update_match_state_button').submit();
       };
 
@@ -35,7 +34,9 @@
          
 .information_container
    %ul#community_information
-      %li#board_cards= "Board cards: #{@board_cards}"
+      %ul.cards
+         - @board_cards.each do |card|
+            %li.card= image_tag "#{card.image_path}", size: '200x300'
       %li#pot= "Pot size: #{@pot_size}"
       %li#round= "Round number: #{@round + 1}"
       

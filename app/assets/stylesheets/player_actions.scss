@@ -14,8 +14,11 @@ ul {
    margin: $no_buffer;
 }
 
+$list_element_padding: 3px;
+
 li {
-   padding: 3px;
+   padding: $list_element_padding;
+   word-wrap: break-word;
 }
 
 $border_width: 5px;
@@ -151,6 +154,17 @@ ul.cards {
    margin: 0;
 }
 
+$card_height: 300px;
+$card_width: 200px;
+
+@mixin set_image_size($height, $width) {
+   img {
+      height: $height;
+      width: $width;
+   }   
+}
+
+
 .card {
    $horizontal_margin: -180px;
    padding: -100px;
@@ -163,4 +177,24 @@ ul.cards {
    
    position: relative;
    left: -65px;
+   
+   @include set_image_size($card_height, $card_width);
+}
+
+$button_diameter: $card_width/5;
+
+ul.buttons {
+   @include horizontal-list(false);
+   float: right;
+   $button_buffer: 10px;
+   $button_list_height: $button_diameter + $button_buffer;
+   $button_list_width: $button_list_height * 2;
+   height: $button_list_height;
+   width: $button_list_width;
+   margin: 0;
+   padding: 0;
+}
+
+.button {
+   @include set_image_size($button_diameter, $button_diameter);
 }

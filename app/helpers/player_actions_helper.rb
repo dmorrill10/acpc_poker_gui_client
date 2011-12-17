@@ -117,7 +117,7 @@ module PlayerActionsHelper
       # How many players are there?
 
       # Has the hand ended?
-      @hand_ended = @match_slice.hand_ended?
+      @hand_ended = @match_slice.hand_ended?         
    
       # Has the match ended?
       @match_ended = @match_slice.match_ended?

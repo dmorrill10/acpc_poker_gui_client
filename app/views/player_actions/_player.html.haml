@@ -3,19 +3,16 @@
    %li.title= "#{player['name']}"
    
    %li= "#{player['chip_stack']}"
+   %li.actions_taken_in_current_round= "Actions taken in the current round: #{player['actions_taken_in_current_round']}"
    
    //@todo generalize this
    // @todo not sure how strings should be arranged to maximize reusability
-   - seat_message = "Is in seat #{player['seat']}"
-   - is_the_dealer_message = "is the dealer"
-   - is_next_to_the_dealer_message = "is #{player['position_relative_to_dealer'] + 1} #1 to the dealer's left"
-   - if 1 == player['position_relative_to_dealer']
-      %li.seat= "#{seat_message} and #{is_the_dealer_message}."
-   - elsif 0 == player['position_relative_to_dealer']
-      %li.seat= "#{seat_message} and #{is_next_to_the_dealer_message.sub(/#1/, 'seat')}."
-   - else
-      %li.seat= "#{seat_message} and #{is_next_to_the_dealer_message.sub(/#1/, 'seats')}."
-   %li.actions_taken_in_current_round= "Actions taken in the current round: #{player['actions_taken_in_current_round']}"
+   %ul.buttons
+      - if 1 == player['position_relative_to_dealer']
+         %li.button= image_tag "DealerButton.svg"
+         %li.button= image_tag "SmallBlind.svg"
+      - else
+         %li.button= image_tag "BigBlind.svg"
    %ul.cards
       - player['hole_cards'].each do |card|
-         %li.card= image_tag "#{card.image_path}", size: '200x300'
+         %li.card= image_tag "#{card.image_path}"

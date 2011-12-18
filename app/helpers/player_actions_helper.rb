@@ -41,7 +41,9 @@ module PlayerActionsHelper
       # What is the pot size?
       pot = @match_slice.pot[0]
       @pot_size = pot.inject(0) { |sum, key_value_pair| sum += key_value_pair[1] }
-
+      
+      @pot_distribution = @match_slice.pot_distribution[0]
+      
       # Who are the players in this game?
       players = @match_slice.players
       

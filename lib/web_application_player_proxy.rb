@@ -71,9 +71,16 @@ class WebApplicationPlayerProxy
                 hash
             end]
       
+      pot_distribution = [match_state.pot.players_involved_and_their_amounts_received.inject({}) do
+                             |hash, player_and_value|
+                             hash[player_and_value[0].name] = player_and_value[1]
+                             hash
+                         end]
+      
       begin
          match.slices.create!(state_string: match_state.match_state_string.to_s,
                               pot: pot,
+                              pot_distribution: pot_distribution,
                               seats_of_players_in_side_pots: seats_of_players_in_side_pots,
                               hand_has_ended: match_state.hand_ended?,
                               match_has_ended: match_state.match_ended?,

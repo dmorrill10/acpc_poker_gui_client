@@ -14,12 +14,16 @@ class SidePot < ChipStack
    # @return [Hash] The set of players involved in this side-pot and the amounts they've contributed to this side-pot.
    attr_reader :players_involved_and_their_amounts_contributed
    
+   # @return [Hash] The set of players involved in this side-pot and the amounts they've received from this side-pot.
+   attr_reader :players_involved_and_their_amounts_received
+   
    # @param [Player] initiating_player The player that initiated this side-pot.
    # @param [Integer] initial_amount The initial value of this side-pot.
    # @raise (see Stack#initialize)
    def initialize(initiating_player, initial_amount)
       initiating_player.take_from_chip_stack! initial_amount
       @players_involved_and_their_amounts_contributed = {initiating_player => initial_amount}
+      @players_involved_and_their_amounts_received = {}
       
       super initial_amount
    end
@@ -97,6 +101,7 @@ class SidePot < ChipStack
       if 1 == players_to_distribute_to.length         
          players_to_distribute_to[0].take_winnings! @value
          take_from! @value
+         @players_involved_and_their_amounts_received[players_to_distribute_to[0]] = @value
       elsif
          distribute_winnings_amongst_multiple_players! players_to_distribute_to, board_cards
       end
@@ -131,7 +136,10 @@ class SidePot < ChipStack
       
       # Split the side-pot's value among the winners
       amount_each_player_wins = (@value/winning_players.length).floor
-      winning_players.each { |player| player.take_winnings! amount_each_player_wins }
+      winning_players.each do |player|
+         player.take_winnings! amount_each_player_wins
+         @players_involved_and_their_amounts_received[player] = amount_each_player_wins
+      end
 
       # Remove chips from this side-pot
       take_from! amount_each_player_wins * winning_players.length

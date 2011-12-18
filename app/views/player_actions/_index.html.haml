@@ -43,9 +43,10 @@
       %li#state= "Match state: #{@match_state}"
       
       - if @match_ended
+         %li "Pot Distribution: #{@pot_distribution}".
          %li The match has ended, thanks for playing!
       - elsif @hand_ended
-         %li The hand has ended, please proceed to the next thand.
+         %li "Pot Distribution: #{@pot_distribution}".
 
 .information_container
    #users_information

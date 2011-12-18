@@ -65,11 +65,15 @@ class WebApplicationPlayerProxy
       seats_of_players_in_side_pots = match_state.pot.players_involved_and_their_amounts_contributed.keys.map { |player| player.seat }
       players = match_state.players.map { |player| player.to_hash }
       
-      puts "   WebApplicationPlayerProxy: update_database!: index of the next match state: #{match.slices.length}, match_state.match_state_string: #{match_state.match_state_string}, match_state.hand_ended?: #{match_state.hand_ended?}"
+      pot = [match_state.pot.players_involved_and_their_amounts_contributed.inject({}) do
+                |hash, player_and_value|
+                hash[player_and_value[0].name] = player_and_value[1]
+                hash
+            end]
       
       begin
          match.slices.create!(state_string: match_state.match_state_string.to_s,
-                              pot: [match_state.pot_size],
+                              pot: pot,
                               seats_of_players_in_side_pots: seats_of_players_in_side_pots,
                               hand_has_ended: match_state.hand_ended?,
                               match_has_ended: match_state.match_ended?,

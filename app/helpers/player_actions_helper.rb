@@ -38,6 +38,10 @@ module PlayerActionsHelper
       # What is the match state?
       @match_state = MatchstateString.new @match_slice.state_string
 
+      # What is the pot size?
+      pot = @match_slice.pot[0]
+      @pot_size = pot.inject(0) { |sum, key_value_pair| sum += key_value_pair[1] }
+
       # Who are the players in this game?
       players = @match_slice.players
       
@@ -47,6 +51,10 @@ module PlayerActionsHelper
          balances
       end
       
+      players.each do |player|
+         player['amount_in_pot'] = pot[player['name']]
+      end
+
       @user = players.delete_at(AcpcPokerMatchStateDefs::USERS_INDEX)
       @user['hole_cards'] = Hand.draw_cards @user['hole_cards']
       @opponents = players
@@ -73,9 +81,6 @@ module PlayerActionsHelper
       
       # Who was the last player to act?
       
-      # What is the pot size?
-      @pot_size = @match_slice.pot[0]
-
       # What are the stack sizes of all the players?
 
       # What are the user's cards?

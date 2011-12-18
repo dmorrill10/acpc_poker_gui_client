@@ -8,7 +8,7 @@ class MatchSlice
 
    field :state_string, type: String
    
-   # @return [Array<Integer>] This match's pot of chips, which consists of an array of side pot values.
+   # @return [Array<Hash<String, Integer>>] This match's pot of chips, which consists of an array of side pot values.
    #  It is parrallel to +seat_of_players_in_side_pots+.
    field :pot, type: Array
    

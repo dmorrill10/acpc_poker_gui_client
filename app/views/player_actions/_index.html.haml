@@ -30,27 +30,39 @@
    %ul#information_about_opponents
       - @opponents.each do |opponent|
          %li#information_about_an_opponent
-            = render partial: 'player', locals: {player: opponent}
+            = render partial: 'player_information', locals: {player: opponent,
+               player_with_the_dealer_button: @player_with_the_dealer_button,
+               player_who_submitted_small_blind: @player_who_submitted_small_blind, 
+               player_who_submitted_big_blind: @player_who_submitted_big_blind,
+               player_whose_turn_is_next: @player_whose_turn_is_next,
+               match_ended: @match_ended}
          
 .information_container
    %ul#community_information
       %ul.cards
          - @board_cards.each do |card|
-            %li.card= image_tag "#{card.image_path}", size: '200x300'
-      %li#pot= "Pot size: #{@pot_size}"
-      %li#round= "Round number: #{@round + 1}"
+            %li.card= image_tag "#{card.image_path}"
+      %li#pot= "Pot Size: #{@pot_size}"
       
-      %li#state= "Match state: #{@match_state}"
+      //%li#state= "Match state: #{@match_state}"
       
+      - if @hand_ended
+         %ul#hand_results
+            %li.title Hand Result:
+            - @pot_distribution.each do |player_name, amount|
+               %li= "  #{player_name} won #{amount} chips."
+            %li= "Action Summary: #{@action_summary}"
       - if @match_ended
-         %li "Pot Distribution: #{@pot_distribution}".
          %li The match has ended, thanks for playing!
-      - elsif @hand_ended
-         %li "Pot Distribution: #{@pot_distribution}".
 
 .information_container
    #users_information
-      = render partial: 'player', locals: {player: @user}
+      = render partial: 'player_information', locals: {player: @user,
+         player_with_the_dealer_button: @player_with_the_dealer_button,
+         player_who_submitted_small_blind: @player_who_submitted_small_blind, 
+         player_who_submitted_big_blind: @player_who_submitted_big_blind,
+         player_whose_turn_is_next: @player_whose_turn_is_next,
+         match_ended: @match_ended}
 
 .information_container
    #action_dashboard

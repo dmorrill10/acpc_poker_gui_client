@@ -72,7 +72,7 @@ class MatchstateString
    # @return [String] The MatchstateString in raw text form.
    def to_str      
       build_match_state_string @position_relative_to_dealer, @hand_number,
-         betting_sequence_string(@betting_sequence),
+         betting_sequence_string,
          hole_card_strings(@list_of_hole_card_hands), @board_cards
    end
    
@@ -115,6 +115,15 @@ class MatchstateString
    # @return [Integer] The number of actions in the current round.
    def number_of_actions_in_current_round
       @betting_sequence[round].length
+   end
+   
+   def betting_sequence_string
+      string = ''
+      (round + 1).times do |i|
+         string += (@betting_sequence[i].map { |action| action.to_acpc }).join('')
+         string += '/' unless i == round
+      end
+      string
    end
    
    private
@@ -192,14 +201,5 @@ class MatchstateString
       end
       
       (list_of_hands.inject('') { |string, hand|  string += hand.to_s + '|' }).chop
-   end
-   
-   def betting_sequence_string(betting_sequence)
-      string = ''
-      (round + 1).times do |i|
-         string += (betting_sequence[i].map { |action| action.to_acpc }).join('')
-         string += '/' unless i == round
-      end
-      string
    end
 end

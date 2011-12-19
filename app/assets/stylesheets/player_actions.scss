@@ -44,10 +44,10 @@ $text_color: contrast-color($background_color);
 $vertical_buffer: 10px;
 $horizontal_buffer: $vertical_buffer;
 
-$player_information_height: 250px;
-$player_information_width: 300px;
+$player_information_height: 240px;
+$player_information_width: 350px;
 
-$community_information_height: $player_information_height * 1;
+$community_information_height: $player_information_height * 1.5;
 $community_information_width: $player_information_width;
 
 $page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 6 * $border_width;
@@ -197,4 +197,10 @@ ul.buttons {
 
 .button {
    @include set_image_size($button_diameter, $button_diameter);
+}
+
+#acting_player {
+   border-style: solid;
+   border-color: #ff0;
+   border-width: thick;
 }

@@ -1,16 +1,14 @@
 
-%ul.player_information
-   %li.title= "#{player['name']}"
-   %li= if player['amount_in_pot'] then "#{player['chip_stack']} : #{player['amount_in_pot']}" else "#{player['chip_stack']}" end
-   %li.actions_taken_in_current_round= "Actions taken in the current round: #{player['actions_taken_in_current_round']}"
-   //@todo generalize this
-   // @todo not sure how strings should be arranged to maximize reusability
-   %ul.buttons
-      - if 1 == player['position_relative_to_dealer']
-         %li.button= image_tag "DealerButton.svg"
-         %li.button= image_tag "SmallBlind.svg"
-      - else
-         %li.button= image_tag "BigBlind.svg"
-   %ul.cards
-      - player['hole_cards'].each do |card|
-         %li.card= image_tag "#{card.image_path}"
+%li.title= "#{player['name']}"
+%li= if player['amount_in_pot'] then "#{player['chip_stack']} : #{player['amount_in_pot']}" else "#{player['chip_stack']}" end
+%li.actions_taken_in_current_round= "Actions taken in the current round: #{player['actions_taken_in_current_round']}"
+%ul.buttons
+   - if player_with_the_dealer_button == player['name']
+      %li.button= image_tag "DealerButton.svg"
+   - if player_who_submitted_small_blind == player['name']
+      %li.button= image_tag "SmallBlind.svg"
+   - if player_who_submitted_big_blind == player['name']
+      %li.button= image_tag "BigBlind.svg"
+%ul.cards
+   - player['hole_cards'].each do |card|
+      %li.card= image_tag "#{card.image_path}"

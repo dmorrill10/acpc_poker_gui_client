@@ -76,21 +76,27 @@ module PlayerActionsHelper
       @users_turn_to_act = @match_slice.users_turn_to_act?
       
       # Who has the dealer button?
+      @player_with_the_dealer_button = @match_slice.player_turn_information['with_the_dealer_button']
       
       # Who paid blinds?
+      @player_who_submitted_big_blind = @match_slice.player_turn_information['submitted_big_blind']
+      @player_who_submitted_small_blind = @match_slice.player_turn_information['submitted_small_blind']
 
       # Who's turn is it?
-      
-      # Who was the last player to act?
-      
-      # What are the stack sizes of all the players?
-
-      # What are the user's cards?
-
-      # What are the opponent's cards (after a showdown)?
+      @player_whose_turn_is_next = @match_slice.player_turn_information['whose_turn_is_next']
 
       # What were the sequence of actions in this hand?
-
+      player_acting_sequence = @match_slice.player_acting_sequence
+      betting_sequence = @match_slice.betting_sequence
+      if player_acting_sequence
+         player_acting_sequence.scan(/./).each_index do |i|
+            if player_acting_sequence[i].to_i == @user['seat']
+               betting_sequence[i] = betting_sequence[i].capitalize
+            end
+         end
+      end
+      @action_summary = betting_sequence
+      
       # Which round is it?
       @round = @match_state.round
 
@@ -107,21 +113,12 @@ module PlayerActionsHelper
       # What is the name of the match?
       @match_name = @match.parameters[:match_name]
 
-      # What is the user's position relative to the dealer?
-      
-      # What are the list of betting actions so far in this match?
-      #@betting_actions
-
       # What was the last action?
       @last_action = @match_state.last_action
 
       # Which actions are legal?
 
       # Which players are still active (only in multiplayer)?
-
-      # How many hands are alloted for this match?
-
-      # How many players are there?
 
       # Has the hand ended?
       @hand_ended = @match_slice.hand_ended?         
@@ -143,9 +140,7 @@ module PlayerActionsHelper
       if new_match_state_available?
          @match = current_match
       end
-      next_match_slice = @match.slices[@match_slice_index] 
-      puts "   PlayerActionsHelper: @match_slice_index: #{@match_slice_index}, next_match_slice!: #{next_match_slice}"
-      next_match_slice
+      @match.slices[@match_slice_index]
    end
    
    # @todo

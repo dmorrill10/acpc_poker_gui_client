@@ -9,18 +9,23 @@ class MatchSlice
    field :state_string, type: String
    
    # @return [Array<Hash<String, Integer>>] This match's pot of chips.
-   #  It is parrallel to +seat_of_players_in_side_pots+.
+   #  Each element contains a mapping between a player's name and the amount that player has put in the pot.
    field :pot, type: Array
    
-   # @return [Array<Hash<String, Integer>>] The distribution of this match's pot of chips.
+   # @return [Array<Hash<String, Integer>>] The distribution of this match's pot of chips to each player at the table.
    field :pot_distribution, type: Array
-   
-   # @return [Array<Array>] The seats of the players in this match's side pots.
-   #  It is parrallel to +pot+.
-   field :seats_of_players_in_side_pots, type: Array
    
    # @return [Array<Hash>] The hash forms of the players in this match.
    field :players, type: Array
+   
+   # @return [Hash<Symbol, String>] Information about turns and blinds.
+   field :player_turn_information, type: Hash
+   
+   # @return [String] The current betting sequence.
+   field :betting_sequence, type: String
+   
+   # @return [String] The sequence of seats of acting players.
+   field :player_acting_sequence, type: String
    
    # Match interface
    field :hand_has_ended, type: Boolean

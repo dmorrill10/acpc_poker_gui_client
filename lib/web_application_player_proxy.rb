@@ -48,6 +48,8 @@ class WebApplicationPlayerProxy
       @player_proxy.play! action
       update_match_state!
    end
+   
+   private
       
    def update_match_state!
       number_of_match_states_saved = 0
@@ -60,35 +62,38 @@ class WebApplicationPlayerProxy
    
    def update_database!(match_state)
       match = Match.find(@match_id)
-      
-      # @todo This only works for two player
-      seats_of_players_in_side_pots = match_state.pot.players_involved_and_their_amounts_contributed.keys.map { |player| player.seat }
       players = match_state.players.map { |player| player.to_hash }
-      
-      pot = [match_state.pot.players_involved_and_their_amounts_contributed.inject({}) do
-                |hash, player_and_value|
-                hash[player_and_value[0].name] = player_and_value[1]
-                hash
-            end]
-      
-      pot_distribution = [match_state.pot.players_involved_and_their_amounts_received.inject({}) do
-                             |hash, player_and_value|
-                             hash[player_and_value[0].name] = player_and_value[1]
-                             hash
-                         end]
+      pot = list_of_side_pot_information match_state.pot.players_involved_and_their_amounts_contributed
+      pot_distribution = list_of_side_pot_information match_state.pot.players_involved_and_their_amounts_received
+      player_turn_information = {submitted_small_blind: match_state.player_who_submitted_small_blind.name,
+         submitted_big_blind: match_state.player_who_submitted_big_blind.name,
+         whose_turn_is_next: match_state.player_whose_turn_is_next.name,
+         with_the_dealer_button: match_state.player_with_the_dealer_button.name}
+      betting_sequence = match_state.match_state_string.betting_sequence_string
       
       begin
-         match.slices.create!(state_string: match_state.match_state_string.to_s,
+         match.slices.create!(hand_has_ended: match_state.hand_ended?,
+                              match_has_ended: match_state.match_ended?,
+                              state_string: match_state.match_state_string.to_s,
+                              # @todo Shouldn't need to pass this around
+                              users_turn_to_act: match_state.users_turn_to_act?,
+                              players: players,
                               pot: pot,
                               pot_distribution: pot_distribution,
-                              seats_of_players_in_side_pots: seats_of_players_in_side_pots,
-                              hand_has_ended: match_state.hand_ended?,
-                              match_has_ended: match_state.match_ended?,
-                              users_turn_to_act: match_state.users_turn_to_act?,
-                              players: players)
+                              player_turn_information: player_turn_information,
+                              betting_sequence: betting_sequence,
+                              player_acting_sequence: match_state.player_acting_sequence_string
+                              )
          match.save
       rescue => e
          raise UnableToCreateMatchSlice, e.message
       end
+   end
+   
+   def list_of_side_pot_information(player_to_value_hash)
+      [player_to_value_hash.inject({}) do |hash, player_and_value|
+          hash[player_and_value[0].name] = player_and_value[1]
+          hash
+      end]
    end
 end

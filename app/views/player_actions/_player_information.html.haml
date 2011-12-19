@@ -1,7 +1,7 @@
 
 // @todo fix this
 %ul.player_information
-   - if !match_ended && player_whose_turn_is_next == player['name']
+   - if !hand_ended && player_whose_turn_is_next == player['name']
       #acting_player
          = render partial: 'player', locals: {player: player,
             player_with_the_dealer_button: @player_with_the_dealer_button,

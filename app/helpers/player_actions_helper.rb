@@ -11,14 +11,14 @@ module PlayerActionsHelper
    def hidden_update_state_form(match_id, match_slice_index, hand_ended=true)
       form_tag update_game_state_url, :remote => true do
          form = hidden_match_fields match_id, match_slice_index
-         form << submit_tag('Proceed to the next hand', :class => 'update_match_state_button', disabled: !hand_ended)
+         form << submit_tag('Proceed to the next hand', id: 'update_match_state_button', disabled: !hand_ended)
       end
    end
    
    def hidden_check_for_new_match_state_form(match_id, match_slice_index)
       form_tag check_for_new_match_state_url, remote: true do
          form = hidden_match_fields match_id, match_slice_index
-         form << submit_tag('Check for new match state', class: 'check_for_new_match_state', id: 'check_for_new_match_state', style: 'visibility: hidden')
+         form << submit_tag('Check for new match state', id: 'check_for_new_match_state', style: 'visibility: hidden')
       end
    end
        
@@ -117,6 +117,7 @@ module PlayerActionsHelper
       @last_action = @match_state.last_action
 
       # Which actions are legal?
+      @legal_actions = @match_slice.legal_actions
 
       # Which players are still active (only in multiplayer)?
 

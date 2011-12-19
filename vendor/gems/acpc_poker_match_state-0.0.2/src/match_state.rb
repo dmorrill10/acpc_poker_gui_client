@@ -1,4 +1,7 @@
 
+# System classes
+require 'set'
+
 # Local modules
 require File.expand_path('../acpc_poker_match_state_defs', __FILE__)
 
@@ -234,8 +237,17 @@ class MatchState
       active_players.length
    end
    
-   # @return [Array] An array of legal actions for the currently acting player.
+   # @return [Set] The set of legal actions for the currently acting player.
    def legal_actions
+      list_of_action_symbols = if 0 == @pot.amount_to_call(player_whose_turn_is_next)
+         [:check, :bet]
+      else
+         [:call, :fold, :raise]
+      end
+      
+      list_of_action_symbols.inject(Set.new) do |set, action_symbol|
+         set << PokerAction.new(action_symbol)
+      end         
    end
    
    # return [Integer] The minimum raise amount in the current round.

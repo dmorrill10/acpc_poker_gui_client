@@ -4,7 +4,7 @@
       setTimeout("update_game_state()", 100);
       // @todo Move this out of the view into a javascript helper file?
       function update_game_state() {
-         $('.update_match_state_button').submit();
+         $('#update_match_state_button').submit();
       };
 
 .information_container
@@ -24,7 +24,7 @@
       %li.meta_action
          = hidden_update_state_form @match_id, @match_slice_index, !(@users_turn_to_act || @match_ended)
       %li.meta_action
-         %p= button_to "Leave this game", leave_game_url, :class => 'leave', :id => 'leave', :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended
+         %p= button_to "Leave this game", leave_game_url, :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended
 
 .information_container
    %ul#information_about_opponents
@@ -66,10 +66,20 @@
 
 .information_container
    #action_dashboard
-      %h2 Actions
-      .action
-         %p= button "Call", call_url, 'call', match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-      .action
-         %p= button "Fold", fold_url, 'fold', match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-      .action
-         %p= button "Raise", raise_url, 'raise', amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+      %ul.actions
+         - fold_is_legal = false
+         - @legal_actions.each do |action|
+            %li.action
+               - case action
+                  - when 'c'
+                     %p= button "Call", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                  - when 'k'
+                     %p= button "Check", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                  - when 'b'
+                     %p= button "Bet", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                  - when 'r'
+                     %p= button "Raise", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                  - when 'f'
+                     - fold_is_legal = true
+         %li.action
+            %p= button "Fold", fold_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !(@users_turn_to_act && fold_is_legal)

@@ -70,6 +70,7 @@ class WebApplicationPlayerProxy
          whose_turn_is_next: match_state.player_whose_turn_is_next.name,
          with_the_dealer_button: match_state.player_with_the_dealer_button.name}
       betting_sequence = match_state.match_state_string.betting_sequence_string
+      legal_actions = match_state.legal_actions.to_a.map { |action| action.to_acpc }
       
       begin
          match.slices.create!(hand_has_ended: match_state.hand_ended?,
@@ -82,7 +83,8 @@ class WebApplicationPlayerProxy
                               pot_distribution: pot_distribution,
                               player_turn_information: player_turn_information,
                               betting_sequence: betting_sequence,
-                              player_acting_sequence: match_state.player_acting_sequence_string
+                              player_acting_sequence: match_state.player_acting_sequence_string,
+                              legal_actions: legal_actions
                               )
          match.save
       rescue => e

@@ -17,7 +17,7 @@ class PokerAction
    
    # @return [Hash<Symbol, String>] Representations of legal actions.
    # @todo support overloaded actions like bet and check LEGAL_ACTIONS = {bet: 'r', call: 'c', check: 'c', fold: 'f', raise: 'r'}
-   LEGAL_ACTIONS = {call: 'c', fold: 'f', raise: 'r'}
+   LEGAL_ACTIONS = {bet: 'b', call: 'c', check: 'k', fold: 'f', raise: 'r'}
    
    # @return [Set<Symbol>] The set of legal action symbols.
    LEGAL_SYMBOLS = Set.new LEGAL_ACTIONS.keys
@@ -29,7 +29,7 @@ class PokerAction
    LEGAL_ACPC_CHARACTERS = Set.new LEGAL_ACTIONS.values
    
    # @return [Set<String>] The set of legal ACPC action characters that may be accompanied by a modifier.
-   MODIFIABLE_ACTIONS = LEGAL_ACTIONS.select { |sym, char| 'r' == char }
+   MODIFIABLE_ACTIONS = LEGAL_ACTIONS.select { |sym, char| 'r' == char || 'b' == char }
    
    # @param [Symbol, String] action A representation of this action.
    # @param [ChipStack, NilClass] modifier A modifier for the action (i.e. a bet or raise size).

@@ -8,12 +8,12 @@ module ApplicationHelper
    # @param [String] url
    # @param [String] class_div
    # @param [Hash] options = Hash.new
-   def button(button_string, url, class_div, options = Hash.new)
-      form_tag url, :id => class_div, :remote => true do
+   def button(button_string, url, options = Hash.new)
+      form_tag url, :remote => true do
          s = if options[:confirm]
-            submit_tag button_string, :class => class_div, :confirm => options[:confirm], disabled: options[:disabled]
+            submit_tag button_string, :class => 'button', :confirm => options[:confirm], disabled: options[:disabled]
          else
-            submit_tag button_string, :class => class_div, disabled: options[:disabled]
+            submit_tag button_string, :class => 'button', disabled: options[:disabled]
          end
          # @todo Use centralized string names rather than local ones
          s << number_field_tag(:port_number) if options[:amount_field]
@@ -53,7 +53,7 @@ module ApplicationHelper
          form << hidden_field_tag(:random_seed, nil, :id => 'random_seed_hidden_field')
          form << hidden_field_tag(:player_names, nil, :id => 'player_names_hidden_field')
          
-         form << submit_tag('Hidden', :class => 'game_home_hidden_button', :style => 'visibility: hidden')
+         form << submit_tag('Hidden', :id => 'game_home_hidden_button', :style => 'visibility: hidden')
       end
    end
    

@@ -27,6 +27,9 @@ class MatchSlice
    # @return [String] The sequence of seats of acting players.
    field :player_acting_sequence, type: String
    
+   # @return [Array<String>] The legal actions of the currently acting player (in ACPC format).
+   field :legal_actions, type: Array
+   
    # Match interface
    field :hand_has_ended, type: Boolean
    field :match_has_ended, type: Boolean

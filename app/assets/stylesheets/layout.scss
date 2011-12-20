@@ -1,24 +1,10 @@
+$app_background: image-url('gray_texture.svg');
+$app_background_color: #505050;
+/*$container_background: ;*/
+$container_background_color: #003300;
 
 html, body {
-  background-color: #001100;
-  font-family: Verdana, Helvetica, Arial;
-  font-size: 14px;
-  padding: 0 0 0 0;
-  margin: 0 0 0 0;
-}
-
-a img {
-  border: none;
-}
-
-a {
-  color: #0000FF;
-}
-
-.clear {
-  clear: both;
-  height: 0;
-  overflow: hidden;
+  background: $app_background;
 }
 
 #container {
@@ -26,74 +12,20 @@ a {
   margin-left: auto;
   margin-bottom: auto;
   margin-right: auto;
+  padding: $default_container_padding;
   
   position: relative;
-  background-color: #1A0000;
-  /*padding: 20px 40px;*/
-  /*border: solid 1px black;*/
-  /*margin-top: 20px;*/
+  background-color: $container_background_color;
+  border-radius: $default_border_radius;
+
+  height: $page_height;
+  width: $page_width;
+  
+  @include soft_edges(mix($container_background_color, $app_background_color));
 }
 
-#flash_notice, #flash_error, #flash_alert {
-  padding: 5px 8px;
-  margin: 10px 0;
-}
-
-#flash_notice {
-  background-color: #CFC;
-  border: solid 1px #6C6;
-}
-
-#flash_error, #flash_alert {
-  background-color: #FCC;
-  border: solid 1px #C66;
-}
-
-form label {
-  display: block;
-  margin-bottom: 2px;
-}
-
-form .field, form .actions {
-  margin: 12px 0;
-}
-
-.fieldWithErrors {
-  display: inline;
-}
-
-.error_messages {
-  width: 400px;
-  border: 2px solid #CF0000;
-  padding: 0px;
-  margin-bottom: 20px;
-  background-color: #f0f0f0;
-  font-size: 12px;
-}
-
-.error_messages h2 {
-  text-align: left;
-  font-weight: bold;
-  padding: 5px 10px;
-  font-size: 12px;
-  margin: 0;
-  background-color: #c00;
-  color: #fff;
-}
-
-.error_messages p {
-  margin: 8px 10px;
-}
-
-.error_messages ul {
-  margin: 15px 0;
-}
-
-#user_nav {
-  margin: 15px 0;
-}
-
-input[type=checkbox] {
-  float: left;
-  margin-right: 8px;
+.information_container {
+   margin: 0;
+   color: $default_primary_text_color;
+   @include button;
 }

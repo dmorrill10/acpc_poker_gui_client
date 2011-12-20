@@ -1,0 +1,5 @@
+
+#new_match_form {
+   @include container_formatting;
+   @include soft_edges($default_border_color);
+}

@@ -1,0 +1,92 @@
+@import 'sassy-buttons';
+
+@mixin set_image_size($height, $width) {
+   img {
+      height: $height;
+      width: $width;
+   }   
+}
+
+@mixin no_size {
+   padding: 0;
+   margin: 0;
+   height: 0;
+   width: 0;
+}
+
+$default_list_element_margin: 2px;
+@mixin default_list_element_formatting {
+   display: block;
+   margin-bottom: $default_list_element_margin;
+   margin-top: 2 * $default_list_element_margin;
+   word-wrap: break-word;
+}
+
+$default_border_radius: 5px 5px 5px 5px;
+@mixin soft_edges($border_color:transparent) {
+   border-color: $border_color;
+   border-width: medium;
+   border-style: solid;/*@todo Make this a chalky/particled style.*/
+   border-radius: $default_border_radius;
+}
+
+
+
+
+$default_primary_font_size: 11px;
+$default_primary_text_color: #fff;
+$default_border_color: #fff;
+$default_container_padding: 6px;
+
+
+$background_color: #000;
+$no_buffer: 0 0 0 0;
+/* @todo still useful contrast-color($background_color)*/
+
+@mixin shiny($border_color, $default_primary_text_color) {
+   /*@include background-image(linear-gradient(scale-lightness($background_color, 10), $background_color));*/
+   
+   color: $default_primary_text_color;
+}
+
+@mixin container_formatting {
+   padding: $default_container_padding;
+}
+
+@mixin button() {
+   $light_button_color: scale-lightness($background_color, 20);
+   $dark_button_color: scale-lightness($background_color, 10);
+   $disabled_button_color: #808080;
+   $disabled_text_color: scale-lightness($disabled_button_color, 50);
+   /* @todo This could be useful: input[type=checkbox]*/
+   input.button, select {
+      @include sassy-button('shiny', 5px, 15px, $light_button_color, $dark_button_color, $default_primary_text_color);
+   }
+   input.button:disabled, select:disabled {
+      @include sassy-button('simple', 5px, 15px, $disabled_button_color, $disabled_button_color, $disabled_text_color, 'inset', false);
+   }
+}
+
+$vertical_buffer: 20px;
+$horizontal_buffer: $vertical_buffer;
+
+$player_information_height: 220px;
+$player_information_width: 350px;
+
+$community_information_height: $player_information_height * 1.2;
+$community_information_width: $player_information_width;
+
+$page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 3 * $default_container_padding;
+
+$match_information_height: 400px;
+$match_information_width: 300px;
+
+$action_dashboard_height: 200px;
+$action_dashboard_width: 200px;
+
+$page_width: $match_information_width + 2 * $horizontal_buffer + $player_information_width + $action_dashboard_width;
+
+$card_height: 300px;
+$card_width: 200px;
+
+$button_diameter: $card_width/5;

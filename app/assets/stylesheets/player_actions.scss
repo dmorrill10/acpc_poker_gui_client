@@ -1,88 +1,6 @@
-@import 'sassy-buttons';
-@import 'compass/css3/images';
-@import "compass/utilities/color/contrast";
+/*@import 'compass/css3/images';*/
+/*@import "compass/utilities/color/contrast";*/
 @import "compass/typography/lists/horizontal-list";
-
-$background_color: #000;
-$text_color: contrast-color($background_color);
-$container_padding: 10px;
-
-@mixin shiny($background_color, $text_color) {
-   @include background-image(linear-gradient(scale-lightness($background_color, 10), $background_color));
-   color: $text_color;
-}
-
-@mixin container_formatting {
-   @include shiny($background_color, $text_color);
-   padding: $container_padding;
-   margin: 0;
-}
-
-@mixin button() {
-   $light_button_color: scale-lightness($background_color, 20);
-   $dark_button_color: scale-lightness($background_color, 10);
-   $disabled_button_color: #808080;
-   $disabled_text_color: scale-lightness($disabled_button_color, 50);
-   input.button, select {
-      @include sassy-button('shiny', 5px, 15px, $light_button_color, $dark_button_color, $text_color);
-   }
-   input.button:disabled, select:disabled {
-      @include sassy-button('simple', 5px, 15px, $disabled_button_color, $disabled_button_color, $disabled_text_color, 'inset', false);
-   }
-}
-
-$no_buffer: 0 0 0 0;
-
-.information_container {
-   margin: $no_buffer;
-   color: $text_color;
-   @include button;
-}
-
-.hidden {
-   height: 0;
-   width: 0;
-}
-
-ul {
-   list-style: none;
-   padding: $no_buffer;
-   margin: $no_buffer;
-}
-
-$list_element_padding: 5px;
-
-li {
-   padding: $list_element_padding;
-   word-wrap: break-word;
-}
-
-$vertical_buffer: 10px;
-$horizontal_buffer: $vertical_buffer;
-
-$player_information_height: 220px;
-$player_information_width: 350px;
-
-$community_information_height: $player_information_height * 1.2;
-$community_information_width: $player_information_width;
-
-/*$border_width: 3px;*/
-
-$page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 6 * $container_padding;
-
-$match_information_height: 400px;
-$match_information_width: 300px;
-
-$action_dashboard_height: 200px;
-$action_dashboard_width: 200px;
-
-$page_width: $match_information_width + 2 * $horizontal_buffer + $player_information_width + $action_dashboard_width + 6 * $container_padding;
-
-#container {
-   height: $page_height;
-   width: $page_width;
-   padding: $no_buffer;
-}
 
 .player_information {
    height: $player_information_height;
@@ -94,23 +12,19 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    margin-right: $horizontal_buffer;
    
    @include container_formatting;
+   @include soft_edges($default_border_color);
 }
 
 #users_information {
-   margin-top: $vertical_buffer;
-   margin-bottom: 0;
    position: absolute;
-   top: $page_height - ($player_information_height + $vertical_buffer + 2 * $container_padding);
-   left: $match_information_width + 2 * $container_padding;
+   top: $page_height - $player_information_height;
+   left: $match_information_width;
 }
 
 /* @todo Want this to be either a box in which information_about_an_opponent list elements can be centered, or a centered expandable box. Not sure how to do either.*/
-#information_about_opponents {
-   margin-top: 0;
-   margin-bottom: $vertical_buffer;
-   
+#information_about_opponents {   
    position: absolute;
-   left: $match_information_width + 2 * $container_padding;
+   left: $match_information_width + $horizontal_buffer;
    
    display: inline;
 }
@@ -123,16 +37,12 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    height: $community_information_height;
    width: $community_information_width;
    
-   margin-top: $vertical_buffer;
-   margin-bottom: $vertical_buffer;
-   margin-left: $horizontal_buffer;
-   margin-right: $horizontal_buffer;
-   
    position: absolute;
-   top: $player_information_height + 2 * $container_padding;
-   left: $match_information_width + 2 * $container_padding;
+   top: $player_information_height + $vertical_buffer + $default_container_padding;
+   left: $match_information_width + $horizontal_buffer + $default_container_padding;
    
    @include container_formatting;
+   @include soft_edges($default_border_color);
 }
 
 #match_information {
@@ -140,11 +50,12 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    height: $match_information_height;
    
    position: absolute;
-   top: $page_height - ($match_information_height + 2 * $container_padding);
+   top: $page_height + $default_container_padding - ($match_information_height + 2 * );
    
-   margin: $no_buffer;
+   margin: 0;
    
    @include container_formatting;
+   @include soft_edges($default_border_color);
 }
 
 #action_dashboard {   
@@ -153,28 +64,17 @@ $page_width: $match_information_width + 2 * $horizontal_buffer + $player_informa
    width: $action_dashboard_width;
    height: $action_dashboard_height;
    
-   margin-left: $horizontal_buffer;
-   
    position: absolute;
-   left: $match_information_width + $player_information_width + 6 * $container_padding;
-   top: $page_height - ($action_dashboard_height + 2 * $container_padding);
+   left: $match_information_width + $player_information_width + 2 * $horizontal_buffer;
+   top: $page_height - $action_dashboard_height;
+   
+   @include soft_edges($default_border_color);
 }
 
 ul.cards {
    @include horizontal-list(false);
    margin: 0;
 }
-
-$card_height: 300px;
-$card_width: 200px;
-
-@mixin set_image_size($height, $width) {
-   img {
-      height: $height;
-      width: $width;
-   }   
-}
-
 
 .card {
    $horizontal_margin: -180px;
@@ -191,8 +91,6 @@ $card_width: 200px;
    
    @include set_image_size($card_height, $card_width);
 }
-
-$button_diameter: $card_width/5;
 
 ul.match_buttons {
    @include horizontal-list(false);

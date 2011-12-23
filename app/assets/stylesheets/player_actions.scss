@@ -6,14 +6,13 @@
    height: $player_information_height;
    width: $player_information_width;
    
-   margin-top: 0;
-   margin-bottom: 0;
-   margin-left: $horizontal_buffer;
-   margin-right: $horizontal_buffer;
-   
    @include container_formatting;
+   padding: 0;
+   
    @include soft_edges($default_border_color);
 }
+
+
 
 $users_information_left: $combined_match_information_width + $horizontal_buffer;
 
@@ -33,6 +32,7 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
 
 #information_about_an_opponent {   
    display: block;
+   margin: 0;
 }
 
 #community_information {   
@@ -53,8 +53,6 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    
    position: absolute;
    top: $page_height - combined_container_length($match_information_height, $default_border_width, $default_container_padding);
-   
-   margin: 0;
    
    @include container_formatting;
    @include soft_edges($default_border_color);
@@ -111,9 +109,20 @@ ul.match_buttons {
 }
 
 #acting_player {
-   border-style: solid;
-   border-color: #ff0;
-   border-width: thick;
+   @include soft_edges(#ff0);
+   
+   position: absolute;
+   top: 0;
+   left: 0;
+   
+   height: $player_information_height - 2 * $default_container_padding;
+   width: $player_information_width - 2 * $default_container_padding;
+   
+   padding: $default_container_padding;
+}
+
+#not_acting_player {
+   padding: $default_container_padding;
 }
 
 ul.actions {

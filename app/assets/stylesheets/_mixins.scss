@@ -23,21 +23,23 @@ $default_list_element_margin: 2px;
 }
 
 $default_border_radius: 5px 5px 5px 5px;
+$default_border_width: 10px;
 @mixin soft_edges($border_color:transparent) {
    border-color: $border_color;
-   border-width: medium;
+   border-width: $default_border_width;
    border-style: solid;/*@todo Make this a chalky/particled style.*/
    border-radius: $default_border_radius;
 }
-
-
-
 
 $default_primary_font_size: 11px;
 $default_primary_text_color: #fff;
 $default_border_color: #fff;
 $default_container_padding: 6px;
+$default_container_margin: 0;
 
+@function combined_container_length($functional_length, $border_width: $default_border_width, $padding: $default_container_padding, $margin: $default_container_margin) {
+   @return $functional_length + 2 * $border_width + 2 * $padding + 2 * $margin;
+}
 
 $background_color: #000;
 $no_buffer: 0 0 0 0;
@@ -51,6 +53,7 @@ $no_buffer: 0 0 0 0;
 
 @mixin container_formatting {
    padding: $default_container_padding;
+   margin: $default_container_margin;
 }
 
 @mixin button() {
@@ -68,23 +71,31 @@ $no_buffer: 0 0 0 0;
 }
 
 $vertical_buffer: 20px;
-$horizontal_buffer: $vertical_buffer;
+$horizontal_buffer: $vertical_buffer * 2;
 
-$player_information_height: 220px;
-$player_information_width: 350px;
+$player_information_height: 180px;
+$combined_player_information_height: combined_container_length($player_information_height, $default_border_width, $default_container_padding);
+$player_information_width: 400px;
+$combined_player_information_width: combined_container_length($player_information_width, $default_border_width, $default_container_padding);
 
 $community_information_height: $player_information_height * 1.2;
+$combined_community_information_height: combined_container_length($community_information_height, $default_border_width, $default_container_padding);
 $community_information_width: $player_information_width;
+$combined_community_information_width: combined_container_length($community_information_width, $default_border_width, $default_container_padding);
 
-$page_height: 2 * $player_information_height + $community_information_height + 2 * $vertical_buffer + 3 * $default_container_padding;
+$page_height: 2 * $combined_player_information_height + $combined_community_information_height + 2 * $vertical_buffer;
 
 $match_information_height: 400px;
+$combined_match_information_height: combined_container_length($match_information_height, $default_border_width, $default_container_padding);
 $match_information_width: 300px;
+$combined_match_information_width: combined_container_length($match_information_width, $default_border_width, $default_container_padding);
 
 $action_dashboard_height: 200px;
+$combined_action_dashboard_height: combined_container_length($action_dashboard_height, $default_border_width, $default_container_padding);
 $action_dashboard_width: 200px;
+$combined_action_dashboard_width: combined_container_length($action_dashboard_width, $default_border_width, $default_container_padding);
 
-$page_width: $match_information_width + 2 * $horizontal_buffer + $player_information_width + $action_dashboard_width;
+$page_width: $combined_match_information_width + 2 * $horizontal_buffer + $combined_player_information_width + $combined_action_dashboard_width;
 
 $card_height: 300px;
 $card_width: 200px;

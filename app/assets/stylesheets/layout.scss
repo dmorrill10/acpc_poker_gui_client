@@ -8,11 +8,11 @@ html, body {
 }
 
 #container {
-  margin-top: 20px;
+  margin-top: $vertical_buffer;
   margin-left: auto;
   margin-bottom: auto;
   margin-right: auto;
-  padding: $default_container_padding;
+  padding: 0;
   
   position: relative;
   background-color: $container_background_color;

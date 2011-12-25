@@ -2,6 +2,35 @@
 /*@import "compass/utilities/color/contrast";*/
 @import "compass/typography/lists/horizontal-list";
 
+$container_background_color: #003300;
+
+#table {
+   margin-top: $vertical_buffer;
+   margin-left: auto;
+   margin-bottom: auto;
+   margin-right: auto;
+   padding: 0;
+  
+   position: relative;
+   background-color: $container_background_color;
+   border-radius: $default_border_radius;
+
+   height: $page_height;
+   width: $page_width;
+  
+   @include soft_edges(mix($container_background_color, $app_background_color));
+   border-radius: 500px 500px 500px 500px;
+}
+
+.off_table_container {
+   background-color: $app_background_color;
+   @extend .information_container;
+}
+
+.on_table_container {
+   @extend .information_container;   
+}
+
 .player_information {
    height: $player_information_height;
    width: $player_information_width;
@@ -10,9 +39,9 @@
    padding: 0;
    
    @include soft_edges($default_border_color);
+   
+   @extend .on_table_container;
 }
-
-
 
 $users_information_left: $combined_match_information_width + $horizontal_buffer;
 
@@ -20,6 +49,8 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    position: absolute;
    top: $page_height - $combined_player_information_height;
    left: $users_information_left;
+   
+   @extend .player_information;
 }
 
 /* @todo Want this to be either a box in which information_about_an_opponent list elements can be centered, or a centered expandable box. Not sure how to do either.*/
@@ -33,6 +64,8 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
 #information_about_an_opponent {   
    display: block;
    margin: 0;
+   
+   @extend .player_information;
 }
 
 #community_information {   
@@ -45,6 +78,8 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    
    @include container_formatting;
    @include soft_edges($default_border_color);
+   
+   @extend .on_table_container;
 }
 
 #match_information {
@@ -53,9 +88,12 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    
    position: absolute;
    top: $page_height - combined_container_length($match_information_height, $default_border_width, $default_container_padding);
+   /*@todo Put in player action mixin since everthing has to be shifted right now.*/
    
    @include container_formatting;
    @include soft_edges($default_border_color);
+   
+   @extend .off_table_information;
 }
 
 #action_dashboard {   
@@ -69,6 +107,8 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    top: $page_height - $combined_action_dashboard_height;
    
    @include soft_edges($default_border_color);
+   
+   @extend .off_table_container;
 }
 
 ul.cards {

@@ -7,79 +7,82 @@
          $('#update_match_state_button').submit();
       };
 
-.information_container
-   %ul#match_information
-      %li.title= "Match: #{@match.match_name}"
-      %ul#game_definition
-         %li.title= "Game Definition: #{@match.game_definition_file_name}"
-         // @todo %li= "<Game def prop>: <game def val>"
-      %li= "This match has #{@match.number_of_hands} hands"
-      // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
-      // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
-      %ul#chip_balances
-         %li.title Chip balances:
-         - @chip_balances.each do |player_name, balance|
-            %li= "#{player_name}: #{balance}"
-      // @todo The submit button is actually displayed so this function may not have the best name
-      %li.meta_action
-         = hidden_update_state_form @match_id, @match_slice_index, !(@users_turn_to_act || @match_ended)
-      %li.meta_action
-         %p= button_to "Leave this game", leave_game_url, :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended
-
-.information_container
-   %ul#information_about_opponents
-      - @opponents.each do |opponent|
-         %li#information_about_an_opponent
-            = render partial: 'player_information', locals: {player: opponent,
-               player_with_the_dealer_button: @player_with_the_dealer_button,
-               player_who_submitted_small_blind: @player_who_submitted_small_blind, 
-               player_who_submitted_big_blind: @player_who_submitted_big_blind,
-               player_whose_turn_is_next: @player_whose_turn_is_next,
-               hand_ended: @hand_ended}
+#table
+   .information_container
+      %ul#information_about_opponents
+         - @opponents.each do |opponent|
+            %li#information_about_an_opponent
+               = render partial: 'player_information', locals: {player: opponent,
+                  player_with_the_dealer_button: @player_with_the_dealer_button,
+                  player_who_submitted_small_blind: @player_who_submitted_small_blind, 
+                  player_who_submitted_big_blind: @player_who_submitted_big_blind,
+                  player_whose_turn_is_next: @player_whose_turn_is_next,
+                  hand_ended: @hand_ended}
          
-.information_container
-   %ul#community_information
-      %ul.cards
-         - @board_cards.each do |card|
-            %li.card= image_tag "#{card.image_path}"
-      %li#pot= "Pot Size: #{@pot_size}"
-      
-      //%li#state= "Match state: #{@match_state}"
-      
-      - if @hand_ended
-         %ul#hand_results
-            %li.title Hand Result:
-            - @pot_distribution.each do |player_name, amount|
-               %li= "  #{player_name} won #{amount} chips."
-            %li= "Action Summary: #{@action_summary}"
-      - if @match_ended
-         %li The match has ended, thanks for playing!
+   .information_container
+      %ul#community_information
+         %ul.cards
+            - @board_cards.each do |card|
+               %li.card= image_tag "#{card.image_path}"
+         %li#pot= "Pot Size: #{@pot_size}"
+         
+         //%li#state= "Match state: #{@match_state}"
+         
+         - if @hand_ended
+            %ul#hand_results
+               %li.title Hand Result:
+               - @pot_distribution.each do |player_name, amount|
+                  %li= "  #{player_name} won #{amount} chips."
+               %li= "Action Summary: #{@action_summary}"
+         - if @match_ended
+            %li The match has ended, thanks for playing!
 
-.information_container
-   #users_information
-      = render partial: 'player_information', locals: {player: @user,
-         player_with_the_dealer_button: @player_with_the_dealer_button,
-         player_who_submitted_small_blind: @player_who_submitted_small_blind, 
-         player_who_submitted_big_blind: @player_who_submitted_big_blind,
-         player_whose_turn_is_next: @player_whose_turn_is_next,
-         hand_ended: @hand_ended}
+   .information_container
+      #users_information
+         = render partial: 'player_information', locals: {player: @user,
+            player_with_the_dealer_button: @player_with_the_dealer_button,
+            player_who_submitted_small_blind: @player_who_submitted_small_blind, 
+            player_who_submitted_big_blind: @player_who_submitted_big_blind,
+            player_whose_turn_is_next: @player_whose_turn_is_next,
+            hand_ended: @hand_ended}
 
-.information_container
-   #action_dashboard
-      %ul.actions
-         - fold_is_legal = false
-         - @legal_actions.each do |action|
+.outside_table_information
+   .information_container
+      #action_dashboard
+         %ul.actions
+            - fold_is_legal = false
+            - @legal_actions.each do |action|
+               %li.action
+                  - case action
+                     - when 'c'
+                        %p= button "Call", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                     - when 'k'
+                        %p= button "Check", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                     - when 'b'
+                        %p= button "Bet", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                     - when 'r'
+                        %p= button "Raise", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+                     - when 'f'
+                        - fold_is_legal = true
             %li.action
-               - case action
-                  - when 'c'
-                     %p= button "Call", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'k'
-                     %p= button "Check", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'b'
-                     %p= button "Bet", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'r'
-                     %p= button "Raise", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'f'
-                     - fold_is_legal = true
-         %li.action
-            %p= button "Fold", fold_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !(@users_turn_to_act && fold_is_legal)
+               %p= button "Fold", fold_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !(@users_turn_to_act && fold_is_legal)
+
+.outside_table_container
+   .information_container
+      %ul#match_information
+         %li.title= "Match: #{@match.match_name}"
+         %ul#game_definition
+            %li.title= "Game Definition: #{@match.game_definition_file_name}"
+            // @todo %li= "<Game def prop>: <game def val>"
+         %li= "This match has #{@match.number_of_hands} hands"
+         // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
+         // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
+         %ul#chip_balances
+            %li.title Chip balances:
+            - @chip_balances.each do |player_name, balance|
+               %li= "#{player_name}: #{balance}"
+         // @todo The submit button is actually displayed so this function may not have the best name
+         %li.meta_action
+            = hidden_update_state_form @match_id, @match_slice_index, !(@users_turn_to_act || @match_ended)
+         %li.meta_action
+            %p= button_to "Leave this game", leave_game_url, :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended

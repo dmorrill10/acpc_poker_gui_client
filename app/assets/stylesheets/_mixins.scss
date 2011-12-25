@@ -24,15 +24,15 @@ $default_list_element_margin: 2px;
 
 $default_border_radius: 5px 5px 5px 5px;
 $default_border_width: 10px;
-@mixin soft_edges($border_color:transparent) {
+@mixin soft_edges($border_color:transparent, $border_radius:$default_border_radius) {
    border-color: $border_color;
    border-width: $default_border_width;
    border-style: solid;/*@todo Make this a chalky/particled style.*/
    border-radius: $default_border_radius;
 }
 
-$default_primary_font_size: 11px;
-$default_primary_text_color: #fff;
+$default_primary_font_size: 12px;
+$default_primary_text_color: #fffeff;
 $default_border_color: #fff;
 $default_container_padding: 6px;
 $default_container_margin: 0;
@@ -95,9 +95,11 @@ $combined_action_dashboard_height: combined_container_length($action_dashboard_h
 $action_dashboard_width: 200px;
 $combined_action_dashboard_width: combined_container_length($action_dashboard_width, $default_border_width, $default_container_padding);
 
-$page_width: $combined_match_information_width + 2 * $horizontal_buffer + $combined_player_information_width + $combined_action_dashboard_width;
+$page_width: $combined_match_information_width + 2 * $horizontal_buffer + $combined_player_information_width + $combined_action_dashboard_width + 600px;
 
 $card_height: 300px;
 $card_width: 200px;
 
 $button_diameter: $card_width/5;
+
+$app_background_color: #515250;

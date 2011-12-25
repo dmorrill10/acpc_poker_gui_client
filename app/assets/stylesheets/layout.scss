@@ -1,27 +1,11 @@
 $app_background: image-url('gray_texture.svg');
-$app_background_color: #505050;
-/*$container_background: ;*/
-$container_background_color: #003300;
 
 html, body {
   background: $app_background;
 }
 
 #container {
-  margin-top: $vertical_buffer;
-  margin-left: auto;
-  margin-bottom: auto;
-  margin-right: auto;
-  padding: 0;
-  
-  position: relative;
-  background-color: $container_background_color;
-  border-radius: $default_border_radius;
-
-  height: $page_height;
-  width: $page_width;
-  
-  @include soft_edges(mix($container_background_color, $app_background_color));
+   background: $app_background;
 }
 
 .information_container {

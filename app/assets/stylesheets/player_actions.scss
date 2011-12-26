@@ -42,15 +42,14 @@ $container_background_color: #003300;
 $users_information_left: $combined_match_information_width + $horizontal_buffer;
 
 #users_information {
-   position: absolute;
+   @include align_center($combined_player_information_width, $table_width);
+   
    top: $table_height - $combined_player_information_height;
-   left: $users_information_left;
 }
 
 /* @todo Want this to be either a box in which information_about_an_opponent list elements can be centered, or a centered expandable box. Not sure how to do either.*/
 #information_about_opponents {   
-   position: absolute;
-   left: $combined_match_information_width + $horizontal_buffer;
+   @include align_center($combined_player_information_width, $table_width);
    
    display: inline;
 }
@@ -64,9 +63,8 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    height: $community_information_height;
    width: $community_information_width;
    
-   position: absolute;
+   @include align_center($combined_community_information_width, $table_width);
    top: $combined_player_information_height + $vertical_buffer;
-   left: $combined_match_information_width + $horizontal_buffer;
    
    @extend .on_table_container;
 }

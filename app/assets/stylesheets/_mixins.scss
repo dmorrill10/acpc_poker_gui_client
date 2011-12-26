@@ -1,5 +1,10 @@
 @import 'sassy-buttons';
 
+@mixin align_center($width_of_item_to_center, $width_of_item_in_which_to_center) {
+   position: absolute;
+   left: ($width_of_item_in_which_to_center - $width_of_item_to_center)/2;
+}
+
 @mixin set_image_size($height, $width) {
    img {
       height: $height;
@@ -75,12 +80,12 @@ $horizontal_buffer: $vertical_buffer * 2;
 
 $player_information_height: 180px;
 $combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
-$player_information_width: 400px;
+$player_information_width: 300px;
 $combined_player_information_width: combined_container_length($player_information_width, $default_border_width, 0);
 
 $community_information_height: $player_information_height * 1.2;
 $combined_community_information_height: combined_container_length($community_information_height, $default_border_width, $default_container_padding);
-$community_information_width: $player_information_width - 2 * $default_container_padding;
+$community_information_width: 800px;
 $combined_community_information_width: combined_container_length($community_information_width, $default_border_width, $default_container_padding);
 
 $table_height: 2 * $combined_player_information_height + $combined_community_information_height + 2 * $vertical_buffer;
@@ -95,7 +100,7 @@ $combined_action_dashboard_height: combined_container_length($action_dashboard_h
 $action_dashboard_width: 200px;
 $combined_action_dashboard_width: combined_container_length($action_dashboard_width, $default_border_width, $default_container_padding);
 
-$table_width: $combined_community_information_width + 600px;
+$table_width: $combined_community_information_width + 300px;
 
 $card_height: 300px;
 $card_width: 200px;

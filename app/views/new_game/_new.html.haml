@@ -1,6 +1,6 @@
 //%h1= title
 
-
+- card_path = '/home/dmorrill/2C.svg'
 // Test layout
 #table
    %ul#information_about_opponents
@@ -17,8 +17,9 @@
          
    %ul#community_information
       %ul.cards
-         //- @board_cards.each do |card|
-         //   %li.card= image_tag "#{card.image_path}"
+         - board_cards = [card_path, card_path, card_path, card_path, card_path]
+         - board_cards.each do |card|
+            %li.card= image_tag "#{card}"
       %li#pot= "Pot Size: @pot_size"
       
       //%li#state= "Match state: #{@match_state}"

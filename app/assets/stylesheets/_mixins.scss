@@ -6,10 +6,8 @@
 }
 
 @mixin set_image_size($height, $width) {
-   img {
-      height: $height;
-      width: $width;
-   }   
+   height: $height;
+   width: $width;
 }
 
 @mixin no_size {
@@ -78,12 +76,23 @@ $no_buffer: 0 0 0 0;
 $vertical_buffer: 20px;
 $horizontal_buffer: $vertical_buffer * 2;
 
+/*Player information defs*/
 $player_information_height: 180px;
 $combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
 $player_information_width: 300px;
 $combined_player_information_width: combined_container_length($player_information_width, $default_border_width, 0);
 
-$community_information_height: $player_information_height * 1.2;
+/*Card defs*/
+$card_height: 450px;
+$card_width_height_ratio: 2.0/3.0;
+$card_width: $card_width_height_ratio * $card_height;
+$correction_for_vertical_card_margin: -(157.0/300.0) * $card_width;
+$correction_for_horizontal_card_margin: $card_width_height_ratio * $correction_for_vertical_card_margin;
+$bare_card_image_height: $card_height + 2 * $correction_for_vertical_card_margin;
+$bare_card_image_width: $card_width + 2 * $correction_for_horizontal_card_margin;
+
+/*Community information defs*/
+$community_information_height: $bare_card_image_height + $default_container_padding;
 $combined_community_information_height: combined_container_length($community_information_height, $default_border_width, $default_container_padding);
 $community_information_width: 800px;
 $combined_community_information_width: combined_container_length($community_information_width, $default_border_width, $default_container_padding);
@@ -101,11 +110,6 @@ $action_dashboard_width: 200px;
 $combined_action_dashboard_width: combined_container_length($action_dashboard_width, $default_border_width, $default_container_padding);
 
 $table_width: $combined_community_information_width + 300px;
-
-$card_height: 300px;
-$card_width: 200px;
-
-$button_diameter: $card_width/5;
 
 $app_background_color: #515250;
 

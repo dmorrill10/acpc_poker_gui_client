@@ -27,7 +27,8 @@ $container_background_color: #003300;
 }
 
 .on_table_container {
-   @extend .information_container;   
+   @extend .information_container;
+   border-color: transparent;
 }
 
 .player_information {
@@ -59,14 +60,20 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    margin: 0;
 }
 
-#community_information {   
+#community_information {
+   /*@include horizontal-list(false);*/
+   ul {
+      display: inline;
+      list-style-type: none;
+   }
+   
+   @extend .on_table_container;
+   
    height: $community_information_height;
    width: $community_information_width;
    
    @include align_center($combined_community_information_width, $table_width);
    top: $combined_player_information_height + $vertical_buffer;
-   
-   @extend .on_table_container;
 }
 
 #match_information {
@@ -91,23 +98,37 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    @extend .off_table_container;
 }
 
-ul.cards {
+.cards {
    @include horizontal-list(false);
    margin: 0;
 }
 
-.card {
-   $horizontal_margin: -180px;
-   padding: -100px;
+@mixin set_card_margin($right:$correction_for_horizontal_card_margin, $top:$correction_for_vertical_card_margin, $bottom:$correction_for_vertical_card_margin) {
    margin: {
-      top: -100px;
-      left: $horizontal_margin;
-      right: $horizontal_margin;
-      bottom: -100px;
+      top: $top;
+      bottom: $bottom;
+      right: 2 * $right;
    }
-   
+}
+
+.board_cards {
+   @extend .cards;
+   $card_margin: 25px;
+   li {
+      margin-right: $card_margin;
+   }   
+   width: 5 * ($bare_card_image_width + $card_margin);
+}
+$button_diameter: $card_width/5;
+
+.hole_cards {
+   @extend .cards;
+}
+
+.card {
+   @include set_card_margin();
    position: relative;
-   left: -65px;
+   left: $correction_for_horizontal_card_margin;
    
    @include set_image_size($card_height, $card_width);
 }
@@ -153,6 +174,6 @@ li.action {
    padding: 0;
 }
 
-#new_match_form {   
+#new_match_form {
    @extend .information_container;
 }

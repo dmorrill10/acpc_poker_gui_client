@@ -1,10 +1,14 @@
 //%h1= title
 
-- card_path = '/home/dmorrill/2C.svg'
+- card_path = 'SVG_and_EPS_Vector_Playing_Cards_Version_1.3/SVG_Vector_Playing_Cards_Version_1.3/52-Individual-Color-Vector-Playing_Cards-1.3_(SVG-Format_No_Crop_Marks)/Clubs/2C.svg'
 // Test layout
 #table
    %ul#information_about_opponents
       %ul.player_information
+         %ul.hole_cards
+            - hole_cards = [card_path, card_path]
+            - hole_cards.each do |card|
+               %li= image_tag "#{card}", class: 'card'
          
       //- @opponents.each do |opponent|
       //   %li#information_about_an_opponent
@@ -16,10 +20,10 @@
       //         hand_ended: @hand_ended}
          
    %ul#community_information
-      %ul.cards
+      %ul.board_cards
          - board_cards = [card_path, card_path, card_path, card_path, card_path]
          - board_cards.each do |card|
-            %li.card= image_tag "#{card}"
+            %li= image_tag "#{card}", class: 'card'
       %li#pot= "Pot Size: @pot_size"
       
       //%li#state= "Match state: #{@match_state}"
@@ -35,6 +39,10 @@
 
    #users_information
       %ul.player_information
+         %ul.hole_cards
+            - hole_cards = [card_path, card_path]
+            - hole_cards.each do |card|
+               %li= image_tag "#{card}", class: 'card'
       //= render partial: 'player_information', locals: {player: @user,
       //   player_with_the_dealer_button: @player_with_the_dealer_button,
       //   player_who_submitted_small_blind: @player_who_submitted_small_blind, 

@@ -9,7 +9,10 @@ html, body {
 }
 
 .information_container {
+   @include soft_edges($default_border_color);
+   @include button;
+   @include container_formatting;
+   
    margin: 0;
    color: $default_primary_text_color;
-   @include button;
 }

@@ -5,18 +5,17 @@
 $container_background_color: #003300;
 
 #table {
-   margin-top: $vertical_buffer;
-   margin-left: auto;
-   margin-bottom: auto;
-   margin-right: auto;
+   margin: 0;
    padding: 0;
   
-   position: relative;
+   position: absolute;
+   top: $vertical_buffer;
+   left: $combined_match_information_width + $horizontal_buffer;
    background-color: $container_background_color;
    border-radius: $default_border_radius;
 
-   height: $page_height;
-   width: $page_width;
+   height: $table_height;
+   width: $table_width;
   
    @include soft_edges(mix($container_background_color, $app_background_color));
    border-radius: 500px 500px 500px 500px;
@@ -35,10 +34,7 @@ $container_background_color: #003300;
    height: $player_information_height;
    width: $player_information_width;
    
-   @include container_formatting;
    padding: 0;
-   
-   @include soft_edges($default_border_color);
    
    @extend .on_table_container;
 }
@@ -47,10 +43,8 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
 
 #users_information {
    position: absolute;
-   top: $page_height - $combined_player_information_height;
+   top: $table_height - $combined_player_information_height;
    left: $users_information_left;
-   
-   @extend .player_information;
 }
 
 /* @todo Want this to be either a box in which information_about_an_opponent list elements can be centered, or a centered expandable box. Not sure how to do either.*/
@@ -64,8 +58,6 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
 #information_about_an_opponent {   
    display: block;
    margin: 0;
-   
-   @extend .player_information;
 }
 
 #community_information {   
@@ -76,9 +68,6 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    top: $combined_player_information_height + $vertical_buffer;
    left: $combined_match_information_width + $horizontal_buffer;
    
-   @include container_formatting;
-   @include soft_edges($default_border_color);
-   
    @extend .on_table_container;
 }
 
@@ -87,26 +76,19 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    height: $match_information_height;
    
    position: absolute;
-   top: $page_height - combined_container_length($match_information_height, $default_border_width, $default_container_padding);
+   top: $page_height - $combined_match_information_height;
    /*@todo Put in player action mixin since everthing has to be shifted right now.*/
    
-   @include container_formatting;
-   @include soft_edges($default_border_color);
-   
-   @extend .off_table_information;
+   @extend .off_table_container;
 }
 
-#action_dashboard {   
-   @include container_formatting;
-   
+#action_dashboard {      
    width: $action_dashboard_width;
    height: $action_dashboard_height;
    
    position: absolute;
-   left: $combined_match_information_width + $combined_player_information_width + 2 * $horizontal_buffer;
+   left: $combined_match_information_width + 2 * $horizontal_buffer + $table_width;
    top: $page_height - $combined_action_dashboard_height;
-   
-   @include soft_edges($default_border_color);
    
    @extend .off_table_container;
 }
@@ -173,6 +155,6 @@ li.action {
    padding: 0;
 }
 
-#new_match_form {
-   @include container_formatting;
+#new_match_form {   
+   @extend .information_container;
 }

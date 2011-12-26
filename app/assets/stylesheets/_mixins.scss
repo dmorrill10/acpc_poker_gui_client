@@ -83,7 +83,7 @@ $combined_community_information_height: combined_container_length($community_inf
 $community_information_width: $player_information_width - 2 * $default_container_padding;
 $combined_community_information_width: combined_container_length($community_information_width, $default_border_width, $default_container_padding);
 
-$page_height: 2 * $combined_player_information_height + $combined_community_information_height + 2 * $vertical_buffer;
+$table_height: 2 * $combined_player_information_height + $combined_community_information_height + 2 * $vertical_buffer;
 
 $match_information_height: 400px;
 $combined_match_information_height: combined_container_length($match_information_height, $default_border_width, $default_container_padding);
@@ -95,7 +95,7 @@ $combined_action_dashboard_height: combined_container_length($action_dashboard_h
 $action_dashboard_width: 200px;
 $combined_action_dashboard_width: combined_container_length($action_dashboard_width, $default_border_width, $default_container_padding);
 
-$page_width: $combined_match_information_width + 2 * $horizontal_buffer + $combined_player_information_width + $combined_action_dashboard_width + 600px;
+$table_width: $combined_community_information_width + 600px;
 
 $card_height: 300px;
 $card_width: 200px;
@@ -103,3 +103,6 @@ $card_width: 200px;
 $button_diameter: $card_width/5;
 
 $app_background_color: #515250;
+
+$page_height: $table_height + $vertical_buffer + 2 * $default_border_width;
+$page_width: $table_width + $combined_match_information_width + 2 * $horizontal_buffer + $action_dashboard_width + 2 * $default_border_width;

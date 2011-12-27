@@ -98,10 +98,12 @@ class SidePot < ChipStack
       
       raise NoPlayersToTakeChips unless players_to_distribute_to.length > 0
       
-      if 1 == players_to_distribute_to.length         
-         players_to_distribute_to[0].take_winnings! @value
+      if 1 == players_to_distribute_to.length
+         winning_player = players_to_distribute_to[0]
+         @players_involved_and_their_amounts_received[winning_player] = @value
+         winning_player.take_winnings! @value
+         
          take_from! @value
-         @players_involved_and_their_amounts_received[players_to_distribute_to[0]] = @value
       elsif
          distribute_winnings_amongst_multiple_players! players_to_distribute_to, board_cards
       end
@@ -137,8 +139,8 @@ class SidePot < ChipStack
       # Split the side-pot's value among the winners
       amount_each_player_wins = (@value/winning_players.length).floor
       winning_players.each do |player|
-         player.take_winnings! amount_each_player_wins
          @players_involved_and_their_amounts_received[player] = amount_each_player_wins
+         player.take_winnings! amount_each_player_wins
       end
 
       # Remove chips from this side-pot

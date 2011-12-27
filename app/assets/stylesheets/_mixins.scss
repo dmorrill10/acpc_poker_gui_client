@@ -73,15 +73,6 @@ $no_buffer: 0 0 0 0;
    }
 }
 
-$vertical_buffer: 20px;
-$horizontal_buffer: $vertical_buffer * 2;
-
-/*Player information defs*/
-$player_information_height: 180px;
-$combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
-$player_information_width: 300px;
-$combined_player_information_width: combined_container_length($player_information_width, $default_border_width, 0);
-
 /*Card defs*/
 $card_height: 450px;
 $card_width_height_ratio: 2.0/3.0;
@@ -90,6 +81,15 @@ $correction_for_vertical_card_margin: -(157.0/300.0) * $card_width;
 $correction_for_horizontal_card_margin: $card_width_height_ratio * $correction_for_vertical_card_margin;
 $bare_card_image_height: $card_height + 2 * $correction_for_vertical_card_margin;
 $bare_card_image_width: $card_width + 2 * $correction_for_horizontal_card_margin;
+
+$vertical_buffer: 20px;
+$horizontal_buffer: $vertical_buffer * 2;
+
+/*Player information defs*/
+$player_information_height: $bare_card_image_height;
+$combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
+$player_information_width: 300px;
+$combined_player_information_width: combined_container_length($player_information_width, $default_border_width, 0);
 
 /*Community information defs*/
 $community_information_height: $bare_card_image_height + $default_container_padding;

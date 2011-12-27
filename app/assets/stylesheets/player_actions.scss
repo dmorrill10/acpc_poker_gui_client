@@ -98,9 +98,14 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
    @extend .off_table_container;
 }
 
+$card_margin: 25px;
 .cards {
    @include horizontal-list(false);
+   
    margin: 0;
+   li {
+      margin-right: $card_margin;
+   }
 }
 
 @mixin set_card_margin($right:$correction_for_horizontal_card_margin, $top:$correction_for_vertical_card_margin, $bottom:$correction_for_vertical_card_margin) {
@@ -112,11 +117,7 @@ $users_information_left: $combined_match_information_width + $horizontal_buffer;
 }
 
 .board_cards {
-   @extend .cards;
-   $card_margin: 25px;
-   li {
-      margin-right: $card_margin;
-   }   
+   @extend .cards;   
    width: 5 * ($bare_card_image_width + $card_margin);
 }
 $button_diameter: $card_width/5;

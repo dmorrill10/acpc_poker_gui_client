@@ -19,21 +19,19 @@
                hand_ended: @hand_ended}
          
    %ul#community_information
+      %li#pot= "Pot Size: #{@pot_size}"
       %ul.board_cards
          - @board_cards.each do |card|
             %li= image_tag "#{card.image_path}", class: 'card'
-      %li#pot= "Pot Size: #{@pot_size}"
-         
-      //%li#state= "Match state: #{@match_state}"
-         
-      - if @hand_ended
-         %ul#hand_results
-            %li.title Hand Result:
-            - @pot_distribution.each do |player_name, amount|
-               %li= "  #{player_name} won #{amount} chips."
-            %li= "Action Summary: #{@action_summary}"
-      - if @match_ended
-         %li The match has ended, thanks for playing!
+      %ul#summary_information
+         - if @hand_ended
+            %ul#hand_results
+               %li.title Hand Result:
+               - @pot_distribution.each do |player_name, amount|
+                  %li= "  #{player_name} won #{amount} chips."
+               %li= "Action Summary: #{@action_summary}"
+         - if @match_ended
+            %li The match has ended, thanks for playing!
 
    #users_information
       = render partial: 'player_information', locals: {player: @user,

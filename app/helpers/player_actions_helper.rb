@@ -101,8 +101,7 @@ module PlayerActionsHelper
       @round = @match_state.round
 
       # What are the board cards?
-      # @todo Need the game def's number of rounds to do this properly
-      @board_cards = (0..4).inject(BoardCards.new([0, 3, 1, 1])) { |board_cards, i| board_cards << Card.new }
+      @board_cards = BoardCards.new []
       @match_state.board_cards.each_index do |i|
          @board_cards[i] = @match_state.board_cards[i]
       end

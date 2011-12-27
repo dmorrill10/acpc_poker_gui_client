@@ -81,37 +81,64 @@ $correction_for_vertical_card_margin: -(157.0/300.0) * $card_width;
 $correction_for_horizontal_card_margin: $card_width_height_ratio * $correction_for_vertical_card_margin;
 $bare_card_image_height: $card_height + 2 * $correction_for_vertical_card_margin;
 $bare_card_image_width: $card_width + 2 * $correction_for_horizontal_card_margin;
+$card_margin: 25px;
+$hole_cards_width: 2 * ($bare_card_image_width + $card_margin);
 
 $vertical_buffer: 20px;
 $horizontal_buffer: $vertical_buffer * 2;
 
+/*Match button*/
+$button_diameter: $card_width/5;
+$button_buffer: 10px;
+$button_list_height: $button_diameter + $button_buffer;
+$button_list_width: 2 * ($button_diameter + $button_buffer);
+
 /*Player information defs*/
-$player_information_height: $bare_card_image_height;
+$player_information_height: $bare_card_image_height + 100px;
 $combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
-$player_information_width: 300px;
+$player_information_width: $hole_cards_width + $button_list_width;
 $combined_player_information_width: combined_container_length($player_information_width, $default_border_width, 0);
 
+/*Poker chip*/
+$poker_chip_diameter: $button_diameter * 1.5;
+
+/*Pot*/
+$pot_height: $poker_chip_diameter;
+$combined_pot_height: combined_container_length($pot_height, 0, $default_container_padding);
+$pot_width: $poker_chip_diameter;
+$combined_pot_width: combined_container_length($pot_width, 0, $default_container_padding);
+
+/*Summary information*/
+$summary_information_height: 100px;
+$summary_information_width: 250px;
+
+/*Board cards*/
+$board_cards_width: 5 * ($bare_card_image_width + $card_margin);
+
 /*Community information defs*/
-$community_information_height: $bare_card_image_height + $default_container_padding;
+$community_information_height: $bare_card_image_height;
 $combined_community_information_height: combined_container_length($community_information_height, $default_border_width, $default_container_padding);
-$community_information_width: 800px;
+$community_information_width: $combined_pot_width + $summary_information_width + $board_cards_width;
 $combined_community_information_width: combined_container_length($community_information_width, $default_border_width, $default_container_padding);
 
+/*Table*/
 $table_height: 2 * $combined_player_information_height + $combined_community_information_height + 2 * $vertical_buffer;
+$table_width: $combined_community_information_width + 300px;
 
+/*Match information*/
 $match_information_height: 400px;
 $combined_match_information_height: combined_container_length($match_information_height, $default_border_width, $default_container_padding);
 $match_information_width: 300px;
 $combined_match_information_width: combined_container_length($match_information_width, $default_border_width, $default_container_padding);
 
+/*Action dashboard*/
 $action_dashboard_height: 200px;
 $combined_action_dashboard_height: combined_container_length($action_dashboard_height, $default_border_width, $default_container_padding);
 $action_dashboard_width: 200px;
 $combined_action_dashboard_width: combined_container_length($action_dashboard_width, $default_border_width, $default_container_padding);
 
-$table_width: $combined_community_information_width + 300px;
-
 $app_background_color: #515250;
 
+/*Page*/
 $page_height: $table_height + $vertical_buffer + 2 * $default_border_width;
 $page_width: $table_width + $combined_match_information_width + 2 * $horizontal_buffer + $action_dashboard_width + 2 * $default_border_width;

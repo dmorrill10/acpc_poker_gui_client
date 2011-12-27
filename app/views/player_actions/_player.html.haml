@@ -9,6 +9,6 @@
       %li.match_button= image_tag "SmallBlind.svg"
    - if player_who_submitted_big_blind == player['name']
       %li.match_button= image_tag "BigBlind.svg"
-%ul.cards
+%ul.hole_cards
    - player['hole_cards'].each do |card|
-      %li.card= image_tag "#{card.image_path}"
+      %li= image_tag "#{card.image_path}", class: 'card'

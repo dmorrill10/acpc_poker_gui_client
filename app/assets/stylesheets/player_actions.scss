@@ -105,6 +105,7 @@ $card_margin: 25px;
    margin: 0;
    li {
       margin-right: $card_margin;
+      margin-top: 0;
    }
 }
 
@@ -147,7 +148,9 @@ ul.match_buttons {
 }
 
 .match_button {
-   @include set_image_size($button_diameter, $button_diameter);
+   img {
+      @include set_image_size($button_diameter, $button_diameter);
+   }
 }
 
 #acting_player {
@@ -159,12 +162,9 @@ ul.match_buttons {
    
    height: $player_information_height - 2 * $default_container_padding;
    width: $player_information_width - 2 * $default_container_padding;
-   
-   padding: $default_container_padding;
 }
 
 #not_acting_player {
-   padding: $default_container_padding;
 }
 
 ul.actions {

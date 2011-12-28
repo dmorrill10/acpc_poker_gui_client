@@ -42,11 +42,18 @@
    }
 }
 
+@mixin poker_chip {
+   background-repeat: no-repeat;
+   background-image: image-url('red_poker_chip.png');
+   background-position: center;
+   background-size: 640px 640px;
+}
+
 .player_information {
    @extend .on_table_container;
    
-   height: $player_information_height;
-   width: $player_information_width;
+   height: $player_information_height + 640px;
+   width: $player_information_width + 640px;
    
    padding: 0;
    
@@ -79,6 +86,12 @@
          }
       }
    }
+   
+   .stack {
+      height: 640px;
+      width: 640px;
+      @include poker_chip;
+   }
 }
 
 $container_background_color: #003300;
@@ -90,13 +103,14 @@ $container_background_color: #003300;
    position: absolute;
    top: $vertical_buffer;
    left: $combined_match_information_width + $horizontal_buffer;
-   background-color: $container_background_color;
+   /*background-color: $container_background_color;*/
+   background: image-url('felt.jpg');
    border-radius: $default_border_radius;
 
    height: $table_height;
    width: $table_width;
   
-   @include soft_edges(mix($container_background_color, $app_background_color));
+   @include soft_edges(#8B4513);
    border-radius: 500px 500px 500px 500px;
    
    $users_information_left: $combined_match_information_width + $horizontal_buffer;
@@ -151,6 +165,8 @@ $container_background_color: #003300;
       #pot {
          height: $pot_height;
          width: $pot_width;
+         
+         @include poker_chip;
       }
       
       .board_cards {

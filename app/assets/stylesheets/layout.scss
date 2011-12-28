@@ -1,11 +1,20 @@
-$app_background: image-url('gray_texture.svg');
+$app_background: image-url('chip_background.grayed.png');
 
 html, body {
-  background: $app_background;
+  /*background: $app_background;*/
 }
 
 #container {
-   background: $app_background;
+   $container_height: 1080px;
+   $container_width: 1920px;
+
+   background-image: $app_background;
+   background-repeat: no-repeat;
+   background-size: $container_width $container_height;
+   background-position: center;
+   
+   height: $container_height;
+   width: $container_width;
 }
 
 .information_container {

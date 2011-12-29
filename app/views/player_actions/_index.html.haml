@@ -41,41 +41,39 @@
          player_whose_turn_is_next: @player_whose_turn_is_next,
          hand_ended: @hand_ended}
 
-.outside_table_information
-   #action_dashboard
-      %ul.actions
-         - fold_is_legal = false
-         - @legal_actions.each do |action|
-            %li.action
-               - case action
-                  - when 'c'
-                     %p= button "Call", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'k'
-                     %p= button "Check", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'b'
-                     %p= button "Bet", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'r'
-                     %p= button "Raise", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-                  - when 'f'
-                     - fold_is_legal = true
+%ul#action_dashboard
+   %ul.actions
+      - fold_is_legal = false
+      - @legal_actions.each do |action|
          %li.action
-            %p= button "Fold", fold_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !(@users_turn_to_act && fold_is_legal)
+            - case action
+               - when 'c'
+                  %p= button "Call", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+               - when 'k'
+                  %p= button "Check", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+               - when 'b'
+                  %p= button "Bet", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+               - when 'r'
+                  %p= button "Raise", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
+               - when 'f'
+                  - fold_is_legal = true
+      %li.action
+         %p= button "Fold", fold_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !(@users_turn_to_act && fold_is_legal)
 
-.outside_table_container
-   %ul#match_information
-      %li.title= "Match: #{@match.match_name}"
-      %ul#game_definition
-         %li.title= "Game Definition: #{@match.game_definition_file_name}"
-         // @todo %li= "<Game def prop>: <game def val>"
-      %li= "This match has #{@match.number_of_hands} hands"
-      // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
-      // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
-      %ul#chip_balances
-         %li.title Chip balances:
-         - @chip_balances.each do |player_name, balance|
-            %li= "#{player_name}: #{balance}"
-      // @todo The submit button is actually displayed so this function may not have the best name
-      %li.meta_action
-         = hidden_update_state_form @match_id, @match_slice_index, !(@users_turn_to_act || @match_ended)
-      %li.meta_action
-         %p= button_to "Leave this game", leave_game_url, :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended
+%ul#match_information
+   %li.title= "Match: #{@match.match_name}"
+   %ul#game_definition
+      %li.title= "Game Definition: #{@match.game_definition_file_name}"
+      // @todo %li= "<Game def prop>: <game def val>"
+   %li= "This match has #{@match.number_of_hands} hands"
+   // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
+   // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
+   %ul#chip_balances
+      %li.title Chip balances:
+      - @chip_balances.each do |player_name, balance|
+         %li= "#{player_name}: #{balance}"
+   // @todo The submit button is actually displayed so this function may not have the best name
+   %li.meta_action
+      = hidden_update_state_form @match_id, @match_slice_index, !(@users_turn_to_act || @match_ended)
+   %li.meta_action
+      %p= button_to "Leave this game", leave_game_url, :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended

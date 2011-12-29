@@ -94,7 +94,7 @@ $button_list_height: $button_diameter + $button_buffer;
 $button_list_width: 2 * ($button_diameter + $button_buffer);
 
 /*Player information defs*/
-$player_information_height: $bare_card_image_height + 100px;
+$player_information_height: $bare_card_image_height + 200px;
 $combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
 $player_information_width: $hole_cards_width + $button_list_width;
 $combined_player_information_width: combined_container_length($player_information_width, $default_border_width, 0);

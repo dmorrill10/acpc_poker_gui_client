@@ -46,25 +46,34 @@
    background-repeat: no-repeat;
    background-image: image-url('red_poker_chip.png');
    background-position: center;
-   background-size: 640px 640px;
+   background-size: $poker_chip_diameter $poker_chip_diameter;
+   
+   line-height: $poker_chip_diameter;
+   
+   p {
+      text-align: center;
+   
+      color: #010001;
+      font-size: 15;
+   }
 }
 
 .player_information {
    @extend .on_table_container;
    
-   height: $player_information_height + 640px;
-   width: $player_information_width + 640px;
+   height: $player_information_height;
+   width: $player_information_width;
    
    padding: 0;
    
    ul {
       display: inline;
       list-style-type: none;
-      position: relative;
    }
    
    .hole_cards {
      @extend .cards;
+     position: relative;
      width: $hole_cards_width;
    }
    
@@ -78,6 +87,7 @@
       
       li {
          margin-right: $button_buffer;
+         position: relative;
       }
 
       .match_button {
@@ -88,8 +98,8 @@
    }
    
    .stack {
-      height: 640px;
-      width: 640px;
+      height: $poker_chip_diameter;
+      width: $poker_chip_diameter;
       @include poker_chip;
    }
 }

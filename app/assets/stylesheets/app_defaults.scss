@@ -1,18 +1,18 @@
 
 html, body {
-  font-family: Verdana, Helvetica, Arial;
-  font-size: $default_primary_font_size;
-  color: $default_primary_text_color;
+   @include button;
+   
+   font-family: Verdana, Helvetica, Arial;
+   font-size: $default_primary_font_size;
+   color: $default_primary_text_color;
   
-  padding: 0 0 0 0;
-  margin: 0 0 0 0;
-  border-radius: $default_border_radius;
-  
-  @include button;
+   padding: 0 0 0 0;
+   margin: 0 0 0 0;
+   border-radius: $default_border_radius;
 }
 
 a img {
-  border: none;
+   border: none;
 }
 
 form {
@@ -25,6 +25,7 @@ ul {
    list-style: none;
    padding: 0;
    margin: 0;
+
    li {
       @include default_list_element_formatting; 
    }

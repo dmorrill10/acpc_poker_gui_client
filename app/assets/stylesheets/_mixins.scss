@@ -17,15 +17,15 @@
    width: 0;
 }
 
-$default_list_element_margin: 2px;
+$default_list_element_margin: 4px;
 @mixin default_list_element_formatting {
    display: block;
    margin-bottom: $default_list_element_margin;
-   margin-top: 2 * $default_list_element_margin;
-   word-wrap: break-word;
+   margin-top: $default_list_element_margin;
 }
 
-$default_border_radius: 5px 5px 5px 5px;
+$default_radius: 5px;
+$default_border_radius: $default_radius $default_radius $default_radius $default_radius;
 $default_border_width: 10px;
 @mixin soft_edges($border_color:transparent, $border_radius:$default_border_radius) {
    border-color: $border_color;
@@ -34,7 +34,7 @@ $default_border_width: 10px;
    border-radius: $default_border_radius;
 }
 
-$default_primary_font_size: 12px;
+$default_primary_font_size: 16px;
 $default_primary_text_color: #fffeff;
 $default_border_color: #fff;
 $default_container_padding: 6px;
@@ -66,15 +66,15 @@ $no_buffer: 0 0 0 0;
    $disabled_text_color: scale-lightness($disabled_button_color, 50);
    /* @todo This could be useful: input[type=checkbox]*/
    input.button, select {
-      @include sassy-button('shiny', 5px, 15px, $light_button_color, $dark_button_color, $default_primary_text_color);
+      @include sassy-button('shiny', $default_radius, $default_primary_font_size, $light_button_color, $dark_button_color, $default_primary_text_color);
    }
    input.button:disabled, select:disabled {
-      @include sassy-button('simple', 5px, 15px, $disabled_button_color, $disabled_button_color, $disabled_text_color, 'inset', false);
+      @include sassy-button('simple', $default_radius, $default_primary_font_size, $disabled_button_color, $disabled_button_color, $disabled_text_color, 'inset', false);
    }
 }
 
 /*Card defs*/
-$card_height: 450px;
+$card_height: 350px;
 $card_width_height_ratio: 2.0/3.0;
 $card_width: $card_width_height_ratio * $card_height;
 $correction_for_vertical_card_margin: -(157.0/300.0) * $card_width;
@@ -84,8 +84,8 @@ $bare_card_image_width: $card_width + 2 * $correction_for_horizontal_card_margin
 $card_margin: 25px;
 $hole_cards_width: 2 * ($bare_card_image_width + $card_margin);
 
-$vertical_buffer: 20px;
-$horizontal_buffer: $vertical_buffer * 2;
+$vertical_buffer: 10px;
+$horizontal_buffer: $vertical_buffer;
 
 /*Match button*/
 $button_diameter: $card_width/5;
@@ -93,14 +93,14 @@ $button_buffer: 10px;
 $button_list_height: $button_diameter + $button_buffer;
 $button_list_width: 2 * ($button_diameter + $button_buffer);
 
-/*Player information defs*/
-$player_information_height: $bare_card_image_height + 200px;
-$combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
-$player_information_width: $hole_cards_width + $button_list_width;
-$combined_player_information_width: combined_container_length($player_information_width, $default_border_width, 0);
-
 /*Poker chip*/
 $poker_chip_diameter: $button_diameter * 1.5;
+
+/*Player information defs*/
+$player_information_height: $bare_card_image_height + $poker_chip_diameter + 3 * $default_primary_font_size + 8 * $default_list_element_margin;
+$combined_player_information_height: combined_container_length($player_information_height, $default_border_width, 0);
+$player_information_width: $hole_cards_width + $button_list_width;
+$combined_player_information_width: combined_container_length($player_information_width, $default_border_width, $default_list_element_margin);
 
 /*Pot*/
 $pot_height: $poker_chip_diameter;
@@ -110,20 +110,20 @@ $combined_pot_width: combined_container_length($pot_width, 0, $default_container
 
 /*Summary information*/
 $summary_information_height: 100px;
-$summary_information_width: 250px;
+$summary_information_width: 300px;
 
 /*Board cards*/
 $board_cards_width: 5 * ($bare_card_image_width + $card_margin);
 
 /*Community information defs*/
-$community_information_height: $bare_card_image_height;
+$community_information_height: $bare_card_image_height + 50px;
 $combined_community_information_height: combined_container_length($community_information_height, $default_border_width, $default_container_padding);
 $community_information_width: $combined_pot_width + $summary_information_width + $board_cards_width;
 $combined_community_information_width: combined_container_length($community_information_width, $default_border_width, $default_container_padding);
 
 /*Table*/
 $table_height: 2 * $combined_player_information_height + $combined_community_information_height + 2 * $vertical_buffer;
-$table_width: $combined_community_information_width + 300px;
+$table_width: $combined_community_information_width + 200px;
 
 /*Match information*/
 $match_information_height: 400px;

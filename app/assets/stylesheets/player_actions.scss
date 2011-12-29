@@ -50,12 +50,11 @@
    
    line-height: $poker_chip_diameter;
    
-   p {
-      text-align: center;
+   text-align: center;
    
-      color: #010001;
-      font-size: 15;
-   }
+   color: #010002;
+   font-size: $default_primary_font_size + 3;
+   font-weight: bold;
 }
 
 .player_information {
@@ -64,7 +63,12 @@
    height: $player_information_height;
    width: $player_information_width;
    
-   padding: 0;
+   padding {
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: $default_list_element_margin;
+   }
    
    ul {
       display: inline;
@@ -161,6 +165,10 @@ $container_background_color: #003300;
       @extend .on_table_container;
       @include horizontal-list(false);
       
+      li {
+         white-space: normal;
+      }
+      
       ul {
          display: inline;
          list-style-type: none;
@@ -202,7 +210,6 @@ $container_background_color: #003300;
    
    position: absolute;
    top: $page_height - $combined_match_information_height;
-   /*@todo Put in player action mixin since everthing has to be shifted right now.*/
    
    @extend .off_table_container;
 }

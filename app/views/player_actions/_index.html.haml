@@ -19,7 +19,7 @@
                hand_ended: @hand_ended}
          
    %ul#community_information
-      %li#pot= "Pot Size: #{@pot_size}"
+      %li#pot= "#{@pot_size}"
       %ul.board_cards
          - @board_cards.each do |card|
             %li= image_tag "#{card.image_path}", class: 'card'

@@ -1,17 +1,22 @@
 
 # Gems
-require 'acpc_poker_types'
+require 'acpc_poker_types/game_definition'
+require 'acpc_poker_types/hand'
+require 'acpc_poker_types/suit'
 require 'acpc_poker_match_state'
+
+require File.expand_path('../application_helper', __FILE__)
 
 # Helpers for +PlayerActions+ controller and views.
 module PlayerActionsHelper
+   include ApplicationHelper
    
-   # @todo make this better
-   # Places a hidden form in a view to allow AJAX to update the game's state dynamically
-   def hidden_update_state_form(match_id, match_slice_index, hand_ended=true)
+   def update_state_form(match_id, match_slice_index, submit_button_label='', button_options={})
+      button_options[:class] = 'button'
+      button_options[:id] = 'update_match_state' unless button_options[:id]
       form_tag update_game_state_url, :remote => true do
          form = hidden_match_fields match_id, match_slice_index
-         form << submit_tag('Proceed to the next hand', id: 'update_match_state_button', disabled: !hand_ended)
+         form << submit_tag(submit_button_label, button_options)
       end
    end
    
@@ -29,138 +34,190 @@ module PlayerActionsHelper
    
    # Replaces the page contents with an updated game view
    def replace_page_contents_with_updated_game_view
-      setup_match_view
+      @user_poker_action = UserPokerAction.new
+      setup_match_view!
       replace_page_contents 'player_actions/index'
    end
    
-   # Things the view needs to know
-   def setup_match_view
-      # What is the match state?
-      @match_state = MatchstateString.new @match_slice.state_string
+   def html_character(suit_symbol)
+      Suit::DOMAIN[suit_symbol][:html_character]
+   end
+   
+   def setup_match_view!
+      @match_state = MatchState.new @match_slice.state_string
+      
+      @hand_number = @match_state.hand_number
+      @match_name = @match.parameters[:match_name]
+      @last_action = @match_state.last_action
+      @legal_actions = @match_slice.legal_actions
+      @hand_ended = @match_slice.hand_ended?
+      @match_ended = @match_slice.match_ended?
+      @users_turn_to_act = @match_slice.users_turn_to_act?
+      
+      @pot_values_at_start_of_round = @match_slice.pot_values_at_start_of_round
+      @round = @match_state.round
+      
+      @player_whose_turn_is_next = @match_slice.player_turn_information['whose_turn_is_next']
+      @player_with_the_dealer_button = @match_slice.player_turn_information['with_the_dealer_button']
+      @player_who_submitted_big_blind = @match_slice.player_turn_information['submitted_big_blind']
+      @player_who_submitted_small_blind = @match_slice.player_turn_information['submitted_small_blind']
+      
+      setup_board_cards!      
+      setup_player_information!
+      setup_betting_and_acting_sequence!
+      
+      delete_match!(@match_id) if @match_ended
+   end
+   
+   def setup_board_cards!
+      @board_cards = @match_state.board_cards
+   end
+   
+   def setup_betting_and_acting_sequence!
+      @action_summary = ""
+      if @match_slice.betting_sequence && @match_slice.player_acting_sequence
+         i = 0
+         @match_slice.betting_sequence.scan(/.\d*/).each do |action|
+            @action_summary += if @match_slice.player_acting_sequence[i].to_i == @user['seat']
+               action.capitalize
+            else
+               action
+            end
+            i += 1
+         end
+      end
+   end
+   
+   def setup_pot_information!(players)
+      # @todo This becomes more complicated in multi-player      
+      players.each do |player|
+         player['chip_contributions'] = [] unless player['chip_contributions']
+         player['chip_contributions'][@round] = 0 unless player['chip_contributions'].length > @round
+      end
+      
+      @amount_for_user_to_call = @match_slice.amounts_to_call[@user['name']]
+      @minimum_wager = @match_slice.minimum_wager + @amount_for_user_to_call + @user['chip_contributions'][@round]
+      
+      wager_pot_above_current_round_contribution = players.map do |player|
+         player['chip_contributions']
+      end.mapped_sum.sum
 
-      # What is the pot size?
-      pot = @match_slice.pot[0]
-      @pot_size = pot.inject(0) { |sum, key_value_pair| sum += key_value_pair[1] }
+      current_round_contribution = @user['chip_contributions'][@round]
       
-      @pot_distribution = @match_slice.pot_distribution[0]
+      @half_pot_wager_amount =
+         (0.50 * wager_pot_above_current_round_contribution).floor +
+         current_round_contribution
       
-      # Who are the players in this game?
-      players = @match_slice.players
+      @three_quarter_pot_wager_amount =
+         (0.75 * wager_pot_above_current_round_contribution).floor +
+         current_round_contribution
       
-      # What are the chip balances for each player?
+      @pot_wager_amount = wager_pot_above_current_round_contribution +
+         current_round_contribution
+      
+      @two_pot_wager_amount = (2 * wager_pot_above_current_round_contribution) +
+         current_round_contribution
+      
+      @all_in_amount = @user['chip_stack'] + current_round_contribution
+      
+      @amount_user_has_contributed_over_previous_rounds =
+         @user['chip_contributions'].sum - current_round_contribution
+   end
+    
+   def setup_chip_balances!(players)
       @chip_balances = players.inject({}) do |balances, player|
          balances[player['name']] = player['chip_balance']
          balances
       end
-      
-      players.each do |player|
-         player['amount_in_pot'] = pot[player['name']]
+   end
+   
+   def setup_user_and_opponents!(players)
+      failsafe_while(lambda{ !@betting_type }) do
+         @match = current_match @match_id
+         @betting_type = @match.betting_type
       end
-
-      @user = players.delete_at(AcpcPokerMatchStateDefs::USERS_INDEX)
-      @user['hole_cards'] = Hand.draw_cards @user['hole_cards']
-      @opponents = players
+      @is_no_limit = @betting_type == GameDefinition::BETTING_TYPES[:nolimit]
+      
+      number_of_hole_cards = @match.number_of_hole_cards
+      
+      @opponents = players.dup
+      @user = @opponents.delete_at(@match.seat.to_i - 1)
       @opponents.each do |opponent|
          opponent['hole_cards'] = if opponent['hole_cards'].empty?
-            # @todo need game def info to do this properly should do something like this:
-            #  cards_for_each_player = (0..@game_definition.number_of_hole_cards-1).inject(Hand.new) do |hand, i|
-            #     hand << Card.new
-            #  end
-            (0..1).inject(Hand.new) { |hand, i| hand << Card.new }
+            (0..number_of_hole_cards-1).inject(Hand.new) { |hand, i| hand << '' }
          else
-            Hand.draw_cards opponent['hole_cards']
+            Hand.from_acpc opponent['hole_cards']
          end
       end
-
-      # Is it the user's turn to act?
-      @users_turn_to_act = @match_slice.users_turn_to_act?
       
-      # Who has the dealer button?
-      @player_with_the_dealer_button = @match_slice.player_turn_information['with_the_dealer_button']
-      
-      # Who paid blinds?
-      @player_who_submitted_big_blind = @match_slice.player_turn_information['submitted_big_blind']
-      @player_who_submitted_small_blind = @match_slice.player_turn_information['submitted_small_blind']
+      @user['hole_cards'] = Hand.from_acpc @user['hole_cards']
 
-      # Who's turn is it?
-      @player_whose_turn_is_next = @match_slice.player_turn_information['whose_turn_is_next']
-
-      # What were the sequence of actions in this hand?
-      player_acting_sequence = @match_slice.player_acting_sequence
-      betting_sequence = @match_slice.betting_sequence
-      if player_acting_sequence
-         player_acting_sequence.scan(/./).each_index do |i|
-            if player_acting_sequence[i].to_i == @user['seat']
-               betting_sequence[i] = betting_sequence[i].capitalize
-            end
-         end
+      players.each do |player|
+         player['hole_cards'] = Hand.new if player['folded?']
       end
-      @action_summary = betting_sequence
-      
-      # Which round is it?
-      @round = @match_state.round
-
-      # What are the board cards?
-      @board_cards = BoardCards.new []
-      @match_state.board_cards.each_index do |i|
-         @board_cards[i] = @match_state.board_cards[i]
-      end
-
-      # What is the hand number?
-      @hand_number = @match_state.hand_number
-
-      # What is the name of the match?
-      @match_name = @match.parameters[:match_name]
-
-      # What was the last action?
-      @last_action = @match_state.last_action
-
-      # Which actions are legal?
-      @legal_actions = @match_slice.legal_actions
-
-      # Which players are still active (only in multiplayer)?
-
-      # Has the hand ended?
-      @hand_ended = @match_slice.hand_ended?         
+   end
    
-      # Has the match ended?
-      @match_ended = @match_slice.match_ended?
+   def setup_player_information!
+      @players = @match_slice.players
+      
+      setup_chip_balances! @players
+      setup_user_and_opponents! @players
+      setup_pot_information! @players
+   end
+   
+   def acting_player_id(player_name)
+      if !@hand_ended && @player_whose_turn_is_next == player_name
+         'acting_player'
+      else
+         'not_acting_player'
+      end
+   end
+   
+   def delete_match!(match_id)
+      begin
+         match = current_match(match_id)
+      rescue
+      else
+         match.delete
+      end
    end
    
    # Updates the current match state.
    def update_match!
       @match_slice_index = params[:match_slice_index].to_i || 0
       @match_id = params[:match_id]
-      @match_slice = next_match_slice!
+      temp_match_slice = next_match_slice!
+      raise unless temp_match_slice
+      @match_slice = temp_match_slice
       @match_slice_index += 1
    end
    
-   # @todo document
    def next_match_slice!
-      if new_match_state_available?
-         @match = current_match
-      end
+      return nil unless new_match_state_available?
+      @match = current_match @match_id
       @match.slices[@match_slice_index]
    end
    
-   # @todo
    def new_match_state?(match)
       match.slices.length > @match_slice_index
    end
    
    def new_match_state_available?
-      match = current_match
-      # Busy waiting for the match to be changed by the background process
-      while !new_match_state? match
-         match = current_match
-         # @todo Add a failsafe here
-         # @todo Let the user know that the match's state is being updated
-         # @todo Use a processing spinner
+      match = current_match @match_id
+      looping_condition = lambda{ |proc_match| !new_match_state?(proc_match) }
+      begin
+         match = failsafe_while_for_match @match_id, looping_condition do
+            # @todo Log here
+            # @todo Maybe use a processing spinner
+         end
+      rescue
+         return false
       end
       true
    end
    
-   def current_match
-      Match.find @match_id
+   def round_specific_sequence(sequence, round)
+      return '' if sequence.empty?
+      sequence.split(/\//)[round]
    end
 end

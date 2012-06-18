@@ -1,0 +1,8 @@
+@import '../card/card_defs';
+@import '../abstract/cards/cards_defs';
+/*@import '../mixins';*/
+
+$zoom_buffer: 40px;
+$board_cards_width: 5*($card_bare_image_width + $cards_margin) +
+   $card_margin_correction_buffer + $zoom_buffer;
+   

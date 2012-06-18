@@ -2,8 +2,9 @@ GAMEDEF
 limit
 numPlayers = 2
 numRounds = 4
-blind = 10 5
-raiseSize = 10 10 20 20
+stack = 400 400
+blind = 2 1
+raiseSize = 2 2 4 4
 firstPlayer = 2 1 1 1
 maxRaises = 3 4 4 4
 numSuits = 4

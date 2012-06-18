@@ -4,12 +4,12 @@ require 'spec_helper'
 require File.expand_path('../../../../lib/bots/proxy_bot/communication_logic/acpc_dealer_communicator', __FILE__)
 require File.expand_path('../../../../lib/bots/proxy_bot/communication_logic/action_sender', __FILE__)
 require File.expand_path('../../../../lib/bots/proxy_bot/domain_types/card', __FILE__)
-require File.expand_path('../../../../lib/bots/proxy_bot/communication_logic/matchstate_string_receiver', __FILE__)
+require File.expand_path('../../../../lib/bots/proxy_bot/communication_logic/match_state_receiver', __FILE__)
 require File.expand_path('../../../../lib/game/dealer_information', __FILE__)
 
 describe WebApplicationPlayerProxy do
    #before(:each) do
-   #   @match_state = mock('MatchstateString')
+   #   @match_state = mock('MatchState')
    #   
    #   port_number = 9001
    #   host_name = 'localhost'
@@ -19,11 +19,11 @@ describe WebApplicationPlayerProxy do
    #   @patient = ProxyBot.new delaer_info
    #end
    #
-   #describe '#receive_match_state_string' do
+   #describe '#receive_match_state' do
    #   it "updates its match state properly" do
-   #      MatchstateStringReceiver.stubs(:receive_matchstate_string).returns(@match_state)
+   #      MatchStateReceiver.stubs(:receive_matchstate_string).returns(@match_state)
    #      
-   #      @patient.receive_match_state_string.should be @match_state
+   #      @patient.receive_match_state.should be @match_state
    #   end
    #end
    #
@@ -36,7 +36,7 @@ describe WebApplicationPlayerProxy do
    #   describe 'in a two-player game' do
    #      it "correctly reports that the hand has ended when one player has folded" do
    #         @match_state.stubs(:last_action).returns('f')
-   #         MatchstateStringReceiver.stubs(:receive_matchstate_string).returns(@match_state)
+   #         MatchStateReceiver.stubs(:receive_matchstate_string).returns(@match_state)
    #         
    #         @patient.update_match_state!
    #         
@@ -49,7 +49,7 @@ describe WebApplicationPlayerProxy do
    #         end
    #         @match_state.stubs(:list_of_opponents_hole_cards).returns(list_of_opponents_hole_cards)
    #            
-   #         MatchstateStringReceiver.stubs(:receive_matchstate_string).returns(@match_state)
+   #         MatchStateReceiver.stubs(:receive_matchstate_string).returns(@match_state)
    #         
    #         @patient.update_match_state!
    #      
@@ -204,7 +204,7 @@ describe WebApplicationPlayerProxy do
    ##it "correctly reports that the hand has ended when only one player is active" do
    ##   pending
    ##   (@players.length - 1).times do |i|
-   ##      @players[i].stubs(:is_active?).returns(false)
+   ##      @players[i].stubs(:active?).returns(false)
    ##   end
    ##   
    ##   @patient.hand_ended?.should == true
@@ -213,7 +213,7 @@ describe WebApplicationPlayerProxy do
    ##it "correctly reports that the hand has ended when no player is active" do
    ##   pending
    ##   (@players.length).times do |i|
-   ##      @players[i].stubs(:is_active?).returns(false)
+   ##      @players[i].stubs(:active?).returns(false)
    ##   end
    ##   
    ##   @patient.hand_ended?.should == true
@@ -244,7 +244,7 @@ describe WebApplicationPlayerProxy do
    #   MAX_VALUES[:rounds].times do |round|
    #      @match_state.stubs(:round).returns(round)
    #      @match_state.stubs(:number_of_actions_in_current_round).returns(0)
-   #      MatchstateStringReceiver.stubs(:receive_matchstate_string).returns(@match_state)
+   #      MatchStateReceiver.stubs(:receive_matchstate_string).returns(@match_state)
    #      
    #      @patient.update_match_state!
    #

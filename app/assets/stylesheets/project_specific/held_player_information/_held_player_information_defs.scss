@@ -1,0 +1,16 @@
+/*@import '../page/page_defs';*/
+@import '../chip_stack/chip_stack_defs';
+@import '../abstract/list/list_defs';
+@import '../abstract/information_container/information_container_defs';
+@import '../hole_cards/hole_cards_defs';
+/*@import '../mixins';*/
+
+$held_player_information_height: $default_primary_font_size +
+   $information_container_text_margin + $card_bare_image_height +
+   $list_element_margin;
+$held_player_information_combined_height:
+   $information_container_formatting_combined_height +
+   $held_player_information_height + 2*$default_border_width;
+$held_player_information_width: $hole_cards_width + $chip_stack_diameter;
+$held_player_information_combined_width: $held_player_information_width +
+   2*$default_border_width + $information_container_formatting_combined_width;

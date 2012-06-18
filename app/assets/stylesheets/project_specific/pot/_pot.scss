@@ -1,0 +1,14 @@
+@import '../board_cards/board_cards_defs';
+@import '../chip_stack/chip_stack';
+@import 'pot_defs';
+
+.pot {
+   @extend ul.horizontal;
+   
+   height: $pot_height;
+   width: $pot_width;
+   
+   .side_pot {
+      @extend li;
+   }
+}

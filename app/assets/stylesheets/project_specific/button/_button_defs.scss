@@ -1,0 +1,9 @@
+@import '../abstract/list/list_defs';
+
+$button_border: 1px;
+$button_padding: 4px;
+$button_height: 25px;
+$button_combined_height: $button_height + 2*$button_border;
+$button_width: 160px;
+$button_combined_width: $button_width;
+$button_font_size: 22px;

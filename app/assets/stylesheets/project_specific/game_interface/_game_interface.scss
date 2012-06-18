@@ -1,0 +1,25 @@
+@import 'game_interface_defs';
+
+.game_interface {
+   width: $game_interface_width;
+ 
+   .table {
+      position: relative;
+      top: $table_top;
+      left: $table_left;
+
+      margin: 0;
+   }
+   
+   .action_dashboard {
+      position: relative;
+   }
+}
+
+.game_interface#limit {
+   height: $game_interface_limit_height;
+}
+
+.game_interface#no_limit {
+   height: $game_interface_no_limit_height;
+}

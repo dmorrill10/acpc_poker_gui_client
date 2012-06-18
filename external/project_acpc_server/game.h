@@ -7,6 +7,7 @@ Copyright (C) 2011 by the Computer Poker Research Group, University of Alberta
 
 #include <inttypes.h>
 #include "rng.h"
+#include "net.h"
 
 
 #define VERSION_MAJOR 2
@@ -21,16 +22,14 @@ Copyright (C) 2011 by the Computer Poker Research Group, University of Alberta
 #define MAX_NUM_ACTIONS 64
 #define MAX_SUITS 4
 #define MAX_RANKS 13
-#define MAX_LINE_LEN 1024
+#define MAX_LINE_LEN READBUF_LEN
 
-#define ACTION_TYPE_FOLD 0
-#define ACTION_TYPE_CALL 1
-#define ACTION_TYPE_RAISE 2
 #define NUM_ACTION_TYPES 3
 
 
 enum BettingType { limitBetting, noLimitBetting };
-enum ActionType { fold = 0, call = 1, raise = 2, invalid = 3 };
+enum ActionType { a_fold = 0, a_call = 1, a_raise = 2,
+		  a_invalid = NUM_ACTION_TYPES };
 
 typedef struct {
   enum ActionType type; /* is action a fold, call, or raise? */

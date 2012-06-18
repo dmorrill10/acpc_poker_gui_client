@@ -1,0 +1,12 @@
+@import 'match_information_defs';
+@import '../toolbar/toolbar_defs';
+
+.match_information {
+   .title {
+      box-sizing: border-box;
+      -moz-box-sizing: border-box; /* Firefox */
+      -webkit-box-sizing: border-box; /* Safari */
+   
+      height: $toolbar_height;
+   }
+}

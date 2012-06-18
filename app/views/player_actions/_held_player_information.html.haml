@@ -1,0 +1,14 @@
+.held_player_information
+   .title= "#{player['name']}"
+   .hole_cards
+      = render partial: 'cards', locals: { cards: player['hole_cards'] }
+   .player_stack
+      = render partial: 'player_actions/chip_stack', locals: { amount: player['chip_stack'] + (if hand_ended && player['chip_contributions'].last < 0 then player['chip_contributions'].last else 0 end) }
+- if !hand_ended && player['chip_contributions'][round] > 0
+   .stack_added_to_pot
+      = render partial: 'chip_stack', locals: { amount: player['chip_contributions'][round] }
+- elsif player['chip_contributions'].last < 0
+   .stack_taken_from_pot
+      = render partial: 'chip_stack', locals: { amount: -player['chip_contributions'].last }
+- if player_with_the_dealer_button == player['name']
+   = render partial: 'dealer_button'

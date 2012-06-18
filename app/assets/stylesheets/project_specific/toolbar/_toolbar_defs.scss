@@ -1,0 +1,7 @@
+
+@import '../dynamic_menu/dynamic_menu_defs';
+
+$toolbar_border_width: 1px;
+$toolbar_padding: 0;
+$toolbar_height: $title_combined_height;
+$toolbar_combined_height: $toolbar_height + 2*$toolbar_padding + 2*$toolbar_border_width;

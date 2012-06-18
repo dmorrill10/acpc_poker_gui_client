@@ -1,0 +1,96 @@
+
+@import 'compass/css3/transform';
+
+@import '../page/page_defs';
+@import 'chip_stack_defs';
+
+@mixin chip_stack($outer_ring_color) {
+   @include chip_stack_size;
+   @include raised_border;
+   
+   $color_variation: 10%;
+   $ring_color: $outer_ring_color;
+   border-color: $ring_color;
+   border-radius: circular_border_radius();
+
+   background-color: darken($outer_ring_color, $color_variation);
+      
+   color: #010002;
+   $stack_amount_font_size: $default_primary_font_size + 1;
+   font-size: $stack_amount_font_size;
+   font-weight: bold;
+   
+   display: block;
+   
+   position: relative;
+   
+   .amount {
+      @include center_horizontally;
+      @include align_center_vertically($stack_amount_font_size, $chip_stack_diameter);
+      
+      @include align_text_center_horizontally_and_vertically($stack_amount_font_size,
+                                                             $stack_amount_font_size);
+      
+      display: block;
+   }
+   
+   .inner_ring {
+      $inner_ring_border_width: 1px;
+      @include soft_edges($ring_color, $inner_ring_border_width,
+                          circular_border_radius());
+      $inner_ring_margin: 7px;
+      $inner_ring_diameter: $chip_stack_diameter - 2*$inner_ring_margin;
+      
+      height: $inner_ring_diameter;
+      width: $inner_ring_diameter;
+      
+      background-color: #fff;
+      
+      margin-left: $inner_ring_margin - $inner_ring_border_width;
+      margin-top: $inner_ring_margin - $inner_ring_border_width;
+      margin-right: $inner_ring_margin + $inner_ring_border_width;
+      margin-bottom: $inner_ring_margin + $inner_ring_border_width;
+      
+      position: absolute;
+   }
+   
+   $suit_symbol_font_size: $default_primary_font_size - 4;
+   .suit_symbol {
+      position: absolute;
+      margin: 0;
+      font-size: $suit_symbol_font_size;
+      color: #fff;
+   }
+   
+   $horizontal_aligned_symbol_top: ceil(($chip_stack_diameter - $suit_symbol_font_size)/2) - 3px;
+   .club_symbol {
+      @extend .suit_symbol;
+      
+      top: $horizontal_aligned_symbol_top;
+      right: 0;
+   }
+   
+   .diamond_symbol {
+      @extend .suit_symbol;
+      
+      top: $horizontal_aligned_symbol_top;
+      left: 0;
+      font-size: $suit_symbol_font_size + 3;
+   }
+   
+   $font_size_vertical_void_space_above: ceil($suit_symbol_font_size/2.7);
+   $font_size_vertical_void_space_below: ceil($suit_symbol_font_size/3.5);
+   $font_size_vertical_void_space: $font_size_vertical_void_space_above
+      + $font_size_vertical_void_space_below;
+   $vertical_aligned_symbol_left: ceil(($chip_stack_diameter - (9/15)*$suit_symbol_font_size)/2);
+   .heart_symbol {
+      @extend .suit_symbol;
+      bottom: -$font_size_vertical_void_space_below;
+      left: $vertical_aligned_symbol_left;
+   }
+   .spade_symbol {
+      @extend .suit_symbol;
+      top: -$font_size_vertical_void_space_above;
+      left: $vertical_aligned_symbol_left;
+   }
+}

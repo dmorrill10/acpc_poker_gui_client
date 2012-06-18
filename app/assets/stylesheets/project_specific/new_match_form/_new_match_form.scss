@@ -1,0 +1,16 @@
+@import '../abstract/off_table_container/off_table_container';
+/*@import '../mixins';*/
+
+.new_match_form {
+   @extend .off_table_container;
+   
+   @include soft_edges($default_border_color);
+   @include center_horizontally;
+   
+   display: block;
+
+   width: 400px;
+   
+   margin-right: auto;
+   margin-left: auto;
+}

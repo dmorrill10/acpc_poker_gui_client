@@ -1,0 +1,31 @@
+@import '../abstract/on_table_container/on_table_container';
+@import '../abstract/list/list';
+@import '../board_cards/board_cards_defs';
+@import '../card/card_defs';
+/*@import '../mixins';*/
+@import 'community_information_defs';
+
+.community_information {
+   @extend .on_table_container;
+   @extend ul.horizontal;
+
+   @include center_horizontally;
+   
+   height: $community_information_height;
+   width: $community_information_width;
+   
+   display: block;
+      
+   * {
+      white-space: normal;
+   }
+   
+   .pot {
+      position: absolute;
+      top: floor(($card_bare_image_height - $chip_stack_diameter)/2);
+      
+      .chip_stack {
+         @include chip_stack(#770B77);
+      }
+   }
+}

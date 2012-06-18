@@ -1,0 +1,6 @@
+@import '../card/card_defs';
+@import '../abstract/cards/cards_defs';
+
+$hole_cards_width: 2*($card_bare_image_width + $cards_margin) +
+   $card_margin_correction_buffer;
+   

@@ -1,0 +1,12 @@
+/*@todo Move these conventions to their own file.*/
+/*Never include any other pages in a defs file*/
+/*Always put the name of the class as the first word in the variable*/
+/*Only put variables in a defs file*/
+
+@import '../container/container_defs';
+@import '../footer/footer_defs';
+
+$page_background_color: #515250;
+$page_background: image-url('nick_morrill/chip_background.foggy.jpg');
+$page_height: $container_combined_height + $footer_combined_height;
+$page_width: $container_combined_width;

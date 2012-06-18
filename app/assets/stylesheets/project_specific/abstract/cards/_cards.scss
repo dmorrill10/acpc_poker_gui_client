@@ -1,0 +1,16 @@
+
+@import '../list/list_defs';
+@import '../../card/card_defs';
+@import 'cards_defs';
+
+.cards {
+   @extend ul.horizontal;
+   
+   height: $card_bare_image_height;
+   
+   margin: 0;
+   .card {
+      @extend li;
+      margin: $cards_margin;
+   }
+}

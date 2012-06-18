@@ -1,0 +1,25 @@
+NUM_PLAYERS = 2
+GAME_TYPE = CARD_GAME
+ROUNDS = 4
+ANTE = 100 50
+NO_LIMIT
+STACK_SIZE = 20000 20000
+SUITS = 4
+RANKS = 13
+NUM_PLAYER_CARDS = 2
+NUM_BOARD_CARDS = 0 3 1 1
+NUM_FIXED_CARDS = 0 0 0 0
+GAME_DEF_END
+
+GAMEDEF
+nolimit
+numPlayers = 2
+numRounds = 4
+stack = 20000 20000
+blind = 100 50
+firstPlayer = 2 1 1 1
+numSuits = 4
+numRanks = 13
+numHoleCards = 2
+numBoardCards = 0 3 1 1
+END GAMEDEF

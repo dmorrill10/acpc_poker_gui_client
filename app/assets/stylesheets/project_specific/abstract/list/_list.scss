@@ -1,0 +1,32 @@
+@import 'list_defs';
+
+ul {
+   script {
+      display: none;
+   }
+   li {
+      margin-bottom: $list_element_margin;
+   }
+}
+
+ul.horizontal {
+   li {
+      display: inline-block;
+   }
+   ul {
+      display: inline-block;
+   }
+}
+
+ul.vertical {
+   li {
+      display: block;
+   }
+   ul {
+      display: block;
+   }
+}
+
+form {
+   @extend ul;
+}

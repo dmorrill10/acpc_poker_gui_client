@@ -1,0 +1,15 @@
+
+@import '../table/table_defs';
+@import '../action_dashboard/action_dashboard_defs';
+
+/*.table*/
+$table_top: 0;
+$table_left: 0;
+$table_bottom: $table_top + $table_combined_height;
+$table_right: $table_left + $table_combined_width;
+
+$game_interface_limit_height: $table_bottom +
+   $action_dashboard_limit_combined_height;
+$game_interface_no_limit_height: $table_bottom +
+   $action_dashboard_no_limit_combined_height;
+$game_interface_width: max($table_right, $action_dashboard_combined_width);

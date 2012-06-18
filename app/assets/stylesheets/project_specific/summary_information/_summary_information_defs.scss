@@ -1,0 +1,6 @@
+@import '../card/card_defs';
+
+$summary_information_width: 285px;
+$summary_information_combined_width: $summary_information_width +
+   $information_container_formatting_combined_width;
+   

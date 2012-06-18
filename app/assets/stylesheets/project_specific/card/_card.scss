@@ -1,0 +1,68 @@
+
+@import 'compass';
+
+/*@import '../mixins';*/
+@import 'card_defs';
+
+@mixin set_card_color($color) {
+   @include soft_edges($color);
+   @include raised_border;
+   
+   $dark_color: darken($color, $card_color_variation_amount);
+   $light_color: lighten($color, $card_color_variation_amount);
+   @include background-image(linear-gradient(top, $light_color, $dark_color));
+      
+   .suit {
+      color: darken($color, $card_color_variation_amount);
+   }
+}
+
+.card {
+   $blank_card_color: #01b0b0;
+   @include set_card_color($blank_card_color);
+   @include background-image(linear-gradient(top left,
+                                             darken($blank_card_color, 25%),
+                                             $blank_card_color));
+   
+   height: $card_height;
+   width: $card_width;
+   
+   position: relative;
+   
+   $symbol_margin: 4px;
+   
+   .top_left_rank {
+      position: absolute;
+      $margin_for_top_left_rank: $symbol_margin;
+      top: $margin_for_top_left_rank/3;
+      left: $margin_for_top_left_rank;
+      
+      font-size: $default_primary_font_size*1.5;
+   }
+   .bottom_right_rank {
+      position: absolute;
+      bottom: 0;
+      right: $symbol_margin;
+      
+      font-size: $default_primary_font_size*3;
+   }
+   .suit {
+      position: absolute;
+      top: 0;
+      right: $symbol_margin;
+      font-size: $default_primary_font_size*2;
+   }
+}
+
+.card#c {
+   @include set_card_color(#107010);
+}
+.card#d {
+   @include set_card_color(#2020A0);
+}
+.card#h {
+   @include set_card_color(#B00101);
+}
+.card#s {
+   @include set_card_color(#303030);
+}

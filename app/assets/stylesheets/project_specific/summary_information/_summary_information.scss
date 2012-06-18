@@ -1,0 +1,20 @@
+@import '../abstract/on_table_container/on_table_container';
+@import '../abstract/list/list';
+@import '../card/card_defs';
+@import 'summary_information_defs';
+
+.summary_information {
+   @extend ul.vertical;
+   
+   @include no_border;
+   
+   height: $card_height;
+   width: $summary_information_width;
+   float: right;
+   * {
+      margin: 0;
+   }
+   p {
+      margin: 0;
+   }
+}

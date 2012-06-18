@@ -1,28 +1,24 @@
 // @todo Test this JS with Jasmine
 
-
-- if @opponent_port_number
-   alert("Connecting to dealer... Opponent port is: #{@opponent_port_number}");
-- elsif @opponent_port_numbers
-   alert("Connecting to dealer... Opponent ports are: #{@opponent_port_numbers}");
-- else
-   alert("Connecting to dealer...");
-
 // @todo Move the class strings to a shared resource
 var match_id = document.getElementById('match_id_hidden_field');
 var port_number = document.getElementById('port_number_hidden_field');
 var match_name = document.getElementById('match_name_hidden_field');
 var game_definition_file_name = document.getElementById('game_definition_file_name_hidden_field');
 var number_of_hands = document.getElementById('number_of_hands_hidden_field');
-var random_seed = document.getElementById('random_seed_hidden_field')
-var player_names = document.getElementById('player_names_hidden_field')
+var seat = document.getElementById('seat_hidden_field');
+var random_seed = document.getElementById('random_seed_hidden_field');
+var player_names = document.getElementById('player_names_hidden_field');
+var millisecond_response_timeout = document.getElementById('millisecond_response_timeout_hidden_field');
 
 match_id.value = "#{@match.id}";
 port_number.value = "#{@port_number}";
 match_name.value = "#{@match.match_name}";
 game_definition_file_name.value = "#{@match.game_definition_file_name}";
 number_of_hands.value = "#{@match.number_of_hands}";
+seat.value = "#{@match.seat}";
 random_seed.value = "#{@match.random_seed}";
 player_names.value = "#{@match.player_names}";
+millisecond_response_timeout.value = "#{@match.millisecond_response_timeout}";
 
 $('#game_home_hidden_button').submit();

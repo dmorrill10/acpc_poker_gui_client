@@ -1,6 +1,6 @@
 
-# Third party
-require 'stalker'
+# System
+require 'socket'
 
 # Local modules
 require 'application_defs'
@@ -17,7 +17,8 @@ class NewGameController < ApplicationController
    
    # Presents the main 'start a new game' view.   
    def new
-      @match = Match.new
+      Match.delete_matches_older_than(DEALER_MILLISECOND_TIMEOUT * 10**(-3))
+      @match = Match.new      
       respond_to do |format|
          format.html {}
          format.js do
@@ -30,73 +31,94 @@ class NewGameController < ApplicationController
    # @todo turn this into a create method and get the game definition from the view
    def create
       @match = Match.new params[:match]
-      # @todo not sure what the maximum random seed should be
-      @match.random_seed = rand(100) unless @match.random_seed
-      # @todo make this variable depending on the participants
-      @match.player_names = 'user, testing_ruby_bot'
-      # @todo Move this default to the view
-      @match.number_of_hands = 1 unless @match.number_of_hands
+      
+      @match.seat ||= (rand(2) + 1).to_s
+      @match.random_seed ||= lambda do
+         random_float = rand
+         random_int = (random_float * 10**random_float.to_s.length).to_i
+         random_int.to_s
+      end.call
+      
+      # For some reason, +REGISTERED_BOTS.key(ApplicationDefs.const_get(@match.bot))+
+      #  doesn't work so I'm converting the classes in REGISTERED_BOTS to strings
+      registered_bot_keys_as_strings = REGISTERED_BOTS.inject({}) do |hash, key_value|
+         (key, value) = key_value
+         hash[key] = value.to_s
+         hash
+      end
+      names = ['user', registered_bot_keys_as_strings.key(@match.bot)]
+      @match.player_names = (if @match.seat.to_i == 2 then names.reverse else names end).join(', ')
+      
+      @match.number_of_hands ||= 1
       @match.game_definition_file_name = GAME_DEFINITION_FILE_NAMES[@match.game_definition_key]
+      @match.millisecond_response_timeout = DEALER_MILLISECOND_TIMEOUT
       unless @match.save
-         replace_page_contents NEW_MATCH_PARTIAL, 'Ah! The match did not save, please retry.'
+         reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
       else
          dealer_arguments = [@match.match_name,
                              @match.game_definition_file_name,
                              @match.number_of_hands.to_s,
                              @match.random_seed.to_s,
-                             @match.player_names.split(/\s*,?\s+/)].flatten
+                             @match.player_names.split(/\s*,?\s+/),
+                             '--t_response ' + @match.millisecond_response_timeout.to_s,
+                             '--t_hand ' + @match.millisecond_response_timeout.to_s,
+                             '--t_per_hand ' + @match.millisecond_response_timeout.to_s].flatten
          
-         # @todo Make sure the background server is started at this point
-         Stalker.enqueue('Dealer.start', :match_id => @match.id, :dealer_arguments => dealer_arguments)
+         start_background_job('Dealer.start', {match_id: @match.id, dealer_arguments: dealer_arguments})
          
-         # Busy waiting for the match to be changed by the background process
-         # If the new match state can't be found in ten seconds, there is something wrong so alert the user and leave this game
-         time_beginning_to_wait_for_match = Time.now
-         while !@match.port_numbers
-            @match = Match.find(@match.id)
-            
-            # Tell the user that the dealer is starting up
-            # @todo Use a processing spinner            
-            puts = 'The dealer is starting...'
-            
-            if Time.now > time_beginning_to_wait_for_match + 10
-               replace_page_contents NEW_MATCH_PARTIAL, 'Unable to start match, returning to new game menu.'
-               return
-            end
+         continue_looping_condition = lambda { |match| !match.port_numbers }
+         begin
+            temp_match = failsafe_while_for_match(@match.id, continue_looping_condition) {}
+         rescue
+            @match.delete
+            reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
+            return
          end
+         @match = temp_match
          
          port_numbers = @match.port_numbers
          
-         # @todo Need to randomize this?
-         @port_number = port_numbers[0]
-         @opponent_port_number = port_numbers[1]
+         user_port_index = @match.seat-1
+         opponent_port_index = if 0 == user_port_index then 1 else 0 end
+         @port_number = port_numbers[user_port_index]
+         @opponent_port_number = port_numbers[opponent_port_index]
       
-         # @todo Start bots if there are not enough human players in the match
-      
-         # Start an opponent
-         # @todo Make this better, with customization from the browser
-         opponent_arguments = {match_id: @match.id,
-            host_name: 'localhost', port_number: @opponent_port_number,
-            game_definition_file_name: @match.game_definition_file_name}
+         # Start an opponent         
+         bot_class = Object::const_get(@match.bot)
          
-         Stalker.enqueue('Opponent.start', opponent_arguments)      
-      
+         # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
+         # ARGUMENT HASH.
+         bot_argument_hash = {
+            port_number: @opponent_port_number,
+            millisecond_response_timeout: @match.millisecond_response_timeout,
+            server: Socket.gethostname,
+            game_def: @match.game_definition_file_name
+         }
+         
+         bot_start_command = bot_class.run_command bot_argument_hash
+         
+         opponent_arguments = {
+            match_id: @match.id,
+            bot_start_command: bot_start_command
+         }
+         
+         start_background_job 'Opponent.start', opponent_arguments
+         
          send_parameters_to_connect_to_dealer
       end
    end
-
-   # Starts a new two-player no-limit game.
-   def two_player_no_limit
-      #send_parameters_to_connect_to_dealer
-   end
-
-   # Starts a new three-player limit game.
-   def three_player_limit
-      #send_parameters_to_connect_to_dealer
-   end
-
-   # Starts a new three-player no-limit game.
-   def three_player_no_limit
-      #send_parameters_to_connect_to_dealer
+   
+   def rejoin
+      match_name = params[:match_name].strip
+      
+      begin
+         @match = Match.where(match_name: match_name).first
+         raise unless @match         
+         
+         @port_number = @match.port_numbers[@match.seat-1]
+         send_parameters_to_connect_to_dealer
+      rescue
+         reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\"."
+      end
    end
 end

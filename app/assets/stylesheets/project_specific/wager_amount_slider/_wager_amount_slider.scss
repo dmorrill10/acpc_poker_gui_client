@@ -1,0 +1,34 @@
+@import 'wager_amount_slider_defs';
+
+.wager_amount_slider {
+   width: inherit;
+   height: $wager_amount_slider_combined_height;
+   
+   .increment_labels {
+      @extend ul.horizontal;
+      
+      overflow: visible;
+      
+      $slider_partition_length: floor($wager_amount_slider_width/5.5);
+      .slider_label {
+         position: relative;
+         width: $slider_partition_length;
+      }
+      li.slider_label:last-child {
+         width: auto;
+      }
+   }
+   .wrapper {
+      @include center_horizontally;
+      width: $wager_amount_slider_width + 30px;
+      
+      padding-right: $wager_amount_slider_padding_right;
+      padding-bottom: $wager_amount_slider_padding_bottom;
+      
+      float: right;
+   }
+   .ui_slider {
+      @include center_horizontally;
+      width: $wager_amount_slider_width;
+   }
+}

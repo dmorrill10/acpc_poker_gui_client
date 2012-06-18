@@ -1,0 +1,24 @@
+@import '../../page/page_defs';
+/*@import '../mixins';*/
+@import 'information_container_defs';
+
+.information_container {
+   @include soft_edges($default_border_color);
+   
+   padding: $information_container_padding;
+
+   color: $default_primary_text_color;
+   
+   .title {
+      @extend p;
+      font-weight: bold;
+   }
+   
+   select {
+      @include block_interface_element;
+   }
+   
+   input, select, .button {
+      font-size: $default_primary_font_size;
+   }
+}

@@ -1,0 +1,8 @@
+- cards.each do |card|
+  - suit_id = if card.respond_to?(:suit) then card.suit.to_s else '' end
+  - suit = if card.respond_to?(:suit) then card.suit.to_html.html_safe else '' end
+  - rank = if card.respond_to?(:rank) then card.rank.to_s.html_safe else '' end
+  .card{ :id => suit_id }
+    .top_left_rank= rank
+    .bottom_right_rank= rank
+    .suit= suit

@@ -13,7 +13,7 @@ require File.expand_path('../../support/controller_test_helper', __FILE__)
 require 'match'
 
 describe NewGameController do
-   include AcpcPokerTypesDefs
+   include AcpcPokerTypes
    include ControllerTestHelper
 
    describe "GET 'index'" do

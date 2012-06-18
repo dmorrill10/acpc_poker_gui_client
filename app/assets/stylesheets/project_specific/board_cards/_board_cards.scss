@@ -1,0 +1,11 @@
+@import '../abstract/cards/cards';
+@import 'board_cards_defs';
+
+.board_cards {
+   @extend .cards;   
+   width: $board_cards_width;
+   
+   img {
+      padding: 0;
+   }
+}

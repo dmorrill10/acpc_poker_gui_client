@@ -1,0 +1,23 @@
+@import '../../page/page_defs';
+@import '../list/list_defs';
+/*@import '../mixins';*/
+@import '../information_container/information_container';
+
+.off_table_container {
+   @extend .information_container;
+   background-color: $page_background_color;
+   
+   .meta_action, input, .button {
+      margin-top: 0;
+      margin-bottom: $list_element_margin;
+      margin-left: 0;
+      margin-right: 0;
+   }
+   
+   .meta_action {
+      .button {
+         @include block_interface_element(#eeaa00);
+         color: #000;
+      }
+   }
+}

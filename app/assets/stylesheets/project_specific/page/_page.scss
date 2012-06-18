@@ -1,0 +1,61 @@
+@import 'page_defs';
+@import 'blueprint/reset/utilities';
+
+html {
+   @include blueprint-reset;
+   font-family: Verdana, Helvetica, Arial;
+   font-size: $default_primary_font_size;
+   color: $default_primary_text_color;
+  
+   padding: 0 0 0 0;
+   margin: 0 0 0 0;
+   
+   background-color: $page_background_color;
+   background-image: $page_background;
+   background-repeat: no-repeat;
+   background-position: center;
+   
+   overflow: hidden;
+   
+   body {
+      @include center_horizontally;
+      @include no_border;
+      
+      padding: 0 0 0 0;
+      margin-top: 0;
+      margin-bottom: 0;
+   }
+      
+   a img {
+      border: none;
+   }
+   
+   hr {
+      margin-top: 0;
+      margin-bottom: $vertical_divider_buffer;
+      border-width: $vertical_divider_thickness/2;
+      border-left: none;
+      border-right: none;
+   }
+   
+   .hidden {
+      @include no_size;
+   }
+   
+   p {
+      margin-top: 0;
+      margin-right: 0;
+      margin-left: 0;
+      margin-bottom: $information_container_text_margin;
+      padding: 0;
+   }
+   
+   h1 {
+      margin: 0;
+   }
+   
+   ul {
+      padding: 0;
+      margin: 0;
+   }
+}

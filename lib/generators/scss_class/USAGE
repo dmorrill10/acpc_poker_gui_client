@@ -1,0 +1,15 @@
+Description:
+    Explain the generator
+
+Example:
+    rails generate scss_class new_scss_class_name
+
+    This will create:
+        A new SCSS class. More precisely, it will generate a directory called
+        new_scss_class_name in app/assets/stylesheets/project_specific. This
+        directory will contain the files new_scss_class_name.scss and
+        new_scss_class_name_defs.scss.
+        
+        See StylesheetWorkflowAndGuidelines documentation
+        (http://www.ualberta.ca/~morrill/doc/StylesheetWorkflowAndGuidelines#)
+        for more information.

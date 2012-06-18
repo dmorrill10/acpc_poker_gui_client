@@ -2,14 +2,14 @@
 %html
    %head
       %title
-         = content_for?(:title) ? yield(:title) : 'AcpcPokerGuiClient'
+         -# @todo This doesn't work with the way I use JS to replace #container contents.
+         -# yield(:title) if content_for?(:title)
+         -#\- AcpcPokerGuiClient
+         = AcpcPokerGuiClient
       = stylesheet_link_tag "application"
       = javascript_include_tag "application"
       = csrf_meta_tag
       = yield(:head)
    %body
-      #container
-         - flash.each do |name, msg|
-            = content_tag :div, msg, :id => "flash_#{name}"
-         = content_tag :h1, yield(:title) if show_title?
+      .container
          = yield

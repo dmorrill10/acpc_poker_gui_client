@@ -1,0 +1,11 @@
+#new_match_form
+   = simple_form_for @match, url: create_new_match_url, remote: true, validate: true do |f|
+      = f.input :match_name, hint: "Matches can be rejoined with this name for #{((ApplicationHelper::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600).to_i} hours after the last action was taken."
+      // @todo parse this as given to get the number of players
+      = f.input :game_definition_key, label: 'Game definition', collection: ApplicationDefs::GAME_DEFINITION_NAMES, value_method: :first, label_method: :last, include_blank: false
+      = f.input :number_of_hands, as: :integer
+      = f.input :seat, collection: [1, 2], hint: 'Leave blank to use a random seat'
+      = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed'
+      = f.input :bot, label: 'Opponent agent', collection: ApplicationDefs::REGISTERED_BOTS, value_method: :last, label_method: :first, include_blank: false
+      = f.button :submit
+   .hidden= hidden_game_parameter_form

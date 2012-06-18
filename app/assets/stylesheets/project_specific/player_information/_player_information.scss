@@ -1,0 +1,67 @@
+@import '../chip_stack/chip_stack';
+@import '../abstract/on_table_container/on_table_container';
+@import '../container/container_defs';
+@import '../hole_cards/hole_cards_defs';
+@import '../abstract/list/list_defs';
+@import 'player_information_defs';
+
+.player_information {   
+   @extend .on_table_container;
+   
+   height: $player_information_height;
+   width: $player_information_width;
+   
+   ul {
+      display: inline;
+      list-style-type: none;
+   }
+         
+   .dealer_button {
+      position: absolute;
+   }
+   
+   .title {
+      position: relative;
+      display: block;
+   }
+   
+   .pot_associated_stack {
+      @include center_horizontally;
+      
+      margin-top: 0;
+      margin-bottom: 0;
+   }
+   
+   .stack_taken_from_pot {
+      @extend .pot_associated_stack;
+      
+      @include chip_stack(#001EB7);
+   }
+   
+   .stack_added_to_pot {
+      @extend .pot_associated_stack;
+      
+      @include chip_stack(#AA0142);
+   }
+   
+   .player_stack {
+      position: relative;
+      float: right;
+      
+      .chip_stack {
+         @include chip_stack(#ff9900);
+      }
+   }
+}
+
+.player_information#acting_player {
+   .held_player_information {
+      @include soft_edges(#ff0);
+   }
+}
+
+.player_information#not_acting_player {
+   .held_player_information {
+      @include soft_edges(transparent);
+   }
+}

@@ -1,0 +1,20 @@
+
+$vertical_buffer: 7px;
+$horizontal_buffer: $vertical_buffer;
+$vertical_divider_buffer: 4px;
+$vertical_divider_thickness: 2px;
+$vertical_divider_combined_height: $vertical_divider_thickness +
+   $vertical_divider_buffer;
+
+$background_color: #000;
+$no_buffer: 0 0 0 0;
+
+$default_radius: 5px;
+$default_border_radius: $default_radius $default_radius $default_radius $default_radius;
+$default_border_width: 7px;
+
+$default_font_family: Verdana, Helvetica, Arial;
+$default_primary_font_size: 12px;
+$default_primary_text_color: #fffeff;
+$default_border_color: #fff;
+

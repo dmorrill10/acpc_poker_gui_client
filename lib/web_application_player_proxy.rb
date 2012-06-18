@@ -1,20 +1,4 @@
 
-# @todo Only need certain classes
-## Local modules
-#require File.expand_path('../../acpc_poker_types', __FILE__)
-## Local mixins
-#require File.expand_path('../../mixins/easy_exceptions', __FILE__)
-## Local classes
-#require File.expand_path('../../bots/proxy_bot/proxy_bot', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/board_cards', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/card', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/chip_stack', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/game_definition', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/hand', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/matchstate_string', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/player', __FILE__)
-#require File.expand_path('../../bots/proxy_bot/domain_types/side_pot', __FILE__)
-
 # Gems
 require 'acpc_poker_types'
 require 'acpc_poker_match_state'
@@ -23,79 +7,202 @@ require 'acpc_poker_player_proxy'
 require File.expand_path('../config/database_config', __FILE__)
 require File.expand_path('../../app/models/match', __FILE__)
 
-
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
-   include AcpcPokerTypesDefs
+   include AcpcPokerTypes
    
    exceptions :unable_to_create_match_slice
    
    # @param [String] match_id The ID of the match in which this player is participating.
    # @param [DealerInformation] dealer_information Information about the dealer to which this bot should connect.
-   # @param [String] game_definition_file_name The name of the file containing the definition of the game, of which, this match is an instance.
+   # @param [GameDefinition, #to_s] game_definition_argument A game definition; either a +GameDefinition+ or the name of the file containing a game definition.
    # @param [String] player_names The names of the players in this match.
    # @param [Integer] number_of_hands The number of hands in this match.
-   def initialize(match_id, dealer_information, game_definition_file_name, player_names='user p2', number_of_hands=1)
+   def initialize(match_id, dealer_information, users_seat,
+                  game_definition_file_name, player_names='user p2',
+                  number_of_hands=1)
+
+      log __method__, {
+         match_id: match_id,
+         dealer_information: dealer_information,
+         users_seat: users_seat,
+         game_definition_file_name: game_definition_file_name,
+         player_names: player_names,
+         number_of_hands: number_of_hands
+      }
+      
       @match_id = match_id
       @match_slice_index = 0
-      @player_proxy = PlayerProxy.new dealer_information, game_definition_file_name, player_names, number_of_hands
-      update_match_state!
+      @player_proxy = PlayerProxy.new(
+         dealer_information, 
+         users_seat,
+         game_definition_file_name, 
+         player_names, 
+         number_of_hands
+      ) do |players_at_the_table|
+         
+         log __method__, {
+            match_slice_index: @match_slice_index, 
+            players_at_the_table: players_at_the_table
+         }
+
+         log __method__, { first_player_positions: players_at_the_table.game_def.first_player_positions }
+
+         if players_at_the_table.transition.next_state
+            update_database! players_at_the_table
+         end
+      end
    end
    
    # Player action interface
    # @see PlayerProxy#play!
-   def play!(action)      
-      @player_proxy.play! action
-      update_match_state!
+   def play!(action)
+
+      log __method__, {
+         match_slice_index: @match_slice_index,
+         action: action
+      }
+
+      @player_proxy.play! action do |players_at_the_table|
+         update_database! players_at_the_table
+         
+         @match_slice_index += 1
+      end
+
+      self
+   end
+   
+   # @see PlayerProxy#match_ended?
+   def match_ended?
+      match_has_ended = @player_proxy.players_at_the_table.match_ended?
+
+      log __method__, {match_has_ended: match_has_ended}
+
+      match_has_ended
    end
    
    private
-      
-   def update_match_state!
-      number_of_match_states_saved = 0
-      @player_proxy.match_snapshots.rest(@match_slice_index).each do |match_state|
-         update_database! match_state
-         number_of_match_states_saved += 1
-      end
-      @match_slice_index += number_of_match_states_saved
-   end
    
-   def update_database!(match_state)
+   def update_database!(players_at_the_table)
+
+      log __method__, {
+         match_id: @match_id, 
+         match_slice_index: @match_slice_index, 
+         players_at_the_table: players_at_the_table
+      }
+
       match = Match.find(@match_id)
-      players = match_state.players.map { |player| player.to_hash }
-      pot = list_of_side_pot_information match_state.pot.players_involved_and_their_amounts_contributed
-      pot_distribution = list_of_side_pot_information match_state.pot.players_involved_and_their_amounts_received
-      player_turn_information = {submitted_small_blind: match_state.player_who_submitted_small_blind.name,
-         submitted_big_blind: match_state.player_who_submitted_big_blind.name,
-         whose_turn_is_next: match_state.player_whose_turn_is_next.name,
-         with_the_dealer_button: match_state.player_with_the_dealer_button.name}
-      betting_sequence = match_state.match_state_string.betting_sequence_string
-      legal_actions = match_state.legal_actions.to_a.map { |action| action.to_acpc }
       
+      players = players_at_the_table.players.map { |player| sanitize_player_for_database(player) }
+      
+      pot_distribution = if players_at_the_table.chip_contributions.mapped_sum.sum < 0
+         pot_distribution = players_at_the_table.chip_contributions.map do |contributions| 
+             if contributions.last < 0 then contributions.last else 0 end
+         end
+      else
+         players_at_the_table.chip_contributions.mapped_sum.map { |contribution| 0 }
+      end
+      
+      pot_values_at_start_of_round = if players_at_the_table.transition.next_state.round < 1
+         players_at_the_table.chip_contributions.map { |contribution| 0 }
+      else
+         players_at_the_table.chip_contributions.map do |contributions| 
+            contributions[0..players_at_the_table.transition.next_state.round-1].sum
+         end
+      end
+
+      large_blind = players_at_the_table.player_blind_relation.values.max
+      player_who_submitted_big_blind = players_at_the_table.player_blind_relation.key large_blind
+      small_blind = players_at_the_table.player_blind_relation.reject do |player, blind|
+         blind == large_blind
+      end.values.max
+      player_who_submitted_small_blind = players_at_the_table.player_blind_relation.key small_blind
+
+      player_turn_information = {
+         submitted_small_blind: player_who_submitted_small_blind.name,
+         submitted_big_blind: player_who_submitted_big_blind.name,
+         whose_turn_is_next: if players_at_the_table.next_player_to_act 
+            players_at_the_table.next_player_to_act.name
+         else
+            ''
+         end,
+         with_the_dealer_button: players_at_the_table.player_with_dealer_button.name
+      }
+      betting_sequence = players_at_the_table.betting_sequence_string
+      legal_actions = players_at_the_table.legal_actions.to_a.map do |action| 
+         action.to_acpc
+      end
+      
+      log __method__, {
+         hand_has_ended: players_at_the_table.hand_ended?,
+         match_has_ended: players_at_the_table.match_ended?,
+         state_string: players_at_the_table.transition.next_state.to_s,
+         users_turn_to_act: players_at_the_table.users_turn_to_act?,
+         players: players,
+         pot_values_at_start_of_round: pot_values_at_start_of_round,
+         pot_distribution: pot_distribution,
+         player_turn_information: player_turn_information,
+         betting_sequence: betting_sequence,
+         player_acting_sequence: players_at_the_table.player_acting_sequence_string,
+         legal_actions: legal_actions,
+         minimum_wager: players_at_the_table.min_wager.to_i,
+         amounts_to_call: players_at_the_table.players.inject({}) do |hash, player|
+            hash[player.name] = players_at_the_table.amount_to_call(player).to_i
+            hash
+         end,
+         hand_number: players_at_the_table.transition.next_state.hand_number
+      }
+
       begin
-         match.slices.create!(hand_has_ended: match_state.hand_ended?,
-                              match_has_ended: match_state.match_ended?,
-                              state_string: match_state.match_state_string.to_s,
-                              # @todo Shouldn't need to pass this around
-                              users_turn_to_act: match_state.users_turn_to_act?,
-                              players: players,
-                              pot: pot,
-                              pot_distribution: pot_distribution,
-                              player_turn_information: player_turn_information,
-                              betting_sequence: betting_sequence,
-                              player_acting_sequence: match_state.player_acting_sequence_string,
-                              legal_actions: legal_actions
-                              )
+         match.slices.create!(
+            hand_has_ended: players_at_the_table.hand_ended?,
+            match_has_ended: players_at_the_table.match_ended?,
+            state_string: players_at_the_table.transition.next_state.to_s,
+            users_turn_to_act: players_at_the_table.users_turn_to_act?,
+            players: players,
+            pot_values_at_start_of_round: pot_values_at_start_of_round,
+            pot_distribution: pot_distribution,
+            player_turn_information: player_turn_information,
+            betting_sequence: betting_sequence,
+            player_acting_sequence: players_at_the_table.player_acting_sequence_string,
+            legal_actions: legal_actions,
+            minimum_wager: players_at_the_table.min_wager.to_i,
+            amounts_to_call: players_at_the_table.players.inject({}) do |hash, player|
+               hash[player.name] = players_at_the_table.amount_to_call(player).to_i
+               hash
+            end,
+            hand_number: players_at_the_table.transition.next_state.hand_number
+         )
          match.save
       rescue => e
          raise UnableToCreateMatchSlice, e.message
       end
+
+      @match_slice_index += 1
+
+      self
    end
-   
-   def list_of_side_pot_information(player_to_value_hash)
-      [player_to_value_hash.inject({}) do |hash, player_and_value|
-          hash[player_and_value[0].name] = player_and_value[1]
-          hash
-      end]
+
+   def sanitize_player_for_database(player)
+      { 
+         'name' => player.name.to_s,
+         'seat' => player.seat.to_i,
+         'chip_stack' => player.chip_stack.to_i,
+         'chip_contributions' => player.chip_contributions.map do |contribution_per_round|
+            contribution_per_round.to_i
+         end,
+         'chip_balance' => player.chip_balance.to_i,
+         'hole_cards' => player.hole_cards.to_acpc,
+         'actions_taken_this_hand' => player.actions_taken_this_hand.map do |actions_per_round|
+            actions_per_round.map { |action| action.to_acpc }
+         end,
+         'folded?' => player.folded?,
+         'all_in?' => player.all_in?,
+         'active?' => player.active?
+      }
+   end
+
+   def log(method, variables)
+      puts "#{self.class}: #{method}: #{variables.inspect}"
    end
 end

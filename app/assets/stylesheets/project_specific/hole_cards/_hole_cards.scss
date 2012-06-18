@@ -1,0 +1,9 @@
+@import '../abstract/cards/cards';
+@import 'hole_cards_defs';
+
+.hole_cards {
+   @extend .cards;
+   
+   position: relative;
+   width: $hole_cards_width;
+}

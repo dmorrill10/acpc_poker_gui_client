@@ -1,0 +1,12 @@
+/*Include other files with: @import 'path to other file'*/
+
+$card_height: 80px;
+$card_width_height_ratio: 2/3;
+$card_width: ceil($card_width_height_ratio * $card_height);
+
+$card_color_variation_amount: 12%;
+
+$card_bare_image_height: $card_height;
+$card_bare_image_width: $card_width;
+
+$card_margin_correction_buffer: 25px;

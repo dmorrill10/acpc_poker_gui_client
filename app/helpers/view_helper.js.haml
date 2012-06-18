@@ -1,5 +1,5 @@
 function replace_container_contents() {
-   $('#container').remove();
+   $('.container').remove();
    - content = escape_javascript(render :partial => 'player_actions/index');
    $('body').html('<div id="container">#{content}</div>');
 }

@@ -9,24 +9,33 @@ Copyright (C) 2011 by the Computer Poker Research Group, University of Alberta
 #include <unistd.h>
 #include <netdb.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <getopt.h>
 #include "game.h"
+#include "rng.h"
+#include "net.h"
 
 
 int main( int argc, char **argv )
 {
-  int sock, len, r;
+  int sock, len, r, a;
   int32_t min, max;
   uint16_t port;
+  double p;
   Game *game;
   MatchState state;
   Action action;
-  struct sockaddr_in addr;
-  struct hostent *hostent;
   FILE *file, *toServer, *fromServer;
+  struct timeval tv;
+  double probs[ NUM_ACTION_TYPES ];
+  double actionProbs[ NUM_ACTION_TYPES ];
+  rng_state_t rng;
   char line[ MAX_LINE_LEN ];
+
+  /* we make some assumptions about the actions - check them here */
+  assert( NUM_ACTION_TYPES == 3 );
 
   if( argc < 4 ) {
 
@@ -34,6 +43,16 @@ int main( int argc, char **argv )
     exit( EXIT_FAILURE );
   }
 
+  /* Define the probabilities of actions for the player */
+  probs[ a_fold ] = 0.06;
+  probs[ a_call ] = ( 1.0 - probs[ a_fold ] ) * 0.5;
+  probs[ a_raise ] = ( 1.0 - probs[ a_fold ] ) * 0.5;
+
+  /* Initialize the player's random number state using time */
+  gettimeofday( &tv, NULL );
+  init_genrand( &rng, tv.tv_usec );
+
+  /* get the game */
   file = fopen( argv[ 1 ], "r" );
   if( file == NULL ) {
 
@@ -48,36 +67,17 @@ int main( int argc, char **argv )
   }
   fclose( file );
 
-  hostent = gethostbyname( argv[ 2 ] );
-  if( hostent == NULL ) {
-
-    fprintf( stderr, "ERROR: could not look up address for %s\n", argv[ 2 ] );
-    exit( EXIT_FAILURE );
-  }
-
+  /* connect to the dealer */
   if( sscanf( argv[ 3 ], "%"SCNu16, &port ) < 1 ) {
 
     fprintf( stderr, "ERROR: invalid port %s\n", argv[ 3 ] );
     exit( EXIT_FAILURE );
   }
+  sock = connectTo( argv[ 2 ], port );
+  if( sock < 0 ) {
 
-  if( ( sock = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 ) {
-
-    fprintf( stderr, "ERROR: could not open socket\n" );
     exit( EXIT_FAILURE );
   }
-
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons( port );
-  memcpy( &addr.sin_addr, hostent->h_addr_list[ 0 ], hostent->h_length );
-
-  if( connect( sock, (struct sockaddr *)&addr, sizeof( addr ) ) < 0 ) {
-
-    fprintf( stderr, "ERROR: could not open connect to %s:%"PRIu16"\n",
-	     argv[ 2 ], port );
-    exit( EXIT_FAILURE );
-  }
-
   toServer = fdopen( sock, "w" );
   fromServer = fdopen( sock, "r" );
   if( toServer == NULL || fromServer == NULL ) {
@@ -86,6 +86,7 @@ int main( int argc, char **argv )
     exit( EXIT_FAILURE );
   }
 
+  /* send version string to dealer */
   if( fprintf( toServer, "VERSION:%"PRIu32".%"PRIu32".%"PRIu32"\n",
 	       VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION ) != 14 ) {
 
@@ -94,6 +95,7 @@ int main( int argc, char **argv )
   }
   fflush( toServer );
 
+  /* play the game! */
   while( fgets( line, MAX_LINE_LEN, fromServer ) ) {
 
     /* ignore comments */
@@ -124,24 +126,60 @@ int main( int argc, char **argv )
     line[ len ] = ':';
     ++len;
 
-    if( ( random() % 2 ) && raiseIsValid( game, &state.state, &min, &max ) ) {
-      /* raise */
+    /* build the set of valid actions */
+    p = 0;
+    for( a = 0; a < NUM_ACTION_TYPES; ++a ) {
 
-      action.type = raise;
-      action.size = min + random() % ( max - min + 1 );
-    } else {
-      /* call */
-
-      action.type = call;
-      action.size = 0;
+      actionProbs[ a ] = 0.0;
     }
 
-    if( !isValidAction( game, &state.state, 0, &action ) ) {
+    /* consider fold */
+    action.type = a_fold;
+    action.size = 0;
+    if( isValidAction( game, &state.state, 0, &action ) ) {
 
-      fprintf( stderr, "ERROR: chose an invalid action\n" );
-      exit( EXIT_FAILURE );
+      actionProbs[ a_fold ] = probs[ a_fold ];
+      p += probs[ a_fold ];
     }
 
+    /* consider call */
+    action.type = a_call;
+    action.size = 0;
+    actionProbs[ a_call ] = probs[ a_call ];
+    p += probs[ a_call ];
+
+    /* consider raise */
+    if( raiseIsValid( game, &state.state, &min, &max ) ) {
+
+      actionProbs[ a_raise ] = probs[ a_raise ];
+      p += probs[ a_raise ];
+    }
+
+    /* normalise the probabilities  */
+    assert( p > 0.0 );
+    for( a = 0; a < NUM_ACTION_TYPES; ++a ) {
+
+      actionProbs[ a ] /= p;
+    }
+
+    /* choose one of the valid actions at random */
+    p = genrand_real2( &rng );
+    for( a = 0; a < NUM_ACTION_TYPES - 1; ++a ) {
+
+      if( p <= actionProbs[ a ] ) {
+
+        break;
+      }
+      p -= actionProbs[ a ];
+    }
+    action.type = a;
+    if( a == a_raise ) {
+
+      action.size = min + genrand_int32( &rng ) % ( max - min + 1 );
+    }
+
+    /* do the action! */
+    assert( isValidAction( game, &state.state, 0, &action ) );
     r = printAction( game, &action, MAX_LINE_LEN - len - 1,
 		     &line[ len ] );
     if( r < 0 ) {

@@ -1,0 +1,10 @@
+/*@import '../abstract/information_container/information_container_defs';*/
+@import '../held_player_information/held_player_information_defs';
+@import '../chip_stack/chip_stack_defs';
+@import '../abstract/list/list_defs';
+
+$player_information_height: $held_player_information_combined_height +
+   $chip_stack_diameter + $list_element_margin;
+$player_information_combined_height: $player_information_height;
+$player_information_width: $held_player_information_combined_width;
+$player_information_combined_width: $player_information_width;

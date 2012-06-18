@@ -1,0 +1,8 @@
+@import '../card/card_defs';
+
+$chip_stack_diameter: ceil(1.3 * $card_bare_image_width);
+
+@mixin chip_stack_size {
+   height: $chip_stack_diameter;
+   width: $chip_stack_diameter;
+}

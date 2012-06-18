@@ -1,0 +1,94 @@
+@import 'sassy-buttons';
+
+@mixin auto_adjusted_horizontal_margins {
+   margin-left: auto;
+   margin-right: auto;
+}
+
+@mixin no_border {
+   border-width: 0;
+   border-style: none;
+}
+
+@mixin center_horizontally {
+   @include auto_adjusted_horizontal_margins;
+   position: relative;
+}
+
+@mixin align_center($width_of_item_to_center, $width_of_item_in_which_to_center) {
+   position: absolute;
+   left: ($width_of_item_in_which_to_center - $width_of_item_to_center)/2;
+}
+
+@mixin align_center_vertically($height_of_item_to_center, $height_of_item_in_which_to_center) {
+   position: relative;
+   top: ($height_of_item_in_which_to_center - $height_of_item_to_center)/2;
+}
+
+@mixin set_image_size($height, $width) {
+   height: $height;
+   width: $width;
+}
+
+@mixin no_size {
+   padding: 0;
+   margin: 0;
+   height: 0;
+   width: 0;
+   overflow: hidden;
+}
+
+@function combined_container_length($functional_length, $border_width: $default_border_width, $padding: $information_container_padding, $margin: $default_container_margin) {
+   @return $functional_length + 2 * $border_width + 2 * $padding + 2 * $margin;
+}
+
+@mixin block_interface_element($element_color: $background_color, $font_size: $default_primary_font_size) {
+   $light_element_color: scale-lightness($element_color, 20);
+   $dark_element_color: scale-lightness($element_color, 10);   
+   @include sassy-button('shiny', $default_radius, $font_size,
+                         $light_element_color, $dark_element_color,
+                         $default_primary_text_color);
+   
+   &:disabled {
+      $disabled_element_color: #808080;
+      $disabled_text_color: scale-lightness($disabled_element_color, 50);
+      @include sassy-button('simple', $default_radius,
+                            $font_size, $disabled_element_color,
+                            $disabled_element_color, $disabled_text_color,
+                            'inset', false);
+      cursor: default;
+   }
+}
+
+@mixin soft_edges($border_color:transparent,
+   $border_width:$default_border_width, $border_radius:$default_border_radius) {
+   border-color: $border_color;
+   border-width: $border_width;
+   border-style: solid;/*@todo Make this a chalky/particled style.*/
+   border-radius: $border_radius;
+}
+
+@function circular_border_radius() {
+   @return 50px 50px 50px 50px;
+}
+
+@function max($elem1, $elem2) {
+   @return if($elem1 < $elem2, $elem2, $elem1);
+}
+
+@mixin align_text_center_horizontally_and_vertically($block_height,
+   $font_size) {
+   line-height: $block_height;
+   text-align: center;
+}
+
+@mixin raised_border {
+   border-style: outset;
+   border-width: 1px;
+}
+
+@mixin primary_element_color {
+   $light_color: scale-lightness($background_color, 30);
+   $dark_color: scale-lightness($background_color, 10);
+   @include background-image(linear-gradient(top, $light_color, $dark_color));
+}

@@ -1,0 +1,38 @@
+Description:
+   Creates a poker bot class with the given name, run command, and arguments.
+
+Example:
+   rails generate poker_bot agent_name execute_command arguments
+
+   This will create:
+      A poker agent runner class with the name RunAgentNameBot in lib/bots. The
+      execute_command should be the command used to run the agent without any
+      arguments (so if the agent is on a local machine, it would likely be
+      "./relative/path/to/agent_name" (with quotes); on a remote machine,
+      it would likely be "ssh /absolute/path/to/agent_name". The list of
+      arguments must be in the same order as those required by the agent's
+      run command. When using the class, it will take as argument a hash table
+      and will expect values corresponding to those argument names
+      (in Symbol form).
+      
+      The agent's run command will be saved in the class constant
+      EXECUTE_COMMAND and the list of arguments will be saved in ARGUMENTS.
+      The agent class will have a single class method run_command, which will
+      try to execute EXECUTE_COMMAND with the given argument hash converted into
+      a string in the order provided by ARGUMENTS.
+      
+      In order for the bot to be available to play against, it must be
+      registered in the ApplicationDefs module (lib/application_defs.rb), which
+      requires adding the bot's name and it's runner class to the
+      REGISTERED_BOTS constant hash. For instance, if you wanted to add an agent
+      called 'UAlberta AAAI bot' which corresponds to the bot runner class
+      RunAaaiBot that you created with this generator, you would add the
+      key-value pair 'UAlberta AAAI bot' => RunAaaiBot to REGISTERED_BOTS.
+      
+      Also, NewGameController#create
+      (see app/controllers/new_game_controller.rb) will attempt to generate the
+      bot's run command when it is selected, so be sure to check that it is
+      adding the required key-value pairs to the run_command argument hash.
+      Arbitrary key-values pairs can be added to this hash (provided there are
+      no duplicate keys) in NewGameController because bot runner classes will
+      ignore pairs they do not need.

@@ -1,0 +1,12 @@
+@import '../game_interface/game_interface_defs';
+@import '../toolbar/toolbar_defs';
+
+$container_height: $table_bottom;
+$container_combined_height: $container_height;
+$container_width: $table_right;
+$container_combined_width: $container_width;
+
+/*.toolbar*/
+$toolbar_top: 0;
+$toolbar_left: 0;
+$toolbar_bottom: $toolbar_combined_height;

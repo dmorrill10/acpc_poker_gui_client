@@ -12,15 +12,6 @@ do
    fi
 done
 
-echo "Generating a tree with this app's file contents..."
-tree . > extra_docs/temp_app_tree
-
-echo "Generating tree for FileStructure documentation..."
-sed 's/^/   /' extra_docs/temp_app_tree >> extra_docs/FileStructure
-
-echo "Removing the temporary application tree file..."
-rm -f extra_docs/temp_app_tree
-
 echo "Generating YARD documentation and diagram..."
 yardoc
 yard graph --full | dot -T svg -o doc/diagrams/class_diagram.svg

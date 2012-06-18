@@ -1,0 +1,28 @@
+
+@import 'button_defs';
+
+@mixin button_layout {
+   padding-left: 0;
+   padding-right: 0;
+   text-align: center;
+   
+   overflow: hidden;
+}
+
+.button {
+   @include block_interface_element;
+   @include button_layout;
+   font-family: $default_font_family;
+   width: $button_width; 
+}
+.button#wager_pot_size {
+   @include block_interface_element(#111177, $button_font_size);
+   @include button_layout;
+}
+.button#all_in {
+   @include block_interface_element(#773300, $button_font_size);
+   @include button_layout;
+}
+.button#update_match_state {
+   @include button_layout;
+}

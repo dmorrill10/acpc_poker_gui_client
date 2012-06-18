@@ -1,0 +1,8 @@
+/*@import '../mixins';*/
+@import '../information_container/information_container';
+
+.on_table_container {
+   @extend .information_container;
+   @include no_border;
+   padding: 0;
+}

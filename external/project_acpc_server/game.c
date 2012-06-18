@@ -15,56 +15,88 @@ Copyright (C) 2011 by the Computer Poker Research Group, University of Alberta
 
 static enum ActionType charToAction[ 256 ] = {
   /* 0x0X */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x1X */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x2X */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x3X */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x4X */
-  invalid, invalid, raise, call, invalid, invalid, fold, invalid,
-  invalid, invalid, invalid, call, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_raise, a_call,
+  a_invalid, a_invalid, a_fold, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_call,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x5X */
-  invalid, invalid, raise, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_raise, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x6X */
-  invalid, invalid, raise, call, invalid, invalid, fold, invalid,
-  invalid, invalid, invalid, call, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_raise, a_call,
+  a_invalid, a_invalid, a_fold, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_call,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x7X */
-  invalid, invalid, raise, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_raise, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x8X */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0x9X */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0xAX */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0xBX */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0xCX */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0xDX */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0xEX */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
   /* 0xFX */
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid,
-  invalid, invalid, invalid, invalid, invalid, invalid, invalid, invalid
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid,
+  a_invalid, a_invalid, a_invalid, a_invalid
 };
 
-static char actionChars[ invalid ] = "fcr";
+static char actionChars[ a_invalid ] = "fcr";
 
 static char suitChars[ MAX_SUITS ] = "cdhs";
 static char rankChars[ MAX_RANKS ] = "23456789TJQKA";
@@ -98,6 +130,7 @@ static int readItems( const char *itemFormat, const int numItems,
 
   i = strlen( itemFormat );
   fmt = malloc( i + 3 );
+  assert( fmt != 0 );
   strcpy( fmt, itemFormat );
   fmt[ i ] = '%';
   fmt[ i + 1 ] = 'n';
@@ -126,6 +159,7 @@ Game *readGame( FILE *file )
   Game *game;
 
   game = malloc( sizeof( *game ) );
+  assert( game != 0 );
   stackRead = 4;
   for( c = 0; c < MAX_ROUNDS; ++c ) {
     game->stack[ c ] = INT32_MAX;
@@ -461,7 +495,7 @@ uint8_t numRaises( const State *state )
 
   ret = 0;
   for( i = 0; i < state->numActions[ state->round ]; ++i ) {
-    if( state->action[ state->round ][ i ].type == raise ) {
+    if( state->action[ state->round ][ i ].type == a_raise ) {
       ++ret;
     }
   }
@@ -494,7 +528,7 @@ uint8_t numCalled( const Game *game, const State *state )
 
     p = state->actingPlayer[ state->round ][ i - 1 ];
 
-    if( state->action[ state->round ][ i - 1 ].type == raise ) {
+    if( state->action[ state->round ][ i - 1 ].type == a_raise ) {
       /* player initiated the bet, so they've called it */
 
       if( state->spent[ p ] < game->stack[ p ] ) {
@@ -505,7 +539,7 @@ uint8_t numCalled( const Game *game, const State *state )
 
       /* this is the start of the current bet, so we're finished */
       return ret;
-    } else if( state->action[ state->round ][ i - 1 ].type == call ) {
+    } else if( state->action[ state->round ][ i - 1 ].type == a_call ) {
 
       if( state->spent[ p ] < game->stack[ p ] ) {
 	/* player is not all-in, so they're still acting */
@@ -812,13 +846,13 @@ int isValidAction( const Game *game, const State *curState,
 {
   int min, max, p;
 
-  if( stateFinished( curState ) || action->type == invalid ) {
+  if( stateFinished( curState ) || action->type == a_invalid ) {
     return 0;
   }
 
   p = currentPlayer( game, curState );
 
-  if( action->type == raise ) {
+  if( action->type == a_raise ) {
 
     if( !raiseIsValid( game, curState, &min, &max ) ) {
       /* there are no valid raise sizes */
@@ -853,7 +887,7 @@ int isValidAction( const Game *game, const State *curState,
     } else {
 
     }
-  } else if( action->type == fold ) {
+  } else if( action->type == a_fold ) {
 
     if( curState->spent[ p ] == curState->maxSpent
 	|| curState->spent[ p ] == game->stack[ p ] ) {
@@ -891,12 +925,12 @@ void doAction( const Game *game, const Action *action, State *state )
   ++state->numActions[ state->round ];
 
   switch( action->type ) {
-  case fold:
+  case a_fold:
 
     state->playerFolded[ p ] = 1;
     break;
 
-  case call:
+  case a_call:
 
     if( state->maxSpent > game->stack[ p ] ) {
       /* calling puts player all-in */
@@ -909,7 +943,7 @@ void doAction( const Game *game, const Action *action, State *state )
     }
     break;
 
-  case raise:
+  case a_raise:
 
     if( game->bettingType == noLimitBetting ) {
       /* no-limit betting uses size in action */
@@ -1628,7 +1662,7 @@ int readAction( const char *string, const Game *game, Action *action )
   }
   c = 1;
 
-  if( action->type == raise && game->bettingType == noLimitBetting ) {
+  if( action->type == a_raise && game->bettingType == noLimitBetting ) {
     /* no-limit bet/raise needs to read a size */
 
     if( sscanf( &string[ c ], "%"SCNd32"%n", &action->size, &r ) < 1 ) {
@@ -1658,7 +1692,7 @@ int printAction( const Game *game, const Action *action,
   string[ c ] = actionChars[ action->type ];
   ++c;
 
-  if( game->bettingType == noLimitBetting && action->type == raise ) {
+  if( game->bettingType == noLimitBetting && action->type == a_raise ) {
     /* 2010 AAAI no-limit format has a size for bet/raise */
 
     r = snprintf( &string[ c ], maxLen - c, "%"PRId32, action->size );

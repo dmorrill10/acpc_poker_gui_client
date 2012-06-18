@@ -1,0 +1,13 @@
+@import '../player_information/player_information_defs';
+@import '../community_information/community_information_defs';
+
+$community_information_margin: 2*$vertical_buffer;
+$community_information_combined_height: $community_information_height +
+   2*$community_information_margin;
+$community_information_combined_width: $community_information_width;
+
+$table_height: $community_information_combined_height +
+   2*$player_information_combined_height;
+$table_combined_height: $table_height + 2*$default_border_width;
+$table_width: $community_information_combined_width + 200px;
+$table_combined_width: $table_width + 2*$default_border_width;

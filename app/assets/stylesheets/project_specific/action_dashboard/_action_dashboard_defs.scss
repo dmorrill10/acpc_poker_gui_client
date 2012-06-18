@@ -1,0 +1,35 @@
+@import '../button/button_defs';
+@import '../abstract/information_container/information_container_defs';
+@import '../wager_amount_slider/wager_amount_slider_defs';
+
+/*Action field*/
+$action_field_border: 3px;
+$action_field_padding: 5px;
+$action_field_combined_width: $button_width;
+$action_field_width: $action_field_combined_width - 2*($action_field_border + $action_field_padding);
+$action_field_height: $default_primary_font_size;
+$action_field_combined_height: $action_field_height + 2*($action_field_border + $action_field_padding);
+
+/*Action*/
+$action_height: 3*$button_combined_height;
+$action_combined_height: $action_height;
+$action_margin: 20px;
+
+$action_dashboard_external_height: 2*$default_border_width +
+   $information_container_formatting_combined_height;
+$action_dashboard_external_width: 2*$default_border_width +
+   $information_container_formatting_combined_width;
+
+$action_dashboard_limit_height: $action_combined_height;
+$action_dashboard_limit_combined_height: $action_dashboard_limit_height +
+   $action_dashboard_external_height;
+$action_dashboard_width: 3*$button_combined_width + 2*$action_margin + 2;
+$action_dashboard_combined_width: $action_dashboard_width +
+   $action_dashboard_external_width;
+
+$action_dashboard_no_limit_height: $wager_amount_slider_combined_height +
+   $action_dashboard_limit_height;
+$action_dashboard_no_limit_combined_height: $action_dashboard_no_limit_height +
+   $action_dashboard_external_height;
+
+$action_dashboard_next_hand_width: $button_combined_width;

@@ -1,0 +1,18 @@
+@import '../card/card_defs';
+@import '../pot/pot_defs';
+@import '../abstract/information_container/information_container_defs';
+@import '../summary_information/summary_information_defs';
+@import '../board_cards/board_cards_defs';
+@import '../abstract/list/list_defs';
+
+$board_cards_combined_width: $board_cards_width + $list_element_margin;
+$pot_combined_width: $pot_width + $list_element_margin;
+$summary_information_combined_width_with_margins: $summary_information_combined_width +
+   $list_element_margin;
+
+$community_information_buffer: 0;
+$community_information_height: $card_bare_image_height +
+   $community_information_buffer;
+$community_information_width: $pot_combined_width +
+   $summary_information_combined_width_with_margins +
+   $board_cards_combined_width + 5px; /*Not sure why, but a 3px buffer is needed here.*/

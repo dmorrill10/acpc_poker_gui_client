@@ -1,0 +1,21 @@
+/*@import 'scss_class_defs';*/
+
+/*@import '../mixins';*/
+@import 'dealer_button_defs';
+
+.dealer_button {
+   $dealer_button_font_size: $default_primary_font_size - 3;
+   @include align_text_center_horizontally_and_vertically($dealer_button_diameter,
+                                                          $dealer_button_font_size);
+   @include raised_border;
+   border-radius: circular_border_radius();
+   
+   font-size: $dealer_button_font_size;
+   color: #000;
+   font-weight: bold;
+   
+   height: $dealer_button_diameter;
+   width: $dealer_button_diameter;
+   
+   background-color: #fff;
+}

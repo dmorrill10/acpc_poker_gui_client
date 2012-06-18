@@ -1,101 +1,17 @@
-//%h1= title
-//
-//- card_path = 'SVG_and_EPS_Vector_Playing_Cards_Version_1.3/SVG_Vector_Playing_Cards_Version_1.3/52-Individual-Color-Vector-Playing_Cards-1.3_(SVG-Format_No_Crop_Marks)/Clubs/2C.svg'
-//// Test layout
-//#table
-//   %ul#information_about_opponents
-//      %ul#acting_player
-//         %ul.hole_cards
-//            - hole_cards = [card_path, card_path]
-//            - hole_cards.each do |card|
-//               %li= image_tag "#{card}", class: 'card'
-//         %li.stack= 500
-//         
-//      //- @opponents.each do |opponent|
-//      //   %li#information_about_an_opponent
-//      //      = render partial: 'player_information', locals: {player: opponent,
-//      //         player_with_the_dealer_button: @player_with_the_dealer_button,
-//      //         player_who_submitted_small_blind: @player_who_submitted_small_blind, 
-//      //         player_who_submitted_big_blind: @player_who_submitted_big_blind,
-//      //         player_whose_turn_is_next: @player_whose_turn_is_next,
-//      //         hand_ended: @hand_ended}
-//         
-//   %ul#community_information
-//      %ul.board_cards
-//         - board_cards = [card_path, card_path, card_path, card_path, card_path]
-//         - board_cards.each do |card|
-//            %li= image_tag "#{card}", class: 'card'
-//      %li#pot= "Pot Size: @pot_size"
-//      
-//      //%li#state= "Match state: #{@match_state}"
-//      
-//      //- if @hand_ended
-//      //   %ul#hand_results
-//      //      %li.title Hand Result:
-//      //      //- @pot_distribution.each do |player_name, amount|
-//      //      //   %li= "  #{player_name} won #{amount} chips."
-//      //      %li= "Action Summary: @action_summary"
-//      //- if @match_ended
-//      //   %li The match has ended, thanks for playing!
-//
-//   #users_information
-//      %ul#not_acting_player
-//         %ul.hole_cards
-//            - hole_cards = [card_path, card_path]
-//            - hole_cards.each do |card|
-//               %li= image_tag "#{card}", class: 'card'
-//      //= render partial: 'player_information', locals: {player: @user,
-//      //   player_with_the_dealer_button: @player_with_the_dealer_button,
-//      //   player_who_submitted_small_blind: @player_who_submitted_small_blind, 
-//      //   player_who_submitted_big_blind: @player_who_submitted_big_blind,
-//      //   player_whose_turn_is_next: @player_whose_turn_is_next,
-//      //   hand_ended: @hand_ended}
-//
-//%ul#match_information
-//   %li.title= "Match: @match.match_name"
-//   %ul#game_definition
-//      %li.title= "Game Definition: @match.game_definition_file_name"
-//      // @todo %li= "<Game def prop>: <game def val>"
-//   %li= "This match has @match.number_of_hands hands"
-//   // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
-//   // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
-//   %ul#chip_balances
-//      %li.title Chip balances:
-//      - @chip_balances = {'p1' => 100, 'p2' => -100}
-//      - @chip_balances.each do |player_name, balance|
-//         %li= "#{player_name}: #{balance}"
-//   // @todo The submit button is actually displayed so this function may not have the best name
-//   //%li.meta_action
-//   //   = hidden_update_state_form @match_id, @match_slice_index, !(@users_turn_to_act || @match_ended)
-//   //%li.meta_action
-//   //%p= button_to "Leave this game", leave_game_url, :remote => true, :confirm =>  "Are you sure you want to leave this game?", disabled: !@match_ended
-//   
-//#action_dashboard
-//   %ul.actions
-//      - fold_is_legal = false
-//      //- @legal_actions.each do |action|
-//      //   %li.action
-//      //      - case action
-//      //         - when 'c'
-//      //            %p= button "Call", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-//      //         - when 'k'
-//      //            %p= button "Check", call_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-//      //         - when 'b'
-//      //            %p= button "Bet", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-//      //         - when 'r'
-//      //            %p= button "Raise", raise_url, amount_field: false, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !@users_turn_to_act
-//      //         - when 'f'
-//      //            - fold_is_legal = true
-//      %li.action
-//         %p= button "Fold", fold_url, match_id: @match_id, match_slice_index: @match_slice_index, disabled: !(@users_turn_to_act && fold_is_legal)
 
-#new_match_form   
-   = simple_form_for @match, url: create_new_match_url, remote: true, html: {class: 'create_new_match_form'} do |f|
-      = f.input :match_name
-      // @todo parse this as given to get the number of players
-      = f.input :game_definition_key, label: 'Game definition:', collection: ApplicationDefs::GAME_DEFINITION_NAMES, value_method: :first, label_method: :last, include_blank: false
-      = f.input :number_of_hands, as: :integer
-      = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed picked at random between 1 and 100'
-      // @todo offer the user to select which _competitors_ to play against (requires know the number of players in the currently selected game definition and the names of other competitors)
-      = f.button :submit
-   .hidden= hidden_game_parameter_form
+.match_entry_tabs
+   %ul
+      //#match_entry_tab
+      %li= link_to 'New match', '#new_match_form'
+      %li= link_to 'Rejoin match', '#rejoin_match_form'
+   = render partial: 'new_game/new_match_form'
+   = render partial: 'new_game/rejoin_match_form'
+
+
+.footer
+   %h4= link_to "Copyright \u00A9 2012 by the Computer Poker Research Group, University of Alberta.", 'http://poker.cs.ualberta.ca/'
+   .license= '<a rel="license" href="http://creativecommons.org/licenses/by/3.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/StillImage" property="dct:title" rel="dct:type">Chip background and table felt</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://imakethingspretty.ca/" property="cc:attributionName" rel="cc:attributionURL">Nicholas Morrill</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a>'.html_safe
+   %h4= link_to 'Report issues or make requests', 'https://bitbucket.org/morrill/acpcpokerguiclient/issues/new'
+
+:coffeescript
+   $('.match_entry_tabs').tabs();

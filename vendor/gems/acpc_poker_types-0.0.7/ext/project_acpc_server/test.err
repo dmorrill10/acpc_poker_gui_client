@@ -1,4 +1,0 @@
-# name/game/hands/seed test holdem.limit.2p.reverse_blinds.game 2 1
-#--t_response 10000
-#--t_hand 600000
-#--t_per_hand 6000

@@ -22,10 +22,13 @@ group :assets do
   gem 'compass', '~> 0.12.alpha'       # also using the compass framework for SASS
   
   # For nice looking buttons
-  gem 'sassy-buttons'
+  gem 'sassy-buttons', '= 0.0.7'
   gem 'chunky_png'    # compass uses this for sprites
   gem 'oily_png'      # native c library for png routines to speed up chunky_png
 end
+
+# To interpret Coffeescript in HAML
+gem 'coffee-filter'
 
 # JavaScript library
 gem 'jquery-rails'
@@ -34,6 +37,7 @@ gem 'jquery-rails'
 # gem 'bcrypt-ruby', '~> 3.0.0'
 
 # Deploy with Capistrano @todo lookup whether this is better or viable, or helpful at all
+# This would basically replace my 'update_production_server.rb, might be useful sometime
 # gem 'capistrano'
 
 # To use debugger
@@ -48,7 +52,7 @@ group :development, :test do
   gem 'rspec-rails'
   
   # Testing framework overtop of RSpec that simulates user interaction
-  gem 'capybara'#, :git => 'git://github.com/jnicklas/capybara.git'
+  gem 'capybara'
   
   # Allows Capybara to test through a browser
   gem 'launchy'
@@ -69,20 +73,21 @@ group :development, :test do
   # Factory gem
   gem 'factory_girl_rails'
   
-  # Higher level testing/acceptance requirements
-  gem 'cucumber'
+  # For testing JavaScript/Coffeescript
+  gem 'jasmine'
+  
+  # Compiling JS for automatic Jasmine tests
+   gem 'rack-asset-compiler'
 end
 
 # JavaScript runtime
 gem 'therubyracer'
 
-# Websockets library
-gem 'em-websocket'
-
 # Gems only to be used for development
 group :development do
   # Improved generators
   gem 'nifty-generators'
+  gem 'pry'
 end
 
 # Enable HAML format views.  Prettier than ERB format views, I find.
@@ -91,11 +96,6 @@ gem "haml"
 # YARD documentation library
 gem 'yard'
 gem 'yard-rspec'
-
-# Railroady diagramming tool.  Create SVG diagrams in the "doc" directory
-# with 'rake diagram:all'.  Unfortunately, for this app, the diagrams it
-# produces are not very informative.
-gem 'railroady'
 
 # For deployment.  Phusion Passenger integrates the rails app. with Apache.
 gem 'passenger'
@@ -115,3 +115,6 @@ gem 'acpc_poker_types'
 gem 'acpc_poker_match_state'
 gem 'acpc_poker_basic_proxy'
 gem 'acpc_poker_player_proxy'
+
+# Instant form validation
+gem 'client_side_validations'

@@ -32,11 +32,11 @@ class NewGameController < ApplicationController
    def create
       @match = Match.new params[:match]
       
-      @match.seat ||= (rand(2) + 1).to_s
+      @match.seat ||= (rand(2) + 1)
       @match.random_seed ||= lambda do
          random_float = rand
          random_int = (random_float * 10**random_float.to_s.length).to_i
-         random_int.to_s
+         random_int
       end.call
       
       # For some reason, +REGISTERED_BOTS.key(ApplicationDefs.const_get(@match.bot))+

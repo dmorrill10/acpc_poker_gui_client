@@ -1,11 +1,15 @@
+//= require jquery.ui.tabs
+//= require jquery.ui.slider
 
-/*= require jquery-ui/jquery-ui*/
+// To use a different JQueryUi theme, use: "//=require jquery-ui-whatever_theme/jquery-ui"
+
+@import "blueprint/reset";
+
+@import 'sassy-buttons';
 
 /*Must be included first because they are used in most other style sheets and*/
 /*including them here first allows me to not include them in each of the*/
 /*below files.*/
-/*@import "blueprint/reset";*/
-
 @import 'project_specific/defs';
 @import 'project_specific/mixins';
 

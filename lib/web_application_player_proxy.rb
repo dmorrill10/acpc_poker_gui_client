@@ -173,7 +173,9 @@ class WebApplicationPlayerProxy
             end,
             hand_number: players_at_the_table.transition.next_state.hand_number
          )
-         match.save
+         # Since creating a new slice doesn't "update" the match for some reason
+         match.update_attribute(:updated_at, Time.now)
+         match.save!
       rescue => e
          raise UnableToCreateMatchSlice, e.message
       end

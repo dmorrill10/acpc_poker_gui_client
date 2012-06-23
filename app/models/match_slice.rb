@@ -1,9 +1,9 @@
 
-# Database module
 require 'mongoid'
 
 class MatchSlice
    include Mongoid::Document
+   
    embedded_in :match, inverse_of: :slices
 
    field :state_string, type: String

@@ -17,7 +17,7 @@ module WorkerHelpers
       end
    end
    
-   # @param [String] match_id The ID of the match in which the exception occured.
+   # @param [String] match_id The ID of the match in which the exception occurred.
    # @param [String] message The exception message to log.
    def handle_exception(match_id, message)
       background_log "In match #{match_id}, #{message}"

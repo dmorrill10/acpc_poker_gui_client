@@ -73,7 +73,7 @@ class TestingBot
   end
 
   def log(method, message)
-    File.open 'testing_bot.log', 'a' do |f|
+    File.open File.expand_path('../../../log/testing_bot.log', __FILE__), 'a' do |f|
       f.puts "#{self.class}: #{method}: #{message}"
     end
   end

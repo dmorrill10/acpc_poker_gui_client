@@ -32,7 +32,6 @@ class WebApplicationPlayerProxy
     }
 
     @match_id = match_id
-    @match_slice_index = 0
     @player_proxy = PlayerProxy.new(
       dealer_information,
       users_seat,
@@ -42,7 +41,6 @@ class WebApplicationPlayerProxy
     ) do |players_at_the_table|
 
       log __method__, {
-        match_slice_index: @match_slice_index,
         players_at_the_table: players_at_the_table
       }
 
@@ -58,15 +56,10 @@ class WebApplicationPlayerProxy
   # @see PlayerProxy#play!
   def play!(action)
 
-    log __method__, {
-      match_slice_index: @match_slice_index,
-      action: action
-    }
+    log __method__, {action: action}
 
     @player_proxy.play! action do |players_at_the_table|
       update_database! players_at_the_table
-
-      @match_slice_index += 1
     end
 
     self
@@ -87,7 +80,6 @@ class WebApplicationPlayerProxy
 
     log __method__, {
       match_id: @match_id,
-      match_slice_index: @match_slice_index,
       players_at_the_table: players_at_the_table
     }
 
@@ -179,8 +171,6 @@ class WebApplicationPlayerProxy
     rescue => e
       raise UnableToCreateMatchSlice, e.message
     end
-
-    @match_slice_index += 1
 
     self
   end

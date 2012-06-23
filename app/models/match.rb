@@ -58,6 +58,20 @@ class Match
   field :betting_type, type: String
   field :number_of_hole_cards, type: Integer
 
+  def delete_previous_slices!(current_index)
+    if current_index > 0
+      slices.where(
+        :_id.in => (
+          slices[0..current_index-1].map do |slice| 
+            slice.id 
+          end
+        )
+      ).delete_all
+    else
+      0
+    end
+  end
+
   def self.delete_matches_older_than(lifespan)
     Match.expired(lifespan).delete_all
   end

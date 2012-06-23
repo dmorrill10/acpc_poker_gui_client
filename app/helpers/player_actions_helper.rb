@@ -197,16 +197,19 @@ module PlayerActionsHelper
   def update_match!
     @match_slice_index = params[:match_slice_index].to_i || 0
     @match_id = params[:match_id]
-    temp_match_slice = next_match_slice!
-    raise unless temp_match_slice
-    @match_slice = temp_match_slice
-    @match_slice_index += 1
+    update_match_slice!
   end
 
-  def next_match_slice!
-    return nil unless new_match_state_available?
-    @match = current_match @match_id
-    @match.slices[@match_slice_index]
+  def update_match_slice!
+    if new_match_state_available?
+      @match = current_match @match_id
+
+      # @todo Ensure that an array out of bounds error from here is handled gracefully
+      @match_slice = @match.slices[@match_slice_index]
+      @match_slice_index += 1 - @match.delete_previous_slices!(@match_slice_index)
+    else
+      nil
+    end
   end
 
   def new_match_state?(match)

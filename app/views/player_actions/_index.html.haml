@@ -1,159 +1,160 @@
 
 - unless @hand_ended || @match_ended || @users_turn_to_act
-   :coffeescript
-      setTimeout (->
-         $('#hidden_update_match_state').submit()
-      ), 100
+  :coffeescript
+    setTimeout(
+      (-> $('#hidden_update_match_state').submit()), 
+      100
+    )
 
 .toolbar
-   .toolbar_item
-      .meta_action
-         = button "Leave this game", leave_game_url, match_id: @match_id, confirm:  "Are you sure you want to leave this game?"
-   .toolbar_item
-      .match_information.dynamic_menu
-         .title= "Match: #{@match.match_name}"
-         .transparent_wrapper.dynamic_menu
-            //.game_definition.dynamic_menu
-            //   //.title= "Game Definition: #{ApplicationDefs::GAME_DEFINITION_NAMES[ApplicationDefs::GAME_DEFINITION_FILE_NAMES.key(@match.game_definition_file_name)]}"
-            //   //.game_definitions.dynamic_menu
-            //      // @todo %li= "<Game def prop>: <game def val>"
-            //      //.leaf_item= "This match has #{@match.number_of_hands} hands"
-            //      // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
-            //      // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
-            .chip_balances.dynamic_menu
-               .title Chip balances:
-               .chip_balances.dynamic_menu
-                  - @players.each do |player|
-                     .leaf_item= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
-   .toolbar_item
-      %p{:style => 'font-weight: bold'}= "Hand: #{@match_slice.hand_number+1}/#{@match.number_of_hands}"
+  .toolbar_item
+    .meta_action
+      = button "Leave this game", leave_game_url, match_id: @match_id, confirm:  "Are you sure you want to leave this game?"
+  .toolbar_item
+    .match_information.dynamic_menu
+      .title= "Match: #{@match.match_name}"
+      .transparent_wrapper.dynamic_menu
+        //.game_definition.dynamic_menu
+        //   //.title= "Game Definition: #{ApplicationDefs::GAME_DEFINITION_NAMES[ApplicationDefs::GAME_DEFINITION_FILE_NAMES.key(@match.game_definition_file_name)]}"
+        //   //.game_definitions.dynamic_menu
+        //      // @todo %li= "<Game def prop>: <game def val>"
+        //      //.leaf_item= "This match has #{@match.number_of_hands} hands"
+        //      // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
+        //      // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
+        .chip_balances.dynamic_menu
+          .title Chip balances:
+          .chip_balances.dynamic_menu
+            - @players.each do |player|
+              .leaf_item= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
+  .toolbar_item
+    %p{:style => 'font-weight: bold'}= "Hand: #{@match_slice.hand_number+1}/#{@match.number_of_hands}"
 
 - game_interface_id = if @is_no_limit
-   - 'no_limit'
+  - 'no_limit'
 - else
-   - 'limit'
+  - 'limit'
 .game_interface{ id: game_interface_id}
-   .table
-      - opponent = @opponents[0]
-      .information_about_an_opponent{ :id => acting_player_id(opponent['name']) }
-         = render partial: 'held_player_information', locals: {player: opponent,
-            player_whose_turn_is_next: @player_whose_turn_is_next,
-            hand_ended: @hand_ended,
-            player_with_the_dealer_button: @player_with_the_dealer_button,
-            round: @round}   
-      .community_information
-         %ul.board_cards
-            = render partial: 'cards', locals: {cards: @board_cards.flatten}
-         %ul.pot
-            / @todo Assumes Doyle's game in multi-player
-            - side_pot = if @hand_ended then 0 else @pot_values_at_start_of_round.sum end
-            - if side_pot > 0
-               .side_pot
-                  = render partial: 'player_actions/chip_stack', locals: { amount: side_pot }
-         %ul.summary_information
-            %li
-               %p= "Actions: #{@action_summary}"
-            - if @match_ended
-               %li   
-                  %p The match has ended, thanks for playing!
-      .users_information{ :id => acting_player_id(@user['name']) }
-         = render partial: 'held_player_information', locals: {player: @user,
-            hand_ended: @hand_ended,
-            player_with_the_dealer_button: @player_with_the_dealer_button,
-            round: @round}
+  .table
+    - opponent = @opponents[0]
+    .information_about_an_opponent{ :id => acting_player_id(opponent['name']) }
+      = render partial: 'held_player_information', locals: {player: opponent,
+        player_whose_turn_is_next: @player_whose_turn_is_next,
+        hand_ended: @hand_ended,
+        player_with_the_dealer_button: @player_with_the_dealer_button,
+        round: @round}   
+    .community_information
+      %ul.board_cards
+        = render partial: 'cards', locals: {cards: @board_cards.flatten}
+      %ul.pot
+        / @todo Assumes Doyle's game in multi-player
+        - side_pot = if @hand_ended then 0 else @pot_values_at_start_of_round.sum end
+        - if side_pot > 0
+          .side_pot
+            = render partial: 'player_actions/chip_stack', locals: { amount: side_pot }
+      %ul.summary_information
+        %li
+          %p= "Actions: #{@action_summary}"
+        - if @match_ended
+          %li   
+            %p The match has ended, thanks for playing!
+    .users_information{ :id => acting_player_id(@user['name']) }
+      = render partial: 'held_player_information', locals: {player: @user,
+        hand_ended: @hand_ended,
+        player_with_the_dealer_button: @player_with_the_dealer_button,
+        round: @round}
 
-   - next_hand_button_should_be_visible = @hand_ended && !@match_ended
-   - action_dashboard_id = if next_hand_button_should_be_visible
-      - 'next_hand'
-   - elsif @is_no_limit
-      - 'no_limit'
-   - else
-      - 'limit'
-   .action_dashboard{ :id => action_dashboard_id }
-      .actions
-         .hidden
-            = update_state_form @match_id, @match_slice_index, "Hidden update state", disabled: @users_turn_to_act || @match_ended, id: 'hidden_update_match_state'
-         - if next_hand_button_should_be_visible
-            .meta_action
-               = update_state_form @match_id, @match_slice_index, "Next hand", disabled: !@hand_ended || @match_ended
-         - else
+  - next_hand_button_should_be_visible = @hand_ended && !@match_ended
+  - action_dashboard_id = if next_hand_button_should_be_visible
+    - 'next_hand'
+  - elsif @is_no_limit
+    - 'no_limit'
+  - else
+    - 'limit'
+  .action_dashboard{ :id => action_dashboard_id }
+    .actions
+      .hidden
+        = update_state_form @match_id, @match_slice_index, "Hidden update state", disabled: @users_turn_to_act || @match_ended, id: 'hidden_update_match_state'
+      - if next_hand_button_should_be_visible
+        .meta_action
+          = update_state_form @match_id, @match_slice_index, "Next hand", disabled: !@hand_ended || @match_ended
+      - else
+        - if @is_no_limit
+          .wager_amount_slider
+            .wrapper
+              %ul.increment_labels
+                %li.slider_label#min Min
+                %li.slider_label#half_pot 50%
+                %li.slider_label#three_quarters_pot 75%
+                %li.slider_label#one_pot Pot
+                %li.slider_label#two_times_pot 2xPot
+                %li.slider_label#all_in All-in
+              .ui_slider
+        .action
+          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+            = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
+            = f.submit 'Fold', class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f'))
+        .action
+          - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
+          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+            = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
+            = f.submit pass_action_button_label, class: 'button', disabled: !@users_turn_to_act
+        .action
+          - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
+          - make_wager_button_label += ' to' if @is_no_limit
+          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+            = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
             - if @is_no_limit
-               .wager_amount_slider
-                  .wrapper
-                     %ul.increment_labels
-                        %li.slider_label#min Min
-                        %li.slider_label#half_pot 50%
-                        %li.slider_label#three_quarters_pot 75%
-                        %li.slider_label#one_pot Pot
-                        %li.slider_label#two_times_pot 2xPot
-                        %li.slider_label#all_in All-in
-                     .ui_slider
-            .action
-               = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-                  = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-                  = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-                  = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
-                  = f.submit 'Fold', class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f'))
-            .action
-               - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
-               = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-                  = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-                  = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-                  = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
-                  = f.submit pass_action_button_label, class: 'button', disabled: !@users_turn_to_act
-            .action
-               - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
-               - make_wager_button_label += ' to' if @is_no_limit
-               = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-                  = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-                  = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-                  = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
-                  - if @is_no_limit
-                     = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
-                  = f.submit make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act
+              = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
+            = f.submit make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act
 
 :coffeescript
-   ChipStackMutator.adjustAmountFontSizeOfAllStacks()
+  ChipStackMutator.adjustAmountFontSizeOfAllStacks()
    
-   adjustScale = (elementToScale) ->
-      widthRatio = $(window).width() / elementToScale.width()
-      heightRatio = ($(window).height() - $('.toolbar').height()) / elementToScale.height()
+  adjustScale = (elementToScale) ->
+    widthRatio = $(window).width() / elementToScale.width()
+    heightRatio = ($(window).height() - $('.toolbar').height()) / elementToScale.height()
       
-      smallestRatio = Math.min(heightRatio, widthRatio)
-      
-      elementToScale.css('-moz-transform', 'scale(' + smallestRatio.toString() + ')')
-      elementToScale.css('-webkit-transform', 'scale(' + smallestRatio.toString() + ')')
-      elementToScale.css('-ms-transform', 'scale(' + smallestRatio.toString() + ')')
-      elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')')
-      
-      scaledHeight = elementToScale.height() * smallestRatio
-      deviationFromTop = Math.ceil((elementToScale.height() - scaledHeight) / 2) - ($('.toolbar').height() + 2)
-      deviationFromLeft = Math.floor(($(window).width() - elementToScale.width()) / 2)
-      
-      elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})
-   
-   adjustScale($('.game_interface'))
-   jQuery(window).resize(->
-      adjustScale($('.game_interface'))
-   )
+    smallestRatio = Math.min(heightRatio, widthRatio)
+    
+    elementToScale.css('-moz-transform', 'scale(' + smallestRatio.toString() + ')')
+    elementToScale.css('-webkit-transform', 'scale(' + smallestRatio.toString() + ')')
+    elementToScale.css('-ms-transform', 'scale(' + smallestRatio.toString() + ')')
+    elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')')
+    
+    scaledHeight = elementToScale.height() * smallestRatio
+    deviationFromTop = Math.ceil((elementToScale.height() - scaledHeight) / 2) - ($('.toolbar').height() + 2)
+    deviationFromLeft = Math.floor(($(window).width() - elementToScale.width()) / 2)
+    
+    elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})
+ 
+  adjustScale($('.game_interface'))
+  jQuery(window).resize(->
+    adjustScale($('.game_interface'))
+  )
 
-   DynamicMenu.initialize()
+  DynamicMenu.initialize()
    
-   $('.button#with_modifier').click(->
-      wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
-      wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
+  $('.button#with_modifier').click(->
+    wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
+    wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
       
-      $('input#user_poker_action_modifier').val(wager_to_amount_over_hand)
-   )
+    $('input#user_poker_action_modifier').val(wager_to_amount_over_hand)
+  )
 
 - if @is_no_limit
-   :coffeescript
-      slider_value_map = {
-         1: parseInt("#{@minimum_wager}"),
-         2: parseInt("#{@half_pot_wager_amount}"),
-         3: parseInt("#{@three_quarter_pot_wager_amount}"),
-         4: parseInt("#{@pot_wager_amount}"),
-         5: parseInt("#{@two_pot_wager_amount}"),
-         6: parseInt("#{@all_in_amount}")
-      }
-      WagerAmountSlider.initialize(slider_value_map)
+  :coffeescript
+    slider_value_map = {
+      1: parseInt("#{@minimum_wager}"),
+      2: parseInt("#{@half_pot_wager_amount}"),
+      3: parseInt("#{@three_quarter_pot_wager_amount}"),
+      4: parseInt("#{@pot_wager_amount}"),
+      5: parseInt("#{@two_pot_wager_amount}"),
+      6: parseInt("#{@all_in_amount}")
+    }
+    WagerAmountSlider.initialize(slider_value_map)

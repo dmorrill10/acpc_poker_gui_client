@@ -59,7 +59,13 @@ GEM
     childprocess (0.3.2)
       ffi (~> 1.0.6)
     chunky_png (1.2.5)
-    client_side_validations (3.1.4)
+    client_side_validations (3.2.0.beta.3)
+    client_side_validations-mongoid (2.4.0.beta.2)
+      client_side_validations (~> 3.2.0.beta.1)
+      mongoid (~> 2.4.0)
+    client_side_validations-simple_form (1.5.0.beta.3)
+      client_side_validations (~> 3.2.0.beta.1)
+      simple_form (~> 1.5.0)
     coffee-filter (0.1.1)
       coffee-script (>= 2.2.0)
       haml (>= 3.0.18)
@@ -77,9 +83,11 @@ GEM
     compass-rails (1.0.2)
       compass (>= 0.12.0, < 0.14)
     daemon_controller (1.0.0)
+    daemons (1.1.8)
     diff-lcs (1.1.3)
     dmorrill10-utils (0.0.4)
     erubis (2.7.0)
+    eventmachine (0.12.10)
     execjs (1.4.0)
       multi_json (~> 1.0)
     factory_girl (3.5.0)
@@ -134,6 +142,7 @@ GEM
       treetop (~> 1.4.8)
     metaclass (0.0.1)
     mime-types (1.19)
+    minitest (3.1.0)
     mocha (0.11.4)
       metaclass (~> 0.0.1)
     mongo (1.6.2)
@@ -213,7 +222,7 @@ GEM
       libwebsocket (~> 0.1.3)
       multi_json (~> 1.0)
       rubyzip
-    simple_form (2.0.2)
+    simple_form (1.5.2)
       actionpack (~> 3.0)
       activemodel (~> 3.0)
     sprockets (2.1.3)
@@ -225,6 +234,10 @@ GEM
       json_pure
     therubyracer (0.10.1)
       libv8 (~> 3.3.10)
+    thin (1.3.1)
+      daemons (>= 1.0.9)
+      eventmachine (>= 0.12.6)
+      rack (>= 1.0.0)
     thor (0.15.3)
     tilt (1.3.3)
     treetop (1.4.10)
@@ -252,7 +265,9 @@ DEPENDENCIES
   bson_ext
   capybara
   chunky_png
-  client_side_validations
+  client_side_validations (~> 3.2.0.beta.1)
+  client_side_validations-mongoid (~> 2.4.0.beta.2)
+  client_side_validations-simple_form
   coffee-filter
   coffee-rails
   compass
@@ -268,6 +283,7 @@ DEPENDENCIES
   jquery-ui-rails
   launchy
   libnotify
+  minitest
   mocha
   mongoid
   nifty-generators
@@ -280,9 +296,10 @@ DEPENDENCIES
   rspec-rails
   sass-rails
   sassy-buttons
-  simple_form
+  simple_form (~> 1.5)
   stalker
   therubyracer
+  thin
   turn
   uglifier
   yard

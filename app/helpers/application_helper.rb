@@ -1,5 +1,4 @@
 
-# Third party
 require 'stalker'
 require 'acpc_poker_types'
 

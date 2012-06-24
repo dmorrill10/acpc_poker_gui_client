@@ -1,17 +1,16 @@
 
 .match_entry_tabs
-   %ul
-      //#match_entry_tab
-      %li= link_to 'New match', '#new_match_form'
-      %li= link_to 'Rejoin match', '#rejoin_match_form'
-   = render partial: 'new_game/new_match_form'
-   = render partial: 'new_game/rejoin_match_form'
+  %ul
+    %li= link_to 'New match', '#new_match_form'
+    %li= link_to 'Rejoin match', '#rejoin_match_form'
+  = render partial: 'new_game/new_match_form'
+  = render partial: 'new_game/rejoin_match_form'
 
 
 .footer
-   %h4= link_to "Copyright \u00A9 2012 by the Computer Poker Research Group, University of Alberta.", 'http://poker.cs.ualberta.ca/'
-   .license= '<a rel="license" href="http://creativecommons.org/licenses/by/3.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/StillImage" property="dct:title" rel="dct:type">Chip background and table felt</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://imakethingspretty.ca/" property="cc:attributionName" rel="cc:attributionURL">Nicholas Morrill</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a>'.html_safe
-   %h4= link_to 'Report issues or make requests', 'https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open'
+  %h4= link_to "Copyright \u00A9 2012 by the Computer Poker Research Group, University of Alberta.", 'http://poker.cs.ualberta.ca/'
+  .license= '<a rel="license" href="http://creativecommons.org/licenses/by/3.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by/3.0/80x15.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/StillImage" property="dct:title" rel="dct:type">Chip background and table felt</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://imakethingspretty.ca/" property="cc:attributionName" rel="cc:attributionURL">Nicholas Morrill</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported License</a>'.html_safe
+  %h4= link_to 'Report issues or make requests', 'https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open'
 
 :coffeescript
-   $('.match_entry_tabs').tabs();
+  $('.match_entry_tabs').tabs();

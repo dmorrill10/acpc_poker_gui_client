@@ -44,7 +44,7 @@ class Match
 
   # Table parameters
   field :port_numbers, type: Array
-  field :player_names
+  field :player_names, type: String
   field :millisecond_response_timeout, type: Integer
   field :seat, type: Integer
 

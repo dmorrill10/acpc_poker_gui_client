@@ -40,6 +40,12 @@ group :assets do
 end
 
 group :development, :test do
+  # Remove minitest suggestion
+  gem 'minitest'
+
+  # Remove deprecation error
+  gem 'thin'
+
   # Pretty printed test output
   gem 'turn'
   
@@ -101,14 +107,16 @@ gem 'stalker'
 # To manage background processes
 gem 'god'
 
-# Improved forms
-gem 'simple_form'
-
 # Custom utilities
 gem 'dmorrill10-utils'
 
 # Poker logic
 gem 'acpc_poker_player_proxy'
 
+# Improved forms
+gem 'simple_form', "~> 1.5"
+
 # Instant form validation
-gem 'client_side_validations'
+gem 'client_side_validations', '~> 3.2.0.beta.1'
+gem 'client_side_validations-simple_form'
+gem 'client_side_validations-mongoid', '~> 2.4.0.beta.2'

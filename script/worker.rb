@@ -55,10 +55,11 @@ Stalker.job('Dealer.start') do |params|
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
-  log "#{__method__}: Before: ", {
+  log "Stalker.job('Dealer.start'): Before: ", {
     match_id: match_id,
     dealer_arguments: dealer_arguments,
-    background_processes: background_processes
+    background_processes: background_processes,
+    match_id_to_background_processes: @match_id_to_background_processes
   }
 
   # Start the dealer
@@ -84,6 +85,12 @@ Stalker.job('Dealer.start') do |params|
       raise unable_to_retrieve_port_numbers_from_dealer_exception
     end
   end
+
+  log "Stalker.job('Dealer.start'): After: ", {
+    match_id: match_id,
+    background_processes: background_processes,
+    match_id_to_background_processes: @match_id_to_background_processes
+  }
 end
 
 # @param [Hash] params Parameters for the player proxy. Must contain values for
@@ -94,7 +101,7 @@ Stalker.job('PlayerProxy.start') do |params|
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
-  log "#{__method__}: Before: ", {
+  log "Stalker.job('PlayerProxy.start'): Before: ", {
     match_id: match_id,
     background_processes: background_processes,
     match_id_to_background_processes: @match_id_to_background_processes
@@ -134,8 +141,9 @@ Stalker.job('PlayerProxy.start') do |params|
 
     @match_id_to_background_processes[match_id] = background_processes
 
-    log "#{__method__}: After: ", {
+    log "Stalker.job('PlayerProxy.start'): After: ", {
       match_id: match_id,
+      background_processes: background_processes,
       match_id_to_background_processes: @match_id_to_background_processes
     }
 
@@ -154,7 +162,7 @@ Stalker.job('Opponent.start') do |params|
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
-  log "#{__method__}: Before: ", {
+  log "Stalker.job('Opponent.start'): Before: ", {
     match_id: match_id,
     background_processes: background_processes,
     match_id_to_background_processes: @match_id_to_background_processes
@@ -172,8 +180,9 @@ Stalker.job('Opponent.start') do |params|
     @match_id_to_background_processes[match_id] = background_processes
   end
 
-  log "#{__method__}: After: ", {
+  log "Stalker.job('Opponent.start'): After: ", {
     match_id: match_id,
+    background_processes: background_processes,
     match_id_to_background_processes: @match_id_to_background_processes
   }
 end
@@ -184,7 +193,7 @@ Stalker.job('PlayerProxy.play') do |params|
 
   action = PokerAction.new(param(params, 'action', 'poker action', match_id).to_sym, {modifier: params['modifier']})
 
-  log "#{__method__}: Before: ", {
+  log "Stalker.job('PlayerProxy.play'): Before: ", {
     match_id: match_id,
     action: action,
     match_id_to_background_processes: @match_id_to_background_processes
@@ -201,7 +210,7 @@ Stalker.job('PlayerProxy.play') do |params|
     @match_id_to_background_processes.delete match_id
   end
 
-  log "#{__method__}: After: ", {
+  log "Stalker.job('PlayerProxy.play'): After: ", {
     match_id: match_id,
     match_id_to_background_processes: @match_id_to_background_processes
   }

@@ -34,25 +34,23 @@ class NewGameController < ApplicationController
 
     @match.match_name.strip!
 
-    @match.seat ||= (rand(2) + 1)
-    @match.random_seed ||= lambda do
+    @match.seat = (rand(2) + 1) unless @match.seat
+    @match.random_seed = lambda do
       random_float = rand
       random_int = (random_float * 10**random_float.to_s.length).to_i
       random_int
-    end.call
+    end.call unless @match.random_seed
 
-    # For some reason, +REGISTERED_BOTS.key(ApplicationDefs.const_get(@match.bot))+
-    #  doesn't work so I'm converting the classes in REGISTERED_BOTS to strings
-    registered_bot_keys_as_strings = REGISTERED_BOTS.inject({}) do |hash, key_value|
-      (key, value) = key_value
-      hash[key] = value.to_s
-      hash
-    end
-    names = ['user', registered_bot_keys_as_strings.key(@match.bot)]
+    names = [
+      'user', 
+      GAME_DEFINITIONS[@match.game_definition_key][:bots].find do |name, runner_class|
+        runner_class.to_s == @match.bot
+      end.first
+    ]
     @match.player_names = (if @match.seat.to_i == 2 then names.reverse else names end).join(', ')
 
     @match.number_of_hands ||= 1
-    @match.game_definition_file_name = GAME_DEFINITION_FILE_NAMES[@match.game_definition_key]
+    @match.game_definition_file_name = GAME_DEFINITIONS[@match.game_definition_key][:file]
     @match.millisecond_response_timeout = DEALER_MILLISECOND_TIMEOUT
     unless @match.save
       reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'

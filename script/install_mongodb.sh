@@ -1,7 +1,7 @@
 #!/bin/bash
 
-repoDir=$( cd "$( dirname "$0" )" && pwd )
-cd $repoDir
+scriptDir=$( cd "$( dirname "$0" )" && pwd )
+cd $scriptDir
 
 echo -n 'Downloading MongoDb 2.0.6...'
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-2.0.6.tgz

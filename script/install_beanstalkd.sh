@@ -1,5 +1,8 @@
 #!/bin/bash
 
+scriptDir=$( cd "$( dirname "$0" )" && pwd )
+cd $scriptDir
+
 echo 'Cloning beanstalkd from GitHub...'
 git clone git://github.com/kr/beanstalkd.git
 echo 'Done'
@@ -16,3 +19,5 @@ cd ../
 rm -rf beanstalkd
 mv $temp_name beanstalkd
 echo 'Done'
+
+cd -

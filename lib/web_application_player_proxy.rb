@@ -44,8 +44,6 @@ class WebApplicationPlayerProxy
         players_at_the_table: players_at_the_table
       }
 
-      log __method__, { first_player_positions: players_at_the_table.game_def.first_player_positions }
-
       if players_at_the_table.transition.next_state
         update_database! players_at_the_table
       end

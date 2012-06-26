@@ -5,6 +5,6 @@ RAILS_ROOT="$SCRIPT_DIR/../"
 VENDOR_DIR="$RAILS_ROOT/vendor"
 $VENDOR_DIR/mongoDB/bin/mongod --nojournal --dbpath $VENDOR_DIR/mongoDB/data/db &
 $VENDOR_DIR/beanstalkd &
-stalk $VENDOR_DIR/worker.rb &
+stalk $SCRIPT_DIR/worker.rb &
 cd $RAILS_ROOT
 rails s

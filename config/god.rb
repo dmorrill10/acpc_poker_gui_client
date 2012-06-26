@@ -4,7 +4,7 @@ GOD_RAILS_ROOT = File.expand_path("../..", __FILE__)
 God.pid_file_directory = "#{GOD_RAILS_ROOT}/tmp/pids"
 
 MONGODB_ROOT = "#{GOD_RAILS_ROOT}/vendor/mongoDB/"
-BEANSTALKD_PATH = "#{GOD_RAILS_ROO}/vendor/beanstalkd"
+BEANSTALKD_PATH = "#{GOD_RAILS_ROOT}/vendor/beanstalkd"
 
 def watch(name)
   God.watch do |w|

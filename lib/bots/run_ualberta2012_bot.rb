@@ -1,6 +1,6 @@
 
 class RunUAlberta2012Bot
-   EXECUTE_COMMAND = File.expand_path('../../../external/runUAlberta2012.sh', __FILE__)
+   EXECUTE_COMMAND = File.expand_path('~hawkin/startme.sh', __FILE__)
    ARGUMENTS = [:server, :port_number]
    
    # Connect to an ACPC Dealer and play a match of poker.

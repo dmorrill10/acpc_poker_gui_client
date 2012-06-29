@@ -9,7 +9,7 @@ class AcpcDealerRunner
    # @param [Array] dealer_arguments Arguments to the new dealer instance.
    # @raise (see ProcessRunner#initialize)
    def initialize(dealer_arguments)
-      dealer_path = File.expand_path('../../../external/project_acpc_server/dealer', __FILE__)
+      dealer_path = File.expand_path('../../../vendor/project_acpc_server/dealer', __FILE__)
       dealer_start_command = dealer_arguments.unshift(dealer_path.to_s).join(' ')
 
       @dealer = ProcessRunner.new dealer_start_command

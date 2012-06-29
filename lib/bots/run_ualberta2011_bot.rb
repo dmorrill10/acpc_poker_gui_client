@@ -1,7 +1,7 @@
 
 class RunUAlberta2011Bot
-   EXECUTE_COMMAND = File.expand_path('../../../external/runUAlbertaAaai.sh', __FILE__)
-   ARGUMENTS = [:game_def, :server, :port_number, :player_object, :player_arguments]
+   EXECUTE_COMMAND = File.expand_path('~burch/nolimit_bot/run.sh', __FILE__)
+   ARGUMENTS = [:server, :port_number]
    
    # Connect to an ACPC Dealer and play a match of poker.
    # @param [Hash] argument_hash Hash of bot run parameters. May

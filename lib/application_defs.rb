@@ -7,6 +7,8 @@ Dir.glob("#{File.expand_path('../../', __FILE__)}/lib/bots/run_*_bot.rb").each d
   end
 end
 
+require 'acpc_dealer'
+
 # Assortment of constant definitions.
 module ApplicationDefs
 
@@ -15,7 +17,7 @@ module ApplicationDefs
 
   GAME_DEFINITIONS = {
     two_player_nolimit: {
-      file: File.expand_path('../../vendor/project_acpc_server/holdem.nolimit.2p.reverse_blinds.game', __FILE__),
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
       text: '2-player no-limit',
       bots: {
         # 'UAlberta2012' => RunUAlberta2012Bot, # @todo Disable these only if constant is not available
@@ -24,9 +26,11 @@ module ApplicationDefs
       }
     },
     two_player_limit: {
-      file: File.expand_path('../../vendor/project_acpc_server/holdem.limit.2p.reverse_blinds.game', __FILE__),
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],
       text: '2-player limit',
       bots: {'tester' => RunTestingBot}
     }
   }
+
+  MATCH_LOG_DIRECTORY = File.expand_path('../../log/match_logs', __FILE__)
 end

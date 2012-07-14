@@ -47,7 +47,7 @@ class NewGameController < ApplicationController
         runner_class.to_s == @match.bot
       end.first
     ]
-    @match.player_names = (if @match.seat.to_i == 2 then names.reverse else names end).join(', ')
+    @match.player_names = (if @match.seat.to_i == 2 then names.reverse else names end).join(' ')
 
     @match.number_of_hands ||= 1
     @match.game_definition_file_name = GAME_DEFINITIONS[@match.game_definition_key][:file]
@@ -55,18 +55,25 @@ class NewGameController < ApplicationController
     unless @match.save
       reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
     else
-      dealer_arguments = [
-        @match.match_name,
-        @match.game_definition_file_name,
-        @match.number_of_hands.to_s,
-        @match.random_seed.to_s,
-        @match.player_names.split(/\s*,?\s+/),
+      options = [
         '--t_response ' + @match.millisecond_response_timeout.to_s,
         '--t_hand ' + @match.millisecond_response_timeout.to_s,
         '--t_per_hand ' + @match.millisecond_response_timeout.to_s
-      ].flatten
+      ].join ' '
 
-      start_background_job('Dealer.start', {match_id: @match.id, dealer_arguments: dealer_arguments})
+      start_background_job(
+        'Dealer.start', 
+        {
+          match_id: @match.id, 
+          match_name: @match.match_name,
+          game_def_file_name: @match.game_definition_file_name,
+          number_of_hands: @match.number_of_hands.to_s,
+          random_seed: @match.random_seed.to_s,
+          player_names: @match.player_names,
+          options: options,
+          log_directory: MATCH_LOG_DIRECTORY
+        }
+      )
 
       continue_looping_condition = lambda { |match| !match.port_numbers }
       begin
@@ -101,7 +108,7 @@ class NewGameController < ApplicationController
 
       opponent_arguments = {
         match_id: @match.id,
-        bot_start_command: bot_start_command
+        bot_start_command: bot_start_command.split(' ')
       }
 
       start_background_job 'Opponent.start', opponent_arguments

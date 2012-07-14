@@ -3,17 +3,13 @@
 # Join standard out and standard error
 STDERR.sync = STDOUT.sync = true
 
-# Load the database configuration without the Rails environment
-require File.expand_path('../../lib/config/database_config', __FILE__)
-
 require "stalker"
 
-###########################
-
-# Local classes
+# Load the database configuration without the Rails environment
+require_relative '../database_config'
 
 # To store match data
-require File.expand_path('../../app/models/match', __FILE__)
+require_relative '../../app/models/match'
 
 # To encapsulate dealer information
 require 'acpc_poker_basic_proxy'
@@ -22,23 +18,18 @@ require 'acpc_poker_basic_proxy'
 require 'acpc_poker_types'
 
 # For game logic
-require File.expand_path('../../lib/web_application_player_proxy', __FILE__)
+require_relative '../web_application_player_proxy'
 
 # To run the dealer
-require File.expand_path('../../lib/background/dealer_runner', __FILE__)
+require 'acpc_dealer'
 
 # For an opponent bot
-require File.expand_path('../../lib/background/bot_runner', __FILE__)
+require 'dmorrill10-utils/process_runner'
 
-# Local modules
-require File.expand_path('../../lib/background/worker_helpers', __FILE__)
+# Helpers
+require_relative 'worker_helpers'
+
 include WorkerHelpers
-
-###########################
-
-def log(method, variables)
-  puts "#{self.class}: #{method}: #{variables.inspect}"
-end
 
 # Ensures that the map used to keep track of background processes is initialized properly
 before do |job|
@@ -49,15 +40,23 @@ end
 
 # @param [Hash] params Parameters for the dealer. Must contain values for +'match_id'+ and +'dealer_arguments'+.
 Stalker.job('Dealer.start') do |params|
-  match_id = match_id_param params
-
-  dealer_arguments = param params, 'dealer_arguments', 'dealer arguments', match_id
-
+  match_id = params.retrieve_match_id_or_raise_exception
+  dealer_arguments = {
+    match_name: params.retrieve_parameter_or_raise_exception('match_name'),
+    game_def_file_name: params.retrieve_parameter_or_raise_exception('game_def_file_name'),
+    hands: params.retrieve_parameter_or_raise_exception('number_of_hands'),
+    random_seed: params.retrieve_parameter_or_raise_exception('random_seed'),
+    player_names: params.retrieve_parameter_or_raise_exception('player_names'),
+    options: (params['options'] || {})
+  }
+  log_directory = params['log_directory']
+  
   background_processes = @match_id_to_background_processes[match_id] || {}
 
   log "Stalker.job('Dealer.start'): Before: ", {
     match_id: match_id,
     dealer_arguments: dealer_arguments,
+    log_directory: log_directory,
     background_processes: background_processes,
     match_id_to_background_processes: @match_id_to_background_processes
   }
@@ -65,7 +64,10 @@ Stalker.job('Dealer.start') do |params|
   # Start the dealer
   unless background_processes[:dealer]
     begin
-      background_processes[:dealer] = AcpcDealerRunner.new dealer_arguments
+      background_processes[:dealer] = DealerRunner.start(
+        dealer_arguments,
+        log_directory
+      )
       @match_id_to_background_processes[match_id] = background_processes
     rescue => unable_to_start_dealer_exception
       handle_exception match_id, "unable to start dealer: #{unable_to_start_dealer_exception.message}"
@@ -74,7 +76,7 @@ Stalker.job('Dealer.start') do |params|
 
     # Get the player port numbers
     begin
-      port_numbers = (@match_id_to_background_processes[match_id][:dealer].dealer_string).split(/\s+/)
+      port_numbers = @match_id_to_background_processes[match_id][:dealer][:port_numbers]
 
       # Store the port numbers in the database so the web app. can access them
       match = match_instance match_id
@@ -97,7 +99,7 @@ end
 #  +'match_id'+, +'host_name'+, +'port_number'+, +'game_definition_file_name'+,
 #  +'player_names'+, +'number_of_hands'+, and +'millisecond_response_timeout'+.
 Stalker.job('PlayerProxy.start') do |params|
-  match_id = match_id_param params
+  match_id = params.retrieve_match_id_or_raise_exception
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
@@ -108,13 +110,13 @@ Stalker.job('PlayerProxy.start') do |params|
   }
 
   unless background_processes[:player_proxy]
-    host_name = param params, 'host_name', 'dealer host name', match_id
-    port_number = param params, 'port_number', 'user port number', match_id
-    player_names = param params, 'player_names', 'player names', match_id
-    number_of_hands = param(params, 'number_of_hands', 'number of hands', match_id).to_i
-    game_definition_file_name = param params, 'game_definition_file_name', 'game definition file name', match_id
-    millisecond_response_timeout = param(params, 'millisecond_response_timeout', 'response timeout', match_id).to_i
-    users_seat = param(params, 'users_seat', "user's seat", match_id).to_i
+    host_name = params.retrieve_parameter_or_raise_exception 'host_name'
+    port_number = params.retrieve_parameter_or_raise_exception 'port_number'
+    player_names = params.retrieve_parameter_or_raise_exception 'player_names'
+    number_of_hands = params.retrieve_parameter_or_raise_exception('number_of_hands').to_i
+    game_definition_file_name = params.retrieve_parameter_or_raise_exception 'game_definition_file_name'
+    millisecond_response_timeout = params.retrieve_parameter_or_raise_exception('millisecond_response_timeout').to_i
+    users_seat = params.retrieve_parameter_or_raise_exception('users_seat').to_i
 
     begin
       game_definition = GameDefinition.parse_file game_definition_file_name
@@ -123,6 +125,7 @@ Stalker.job('PlayerProxy.start') do |params|
       raise e
     end
 
+    # @todo Move AcpcDealerInformation from basic_proxy gem to acpc_dealer as DealerInformation
     dealer_information = AcpcDealerInformation.new host_name, port_number, millisecond_response_timeout
 
     begin
@@ -158,7 +161,7 @@ end
 # @param [Hash] params Parameters for an opponent. Must contain values for
 #  +'match_id'+, +'bot_start_command'+.
 Stalker.job('Opponent.start') do |params|
-  match_id = match_id_param params
+  match_id = params.retrieve_match_id_or_raise_exception
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
@@ -169,10 +172,10 @@ Stalker.job('Opponent.start') do |params|
   }
 
   unless background_processes[:opponent]
-    bot_start_command = param(params, 'bot_start_command', 'bot start command')
+    bot_start_command = params.retrieve_parameter_or_raise_exception 'bot_start_command'
 
     begin
-      background_processes[:opponent] = BotRunner.new bot_start_command
+      background_processes[:opponent] = ProcessRunner.go bot_start_command
     rescue => unable_to_start_bot_exception
       handle_exception match_id, "unable to start bot with command \"#{bot_start_command}\": #{unable_to_start_bot_exception.message}"
       raise unable_to_start_bot_exception
@@ -189,9 +192,12 @@ end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.
 Stalker.job('PlayerProxy.play') do |params|
-  match_id = match_id_param params
+  match_id = params.retrieve_match_id_or_raise_exception
 
-  action = PokerAction.new(param(params, 'action', 'poker action', match_id).to_sym, {modifier: params['modifier']})
+  action = PokerAction.new(
+    params.retrieve_parameter_or_raise_exception('action').to_sym, 
+    {modifier: params['modifier']}
+  )
 
   log "Stalker.job('PlayerProxy.play'): Before: ", {
     match_id: match_id,

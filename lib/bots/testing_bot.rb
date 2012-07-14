@@ -1,14 +1,10 @@
 #!/usr/bin/env ruby
 
 # Gems
-require 'dmorrill10-utils'
 require 'acpc_poker_types'
 require 'acpc_poker_basic_proxy'
 
-include Script
-
 class TestingBot
-  
   def initialize(port_number, server_host_name='localhost', millisecond_timeout=nil, random=false)
     dealer_info = AcpcDealerInformation.new server_host_name,
       port_number.to_i, millisecond_timeout.to_i
@@ -87,7 +83,7 @@ def proper_usage?
   ARGV.length > 0
 end
 
-run_script_if_run_as_script(__FILE__) do
+def run_script
   server_host_name = if ARGV.length > 1
     ARGV[1].chomp
   else
@@ -105,4 +101,12 @@ run_script_if_run_as_script(__FILE__) do
   end
 
    TestingBot.new ARGV[0].chomp, server_host_name, millisecond_timeout, random
+end
+
+if $0 == __FILE__
+  if proper_usage?
+    run_script
+  else
+    print_usage
+  end
 end

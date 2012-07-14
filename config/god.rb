@@ -51,7 +51,7 @@ end
 def delete_matches_older_than(lifespan)
   # These are needed to monitor the Match database and they must be done after
   #  ensuring that the database (mongod in this case) is running
-  require "#{GOD_RAILS_ROOT}/lib/config/database_config"
+  require "#{GOD_RAILS_ROOT}/lib/database_config"
   require "#{GOD_RAILS_ROOT}/app/models/match"
 
   Match.delete_matches_older_than lifespan
@@ -88,7 +88,7 @@ watch('beanstalkd') do |w|
 end
 
 watch('worker') do |w|
-  w.start = "stalk #{GOD_RAILS_ROOT}/script/worker.rb"
+  w.start = "stalk #{GOD_RAILS_ROOT}/lib/background/worker.rb"
 end
 
 watch('apache') do |w|

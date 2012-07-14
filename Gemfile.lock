@@ -202,6 +202,7 @@ GEM
       ffi (>= 0.5.0)
     rdoc (3.12)
       json (~> 1.4)
+    redcarpet (2.1.1)
     rspec (2.10.0)
       rspec-core (~> 2.10.0)
       rspec-expectations (~> 2.10.0)
@@ -301,6 +302,7 @@ DEPENDENCIES
   rack-asset-compiler
   rails (= 3.2.6)
   rb-inotify
+  redcarpet
   rspec-rails
   sass-rails
   sassy-buttons

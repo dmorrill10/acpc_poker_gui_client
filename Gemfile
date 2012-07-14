@@ -39,6 +39,15 @@ group :assets do
   gem 'oily_png'
 end
 
+group :development do
+  # YARD documentation library
+  gem 'yard'
+  gem 'yard-rspec'
+
+  # To interpret markdown
+  gem 'redcarpet'
+end
+
 group :development, :test do
   # Remove minitest suggestion
   gem 'minitest'
@@ -92,10 +101,6 @@ end
 
 # Enable HAML format views.  Prettier than ERB format views, I find.
 gem "haml"
-
-# YARD documentation library
-gem 'yard'
-gem 'yard-rspec'
 
 # For deployment.  Phusion Passenger integrates the rails app. with Apache.
 gem 'passenger'

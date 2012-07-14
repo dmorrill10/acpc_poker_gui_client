@@ -2,9 +2,6 @@
 --no-private
 app/**/*.rb
 lib/**/*.rb
-ext/**/*.c
 -
-extra_docs/AppDesign
-extra_docs/AppStatus
-extra_docs/FileStructure
-extra_docs/Glossary
+*.md
+text_docs/**/*

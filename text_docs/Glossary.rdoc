@@ -1,0 +1,68 @@
+= Glossary of Terms
+
+[<em>{ACPC Dealer}[http://www.computerpokercompetition.org/index.php?option=com_rokdownloads&view=folder&Itemid=59]</em>]
+   The program used to deal cards and manage poker _matches_. It is the official program used by the Annual Computer Poker Competition to run its matches.
+
+[_action_]
+   A method in a _controller_[http://guides.rubyonrails.org/action_controller_overview.html], to which a _route_ is mapped.
+
+[_Apache_[http://www.apache.org/]]
+   A commonly used production-grade web server that is also used by this application.
+
+[<em>background process server</em>]
+   A server to run jobs in background. Background processes are necessary because a TCP socket needs to be persisted in order to communicate with the <em>{ACPC Dealer}[http://www.computerpokercompetition.org/index.php?option=com_rokdownloads&view=folder&Itemid=59]</em>.
+
+[_Beanstalkd_[http://kr.github.com/beanstalkd/]]
+   The <em>background process server</em> implementation currently being used to run jobs in the background.
+
+[_bot_]
+   An automated agent that can play matches against other _competitors_ without input from a human user.
+
+[<em>Player response</em>]
+   A matchstate string with an appended action, according to the format specified by the <em>{ACPC Dealer}[http://www.computerpokercompetition.org/index.php?option=com_rokdownloads&view=folder&Itemid=59]</em>.
+
+[_competitor_]
+   A user operating a browser or a _bot_. A competitor can participate in a _match_.
+
+[_controller_[http://guides.rubyonrails.org/action_controller_overview.html]]
+   A class that inherits from +ApplicationController+, contains _actions_ that render _views_ to the browser, and delegates business logic to _models_ and background processes.
+
+[_CPRG_[http://poker.cs.ualberta.ca/]]
+   The University of Alberta's Computer Poker Research Group.
+
+[_gem_[http://docs.rubygems.org/read/chapter/1/]]
+   A plug-in-like Ruby library or application that adds functionality to another Ruby application. Gems are listed in +Gemfile+ and are installed by running +bundle install+ from the application's root directory.
+
+[<em>Javascript template</em>]
+   Javascript embedded in an +ERB+ or +HAML+ format template. It usually has an +.js.erb+ or +.js.haml+ extension.
+   
+[_match_]
+   A sequence of poker hands managed by the <em>{ACPC Dealer}[http://www.computerpokercompetition.org/index.php?option=com_rokdownloads&view=folder&Itemid=59]</em> and played by _competitors_.
+
+[<em>match state</em>]
+   The state of a _match_ on a certain turn during a particular hand. Strings describing the match state are sent to _participants_ by the <em>{ACPC Dealer}[http://www.computerpokercompetition.org/index.php?option=com_rokdownloads&view=folder&Itemid=59]</em>.
+
+[_model_[]]
+   A class that works with data from, and provides results to,
+   _controllers_.
+
+[<em>partial template</em> or _partial_]
+   A snippet of template code (+ERB+, +HAML+, etc.) that can be inserted into full templates at run time. By convention, partial template files begin with an underscore ('_'). See <em>{Layouts and Rendering in Rails}[http://guides.rubyonrails.org/layouts_and_rendering.html]</em> for more information.
+
+[_participant_]
+   A _competitor_ who joins a <em>{ACPC Dealer}[http://www.computerpokercompetition.org/index.php?option=com_rokdownloads&view=folder&Itemid=59]</em> hosting a _match_.
+
+[<em>Phusion Passenger</em>]
+   Integration manager between _Rails_[http://rubyonrails.org/] and _Apache_[http://www.apache.org/].
+
+[_route_[http://guides.rubyonrails.org/routing.html]]
+   A map between URL parameters and _controller_[http://guides.rubyonrails.org/action_controller_overview.html] _actions_.
+
+[_template_]
+   A file that can be interpreted into an +HTML+ page, which can be displayed in a browser. It is usually written in +ERB+ or +HAML+ and is a file with a +.html.erb+ or +.html.haml+ extension respectively. See <em>{Layouts and Rendering in Rails}[http://guides.rubyonrails.org/layouts_and_rendering.html]</em> for more information.
+   
+[_view_]
+   A set of _templates_ that can be rendered by _controller_[http://guides.rubyonrails.org/action_controller_overview.html] _actions_ to the browser. See <em>{Layouts and Rendering in Rails}[http://guides.rubyonrails.org/layouts_and_rendering.html]</em> for more information.
+
+[_worker_]
+   A process running on a <em>background process server</em>. The worker script for this application (+lib/background/worker.rb+) is based on the +Stalker+ gem and runs on _Beanstalkd_[http://kr.github.com/beanstalkd/].

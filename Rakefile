@@ -111,7 +111,7 @@ task :start_dev_server do
   puts "Done"
 end
 
-desc 'Kill all server processes'
+desc 'Kill all server related processes (all Ruby, Apache, God, Beanstalkd, and Mongod processes)'
 task :kill_server do
   sh %{ god terminate }
   sh %{ apache2ctl -f ~/httpd.conf -k stop }
@@ -121,7 +121,7 @@ task :kill_server do
 end
 
 desc 'Update code and gem dependencies'
-task :update => :kill_server do
+task :update do
   sh %{ git pull }
   Rake::Task[:install_gems].invoke
 end

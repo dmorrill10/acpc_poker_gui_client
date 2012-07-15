@@ -105,14 +105,6 @@ GEM
     ffi (1.0.11)
     fssm (0.2.9)
     god (0.12.1)
-    guard (1.2.1)
-      listen (>= 0.4.2)
-      thor (>= 0.14.6)
-    guard-bundler (1.0.0)
-      bundler (~> 1.0)
-      guard (~> 1.1)
-    guard-rspec (1.1.0)
-      guard (>= 1.1)
     haml (3.1.6)
     hike (1.2.1)
     i18n (0.6.0)
@@ -133,24 +125,15 @@ GEM
     json_pure (1.7.3)
     launchy (2.1.0)
       addressable (~> 2.2.6)
-    libnotify (0.7.4)
-      ffi (~> 1.0.11)
     libv8 (3.3.10.4)
     libwebsocket (0.1.3)
       addressable
-    listen (0.4.6)
-      rb-fchange (~> 0.0.5)
-      rb-fsevent (~> 0.9.1)
-      rb-inotify (~> 0.8.8)
     mail (2.4.4)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    metaclass (0.0.1)
     mime-types (1.19)
     minitest (3.1.0)
-    mocha (0.11.4)
-      metaclass (~> 0.0.1)
     mongo (1.6.2)
       bson (~> 1.6.2)
     mongoid (2.4.11)
@@ -195,11 +178,6 @@ GEM
     rake (0.9.2.2)
     rake-compiler (0.8.1)
       rake
-    rb-fchange (0.0.5)
-      ffi
-    rb-fsevent (0.9.1)
-    rb-inotify (0.8.8)
-      ffi (>= 0.5.0)
     rdoc (3.12)
       json (~> 1.4)
     redcarpet (2.1.1)
@@ -211,11 +189,6 @@ GEM
     rspec-expectations (2.10.0)
       diff-lcs (~> 1.1.3)
     rspec-mocks (2.10.1)
-    rspec-rails (2.10.1)
-      actionpack (>= 3.0)
-      activesupport (>= 3.0)
-      railties (>= 3.0)
-      rspec (~> 2.10.0)
     rubyzip (0.9.9)
     sass (3.1.19)
     sass-rails (3.2.5)
@@ -284,16 +257,12 @@ DEPENDENCIES
   dmorrill10-utils
   factory_girl_rails
   god
-  guard-bundler
-  guard-rspec
   haml
   jasmine
   jquery-rails
   jquery-ui-rails
   launchy
-  libnotify
   minitest
-  mocha
   mongoid
   nifty-generators
   oily_png
@@ -301,9 +270,7 @@ DEPENDENCIES
   rack (= 1.4.1)
   rack-asset-compiler
   rails (= 3.2.6)
-  rb-inotify
   redcarpet
-  rspec-rails
   sass-rails
   sassy-buttons
   simple_form (~> 1.5)

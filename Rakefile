@@ -9,7 +9,7 @@ AcpcPokerGuiClient::Application.load_tasks
 
 desc 'Compile the ACPC Dealer server'
 task :compile_dealer => :install_gems do
-  `acpc_dealer compile`
+  sh %{ acpc_dealer compile }
 end
 
 VENDOR_DIRECTORY = "#{RAILS_ROOT}/vendor"
@@ -19,39 +19,30 @@ file VENDOR_DIRECTORY do
   puts "Done"
 end
 
-MONGODB_DIRECTORY = 'mongoDB'
-MONGODB_DATA_DIRECTORY = "#{VENDOR_DIRECTORY}/#{MONGODB_DIRECTORY}/data/db"
-MONGOD_EXECUTABLE = "#{VENDOR_DIRECTORY}/#{MONGODB_DIRECTORY}/bin/mongod"
-
-MONGODB_SOURCE = 'mongodb-linux-x86_64-2.0.6'
-MONGODB_SOURCE_DIRECTORY = "#{VENDOR_DIRECTORY}/#{MONGODB_SOURCE}"
-file MONGODB_DIRECTORY => VENDOR_DIRECTORY do
-  FileUtils.rm_f MONGODB_DIRECTORY
-  FileUtils.cd VENDOR_DIRECTORY do
-    print 'Downloading MongoDb 2.0.6...'
-    sh %{ wget http://fastdl.mongodb.org/linux/#{MONGODB_SOURCE}.tgz }
-    puts 'Done'
-
-    print 'Unpacking MongoDb...'
-    sh %{ gunzip #{MONGODB_SOURCE}.tgz }
-    sh %{ tar xvf #{MONGODB_SOURCE}.tar }
-    FileUtils.rm_f "#{MONGODB_SOURCE}.tar"
-    FileUtils.mv MONGODB_SOURCE, MONGODB_DIRECTORY, force: true
-    puts 'Done'
-  end
+MONGODB_DIRECTORY = "#{VENDOR_DIRECTORY}/mongoDB"
+file MONGODB_DIRECTORY do
+  puts(
+    "Please download a MongoDB version compatible with your system " +
+    "from http://www.mongodb.org/downloads, unpack the compressed file to " +
+    "`<project root>/vendor`, and rename the resulting directory to `mongoDB`."
+  )
+  raise
 end
 
+MONGOD_EXECUTABLE = "#{MONGODB_DIRECTORY}/bin/mongod"
 file MONGOD_EXECUTABLE => MONGODB_DIRECTORY
+MONGODB_DATA_DIRECTORY = "#{MONGODB_DIRECTORY}/data/db"
+
 file MONGODB_DATA_DIRECTORY => MONGODB_DIRECTORY do
   FileUtils.mkpath MONGODB_DATA_DIRECTORY
 end
 
-desc 'Install MongoDB database'
-task :install_mongodb => [MONGODB_DATA_DIRECTORY, MONGOD_EXECUTABLE]
+desc 'Complete MongoDB set up. Requires that the '
+task :setup_mongodb => [MONGODB_DATA_DIRECTORY, MONGOD_EXECUTABLE]
 
 BEANSTALKD_NAME = 'beanstalkd'
 BEANSTALKD_EXECUTABLE = "#{VENDOR_DIRECTORY}/#{BEANSTALKD_NAME}"
-file BEANSTALKD_EXECUTABLE => VENDOR_DIRECTORY do
+task :reinstall_beanstalkd do
   FileUtils.rm_f BEANSTALKD_EXECUTABLE
   FileUtils.cd VENDOR_DIRECTORY do
     print "Cloning #{BEANSTALKD_NAME} from GitHub..."
@@ -73,6 +64,11 @@ file BEANSTALKD_EXECUTABLE => VENDOR_DIRECTORY do
     puts 'Done'
   end
 end
+file BEANSTALKD_EXECUTABLE => VENDOR_DIRECTORY do
+  unless File.exists?(BEANSTALKD_EXECUTABLE)
+    Rake::Task[:reinstall_beanstalkd].invoke
+  end
+end
 
 desc 'Installs Beanstalkd background process server'
 task :install_beanstalkd => BEANSTALKD_EXECUTABLE
@@ -84,12 +80,11 @@ task :install_gems do
   puts "Done"
 end
 
-desc 'Installs all dependencies'
-task :install => [:install_gems, :compile_dealer, :install_mongodb, :install_beanstalkd]
+desc 'Installs gems and Beanstalkd, compiles the ACPC Dealer, and sets up MongoDB'
+task :install => [:install_gems, :compile_dealer, :setup_mongodb, :install_beanstalkd]
 
-# @todo I tried making this dependent on +:install+, but all the file tasks end up getting run even when there haven't been any updates in their dependencies.
 desc 'Starts a development server'
-task :start_dev_server do
+task :start_dev_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY, BEANSTALKD_EXECUTABLE] do
   mongod_command = "#{MONGOD_EXECUTABLE} --nojournal --dbpath #{MONGODB_DATA_DIRECTORY} &"
   print "Running '#{mongod_command}'..."
   sh %{ #{mongod_command} }
@@ -111,15 +106,6 @@ task :start_dev_server do
   puts "Done"
 end
 
-desc 'Kill all server related processes (all Ruby, Apache, God, Beanstalkd, and Mongod processes)'
-task :kill_server do
-  sh %{ god terminate }
-  sh %{ apache2ctl -f ~/httpd.conf -k stop }
-  sh %{ killall ruby }
-  sh %{ killall beanstalkd }
-  sh %{ killall mongod }
-end
-
 desc 'Update code and gem dependencies'
 task :update do
   sh %{ git pull }
@@ -130,4 +116,16 @@ desc 'Start production server'
 task :start_prod_server do
   sh %{ god -c config/god.rb }
   sh %{ bundle exec rake assets:precompile RAILS_ENV=production }
+end
+
+desc 'Kill production server'
+task :kill_prod_server do
+  begin; sh %{ god terminate }; rescue; end
+  begin; sh %{ apache2ctl -f ~/httpd.conf -k stop }; rescue; end
+end
+
+desc 'Kill the background process and database servers'
+task :kill_background do
+  begin; sh %{ killall mongod }; rescue; end
+  begin; sh %{ killall beanstalkd }; rescue; end
 end

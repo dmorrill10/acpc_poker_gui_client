@@ -49,7 +49,7 @@ group :development do
 end
 
 group :development, :test do
-  # Remove minitest suggestion
+  # Testing framework
   gem 'minitest'
 
   # Remove deprecation error
@@ -58,28 +58,12 @@ group :development, :test do
   # Pretty printed test output
   gem 'turn'
   
-  # Testing framework
-  gem 'rspec-rails'
-  
-  # Testing framework overtop of RSpec that simulates user interaction
+  # User interaction simulation for testing
   gem 'capybara'
   
   # Allows Capybara to test through a browser
   gem 'launchy'
-  
-  # Mock object and method stubbing framework
-  gem 'mocha'
-  
-  # To make Guard more efficient on Linux
-  gem 'rb-inotify'
-  gem 'libnotify'
-  
-  # Automatically run tests with Guard
-  gem 'guard-rspec'
-  
-  # Automatically run bundler to install gems when this Gemfile changes
-  gem 'guard-bundler'
-  
+      
   # Factory gem
   gem 'factory_girl_rails'
   

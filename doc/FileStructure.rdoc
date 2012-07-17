@@ -1,0 +1,38 @@
+
+= Application File Organization
+
+[app]
+  Holds most of the Rails application specific code.
+
+[config]
+  Configuration files for the Rails environment including the HTML request routing map and <em>God[http://godrb.com/]</em> script.
+
+[doc]
+  Documentation.
+
+[features]
+  Files needed for client side validation of user input.
+
+[Gemfile]
+  Declaration of Gem dependencies.
+
+[Gemfile.lock]
+  Listing of Gem dependencies actually being used by the current state of the application.
+
+[lib]
+  Application specific code. Basically, any custom code that doesn't belong under +app+. This directory is in the +Rails+ load path. It contains background process code, application wide definitions, and bot runner classes.
+
+[LICENSE.md]
+  This project's licensing documentation.
+  
+[public]
+  The directory available for the web server. This should be set as the DOCUMENT_ROOT of your web server (if you're using <em>Apache[http://www.apache.org/]</em>).
+
+[Rakefile]
+  Definitions for +rake+ tasks.
+
+[script]
+  Helper scripts.
+
+[spec]
+  Specification tests.

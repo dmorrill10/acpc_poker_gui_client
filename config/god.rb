@@ -80,7 +80,7 @@ def keep_match_database_tidy
 end
 
 watch('mongod') do |w|
-  w.start = "#{MONGODB_ROOT}/bin/mongod --dbpath #{MONGODB_ROOT}/data"
+  w.start = "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
 end
 
 watch('beanstalkd') do |w|

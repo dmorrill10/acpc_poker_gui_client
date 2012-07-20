@@ -1,7 +1,0 @@
-To change the location that Apache looks for the app. in, change /etc/apache2/httpd.conf and /etc/apache2/sites-available/default to reflect the directory location change.
-
-
-1. Install RVM and ruby-1.9.2-p290
-2. Install passenger by running 'passenger-install-apache2-module' after installing all gems with 'bundle install'
-3. Point Apache to the app. in httpd.conf according to passenger's specifications
-4. Restart Apache

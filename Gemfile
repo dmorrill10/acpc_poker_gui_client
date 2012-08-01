@@ -49,14 +49,11 @@ group :development do
 end
 
 group :development, :test do
-  # Testing framework
-  gem 'minitest'
+  gem 'rspec'
+  gem 'rspec-rails'
 
   # Remove deprecation error
   gem 'thin'
-
-  # Pretty printed test output
-  gem 'turn'
   
   # User interaction simulation for testing
   gem 'capybara'
@@ -72,6 +69,8 @@ group :development, :test do
   
   # Compiling JS for automatic Jasmine tests
   gem 'rack-asset-compiler'
+
+  gem 'simplecov'
 end
 
 # JavaScript runtime
@@ -102,6 +101,7 @@ gem 'dmorrill10-utils'
 # Poker logic
 gem 'acpc_poker_player_proxy'
 gem 'acpc_dealer'
+gem 'acpc_dealer_data'
 
 # Improved forms
 gem 'simple_form', "~> 1.5"

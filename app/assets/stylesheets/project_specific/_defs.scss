@@ -11,10 +11,11 @@ $no_buffer: 0 0 0 0;
 
 $default_radius: 5px;
 $default_border_radius: $default_radius $default_radius $default_radius $default_radius;
-$default_border_width: 7px;
+$default_border_width: 2px;
 
 $default_font_family: Verdana, Helvetica, Arial;
 $default_primary_font_size: 12px;
 $default_primary_text_color: #fffeff;
 $default_border_color: #fff;
 
+$h2_font_size: 1.5*$default_primary_font_size;

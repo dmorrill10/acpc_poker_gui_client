@@ -17,11 +17,14 @@
 @import 'project_specific/board_cards/board_cards';
 @import 'project_specific/button/button';
 @import 'project_specific/card/card';
+@import 'project_specific/chip_balances/chip_balances';
 @import 'project_specific/chip_stack/chip_stack';
 @import 'project_specific/community_information/community_information';
 @import 'project_specific/container/container';
 @import 'project_specific/dealer_button/dealer_button';
+@import 'project_specific/dynamic_menu/dynamic_menu';
 @import 'project_specific/footer/footer';
+@import 'project_specific/game_interface/game_interface';
 @import 'project_specific/held_player_information/held_player_information';
 @import 'project_specific/hole_cards/hole_cards';
 @import 'project_specific/match_information/match_information';
@@ -32,6 +35,4 @@
 @import 'project_specific/summary_information/summary_information';
 @import 'project_specific/table/table';
 @import 'project_specific/toolbar/toolbar';
-@import 'project_specific/dynamic_menu/dynamic_menu';
-@import 'project_specific/game_interface/game_interface';
 @import 'project_specific/wager_amount_slider/wager_amount_slider';

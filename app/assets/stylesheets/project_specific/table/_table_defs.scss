@@ -8,6 +8,7 @@ $community_information_combined_width: $community_information_width;
 
 $table_height: $community_information_combined_height +
    2*$player_information_combined_height;
-$table_combined_height: $table_height + 2*$default_border_width;
+$table_border_width: 7px;
+$table_combined_height: $table_height + 2*$table_border_width;
 $table_width: $community_information_combined_width + 200px;
-$table_combined_width: $table_width + 2*$default_border_width;
+$table_combined_width: $table_width + 2*$table_border_width;

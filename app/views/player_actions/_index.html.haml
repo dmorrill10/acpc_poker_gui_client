@@ -13,21 +13,11 @@
   .toolbar_item
     .meta_action
       = leave_match_button
-  / .toolbar_item
-  /   .match_information.dynamic_menu
-  /     .title= "Match: #{@match.match_name}"
-  /       .chip_balances.dynamic_menu
-  /         .title Chip balances:
-  /         .chip_balances.dynamic_menu
-  /           - @players.each do |player|
-  /             .leaf_item= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
-  .toolbar_item
-    %p{:style => 'font-weight: bold'}= "Hand: #{@match_slice.hand_number+1}/#{@match.number_of_hands}"
 
-.chip_balances
-  %textarea{:rows => @players.length, :cols => 2, :readonly => "readonly"}
-    - @players.each do |player|
-      = "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
+%ul.chip_balances
+  %li.title= "#{@match.match_name}    #{@match_slice.hand_number+1} / #{@match.number_of_hands}"
+  - @players.each do |player|
+    %li= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
 
 - game_interface_id = if @is_no_limit
   - 'no_limit'

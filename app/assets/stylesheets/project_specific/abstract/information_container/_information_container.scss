@@ -9,9 +9,13 @@
 
    color: $default_primary_text_color;
    
-   .title {
-      @extend p;
+   .title { 
+      @extend h2;
       font-weight: bold;
+
+      margin-top: $information_container_padding;
+      margin-right: $information_container_padding;
+      margin-bottom: $information_container_padding;
    }
    
    select {

@@ -1,11 +1,10 @@
-/*@import '../page/page_defs';*/
 @import '../chip_stack/chip_stack_defs';
 @import '../abstract/list/list_defs';
 @import '../abstract/information_container/information_container_defs';
 @import '../hole_cards/hole_cards_defs';
 /*@import '../mixins';*/
 
-$held_player_information_height: $default_primary_font_size +
+$held_player_information_height: $h2_font_size +
    $information_container_text_margin + $card_bare_image_height +
    $list_element_margin;
 $held_player_information_combined_height:

@@ -1,0 +1,16 @@
+/*@import 'scss_class_defs';*/
+@import '../abstract/off_table_container/off_table_container';
+@import 'chip_balances_defs';
+
+.chip_balances {
+  @extend .off_table_container;
+
+  position: absolute;
+  top: $chip_balances_top;
+
+  z-index: 1;
+  
+  li {
+    white-space: pre;
+  }
+}

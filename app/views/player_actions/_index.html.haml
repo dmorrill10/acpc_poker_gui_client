@@ -6,28 +6,28 @@
       100
     )
 
+- button_disabled_text = '...'
+- leave_match_confirmation_message = "Are you sure you want to leave this match?"
+- leave_match_button = button "Leave match", leave_game_url, match_id: @match_id, confirm:  leave_match_confirmation_message, disable_with: button_disabled_text
 .toolbar
   .toolbar_item
     .meta_action
-      = button "Leave this game", leave_game_url, match_id: @match_id, confirm:  "Are you sure you want to leave this game?"
-  .toolbar_item
-    .match_information.dynamic_menu
-      .title= "Match: #{@match.match_name}"
-      .transparent_wrapper.dynamic_menu
-        //.game_definition.dynamic_menu
-        //   //.title= "Game Definition: #{ApplicationDefs::GAME_DEFINITION_NAMES[ApplicationDefs::GAME_DEFINITION_FILE_NAMES.key(@match.game_definition_file_name)]}"
-        //   //.game_definitions.dynamic_menu
-        //      // @todo %li= "<Game def prop>: <game def val>"
-        //      //.leaf_item= "This match has #{@match.number_of_hands} hands"
-        //      // @todo %li= "Now playing hand <hand #>/#{@match.number_of_hands}"
-        //      // @todo %li= "Log file: #{RAILS_ROOT + '/' + 'log' + @match.match_name}"
-        .chip_balances.dynamic_menu
-          .title Chip balances:
-          .chip_balances.dynamic_menu
-            - @players.each do |player|
-              .leaf_item= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
+      = leave_match_button
+  / .toolbar_item
+  /   .match_information.dynamic_menu
+  /     .title= "Match: #{@match.match_name}"
+  /       .chip_balances.dynamic_menu
+  /         .title Chip balances:
+  /         .chip_balances.dynamic_menu
+  /           - @players.each do |player|
+  /             .leaf_item= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
   .toolbar_item
     %p{:style => 'font-weight: bold'}= "Hand: #{@match_slice.hand_number+1}/#{@match.number_of_hands}"
+
+.chip_balances
+  %textarea{:rows => @players.length, :cols => 2, :readonly => "readonly"}
+    - @players.each do |player|
+      = "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
 
 - game_interface_id = if @is_no_limit
   - 'no_limit'
@@ -64,7 +64,9 @@
         round: @round}
 
   - next_hand_button_should_be_visible = @hand_ended && !@match_ended
-  - action_dashboard_id = if next_hand_button_should_be_visible
+  - action_dashboard_id = if @match_ended
+    - 'leave_match'
+  - elsif next_hand_button_should_be_visible
     - 'next_hand'
   - elsif @is_no_limit
     - 'no_limit'
@@ -74,9 +76,12 @@
     .actions
       .hidden
         = update_state_form @match_id, @match_slice_index, "Hidden update state", disabled: @users_turn_to_act || @match_ended, id: 'hidden_update_match_state'
-      - if next_hand_button_should_be_visible
+      - if @match_ended
         .meta_action
-          = update_state_form @match_id, @match_slice_index, "Next hand", disabled: !@hand_ended || @match_ended
+          = leave_match_button
+      - elsif next_hand_button_should_be_visible
+        .meta_action
+          = update_state_form @match_id, @match_slice_index, "Next hand", disabled: !@hand_ended || @match_ended, disable_with: button_disabled_text
       - else
         - if @is_no_limit
           .wager_amount_slider
@@ -89,29 +94,27 @@
                 %li.slider_label#two_times_pot 2xPot
                 %li.slider_label#all_in All-in
               .ui_slider
-        .action
           = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-            = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
-            = f.submit 'Fold', class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f'))
-        .action
-          - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
-          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-            = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
-            = f.submit pass_action_button_label, class: 'button', disabled: !@users_turn_to_act
-        .action
-          - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
-          - make_wager_button_label += ' to' if @is_no_limit
-          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-            = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
-            - if @is_no_limit
-              = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
-            = f.submit make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act
+            .action
+              = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+              = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+              = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
+              = submit_tag 'Fold', class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), disable_with: button_disabled_text
+            .action
+              - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
+              = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+              = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+              = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
+              = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, disable_with: button_disabled_text
+            .action
+              - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
+              - make_wager_button_label += ' to' if @is_no_limit
+              = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+              = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+              = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
+              - if @is_no_limit
+                = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
+              = submit_tag make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act, disable_with: button_disabled_text
 
 :coffeescript
   ChipStackMutator.adjustAmountFontSizeOfAllStacks()
@@ -137,9 +140,7 @@
   jQuery(window).resize(->
     adjustScale($('.game_interface'))
   )
-
-  DynamicMenu.initialize()
-   
+  
   $('.button#with_modifier').click(->
     wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
     wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")

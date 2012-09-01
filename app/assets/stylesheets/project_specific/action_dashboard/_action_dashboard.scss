@@ -27,6 +27,8 @@ $container_background_color: #003300;
          .button {
             font-size: $button_font_size;
             height: $action_height;
+
+            white-space: normal; // Forces button text to wrap for some reason
          }
          
          #user_poker_action_modifier {
@@ -64,4 +66,8 @@ $container_background_color: #003300;
 .action_dashboard#next_hand {
    height: $action_dashboard_limit_height;
    width: $action_dashboard_next_hand_width;
+}
+
+.action_dashboard#leave_match {
+   @extend .action_dashboard#next_hand
 }

@@ -4,6 +4,8 @@
   - hash
 - bots_collection = game_defs_collection.map { |game_def, bots| [game_def.map { |key, value| value }.first, bots]}
 
+- button_disabled_text = '...'
+
 #new_match_form
   = simple_form_for @match, url: create_new_match_url, remote: true, validate: true do |f|
     = f.input :match_name, hint: "Matches can be rejoined with this name for #{((ApplicationHelper::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600).to_i} hours after the last action was taken."
@@ -13,7 +15,7 @@
     = f.input :number_of_hands, as: :integer
     = f.input :seat, collection: {'Random' => nil, '1' => 1, '2' => 2}, value_method: :last, label_method: :first, include_blank: false
     = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed'
-    = f.button :submit
+    = submit_tag "Start match", class: 'button', disable_with: button_disabled_text
   .hidden= hidden_game_parameter_form
 
 :coffeescript

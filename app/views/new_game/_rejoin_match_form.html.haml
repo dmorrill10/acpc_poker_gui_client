@@ -2,5 +2,5 @@
    = form_tag rejoin_match_url, remote: true do
       = label_tag 'Match name'
       = text_field_tag 'match_name'
-      = submit_tag 'Rejoin match', class: 'button'
+      = submit_tag 'Rejoin match', class: 'button', disable_with: '...'
    .hidden= hidden_game_parameter_form

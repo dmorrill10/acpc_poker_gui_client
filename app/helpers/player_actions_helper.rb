@@ -47,6 +47,7 @@ module PlayerActionsHelper
     @match_state = MatchState.new @match_slice.state_string
 
     @hand_number = @match_state.hand_number
+
     @match_name = @match.parameters[:match_name]
     @last_action = @match_state.last_action
     @legal_actions = @match_slice.legal_actions
@@ -64,7 +65,29 @@ module PlayerActionsHelper
 
     setup_board_cards!
     setup_player_information!
+
+    # @todo Will later be used to display an action log in English
+    # @action_summary = []
+    # if @match_state.first_state_of_first_round?
+    #   @action_summary << "Hand ##{@hand_number+1} dealt by #{@player_with_the_dealer_button['name']}, #{@player_who_submitted_small_blind['name']} pays SB, #{@player_who_submitted_big_blind['name']} pays BB"
+    # end
+
     setup_betting_and_acting_sequence!
+
+    # @todo Will later be used to display an action log in English
+    # if @hand_ended
+    #   @players.each do |player|
+    #     if player['chip_contributions'].sum > 0
+    #       @action_summary << "#{player['name']} wins #{player['chip_contributions'].sum}, increasing balance to #{player['chip_balance']}"
+    #     end
+    #   end
+    # end
+    # if @match_ended
+    #   @action_summary << "Match over"
+    #   @players.each do |player|
+    #     @action_summary[-1] += ", #{player['name']}'s balance is #{player['chip_balance']}"
+    #   end
+    # end
 
     delete_match!(@match_id) if @match_ended
   end
@@ -73,6 +96,35 @@ module PlayerActionsHelper
     @board_cards = @match_state.board_cards
   end
 
+  # @todo Will later be used to display an action log in English
+  # def english_description(seat_taking_action, action)
+  #   action_description = if action.match('b') # @todo get amount
+  #     "bets"
+  #   elsif action == 'c'
+  #     "calls"
+  #   elsif action == 'f'
+  #     "fold"
+  #   elsif action == 'k'
+  #     'checks'    
+  #   elsif action.match('r')
+  #     "raises"
+  #   end
+
+  #   player_name = @players[seat_taking_action]['name']
+  #   "seat_taking_action: #{seat_taking_action}, action: #{action}, #{player_name} #{action_description}"
+  # end
+  # def setup_betting_and_acting_sequence!
+  #   if @match_slice.betting_sequence && @match_slice.player_acting_sequence
+  #     i = 0
+  #     @action_summary += @match_slice.betting_sequence.scan(/.\d*/).inject([]) do |summary, action|
+  #       seat_taking_action = @match_slice.player_acting_sequence[i].to_i
+  #       summary << english_description(seat_taking_action, action)
+  #       i += 1
+  #       summary
+  #     end
+  #   end
+  # end
+   
   def setup_betting_and_acting_sequence!
     @action_summary = ""
     if @match_slice.betting_sequence && @match_slice.player_acting_sequence

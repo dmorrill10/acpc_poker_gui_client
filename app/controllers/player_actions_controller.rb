@@ -59,6 +59,8 @@ class PlayerActionsController < ApplicationController
    end
 
    def take_action
+      puts "   ACTIION: #{params[:user_poker_action]}"
+
       @user_poker_action = UserPokerAction.new params[:user_poker_action]
       params[:match_id] = @user_poker_action.match_id
       params[:match_slice_index] = @user_poker_action.match_slice_index

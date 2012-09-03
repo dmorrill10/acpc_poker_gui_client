@@ -5,7 +5,8 @@
 
 .off_table_container {
    @extend .information_container;
-   background-color: $page_background_color;
+
+   @include primary_element_color;
    
    .meta_action, input, .button {
       margin-top: 0;

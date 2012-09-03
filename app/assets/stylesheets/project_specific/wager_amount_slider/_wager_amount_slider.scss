@@ -9,7 +9,7 @@
       
       overflow: visible;
       
-      $slider_partition_length: floor($wager_amount_slider_width/5.5);
+      $slider_partition_length: floor($wager_amount_slider_width/5.2);
       .slider_label {
          position: relative;
          width: $slider_partition_length;

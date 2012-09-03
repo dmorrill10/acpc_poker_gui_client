@@ -134,9 +134,9 @@
     slider.css('-moz-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-webkit-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-ms-transform', 'scaleX(' + inverseScaling.toString() + ')')
-    slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')
-    
-    slider.width(slider.width() * smallestRatio)
+    slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')    
+    originalSliderWidth = 275 # Hardcoded slider width, not sure how to get around this
+    slider.width(originalSliderWidth * smallestRatio)
  
   adjustScale($('.game_interface'))
   jQuery(window).resize(->

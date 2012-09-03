@@ -129,13 +129,13 @@
     elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})
 
     # Inversely scale slider and adjust width manually
-    slider = $('.ui_slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all')
+    slider = $('.ui_slider')
     inverseScaling = 1 / smallestRatio
-    slider.css('-moz-transform', 'scale(' + inverseScaling.toString() + ')')
-    slider.css('-webkit-transform', 'scale(' + inverseScaling.toString() + ')')
-    slider.css('-ms-transform', 'scale(' + inverseScaling.toString() + ')')
-    slider.css('-o-transform', 'scale(' + inverseScaling.toString() + ')')
-    slider.height(slider.height() * smallestRatio)
+    slider.css('-moz-transform', 'scaleX(' + inverseScaling.toString() + ')')
+    slider.css('-webkit-transform', 'scaleX(' + inverseScaling.toString() + ')')
+    slider.css('-ms-transform', 'scaleX(' + inverseScaling.toString() + ')')
+    slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')
+    
     slider.width(slider.width() * smallestRatio)
  
   adjustScale($('.game_interface'))

@@ -8,7 +8,7 @@
 
 - button_disabled_text = '...'
 - leave_match_confirmation_message = "Are you sure you want to leave this match?"
-- leave_match_button = button "Leave match", leave_game_url, match_id: @match_id, confirm:  leave_match_confirmation_message, disable_with: button_disabled_text
+- leave_match_button = button "Leave match", leave_game_url, match_id: @match_id, confirm:  leave_match_confirmation_message, data: { disable_with: button_disabled_text }
 .toolbar
   .toolbar_item
     .meta_action
@@ -71,7 +71,7 @@
           = leave_match_button
       - elsif next_hand_button_should_be_visible
         .meta_action
-          = update_state_form @match_id, @match_slice_index, "Next hand", disabled: !@hand_ended || @match_ended, disable_with: button_disabled_text
+          = update_state_form @match_id, @match_slice_index, "Next hand", disabled: !@hand_ended || @match_ended, data: { disable_with: button_disabled_text }
       - else
         - if @is_no_limit
           .wager_amount_slider
@@ -89,14 +89,14 @@
               = f.input :match_id, as: :hidden, input_html: { value: @match_id }
               = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
               = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
-              = submit_tag 'Fold', class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), disable_with: button_disabled_text
+              = submit_tag 'Fold', class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), data: { disable_with: button_disabled_text }
           .action
             = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
               - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
               = f.input :match_id, as: :hidden, input_html: { value: @match_id }
               = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
               = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
-              = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, disable_with: button_disabled_text
+              = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, data: { disable_with: button_disabled_text }
           .action
             = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
               - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
@@ -106,7 +106,7 @@
               = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
               - if @is_no_limit
                 = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
-              = submit_tag make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act, disable_with: button_disabled_text
+              = submit_tag make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act, data: { disable_with: button_disabled_text }
 
 :coffeescript
   ChipStackMutator.adjustAmountFontSizeOfAllStacks()
@@ -127,10 +127,26 @@
     deviationFromLeft = Math.floor(($(window).width() - elementToScale.width()) / 2)
     
     elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})
+
+    # Inversely scale slider and adjust width manually
+    slider = $('.ui_slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all')
+    inverseScaling = 1 / smallestRatio
+    slider.css('-moz-transform', 'scale(' + inverseScaling.toString() + ')')
+    slider.css('-webkit-transform', 'scale(' + inverseScaling.toString() + ')')
+    slider.css('-ms-transform', 'scale(' + inverseScaling.toString() + ')')
+    slider.css('-o-transform', 'scale(' + inverseScaling.toString() + ')')
+    slider.height(slider.height() * smallestRatio)
+    slider.width(slider.width() * smallestRatio)
  
   adjustScale($('.game_interface'))
   jQuery(window).resize(->
     adjustScale($('.game_interface'))
+  )
+
+  # Disable all buttons upon one being clicked
+  $('.button').click(->
+    $('.button').attr("disabled", true)
+    $(this).attr("disabled", false)
   )
   
   $('.button#with_modifier').click(->

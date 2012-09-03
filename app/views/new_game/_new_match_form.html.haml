@@ -15,7 +15,7 @@
     = f.input :number_of_hands, as: :integer
     = f.input :seat, collection: {'Random' => nil, '1' => 1, '2' => 2}, value_method: :last, label_method: :first, include_blank: false
     = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed'
-    = submit_tag "Start match", class: 'button', disable_with: button_disabled_text
+    = submit_tag "Start match", class: 'button', data: { disable_with: button_disabled_text }
   .hidden= hidden_game_parameter_form
 
 :coffeescript

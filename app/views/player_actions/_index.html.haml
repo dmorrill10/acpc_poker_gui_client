@@ -85,30 +85,30 @@
                 %li.slider_label#two_times_pot 2xPot
                 %li.slider_label#all_in All-in
               .ui_slider
-          .action
-            = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-              = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-              = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-              = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
-              - fold_label = 'Fold'
-              = submit_tag fold_label, class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), data: { disable_with: fold_label }
-          .action
-            = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-              - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
-              = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-              = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-              = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
-              = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, data: { disable_with: pass_action_button_label }
-          .action
-            = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-              - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
-              - make_wager_button_label += ' to' if @is_no_limit
-              = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-              = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-              = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
-              - if @is_no_limit
-                = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
-              = submit_tag make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act, data: { disable_with: make_wager_button_label }
+        .action
+          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+            = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
+            - fold_label = 'Fold'
+            = submit_tag fold_label, class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), data: { disable_with: fold_label }
+        .action
+          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+            - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
+            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+            = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
+            = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, data: { disable_with: pass_action_button_label }
+        .action
+          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+            - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
+            - make_wager_button_label += ' to' if @is_no_limit
+            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
+            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
+            = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
+            - if @is_no_limit
+              = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
+            = submit_tag make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act, data: { disable_with: make_wager_button_label }
 
 :coffeescript
   ChipStackMutator.adjustAmountFontSizeOfAllStacks()

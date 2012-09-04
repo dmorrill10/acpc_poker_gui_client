@@ -172,5 +172,5 @@
     WagerAmountSlider.initialize(sliderValues)
 
     nonAllInLabels = $('.slider_label:not(#all_in)')
-    widthForEachLabel = ($('.ui_slider').width() - ($('.slider_label#all_in').outerWidth(true) + 5)) / nonAllInLabels.length
+    widthForEachLabel = ($('.ui_slider').width() - ($('.slider_label#all_in').outerWidth(true) + 10)) / nonAllInLabels.length
     $(label).width(widthForEachLabel) for label in nonAllInLabels

@@ -9,13 +9,13 @@
       
       overflow: visible;
       
-      $slider_partition_length: floor($wager_amount_slider_width/5.2);
       .slider_label {
          position: relative;
-         width: $slider_partition_length;
+         width: auto;
+         text-align: left;
       }
       li.slider_label:last-child {
-         width: auto;
+        text-align: right;
       }
    }
    .wrapper {

@@ -4,11 +4,11 @@
     setTimeout(
       (-> $('#hidden_update_match_state').submit()), 
       100
-    )
+    )    
 
-- button_disabled_text = '...'
 - leave_match_confirmation_message = "Are you sure you want to leave this match?"
-- leave_match_button = button "Leave match", leave_game_url, match_id: @match_id, confirm:  leave_match_confirmation_message, data: { disable_with: button_disabled_text }
+- leave_match_label = "Leave match"
+- leave_match_button = button leave_match_label, leave_game_url, match_id: @match_id, confirm:  leave_match_confirmation_message, data: { disable_with: leave_match_label }
 .toolbar
   .toolbar_item
     .meta_action
@@ -71,7 +71,8 @@
           = leave_match_button
       - elsif next_hand_button_should_be_visible
         .meta_action
-          = update_state_form @match_id, @match_slice_index, "Next hand", disabled: !@hand_ended || @match_ended, data: { disable_with: button_disabled_text }
+          - next_hand_label = "Next hand"
+          = update_state_form @match_id, @match_slice_index, next_hand_label, disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }
       - else
         - if @is_no_limit
           .wager_amount_slider
@@ -89,14 +90,15 @@
               = f.input :match_id, as: :hidden, input_html: { value: @match_id }
               = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
               = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
-              = submit_tag 'Fold', class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), data: { disable_with: button_disabled_text }
+              - fold_label = 'Fold'
+              = submit_tag fold_label, class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), data: { disable_with: fold_label }
           .action
             = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
               - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
               = f.input :match_id, as: :hidden, input_html: { value: @match_id }
               = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
               = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
-              = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, data: { disable_with: button_disabled_text }
+              = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, data: { disable_with: pass_action_button_label }
           .action
             = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
               - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
@@ -106,11 +108,11 @@
               = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
               - if @is_no_limit
                 = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
-              = submit_tag make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act, data: { disable_with: button_disabled_text }
+              = submit_tag make_wager_button_label, class: 'button', id: 'with_modifier', disabled: !@users_turn_to_act, data: { disable_with: make_wager_button_label }
 
 :coffeescript
   ChipStackMutator.adjustAmountFontSizeOfAllStacks()
-   
+
   adjustScale = (elementToScale) ->
     widthRatio = $(window).width() / elementToScale.width()
     heightRatio = ($(window).height() - $('.toolbar').height()) / elementToScale.height()
@@ -134,8 +136,9 @@
     slider.css('-moz-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-webkit-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-ms-transform', 'scaleX(' + inverseScaling.toString() + ')')
-    slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')    
-    originalSliderWidth = 275 # Hardcoded slider width, not sure how to get around this
+    slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')
+    
+    originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
     slider.width(originalSliderWidth * smallestRatio)
  
   adjustScale($('.game_interface'))
@@ -158,12 +161,17 @@
 
 - if @is_no_limit
   :coffeescript
-    slider_value_map = {
-      1: parseInt("#{@minimum_wager}"),
-      2: parseInt("#{@half_pot_wager_amount}"),
-      3: parseInt("#{@three_quarter_pot_wager_amount}"),
-      4: parseInt("#{@pot_wager_amount}"),
-      5: parseInt("#{@two_pot_wager_amount}"),
-      6: parseInt("#{@all_in_amount}")
-    }
-    WagerAmountSlider.initialize(slider_value_map)
+    sliderValues = [
+      parseInt("#{@minimum_wager}"),
+      parseInt("#{@half_pot_wager_amount}"),
+      parseInt("#{@three_quarter_pot_wager_amount}"),
+      parseInt("#{@pot_wager_amount}"),
+      parseInt("#{@two_pot_wager_amount}"),
+      parseInt("#{@all_in_amount}")
+    ]
+    WagerAmountSlider.initialize(sliderValues)
+
+    originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
+    nonAllInLabels = $('.slider_label:not(#all_in)')
+    widthForEachLabel = (originalSliderWidth - ($('.slider_label#all_in').outerWidth(true))) / nonAllInLabels.length
+    $(label).width(widthForEachLabel) for label in nonAllInLabels

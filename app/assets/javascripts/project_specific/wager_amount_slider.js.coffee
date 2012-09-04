@@ -2,14 +2,14 @@ root = exports ? this
 
 root.WagerAmountSlider =
    
-   initialize: (slider_value_map) ->
+   initialize: (sliderValues) ->
       $('.ui_slider').slider({
          range: 'min',
-         min: 1,
-         max: Object.keys(slider_value_map).length,
-         value: 1,
+         min: 0,
+         max: sliderValues.length - 1,
+         value: 0,
          step: 1,
          slide: ((event, ui) ->
-            $('input#user_poker_action_modifier').val(slider_value_map[ui.value])
+            $('input#user_poker_action_modifier').val(sliderValues[ui.value])
          )
       })

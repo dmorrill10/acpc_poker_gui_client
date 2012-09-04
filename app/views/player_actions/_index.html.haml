@@ -171,6 +171,8 @@
     ]
     WagerAmountSlider.initialize(sliderValues)
 
+    # Adjust wager amount slider
     nonAllInLabels = $('.slider_label:not(#all_in)')
-    widthForEachLabel = ($('.ui_slider').width() - ($('.slider_label#all_in').outerWidth(true) + 10)) / nonAllInLabels.length
+    originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
+    widthForEachLabel = (originalSliderWidth - $('.slider_label#all_in').outerWidth(true)) / nonAllInLabels.length
     $(label).width(widthForEachLabel) for label in nonAllInLabels

@@ -1,5 +1,7 @@
 # run with: god -c config/god.rb
 
+require_relative '../lib/application_defs'
+
 GOD_RAILS_ROOT = File.expand_path("../..", __FILE__)
 God.pid_file_directory = "#{GOD_RAILS_ROOT}/tmp/pids"
 
@@ -64,15 +66,14 @@ def keep_match_database_tidy
     w.log = "#{GOD_RAILS_ROOT}/log/#{w.name}.log"
     w.env = {"RAILS_ROOT" => GOD_RAILS_ROOT, "RAILS_ENV" => "production"}
 
-    w.interval = 1.hour
+    w.interval = 1.day
 
-    # Attempt to delete old Matches every 60 minutes, but
+    # Attempt to delete old Matches every day, but
     #  if the database isn't up and an exception is raised,
-    #  ignore it and try again in 60 minutes.
+    #  ignore it and try again tomorrow.
     w.start = lambda do
       begin
-        # @todo This is using a magic number that should be synchronized with the dealer timeout constant in ApplicationHelpers. The constant should be moved to lib/ApplicationDefs, which could then be included here.
-        delete_matches_older_than(24.hours)
+        delete_matches_older_than(DEALER_MILLISECOND_TIMEOUT * 10**(-3))
       rescue
       end
     end

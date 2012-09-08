@@ -6,7 +6,6 @@ require 'acpc_poker_types'
 module ApplicationHelper
 
   MATCH_STATE_TIMEOUT = 10 unless const_defined? :MATCH_STATE_TIMEOUT
-  DEALER_MILLISECOND_TIMEOUT = 24 * 3600000 unless const_defined? :DEALER_MILLISECOND_TIMEOUT
 
   NEW_MATCH_PARTIAL = 'new_game/new' unless const_defined? :NEW_MATCH_PARTIAL
   REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents.js.haml' unless const_defined? :REPLACE_CONTENTS_JS

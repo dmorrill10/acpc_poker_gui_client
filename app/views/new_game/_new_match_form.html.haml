@@ -6,7 +6,7 @@
 
 #new_match_form
   = simple_form_for @match, url: create_new_match_url, remote: true, validate: true do |f|
-    = f.input :match_name, hint: "Matches can be rejoined with this name for #{((ApplicationHelper::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600).to_i} hours after the last action was taken."
+    = f.input :match_name, hint: "Matches can be rejoined with this name for #{(((ApplicationDefs::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600)/24).to_i} days after the last action was taken."
     = f.input :game_definition_key, label: 'Game definition ', collection: game_defs_collection.map { |key, value| key.first }, value_method: :first, label_method: :last, include_blank: false
     = f.label 'Opponent', for: :match_bot, required: true, as: :select
     = f.grouped_collection_select :bot, bots_collection, :last, :first, :last, :first, include_blank: false

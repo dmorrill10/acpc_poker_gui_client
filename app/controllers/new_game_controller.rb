@@ -17,7 +17,6 @@ class NewGameController < ApplicationController
 
   # Presents the main 'start a new game' view.
   def new
-    Match.delete_matches_older_than(DEALER_MILLISECOND_TIMEOUT * 10**(-3))
     @match = Match.new
     respond_to do |format|
       format.html {}
@@ -27,8 +26,6 @@ class NewGameController < ApplicationController
     end
   end
 
-  # Creates a new match.
-  # @todo turn this into a create method and get the game definition from the view
   def create
     @match = Match.new params[:match]
 

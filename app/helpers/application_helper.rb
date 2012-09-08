@@ -19,10 +19,11 @@ module ApplicationHelper
   # @param [Hash] options = Hash.new
   def button(button_string, url, options = Hash.new)
     form_tag url, :remote => true do
+      options[:class] = 'button'
       s = if options[:confirm]
-        submit_tag button_string, :class => 'button', :data => { :confirm => options[:confirm] }, disabled: options[:disabled]
+        submit_tag button_string, options
       else
-        submit_tag button_string, :class => 'button', disabled: options[:disabled]
+        submit_tag button_string, options
       end
       # @todo Use centralized string names rather than local ones
       s << number_field_tag(:amount_field, 1) if options[:amount_field]

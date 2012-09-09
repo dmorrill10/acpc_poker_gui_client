@@ -7,7 +7,7 @@ root.WagerAmountSlider =
          range: 'min',
          min: 0,
          max: sliderValues.length - 1,
-         value: 0,
+         value: 3,
          step: 1,
          slide: ((event, ui) ->
             $('input#user_poker_action_modifier').val(sliderValues[ui.value])

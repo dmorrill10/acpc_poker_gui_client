@@ -11,28 +11,6 @@ module ApplicationHelper
   REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents.js.haml' unless const_defined? :REPLACE_CONTENTS_JS
   SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS = 'shared_javascripts/send_parameters_to_connect_to_dealer.js.haml' unless const_defined? :SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
 
-  # @todo Is this still used?
-
-  # @param [String] button_string
-  # @param [String] url
-  # @param [String] class_div
-  # @param [Hash] options = Hash.new
-  def button(button_string, url, options = Hash.new)
-    form_tag url, :remote => true do
-      options[:class] = 'button'
-      s = if options[:confirm]
-        submit_tag button_string, options
-      else
-        submit_tag button_string, options
-      end
-      # @todo Use centralized string names rather than local ones
-      s << number_field_tag(:amount_field, 1) if options[:amount_field]
-      s << hidden_field_tag(:match_id, options[:match_id], :id => 'match_id_hidden_field') if options[:match_id]
-      s << hidden_field_tag(:match_slice_index, options[:match_slice_index], id: 'match_slice_index_hidden_field') if options[:match_slice_index]
-      s
-    end
-  end
-
   # Renders a shared +JavaScript+ template that replaces the old contents
   # of the current page with new contents.  In essence, it acts like a
   # page refresh.

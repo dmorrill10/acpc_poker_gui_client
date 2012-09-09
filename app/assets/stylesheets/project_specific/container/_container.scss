@@ -1,4 +1,3 @@
-/*@import '../mixins';*/
 @import 'container_defs';
 
 .container {
@@ -8,12 +7,6 @@
    width: 100%;
    
    word-wrap: break-word;
-   
-   .toolbar {
-      position: fixed;
-      top: $toolbar_top;
-      left: $toolbar_left;
-   }
    
    .game_interface {
       position: absolute;

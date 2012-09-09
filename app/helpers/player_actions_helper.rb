@@ -11,8 +11,13 @@ require File.expand_path('../application_helper', __FILE__)
 module PlayerActionsHelper
   include ApplicationHelper
 
+  def poker_action_submission_options(label, disabled_when, classes=[], ids=[], link=nil)
+    {class: (classes + ['btn', 'btn-primary', 'btn-large']), id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
+  end
+  def poker_action_submission(label, disabled_when, classes=[], ids=[])
+    submit_tag label, poker_action_submission_options(label, disabled_when, classes + ['hidden'], ids)
+  end
   def update_state_form(match_id, match_slice_index, submit_button_label='', button_options={})
-    button_options[:class] = 'button'
     button_options[:id] = 'update_match_state' unless button_options[:id]
     form_tag update_game_state_url, :remote => true do
       form = hidden_match_fields match_id, match_slice_index

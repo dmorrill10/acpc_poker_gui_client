@@ -13,8 +13,9 @@
 @import 'twitter/bootstrap/navs';
 @import 'twitter/bootstrap/navbar';
 @import 'twitter/bootstrap/dropdowns';
-
-@import 'sassy-buttons';
+@import 'twitter/bootstrap/tables';
+@import 'twitter/bootstrap/type';
+@import 'twitter/bootstrap/hero-unit';
 
 /*Must be included first because they are used in most other style sheets and*/
 /*including them here first allows me to not include them in each of the*/

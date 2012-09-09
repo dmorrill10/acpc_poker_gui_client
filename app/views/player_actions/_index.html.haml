@@ -17,27 +17,49 @@
         - leave_match_confirmation_message = "Are you sure you want to leave this match?"
         - leave_match_label = "Leave Match"
         = link_to leave_match_label, leave_game_url, {remote: true, id: 'leave', data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
-      %li.dropdown.hotkey_list
+      %li.dropdown
         %a.dropdown-toggle{:data => {:toggle => "dropdown"}, role: 'button', :href => "#"}= 'Hotkeys <b class="caret"></b>'.html_safe
-        %ul.dropdown-menu{role: 'menu'}
-          %li
-            %a Fold: a
-          %li
-            %a Check/call: s
-          %li
-            %a{tabindex: '-1', href: '#'} d
+        %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}
+          %thead
+            %tr
+              %th Action
+              %th Key
+          %tbody
+            %tr
+              %td Fold
+              %td A
+            %tr
+              %td Check / Call
+              %td S
+            %tr
+              %td Bet / Raise
+              %td D
+            %tr
+              %td Next Hand
+              %td F
+            %tr
+              %td Leave Match
+              %td Q
 
-%ul.chip_balances
-  %li.title= "#{@match.match_name}    #{@match_slice.hand_number+1} / #{@match.number_of_hands}"
-  - @players.each do |player|
-    %li= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
+.chip_balances.hero-unit
+  %h4= "#{@match.match_name} <span class=\"right\">#{@match_slice.hand_number+1} / #{@match.number_of_hands}</span>".html_safe
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Player
+        %th Balance
+    %tbody
+      - @players.each do |player|
+        %tr
+          %td= "#{player['name']}"
+          %td= "#{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
 
 - game_interface_id = if @is_no_limit
   - 'no_limit'
 - else
   - 'limit'
 .game_interface{ id: game_interface_id}
-  .table
+  .poker_table
     - opponent = @opponents[0]
     .information_about_an_opponent{ :id => acting_player_id(opponent['name']) }
       = render partial: 'held_player_information', locals: {player: opponent,

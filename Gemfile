@@ -30,10 +30,7 @@ group :assets do
   gem 'uglifier'
 
   gem "bootstrap-sass-rails"
-  
-  # For nice looking buttons
-  gem 'sassy-buttons'
-  
+
   # compass uses this for sprites
   gem 'chunky_png'
 

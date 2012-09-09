@@ -3,14 +3,24 @@
 @import 'chip_balances_defs';
 
 .chip_balances {
-  @extend .off_table_container;
+  padding: 0;
+  margin: 0;
 
   position: relative;
   display: inline-block;
 
   z-index: 1;
-  
-  li {
-    white-space: pre;
+
+  .right {
+    float: right;
+  }
+
+  .table {
+    margin-bottom: 0;
+  }
+
+  h1, h2, h3, h4 {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }

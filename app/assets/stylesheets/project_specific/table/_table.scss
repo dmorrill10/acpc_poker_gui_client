@@ -9,7 +9,7 @@
 @import 'table_defs';
 
 
-.table {
+.poker_table {
    @include soft_edges(#8B4513, $table_border_width, 500px 500px 500px 500px);
    
    padding: 0;

@@ -1,4 +1,3 @@
-
 - unless @hand_ended || @match_ended || @users_turn_to_act
   :coffeescript
     setTimeout(
@@ -7,12 +6,26 @@
     )
 - def leave_match_button(options={})
   - leave_match_confirmation_message = "Are you sure you want to leave this match?"
-  - leave_match_label = "Leave match"
-  - button leave_match_label, leave_game_url, {match_id: @match_id, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}.merge(options)
-.toolbar
-  .toolbar_item
-    .meta_action
-      = leave_match_button id: 'leave'
+  - leave_match_label = "Leave Match"
+  - button leave_match_label, leave_game_url, {data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}.merge(options)
+
+.navbar
+  .navbar-inner
+    %a.brand ACPC Poker GUI Client
+    %ul.nav
+      %li
+        - leave_match_confirmation_message = "Are you sure you want to leave this match?"
+        - leave_match_label = "Leave Match"
+        = link_to leave_match_label, leave_game_url, {remote: true, id: 'leave', data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+      %li.dropdown.hotkey_list
+        %a.dropdown-toggle{:data => {:toggle => "dropdown"}, role: 'button', :href => "#"}= 'Hotkeys <b class="caret"></b>'.html_safe
+        %ul.dropdown-menu{role: 'menu'}
+          %li
+            %a Fold: a
+          %li
+            %a Check/call: s
+          %li
+            %a{tabindex: '-1', href: '#'} d
 
 %ul.chip_balances
   %li.title= "#{@match.match_name}    #{@match_slice.hand_number+1} / #{@match.number_of_hands}"
@@ -31,7 +44,7 @@
         player_whose_turn_is_next: @player_whose_turn_is_next,
         hand_ended: @hand_ended,
         player_with_the_dealer_button: @player_with_the_dealer_button,
-        round: @round}   
+        round: @round}
     .community_information
       %ul.board_cards
         = render partial: 'cards', locals: {cards: @board_cards.flatten}
@@ -45,7 +58,7 @@
         %li
           %p= "Actions: #{@action_summary}"
         - if @match_ended
-          %li   
+          %li
             %p The match has ended, thanks for playing!
     .users_information{ :id => acting_player_id(@user['name']) }
       = render partial: 'held_player_information', locals: {player: @user,
@@ -111,12 +124,15 @@
             = submit_tag make_wager_button_label, class: ['button', 'with_modifier'], id: 'wager', disabled: !@users_turn_to_act, data: { disable_with: make_wager_button_label }
 
 :coffeescript
+  # Hotkey dropdown
+  # $('.dropdown-toggle').dropdown()
+
   ChipStackMutator.adjustAmountFontSizeOfAllStacks()
 
   # Inteface scale adjustment
   adjustScale = (elementToScale) ->
     widthRatio = $(window).width() / elementToScale.width()
-    heightRatio = ($(window).height() - $('.toolbar').height()) / elementToScale.height()
+    heightRatio = ($(window).height() - $('.navbar').height()) / elementToScale.height()
       
     smallestRatio = Math.min(heightRatio, widthRatio)
     
@@ -126,7 +142,7 @@
     elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')')
     
     scaledHeight = elementToScale.height() * smallestRatio
-    deviationFromTop = Math.ceil((elementToScale.height() - scaledHeight) / 2) - ($('.toolbar').height() + 2)
+    deviationFromTop = Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()
     deviationFromLeft = Math.floor(($(window).width() - elementToScale.width()) / 2)
     
     elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})

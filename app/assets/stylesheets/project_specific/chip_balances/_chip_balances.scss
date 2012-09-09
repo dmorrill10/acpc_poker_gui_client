@@ -5,8 +5,8 @@
 .chip_balances {
   @extend .off_table_container;
 
-  position: absolute;
-  top: $chip_balances_top;
+  position: relative;
+  display: inline-block;
 
   z-index: 1;
   

@@ -8,5 +8,5 @@ Hotkey =
 Hotkey.bind('#fold.button', 'a')
 Hotkey.bind('#pass.button', 's')
 Hotkey.bind('#wager.button', 'd')
-Hotkey.bind('#leave.button', 'q')
+Hotkey.bind('#leave', 'q')
 Hotkey.bind('#next.button', 'f')

@@ -24,10 +24,12 @@ gem 'jquery-rails'
 group :assets do
   # JavaScript library
   gem 'jquery-ui-rails'
-  
+
   gem 'sass-rails'
   gem 'coffee-rails'
   gem 'uglifier'
+
+  gem "bootstrap-sass-rails"
   
   # For nice looking buttons
   gem 'sassy-buttons'
@@ -82,10 +84,10 @@ group :development do
   gem 'nifty-generators'
 end
 
-# Enable HAML format views.  Prettier than ERB format views, I find.
+# Enable HAML format views. Prettier than ERB format views.
 gem "haml"
 
-# For deployment.  Phusion Passenger integrates the rails app. with Apache.
+# For deployment. Phusion Passenger integrates the rails app. with Apache.
 gem 'passenger'
 
 # Beanstalkd wrapper

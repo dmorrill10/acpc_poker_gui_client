@@ -10,8 +10,8 @@ gem 'bson'
 gem 'bson_ext'
 
 # For convenient styling macros and SASS
-gem 'compass'
 gem 'compass-rails'
+gem 'blueprint-rails'
 
 # To interpret Coffeescript in HAML
 gem 'coffee-filter'

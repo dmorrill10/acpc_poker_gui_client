@@ -1,14 +1,13 @@
 @import 'wager_amount_slider_defs';
 
 .wager_amount_slider {
-   width: inherit;
    height: $wager_amount_slider_combined_height;
-   
+
    .increment_labels {
       @extend ul.horizontal;
-      
+
       overflow: visible;
-      
+
       padding-left: 10px;
 
       .slider_label {
@@ -21,12 +20,11 @@
       }
    }
    .wrapper {
-      @include center_horizontally;
       width: $wager_amount_slider_width + 30px;
-      
+
       padding-right: $wager_amount_slider_padding_right;
       padding-bottom: $wager_amount_slider_padding_bottom;
-      
+
       float: right;
    }
    .ui_slider {

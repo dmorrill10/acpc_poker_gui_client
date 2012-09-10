@@ -14,11 +14,4 @@
       margin-left: 0;
       margin-right: 0;
    }
-   
-   .meta_action {
-      .button {
-         @include block_interface_element(#eeaa00);
-         color: #000;
-      }
-   }
 }

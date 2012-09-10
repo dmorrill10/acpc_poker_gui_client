@@ -4,6 +4,10 @@
 // To use a different JQueryUi theme, use: "//=require jquery-ui-whatever_theme/jquery-ui"
 
 @import "blueprint/reset";
+@import "blueprint/grid";
+@import "blueprint/debug";
+.showgrid { background:url('/assets/grid.png'); }
+@import "compass/css3/images";
 
 // @todo Including Twitter Bootstrap breaks almost everything for some reason @import "twitter/bootstrap";
 @import 'twitter/bootstrap/variables';

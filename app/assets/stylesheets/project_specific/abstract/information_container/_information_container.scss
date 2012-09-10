@@ -1,5 +1,4 @@
 @import '../../page/page_defs';
-/*@import '../mixins';*/
 @import 'information_container_defs';
 
 .information_container {
@@ -18,11 +17,7 @@
       margin-bottom: $information_container_padding;
    }
    
-   select {
-      @include block_interface_element;
-   }
-   
-   input, select, .button {
+   input, select {
       font-size: $default_primary_font_size;
    }
 }

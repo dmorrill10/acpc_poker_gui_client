@@ -2,6 +2,8 @@
 
 .container {
    @include center_horizontally;
+
+  background-color: black;
    
    height: $container_height;
    width: 100%;

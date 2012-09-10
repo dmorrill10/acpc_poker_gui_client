@@ -9,12 +9,9 @@ $container_background_color: #003300;
    //@extend .off_table_container;
   padding: 0.4em;
   margin: 0;
-   
+
    //padding-bottom: 0;
-   
-   //width: $action_dashboard_width;
-   //
-   //margin: auto;
+
    //
    //.actions {
    //   @extend ul.horizontal;
@@ -54,7 +51,7 @@ $container_background_color: #003300;
 }
 
 .action_dashboard#limit {
-   height: $action_dashboard_limit_height;
+   //height: $action_dashboard_limit_height;
 }
 
 .action_dashboard#no_limit {

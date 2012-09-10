@@ -93,7 +93,7 @@
     - 'no_limit'
   - else
     - 'limit'
-  .action_dashboard.hero-unit{ id: action_dashboard_id }
+  .action_dashboard.hero-unit.span-24.showgrid{ id: action_dashboard_id }
     .hidden
       = update_state_form @match_id, @match_slice_index, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@users_turn_to_act || @match_ended) && !@hand_ended
     - if @match_ended
@@ -104,45 +104,35 @@
         - next_hand_label = "Next Hand"
         = button_tag next_hand_label, id: 'next_state', class: ['btn', 'btn-info', 'btn-large'], disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }
     - else
-      - if @is_no_limit
-        .wager_amount_slider
-          .wrapper
-            %ul.increment_labels
-              %li.slider_label#min Min
-              %li.slider_label#half_pot 50%
-              %li.slider_label#three_quarters_pot 75%
-              %li.slider_label#one_pot Pot
-              %li.slider_label#two_times_pot 2xPot
-              %li.slider_label#all_in All-in
-            .ui_slider
       - fold_label = 'Fold'
       - fold_is_disabled_when = !(@users_turn_to_act && @legal_actions.include?('f'))
       - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
       - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
       - make_wager_button_label += ' to' if @is_no_limit
-      .hidden_action_forms
-        -# @todo Remove simple form if possible and clean up
-        = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-          = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-          = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-          = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
-          = poker_action_submission(fold_label, fold_is_disabled_when, [], ['hidden-fold'])
-        = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-          = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-          = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-          = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
-          = poker_action_submission(pass_action_button_label, !@users_turn_to_act, [], ['hidden-pass'])
-        = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-          = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-          = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-          = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
-          - if @is_no_limit
-            = f.input :modifier, as: :integer, label: false, input_html: { value: @pot_wager_amount }
-          = poker_action_submission(make_wager_button_label, !@users_turn_to_act, ['with_modifier'], ['hidden-wager'])
-      .actions.btn-group
-        = button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
-        = button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@users_turn_to_act, [], ['pass'])
-        = button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@users_turn_to_act, ['with_modifier'], ['wager'])
+      - wager_classes = if @is_no_limit then ['with_modifier'] else [] end
+      .action_modification_tools
+        - if @is_no_limit
+          .wager_amount_slider.span-18
+            .wrapper
+              %ul.increment_labels
+                %li.slider_label#min Min
+                %li.slider_label#half_pot 50%
+                %li.slider_label#three_quarters_pot 75%
+                %li.slider_label#one_pot Pot
+                %li.slider_label#two_times_pot 2xPot
+                %li.slider_label#all_in All-in
+              .ui_slider
+        .hidden_action_forms.span-6.last
+          = poker_action_form 'f', fold_label, fold_is_disabled_when, [], ['hidden-fold']
+          = poker_action_form 'c', pass_action_button_label, !@users_turn_to_act, [], ['hidden-pass']
+          = poker_action_form 'r', make_wager_button_label, !@users_turn_to_act, wager_classes, ['hidden-wager'] do |f|
+            - if @is_no_limit
+              - f.number_field :modifier, value: @pot_wager_amount
+      .actions.btn-group.span-24
+        .span-8= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
+        .span-8= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@users_turn_to_act, [], ['pass'])
+        .span-8.last= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@users_turn_to_act, wager_classes, ['wager'])
+
 :coffeescript
   ChipStackMutator.adjustAmountFontSizeOfAllStacks()
 
@@ -188,7 +178,7 @@
   )
 
   # Adjust wager amount
-  $('.btn.with_modifier').click(->
+  $('#hidden-wager.with_modifier').click(->
     wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
     wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
       

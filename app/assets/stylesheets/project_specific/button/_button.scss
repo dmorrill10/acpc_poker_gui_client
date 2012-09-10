@@ -1,4 +1,3 @@
-
 @import 'button_defs';
 
 @mixin button_layout {
@@ -9,9 +8,14 @@
    overflow: hidden;
 }
 
-.button {
+.poker_action_button {
    //@include block_interface_element;
    //@include button_layout;
    //font-family: $default_font_family;
    //width: $button_width;
+  //width: auto;
+  height: $button_height;
+
+  font-size: $button_font_size;
+  white-space: normal;
 }

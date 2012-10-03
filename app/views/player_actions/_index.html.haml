@@ -5,6 +5,8 @@
       (-> $('#hidden_update_match_state').submit()), 
       100
     )
+- next_hand_id = 'next'
+- leave_match_id = 'leave'
 - def leave_match_button(options={})
   - leave_match_confirmation_message = "Are you sure you want to leave this match?"
   - leave_match_label = "Leave match"
@@ -12,7 +14,7 @@
 .toolbar
   .toolbar_item
     .meta_action
-      = leave_match_button id: 'leave'
+      = leave_match_button id: leave_match_id
 
 %ul.chip_balances
   %li.title= "#{@match.match_name}    #{@match_slice.hand_number+1} / #{@match.number_of_hands}"
@@ -72,7 +74,7 @@
       - elsif next_hand_button_should_be_visible
         .meta_action
           - next_hand_label = "Next hand"
-          = update_state_form @match_id, @match_slice_index, next_hand_label, disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }, id: 'next'
+          = update_state_form @match_id, @match_slice_index, next_hand_label, disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }, id: next_hand_id
       - else
         - if @is_no_limit
           .wager_amount_slider
@@ -107,7 +109,7 @@
             = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
             = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
             - if @is_no_limit
-              = f.input :modifier, as: :integer, label: false, input_html: { value: @minimum_wager }
+              = f.input :modifier, as: :integer, label: false
             = submit_tag make_wager_button_label, class: ['button', 'with_modifier'], id: 'wager', disabled: !@users_turn_to_act, data: { disable_with: make_wager_button_label }
 
 :coffeescript
@@ -179,3 +181,13 @@
     originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
     widthForEachLabel = (originalSliderWidth - $('.slider_label#all_in').outerWidth(true)) / nonAllInLabels.length
     $(label).width(widthForEachLabel) for label in nonAllInLabels
+
+    $('#user_poker_action_modifier').focus()
+
+- if next_hand_button_should_be_visible
+  :coffeescript
+    $("##{next_hand_id}").focus()
+
+- if @match_ended
+  :coffeescript
+    $("##{leave_match_id}").focus()

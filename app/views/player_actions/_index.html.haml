@@ -15,7 +15,6 @@
   .toolbar_item
     .meta_action
       = leave_match_button id: leave_match_id
-
 %ul.chip_balances
   %li.title= "#{@match.match_name}    #{@match_slice.hand_number+1} / #{@match.number_of_hands}"
   - @players.each do |player|

@@ -2,11 +2,12 @@
 
 .container {
    @include center_horizontally;
-
-  background-color: black;
    
-   height: $container_height;
+   // height: $container_height;
+   height: 0;
    width: 100%;
+
+   // background-image: $container_background;
    
    word-wrap: break-word;
    

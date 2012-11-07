@@ -1,4 +1,5 @@
-
+// @todo Remove dead code
+// 
 @import '../abstract/off_table_container/off_table_container';
 @import '../button/button_defs';
 @import 'action_dashboard_defs';
@@ -6,11 +7,18 @@
 $container_background_color: #003300;
 
 .action_dashboard {
-   //@extend .off_table_container;
+  //@extend .off_table_container;
   padding: 0.4em;
   margin: 0;
 
-   //padding-bottom: 0;
+  .action_modification_tools {
+    .hidden_action_forms {
+      #user_poker_action_modifier {
+        font-size: 17px;
+      }
+    }
+  }
+   
 
    //
    //.actions {
@@ -55,18 +63,18 @@ $container_background_color: #003300;
 }
 
 .action_dashboard#no_limit {
-   height: $action_dashboard_no_limit_height;
+   // height: $action_dashboard_no_limit_height;
    
-   .button#with_modifier {
-      height: $action_height - $action_field_combined_height;
-   }
+  .button#with_modifier {
+    height: $action_height - $action_field_combined_height;
+  }
 }
 
 .action_dashboard#next_hand {
-   height: $action_dashboard_limit_height;
-   width: $action_dashboard_next_hand_width;
+   // height: $action_dashboard_limit_height;
+   // width: $action_dashboard_next_hand_width;
 }
 
 .action_dashboard#leave_match {
-   @extend .action_dashboard#next_hand
+  @extend .action_dashboard#next_hand
 }

@@ -30,5 +30,16 @@
    .ui_slider {
       @include center_horizontally;
       width: $wager_amount_slider_width;
+
+      $ui_slider_second_color: #006CCC;
+      .ui-slider-handle {
+         background-image: none;
+         background-color: $ui_slider_second_color;
+      }
+
+      .ui-slider-range {
+         background-image: none;
+         background-color: $ui_slider_second_color;
+      }
    }
 }

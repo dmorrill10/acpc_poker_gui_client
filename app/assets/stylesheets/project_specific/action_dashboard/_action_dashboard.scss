@@ -1,5 +1,5 @@
 // @todo Remove dead code
-// 
+
 @import '../abstract/off_table_container/off_table_container';
 @import '../button/button_defs';
 @import 'action_dashboard_defs';
@@ -18,8 +18,6 @@ $container_background_color: #003300;
       }
     }
   }
-   
-
    //
    //.actions {
    //   @extend ul.horizontal;
@@ -76,5 +74,5 @@ $container_background_color: #003300;
 }
 
 .action_dashboard#leave_match {
-  @extend .action_dashboard#next_hand
+   @extend .action_dashboard#next_hand
 }

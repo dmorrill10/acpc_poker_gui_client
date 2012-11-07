@@ -1,17 +1,16 @@
 @import 'container_defs';
 
 .container {
-   @include center_horizontally;
-   
-   // height: $container_height;
-   height: 0;
-   width: 100%;
+  @include center_horizontally;
 
-   // background-image: $container_background;
+  height: 0;
+  width: 100%;
+
+  background-color: black;
+  
+  word-wrap: break-word;
    
-   word-wrap: break-word;
-   
-   .game_interface {
-      position: absolute;
-   }
+  .game_interface {
+    position: absolute;
+  }
 }

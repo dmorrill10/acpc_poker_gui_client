@@ -1,0 +1,12 @@
+
+$dynamic_menu_border_width: 2px;
+
+/*.item*/
+$item_padding: floor($default_primary_font_size/2);
+$item_font_size: $default_primary_font_size;
+
+/*.title*/
+$title_font_size: $item_font_size;
+$title_font_weight_added_size: 4px;
+$title_height: $title_font_size + $title_font_weight_added_size;
+$title_combined_height: $title_height + 2 * ($item_padding + $dynamic_menu_border_width);

@@ -45,6 +45,11 @@ group :development do
 
   # To interpret markdown
   gem 'redcarpet'
+
+  # Improved generators
+  gem 'nifty-generators'
+
+  gem 'rack-mini-profiler'
 end
 
 group :development, :test do
@@ -74,12 +79,6 @@ end
 
 # JavaScript runtime
 gem 'therubyracer'
-
-# Gems only to be used for development
-group :development do
-  # Improved generators
-  gem 'nifty-generators'
-end
 
 # Enable HAML format views. Prettier than ERB format views.
 gem "haml"

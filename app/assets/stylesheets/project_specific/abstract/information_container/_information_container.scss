@@ -9,12 +9,10 @@
    color: $default_primary_text_color;
    
    .title { 
-      @extend h2;
+      @extend h4;
       font-weight: bold;
 
-      margin-top: $information_container_padding;
-      margin-right: $information_container_padding;
-      margin-bottom: $information_container_padding;
+      margin: 0;
    }
    
    input, select {

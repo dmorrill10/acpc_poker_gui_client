@@ -1,8 +1,8 @@
 /*Include other files with: @import 'path to other file'*/
 
-$card_height: 80px;
-$card_width_height_ratio: 2/3;
-$card_width: ceil($card_width_height_ratio * $card_height);
+$card_height_width_ratio: 3/2;
+$card_width: 70px;
+$card_height: ceil($card_height_width_ratio * $card_width);
 
 $card_color_variation_amount: 12%;
 

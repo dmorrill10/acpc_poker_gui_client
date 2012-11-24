@@ -49,7 +49,7 @@ group :development do
   # Improved generators
   gem 'nifty-generators'
 
-  gem 'rack-mini-profiler'
+  # gem 'rack-mini-profiler'
 end
 
 group :development, :test do

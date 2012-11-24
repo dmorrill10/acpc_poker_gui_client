@@ -34,12 +34,16 @@ include WorkerHelpers
 # Ensures that the map used to keep track of background processes is initialized properly
 before do |job|
   @match_id_to_background_processes = {} unless @match_id_to_background_processes
-
-  log __method__, {match_id_to_background_processes: @match_id_to_background_processes}
 end
 
 # @param [Hash] params Parameters for the dealer. Must contain values for +'match_id'+ and +'dealer_arguments'+.
 Stalker.job('Dealer.start') do |params|
+  # Clean up data from dead matches
+  prev_len = @match_id_to_background_processes.length
+  @match_id_to_background_processes.each do |match_id, match_processes|
+    @match_id_to_background_processes.delete(match_id) unless match_processes[:dealer][:pid].process_exists?
+  end
+
   match_id = params.retrieve_match_id_or_raise_exception
   dealer_arguments = {
     match_name: params.retrieve_parameter_or_raise_exception('match_name'),
@@ -53,12 +57,13 @@ Stalker.job('Dealer.start') do |params|
   
   background_processes = @match_id_to_background_processes[match_id] || {}
 
-  log "Stalker.job('Dealer.start'): Before: ", {
+  log "Stalker.job('Dealer.start'): Before starting dealer: ", {
     match_id: match_id,
     dealer_arguments: dealer_arguments,
+    num_processes_removed: prev_len - @match_id_to_background_processes.length,
     log_directory: log_directory,
-    background_processes: background_processes,
-    match_id_to_background_processes: @match_id_to_background_processes
+    num_background_processes: background_processes.length,
+    num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
   # Start the dealer
@@ -88,10 +93,10 @@ Stalker.job('Dealer.start') do |params|
     end
   end
 
-  log "Stalker.job('Dealer.start'): After: ", {
+  log "Stalker.job('Dealer.start'): After starting dealer: ", {
     match_id: match_id,
-    background_processes: background_processes,
-    match_id_to_background_processes: @match_id_to_background_processes
+    num_background_processes: background_processes.length,
+    num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 end
 
@@ -105,8 +110,8 @@ Stalker.job('PlayerProxy.start') do |params|
 
   log "Stalker.job('PlayerProxy.start'): Before: ", {
     match_id: match_id,
-    background_processes: background_processes,
-    match_id_to_background_processes: @match_id_to_background_processes
+    num_background_processes: background_processes.length,
+    num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
   unless background_processes[:player_proxy]
@@ -146,8 +151,8 @@ Stalker.job('PlayerProxy.start') do |params|
 
     log "Stalker.job('PlayerProxy.start'): After: ", {
       match_id: match_id,
-      background_processes: background_processes,
-      match_id_to_background_processes: @match_id_to_background_processes
+      num_background_processes: background_processes.length,
+      num_match_id_to_background_processes: @match_id_to_background_processes.length
     }
 
     # Store game definition properties in the database so the web app. can access them
@@ -167,8 +172,8 @@ Stalker.job('Opponent.start') do |params|
 
   log "Stalker.job('Opponent.start'): Before: ", {
     match_id: match_id,
-    background_processes: background_processes,
-    match_id_to_background_processes: @match_id_to_background_processes
+    num_background_processes: background_processes.length,
+    num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
   unless background_processes[:opponent]
@@ -185,8 +190,8 @@ Stalker.job('Opponent.start') do |params|
 
   log "Stalker.job('Opponent.start'): After: ", {
     match_id: match_id,
-    background_processes: background_processes,
-    match_id_to_background_processes: @match_id_to_background_processes
+    num_background_processes: background_processes.length,
+    num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 end
 
@@ -202,7 +207,7 @@ Stalker.job('PlayerProxy.play') do |params|
   log "Stalker.job('PlayerProxy.play'): Before: ", {
     match_id: match_id,
     action: action,
-    match_id_to_background_processes: @match_id_to_background_processes
+    num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
   begin
@@ -218,7 +223,7 @@ Stalker.job('PlayerProxy.play') do |params|
 
   log "Stalker.job('PlayerProxy.play'): After: ", {
     match_id: match_id,
-    match_id_to_background_processes: @match_id_to_background_processes
+    num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 end
 

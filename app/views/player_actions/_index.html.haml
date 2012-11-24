@@ -54,8 +54,8 @@
   - 'no_limit'
 - else
   - 'limit'
-.game_interface{ id: game_interface_id}
-  .poker_table
+.game_interface.span-24{ id: game_interface_id}
+  .poker_table.span-24
     - opponent = @opponents[0]
     .information_about_an_opponent{ :id => acting_player_id(opponent['name']) }
       = render partial: 'held_player_information', locals: {player: opponent,
@@ -85,24 +85,25 @@
         round: @round}
 
   - next_hand_button_should_be_visible = @hand_ended && !@match_ended
-  - action_dashboard_id = if @match_ended
-    - 'leave_match'
-  - elsif next_hand_button_should_be_visible
-    - 'next_hand'
-  - elsif @is_no_limit
+  - action_dashboard_id = if @is_no_limit
     - 'no_limit'
   - else
     - 'limit'
-  .action_dashboard.hero-unit.span-24.showgrid{ id: action_dashboard_id }
+
+  - action_dashboard_grid_class = if @match_ended || next_hand_button_should_be_visible
+    - 'span-8 prepend-8 append-8'
+  - else
+    - 'span-24'
+  .action_dashboard{ id: action_dashboard_id, class:  action_dashboard_grid_class }
     .hidden
       = update_state_form @match_id, @match_slice_index, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@users_turn_to_act || @match_ended) && !@hand_ended
     - if @match_ended
       .meta_action
-        = link_to leave_match_label, leave_game_url, {remote: true, class: ['btn', 'btn-info', 'btn-large'], data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+        = link_to leave_match_label, leave_game_url, {remote: true, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
     - elsif next_hand_button_should_be_visible
       .meta_action
         - next_hand_label = "Next Hand"
-        = button_tag next_hand_label, id: 'next_state', class: ['btn', 'btn-info', 'btn-large'], disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }
+        = button_tag next_hand_label, id: 'next_state', class: ['btn', 'btn-info', 'btn-block', 'poker_action_button'], disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }
     - else
       - fold_label = 'Fold'
       - fold_is_disabled_when = !(@users_turn_to_act && @legal_actions.include?('f'))
@@ -112,22 +113,20 @@
       - wager_classes = if @is_no_limit then ['with_modifier'] else [] end
       .action_modification_tools
         - if @is_no_limit
-          .wager_amount_slider.span-18
-            .wrapper
-              %ul.increment_labels
-                %li.slider_label#min Min
-                %li.slider_label#half_pot 50%
-                %li.slider_label#three_quarters_pot 75%
-                %li.slider_label#one_pot Pot
-                %li.slider_label#two_times_pot 2xPot
-                %li.slider_label#all_in All-in
-              .ui_slider
+          .wager_amount_slider.span-12.prepend-6
+            .slider_label.span-2#min Min
+            .slider_label.span-2#half_pot 50%
+            .slider_label.span-2#three_quarters_pot 75%
+            .slider_label.span-2#one_pot Pot
+            .slider_label.span-2#two_times_pot 2xPot
+            .slider_label.span-2.last#all_in All-in
+            .ui_slider.span-12
         .hidden_action_forms.span-6.last
           = poker_action_form 'f', fold_label, fold_is_disabled_when, [], ['hidden-fold']
           = poker_action_form 'c', pass_action_button_label, !@users_turn_to_act, [], ['hidden-pass']
           = poker_action_form 'r', make_wager_button_label, !@users_turn_to_act, wager_classes, ['hidden-wager'] do |f|
             - if @is_no_limit
-              - f.number_field :modifier, value: @pot_wager_amount
+              - f.number_field :modifier, class: 'span-6 last'
       .actions.btn-group.span-24
         .span-8= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
         .span-8= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@users_turn_to_act, [], ['pass'])
@@ -149,11 +148,10 @@
     elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')')
     
     scaledHeight = elementToScale.height() * smallestRatio
-    deviationFromTop = Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()
-    deviationFromLeft = Math.floor(($(window).width() - elementToScale.width()) / 2)
     
-    elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})
-
+    # It seems strange but placing these long math values in variables seemed to cause memory leaks on every http request, though I'm not totally sure
+    elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()), left: Math.floor(($(window).width() - elementToScale.width()) / 2)})
+    
     # Inversely scale slider and adjust width manually
     slider = $('.ui_slider')
     inverseScaling = 1 / smallestRatio
@@ -162,8 +160,10 @@
     slider.css('-ms-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')
     
-    originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
+    originalSliderWidth = 410 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
     slider.width(originalSliderWidth * smallestRatio)
+    slider.css({left: -(Math.floor((slider.width() - originalSliderWidth) / 2))})
+
   adjustScale($('.game_interface'))
   jQuery(window).resize(->
     adjustScale($('.game_interface'))
@@ -175,14 +175,6 @@
 
     $('.btn:not(.hidden)').attr("disabled", true)
     $(this).attr("disabled", false)
-  )
-
-  # Adjust wager amount
-  $('#hidden-wager.with_modifier').click(->
-    wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
-    wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
-      
-    $('input#user_poker_action_modifier').val(wager_to_amount_over_hand)
   )
 
   # Take actions
@@ -200,6 +192,17 @@
 
   registerHiddenAction('next_state')
 
+  # Adjust wager amount
+  $('#hidden-wager.with_modifier').click(->
+    wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
+    if !wager_to_amount_over_round
+      wager_to_amount_over_round = "#{@minimum_wager}"
+    wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
+
+    # Weirdest memory leak ever: Sending an int to val instead of a string seems to leak a couple megs every http request
+    $('input#user_poker_action_modifier').val(wager_to_amount_over_hand.toString())
+  )
+
 - if @is_no_limit
   :coffeescript
     sliderValues = [
@@ -211,9 +214,3 @@
       parseInt("#{@all_in_amount}")
     ]
     WagerAmountSlider.initialize(sliderValues)
-
-    # Adjust wager amount slider
-    nonAllInLabels = $('.slider_label:not(#all_in)')
-    originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
-    widthForEachLabel = (originalSliderWidth - $('.slider_label#all_in').outerWidth(true)) / nonAllInLabels.length
-    $(label).width(widthForEachLabel) for label in nonAllInLabels

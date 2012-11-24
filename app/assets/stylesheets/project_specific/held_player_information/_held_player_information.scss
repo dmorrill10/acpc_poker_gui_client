@@ -4,14 +4,14 @@
 @import '../abstract/information_container/information_container_defs';
 
 .held_player_information {
-   height: $held_player_information_height;
-   width: $held_player_information_width;
-   
-   padding: $information_container_padding;
-   
-   display: block;
-   
-   * {
-      display: block;
-   }
+  height: $held_player_information_height;
+  width: $held_player_information_width;
+
+  padding: $information_container_padding;
+
+  display: block;
+
+  * {
+    display: block;
+  }
 }

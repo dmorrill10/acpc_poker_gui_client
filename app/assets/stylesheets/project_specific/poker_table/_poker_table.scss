@@ -15,9 +15,8 @@
   
    background: image-url('nick_morrill/small_felt.jpg');
 
-   height: $poker_table_height;
-   width: $poker_table_width;
-   
+   height: $poker_table_combined_height;
+
    .chip_stack_wrapper {
       @include chip_stack_size;
    }

@@ -5,6 +5,8 @@ gem 'rails', '3.2.6'
 gem 'rack', '1.4.1'
 
 # Database module
+gem 'origin'
+gem 'moped'
 gem "mongoid"
 gem 'bson'
 gem 'bson_ext'
@@ -102,12 +104,12 @@ gem 'acpc_dealer'
 gem 'acpc_dealer_data'
 
 # Improved forms
-gem 'simple_form', "~> 1.5"
+gem 'simple_form'
 
 # Instant form validation
-gem 'client_side_validations', '~> 3.2.0.beta.1'
+gem 'client_side_validations'
 gem 'client_side_validations-simple_form'
-gem 'client_side_validations-mongoid', '~> 2.4.0.beta.2'
+gem 'client_side_validations-mongoid'
 
 # Improved logging output
 gem 'awesome_print'

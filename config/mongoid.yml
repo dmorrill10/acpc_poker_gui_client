@@ -1,24 +1,16 @@
 development:
-  host: localhost
   database: acpc_poker_gui_client_development
+  sessions:
+    default:  
+      hosts: 
+        - localhost:27017
+      database: acpc_poker_gui_client_development
 
-test:
-  host: localhost
-  database: acpc_poker_gui_client_test
-  
-
-# set these environment variables on your prod server
 production:
-   # @todo Not sure what these should be set to
-  #host: <%= ENV['MONGOID_HOST'] %>
-  #port: <%= ENV['MONGOID_PORT'] %>
-  #username: <%= ENV['MONGOID_USERNAME'] %>
-  #password: <%= ENV['MONGOID_PASSWORD'] %>
-  #database: <%= ENV['MONGOID_DATABASE'] %>
-  # slaves:
-  #   - host: slave1.local
-  #     port: 27018
-  #   - host: slave2.local
-  #     port: 27019
-   host: localhost
-   database: acpc_poker_gui_client_development
+  database: acpc_poker_gui_client_development
+  sessions:
+    default:
+      database: acpc_poker_gui_client_development
+      hosts: 
+        - localhost:27017
+

@@ -5,6 +5,8 @@
       100
     )
 
+- next_hand_id = 'next_state'
+- leave_match_id = 'match_ended_leave'
 - leave_match_confirmation_message = "Are you sure you want to leave this match?"
 - leave_match_label = "Leave Match"
 .navbar
@@ -101,7 +103,7 @@
     - elsif next_hand_button_should_be_visible
       .meta_action
         - next_hand_label = "Next Hand"
-        = button_tag next_hand_label, id: 'next_state', class: ['btn', 'btn-info', 'btn-block', 'poker_action_button'], disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }
+        = button_tag next_hand_label, id: next_hand_id, class: ['btn', 'btn-info', 'btn-block', 'poker_action_button'], disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }
     - else
       - fold_label = 'Fold'
       - fold_is_disabled_when = !(@users_turn_to_act && @legal_actions.include?('f'))
@@ -186,8 +188,7 @@
   registerHiddenAction('fold')
   registerHiddenAction('pass')
   registerHiddenAction('wager')
-
-  registerHiddenAction('next_state')
+  registerHiddenAction("#{next_hand_id}")
 
   # Adjust wager amount
   $('#hidden-wager.with_modifier').click(->
@@ -211,12 +212,6 @@
       parseInt("#{@all_in_amount}")
     ]
     WagerAmountSlider.initialize(sliderValues)
-
-    # Adjust wager amount slider
-    nonAllInLabels = $('.slider_label:not(#all_in)')
-    originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
-    widthForEachLabel = (originalSliderWidth - $('.slider_label#all_in').outerWidth(true)) / nonAllInLabels.length
-    $(label).width(widthForEachLabel) for label in nonAllInLabels
 
     $('#user_poker_action_modifier').focus()
 - if next_hand_button_should_be_visible

@@ -1,21 +1,16 @@
-/*@import '../mixins';*/
 @import 'container_defs';
 
 .container {
-   @include center_horizontally;
+  @include center_horizontally;
+
+  height: 0;
+  width: 100%;
+
+  background-color: black;
+  
+  word-wrap: break-word;
    
-   height: $container_height;
-   width: 100%;
-   
-   word-wrap: break-word;
-   
-   .toolbar {
-      position: fixed;
-      top: $toolbar_top;
-      left: $toolbar_left;
-   }
-   
-   .game_interface {
-      position: absolute;
-   }
+  .game_interface {
+    position: absolute;
+  }
 }

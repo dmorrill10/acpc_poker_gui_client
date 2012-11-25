@@ -1,36 +1,45 @@
 @import 'wager_amount_slider_defs';
 
 .wager_amount_slider {
-   width: inherit;
-   height: $wager_amount_slider_combined_height;
-   
-   .increment_labels {
-      @extend ul.horizontal;
-      
-      overflow: visible;
-      
-      padding-left: 10px;
+  height: $wager_amount_slider_combined_height;
 
-      .slider_label {
-         position: relative;
-         width: auto;
-         text-align: left;
-      }
-      li.slider_label:last-child {
-        text-align: right;
-      }
-   }
-   .wrapper {
-      @include center_horizontally;
-      width: $wager_amount_slider_width + 30px;
-      
-      padding-right: $wager_amount_slider_padding_right;
-      padding-bottom: $wager_amount_slider_padding_bottom;
-      
-      float: right;
-   }
-   .ui_slider {
-      @include center_horizontally;
-      width: $wager_amount_slider_width;
-   }
+  .increment_labels {
+    @extend ul.horizontal;
+
+    overflow: visible;
+
+    padding-left: 10px;
+
+    .slider_label {
+      position: relative;
+      width: auto;
+      text-align: left;
+    }
+    li.slider_label:last-child {
+      text-align: right;
+    }
+  }
+  .wrapper {
+    width: $wager_amount_slider_width + 30px;
+
+    padding-right: $wager_amount_slider_padding_right;
+    padding-bottom: $wager_amount_slider_padding_bottom;
+
+    float: right;
+  }
+  .ui_slider {
+    // @include center_horizontally;
+    width: $wager_amount_slider_width;
+
+    $ui_slider_second_color: #006CCC;
+    .ui-slider-handle {
+      background-image: none;
+      background-color: $ui_slider_second_color;
+    }
+
+    .ui-slider-range {
+      background-image: none;
+      background-color: $ui_slider_second_color;
+    }
+  }
 }

@@ -10,8 +10,8 @@ gem 'bson'
 gem 'bson_ext'
 
 # For convenient styling macros and SASS
-gem 'compass'
 gem 'compass-rails'
+gem 'blueprint-rails'
 
 # To interpret Coffeescript in HAML
 gem 'coffee-filter'
@@ -30,10 +30,7 @@ group :assets do
   gem 'uglifier'
 
   gem "bootstrap-sass-rails"
-  
-  # For nice looking buttons
-  gem 'sassy-buttons'
-  
+
   # compass uses this for sprites
   gem 'chunky_png'
 
@@ -48,6 +45,11 @@ group :development do
 
   # To interpret markdown
   gem 'redcarpet'
+
+  # Improved generators
+  gem 'nifty-generators'
+
+  # gem 'rack-mini-profiler'
 end
 
 group :development, :test do
@@ -77,12 +79,6 @@ end
 
 # JavaScript runtime
 gem 'therubyracer'
-
-# Gems only to be used for development
-group :development do
-  # Improved generators
-  gem 'nifty-generators'
-end
 
 # Enable HAML format views. Prettier than ERB format views.
 gem "haml"

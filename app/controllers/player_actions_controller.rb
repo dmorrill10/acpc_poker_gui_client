@@ -13,7 +13,6 @@ require 'user_poker_action'
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
 class PlayerActionsController < ApplicationController
-   include ApplicationDefs
    include ApplicationHelper
    include PlayerActionsHelper
    
@@ -61,12 +60,12 @@ class PlayerActionsController < ApplicationController
    def take_action
       puts "   ACTIION: #{params[:user_poker_action]}"
 
-      @user_poker_action = UserPokerAction.new params[:user_poker_action]
-      params[:match_id] = @user_poker_action.match_id
-      params[:match_slice_index] = @user_poker_action.match_slice_index
+      user_poker_action = UserPokerAction.new params[:user_poker_action]
+      params[:match_id] = user_poker_action.match_id
+      params[:match_slice_index] = user_poker_action.match_slice_index
       
-      start_background_job('PlayerProxy.play', match_id: @user_poker_action.match_id,
-                           action: @user_poker_action.poker_action, modifier: @user_poker_action.modifier)
+      start_background_job('PlayerProxy.play', match_id: user_poker_action.match_id,
+                           action: user_poker_action.poker_action, modifier: user_poker_action.modifier)
       
       update_game_state
    end
@@ -87,4 +86,3 @@ class PlayerActionsController < ApplicationController
       redirect_to root_path, :remote => true
    end
 end
-

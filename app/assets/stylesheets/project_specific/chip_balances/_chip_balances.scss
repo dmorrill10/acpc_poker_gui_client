@@ -1,16 +1,23 @@
-/*@import 'scss_class_defs';*/
-@import '../abstract/off_table_container/off_table_container';
-@import 'chip_balances_defs';
-
 .chip_balances {
-  @extend .off_table_container;
+  padding: 0;
+  margin: 0;
 
-  position: absolute;
-  top: $chip_balances_top;
+  position: relative;
+  display: inline-block;
 
   z-index: 1;
-  
-  li {
-    white-space: pre;
+
+  .right {
+    float: right;
+    margin-left: 8px;
+  }
+
+  .table {
+    margin-bottom: 0;
+  }
+
+  h1, h2, h3, h4 {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }

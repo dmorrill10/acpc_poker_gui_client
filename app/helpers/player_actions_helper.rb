@@ -11,12 +11,28 @@ require File.expand_path('../application_helper', __FILE__)
 module PlayerActionsHelper
   include ApplicationHelper
 
+  def poker_action_submission_options(label, disabled_when, classes=[], ids=[], link=nil)
+    {class: (classes + ['btn', 'btn-primary', 'btn-block', 'poker_action_button']), id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
+  end
+  def poker_action_submission(label, disabled_when, classes=[], ids=[])
+    submit_tag label, poker_action_submission_options(label, disabled_when, classes + ['hidden'], ids)
+  end
   def update_state_form(match_id, match_slice_index, submit_button_label='', button_options={})
-    button_options[:class] = 'button'
     button_options[:id] = 'update_match_state' unless button_options[:id]
     form_tag update_game_state_url, :remote => true do
       form = hidden_match_fields match_id, match_slice_index
       form << submit_tag(submit_button_label, button_options)
+    end
+  end
+
+  def poker_action_form(action, label, disabled_when, classes=[], ids=[])
+    form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+      form = f.hidden_field :match_id, value: @match_id
+      form << f.hidden_field(:match_slice_index, value: @match_slice_index)
+      form << f.hidden_field(:poker_action, value: action)
+      form << poker_action_submission(label, disabled_when, classes, ids)
+      form << yield(f) if block_given?
+      form
     end
   end
 
@@ -105,7 +121,7 @@ module PlayerActionsHelper
   #   elsif action == 'f'
   #     "fold"
   #   elsif action == 'k'
-  #     'checks'    
+  #     'checks'
   #   elsif action.match('r')
   #     "raises"
   #   end
@@ -124,7 +140,7 @@ module PlayerActionsHelper
   #     end
   #   end
   # end
-   
+
   def setup_betting_and_acting_sequence!
     @action_summary = ""
     if @match_slice.betting_sequence && @match_slice.player_acting_sequence
@@ -169,7 +185,7 @@ module PlayerActionsHelper
     ].max
 
     @pot_wager_amount = [
-      wager_pot_above_current_round_contribution + current_round_contribution + 
+      wager_pot_above_current_round_contribution + current_round_contribution +
         @amount_for_user_to_call,
       @minimum_wager
     ].max

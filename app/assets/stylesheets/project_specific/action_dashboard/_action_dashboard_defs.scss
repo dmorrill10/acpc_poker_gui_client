@@ -11,7 +11,7 @@ $action_field_height: $default_primary_font_size;
 $action_field_combined_height: $action_field_height + 2*($action_field_border + $action_field_padding);
 
 /*Action*/
-$action_height: 3*$button_combined_height;
+$action_height: $button_combined_height;
 $action_combined_height: $action_height;
 $action_margin: 20px;
 

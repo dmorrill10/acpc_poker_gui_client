@@ -5,8 +5,8 @@ Hotkey =
       elementOnPage.click() unless elementOnPage.is(':disabled')
     )
 
-Hotkey.bind('#fold.button', 'a')
-Hotkey.bind('#pass.button', 's')
-Hotkey.bind('#wager.button', 'd')
-Hotkey.bind('#leave.button', 'q')
-Hotkey.bind('#next.button', 'f')
+Hotkey.bind('#fold', 'a')
+Hotkey.bind('#pass', 's')
+Hotkey.bind('#wager', 'd')
+Hotkey.bind('#leave', 'q')
+Hotkey.bind('#next_state', 'f')

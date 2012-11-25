@@ -1,5 +1,4 @@
 @import '../../page/page_defs';
-/*@import '../mixins';*/
 @import 'information_container_defs';
 
 .information_container {
@@ -10,19 +9,13 @@
    color: $default_primary_text_color;
    
    .title { 
-      @extend h2;
+      @extend h4;
       font-weight: bold;
 
-      margin-top: $information_container_padding;
-      margin-right: $information_container_padding;
-      margin-bottom: $information_container_padding;
+      margin: 0;
    }
    
-   select {
-      @include block_interface_element;
-   }
-   
-   input, select, .button {
+   input, select {
       font-size: $default_primary_font_size;
    }
 }

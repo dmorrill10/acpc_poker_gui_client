@@ -23,34 +23,36 @@
    @include background-image(linear-gradient(top left,
                                              darken($blank_card_color, 25%),
                                              $blank_card_color));
+   * {
+      @include box-sizing(border-box);
+   }
    
    height: $card_height;
-   width: $card_width;
    
    position: relative;
    
-   $symbol_margin: 4px;
+   $card_padding: 8px;
+   $top_row_height: $card_height / 1.5;
    
    .top_left_rank {
-      position: absolute;
-      $margin_for_top_left_rank: $symbol_margin;
-      top: $margin_for_top_left_rank/3;
-      left: $margin_for_top_left_rank;
+      padding-left: $card_padding;
+      padding-top: $card_padding;
+      height: $top_row_height;
       
       font-size: $default_primary_font_size*1.5;
    }
-   .bottom_right_rank {
-      position: absolute;
-      bottom: 0;
-      right: $symbol_margin;
-      
+   .suit {
+      padding-right: $card_padding;
+      padding-top: $card_padding;
+      height: $top_row_height;
+      text-align: right;
+
       font-size: $default_primary_font_size*3;
    }
-   .suit {
-      position: absolute;
-      top: 0;
-      right: $symbol_margin;
-      font-size: $default_primary_font_size*2;
+   .bottom_right_rank {
+      padding-right: $card_padding;
+      text-align: right;
+      font-size: $default_primary_font_size*4;
    }
 }
 

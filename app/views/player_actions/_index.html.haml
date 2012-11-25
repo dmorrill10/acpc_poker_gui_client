@@ -1,38 +1,66 @@
-
 - unless @hand_ended || @match_ended || @users_turn_to_act
   :coffeescript
     setTimeout(
-      (-> $('#hidden_update_match_state').submit()), 
+      (-> $('#hidden-next_state').submit()),
       100
     )
-- next_hand_id = 'next'
-- leave_match_id = 'leave'
-- def leave_match_button(options={})
-  - leave_match_confirmation_message = "Are you sure you want to leave this match?"
-  - leave_match_label = "Leave match"
-  - button leave_match_label, leave_game_url, {match_id: @match_id, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}.merge(options)
-.toolbar
-  .toolbar_item
-    .meta_action
-      = leave_match_button id: leave_match_id
-%ul.chip_balances
-  %li.title= "#{@match.match_name}    #{@match_slice.hand_number+1} / #{@match.number_of_hands}"
-  - @players.each do |player|
-    %li= "#{player['name']}: #{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
 
+- leave_match_confirmation_message = "Are you sure you want to leave this match?"
+- leave_match_label = "Leave Match"
+.navbar
+  .navbar-inner
+    %a.brand ACPC Poker GUI Client
+    %ul.nav
+      %li
+        = link_to leave_match_label, leave_game_url, {remote: true, id: 'leave', data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+      %li.dropdown
+        %a.dropdown-toggle{:data => {:toggle => "dropdown"}, role: 'button', :href => "#"}= 'Hotkeys <b class="caret"></b>'.html_safe
+        %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}
+          %thead
+            %tr
+              %th Action
+              %th Key
+          %tbody
+            %tr
+              %td Fold
+              %td A
+            %tr
+              %td Check / Call
+              %td S
+            %tr
+              %td Bet / Raise
+              %td D
+            %tr
+              %td Next Hand
+              %td F
+            %tr
+              %td Leave Match
+              %td Q
+.chip_balances.hero-unit
+  %h4= "#{@match.match_name} <span class=\"right\">#{@match_slice.hand_number+1} / #{@match.number_of_hands}</span>".html_safe
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Player
+        %th Balance
+    %tbody
+      - @players.each do |player|
+        %tr
+          %td= "#{player['name']}"
+          %td= "#{player['chip_balance'] + (if !@hand_ended && player['chip_contributions'].sum > 0 then player['chip_contributions'].sum else 0 end)}"
 - game_interface_id = if @is_no_limit
   - 'no_limit'
 - else
   - 'limit'
-.game_interface{ id: game_interface_id}
-  .table
+.game_interface.span-24{ id: game_interface_id}
+  .poker_table.span-24
     - opponent = @opponents[0]
     .information_about_an_opponent{ :id => acting_player_id(opponent['name']) }
       = render partial: 'held_player_information', locals: {player: opponent,
         player_whose_turn_is_next: @player_whose_turn_is_next,
         hand_ended: @hand_ended,
         player_with_the_dealer_button: @player_with_the_dealer_button,
-        round: @round}   
+        round: @round}
     .community_information
       %ul.board_cards
         = render partial: 'cards', locals: {cards: @board_cards.flatten}
@@ -46,7 +74,7 @@
         %li
           %p= "Actions: #{@action_summary}"
         - if @match_ended
-          %li   
+          %li
             %p The match has ended, thanks for playing!
     .users_information{ :id => acting_player_id(@user['name']) }
       = render partial: 'held_player_information', locals: {player: @user,
@@ -55,69 +83,59 @@
         round: @round}
 
   - next_hand_button_should_be_visible = @hand_ended && !@match_ended
-  - action_dashboard_id = if @match_ended
-    - 'leave_match'
-  - elsif next_hand_button_should_be_visible
-    - 'next_hand'
-  - elsif @is_no_limit
+  - action_dashboard_id = if @is_no_limit
     - 'no_limit'
   - else
     - 'limit'
-  .action_dashboard{ :id => action_dashboard_id }
-    .actions
-      .hidden
-        = update_state_form @match_id, @match_slice_index, "Hidden update state", disabled: @users_turn_to_act || @match_ended, id: 'hidden_update_match_state'
-      - if @match_ended
-        .meta_action
-          = leave_match_button
-      - elsif next_hand_button_should_be_visible
-        .meta_action
-          - next_hand_label = "Next hand"
-          = update_state_form @match_id, @match_slice_index, next_hand_label, disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }, id: next_hand_id
-      - else
-        - if @is_no_limit
-          .wager_amount_slider
-            .wrapper
-              %ul.increment_labels
-                %li.slider_label#min Min
-                %li.slider_label#half_pot 50%
-                %li.slider_label#three_quarters_pot 75%
-                %li.slider_label#one_pot Pot
-                %li.slider_label#two_times_pot 2xPot
-                %li.slider_label#all_in All-in
-              .ui_slider
-        .action
-          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-            = f.input :poker_action, as: :hidden, input_html: { value: 'f' }
-            - fold_label = 'Fold'
-            = submit_tag fold_label, class: 'button', disabled: !(@users_turn_to_act && @legal_actions.include?('f')), data: { disable_with: fold_label }, id: 'fold'
-        .action
-          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-            - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
-            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-            = f.input :poker_action, as: :hidden, input_html: { value: 'c' }
-            = submit_tag pass_action_button_label, class: 'button', disabled: !@users_turn_to_act, data: { disable_with: pass_action_button_label }, id: 'pass'
-        .action
-          = simple_form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
-            - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
-            - make_wager_button_label += ' to' if @is_no_limit
-            = f.input :match_id, as: :hidden, input_html: { value: @match_id }
-            = f.input :match_slice_index, as: :hidden, input_html: { value: @match_slice_index }
-            = f.input :poker_action, as: :hidden, input_html: { value: 'r' }
-            - if @is_no_limit
-              = f.input :modifier, as: :integer, label: false
-            = submit_tag make_wager_button_label, class: ['button', 'with_modifier'], id: 'wager', disabled: !@users_turn_to_act, data: { disable_with: make_wager_button_label }
 
+  - action_dashboard_grid_class = if @match_ended || next_hand_button_should_be_visible
+    - 'span-8 prepend-8 append-8'
+  - else
+    - 'span-24'
+  .action_dashboard{ id: action_dashboard_id, class:  action_dashboard_grid_class }
+    .hidden
+      = update_state_form @match_id, @match_slice_index, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@users_turn_to_act || @match_ended) && !@hand_ended
+    - if @match_ended
+      .meta_action
+        = link_to leave_match_label, leave_game_url, {remote: true, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+    - elsif next_hand_button_should_be_visible
+      .meta_action
+        - next_hand_label = "Next Hand"
+        = button_tag next_hand_label, id: 'next_state', class: ['btn', 'btn-info', 'btn-block', 'poker_action_button'], disabled: !@hand_ended || @match_ended, data: { disable_with: next_hand_label }
+    - else
+      - fold_label = 'Fold'
+      - fold_is_disabled_when = !(@users_turn_to_act && @legal_actions.include?('f'))
+      - pass_action_button_label = if (@legal_actions.include?('c') && @amount_for_user_to_call > 0) then (if @is_no_limit then "Call (#{@amount_for_user_to_call})" else 'Call' end) else 'Check' end
+      - make_wager_button_label = if @legal_actions.include?('b') then 'Bet' else 'Raise' end
+      - make_wager_button_label += ' to' if @is_no_limit
+      - wager_classes = if @is_no_limit then ['with_modifier'] else [] end
+      .action_modification_tools
+        - if @is_no_limit
+          .wager_amount_slider.span-12.prepend-6
+            .slider_label.span-2#min Min
+            .slider_label.span-2#half_pot 50%
+            .slider_label.span-2#three_quarters_pot 75%
+            .slider_label.span-2#one_pot Pot
+            .slider_label.span-2#two_times_pot 2xPot
+            .slider_label.span-2.last#all_in All-in
+            .ui_slider.span-12
+        .hidden_action_forms.span-6.last
+          = poker_action_form 'f', fold_label, fold_is_disabled_when, [], ['hidden-fold']
+          = poker_action_form 'c', pass_action_button_label, !@users_turn_to_act, [], ['hidden-pass']
+          = poker_action_form 'r', make_wager_button_label, !@users_turn_to_act, wager_classes, ['hidden-wager'] do |f|
+            - if @is_no_limit
+              - f.number_field :modifier, class: 'span-6 last'
+      .actions.btn-group.span-24
+        .span-8= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
+        .span-8= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@users_turn_to_act, [], ['pass'])
+        .span-8.last= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@users_turn_to_act, wager_classes, ['wager'])
 :coffeescript
   ChipStackMutator.adjustAmountFontSizeOfAllStacks()
 
   # Inteface scale adjustment
   adjustScale = (elementToScale) ->
     widthRatio = $(window).width() / elementToScale.width()
-    heightRatio = ($(window).height() - $('.toolbar').height()) / elementToScale.height()
+    heightRatio = ($(window).height() - $('.navbar').height()) / elementToScale.height()
       
     smallestRatio = Math.min(heightRatio, widthRatio)
     
@@ -127,11 +145,10 @@
     elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')')
     
     scaledHeight = elementToScale.height() * smallestRatio
-    deviationFromTop = Math.ceil((elementToScale.height() - scaledHeight) / 2) - ($('.toolbar').height() + 2)
-    deviationFromLeft = Math.floor(($(window).width() - elementToScale.width()) / 2)
     
-    elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})
-
+    # It seems strange but placing these long math values in variables seemed to cause memory leaks on every http request, though I'm not totally sure
+    elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()), left: Math.floor(($(window).width() - elementToScale.width()) / 2)})
+    
     # Inversely scale slider and adjust width manually
     slider = $('.ui_slider')
     inverseScaling = 1 / smallestRatio
@@ -140,27 +157,47 @@
     slider.css('-ms-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')
     
-    originalSliderWidth = 275 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
+    originalSliderWidth = 410 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
     slider.width(originalSliderWidth * smallestRatio)
+    slider.css({left: -(Math.floor((slider.width() - originalSliderWidth) / 2))})
+
   adjustScale($('.game_interface'))
   jQuery(window).resize(->
     adjustScale($('.game_interface'))
   )
 
   # Disable all buttons upon one being clicked
-  $('.button').click(->
+  $('.btn').click(->
     return if this.id is 'leave'
 
-    $('.button').attr("disabled", true)
+    $('.btn:not(.hidden)').attr("disabled", true)
     $(this).attr("disabled", false)
   )
 
+  # Take actions
+  takeAction = (idOfSubmissionElement)->
+    submissionElement = $(idOfSubmissionElement)
+    submissionElement.click() unless submissionElement.is(':disabled')
+
+  registerHiddenAction = (triggerId)->
+    $('#' + triggerId).click(->
+      takeAction('#hidden-' + triggerId)
+    )
+  registerHiddenAction('fold')
+  registerHiddenAction('pass')
+  registerHiddenAction('wager')
+
+  registerHiddenAction('next_state')
+
   # Adjust wager amount
-  $('.button.with_modifier').click(->
+  $('#hidden-wager.with_modifier').click(->
     wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
+    if !wager_to_amount_over_round
+      wager_to_amount_over_round = "#{@minimum_wager}"
     wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
-      
-    $('input#user_poker_action_modifier').val(wager_to_amount_over_hand)
+
+    # Weirdest memory leak ever: Sending an int to val instead of a string seems to leak a couple megs every http request
+    $('input#user_poker_action_modifier').val(wager_to_amount_over_hand.toString())
   )
 
 - if @is_no_limit
@@ -182,11 +219,9 @@
     $(label).width(widthForEachLabel) for label in nonAllInLabels
 
     $('#user_poker_action_modifier').focus()
-
 - if next_hand_button_should_be_visible
   :coffeescript
     $("##{next_hand_id}").focus()
-
 - if @match_ended
   :coffeescript
     $("##{leave_match_id}").focus()

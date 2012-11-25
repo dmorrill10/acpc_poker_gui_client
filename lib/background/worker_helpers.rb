@@ -97,3 +97,15 @@ class Hash
     retrieve_parameter_or_raise_exception MATCH_ID_KEY
   end
 end
+
+class Integer
+  # @todo Move to dmorrill10-utils
+  def process_exists?
+    begin
+      Process.getpgid self
+      true
+    rescue Errno::ESRCH
+      false
+    end
+  end
+end

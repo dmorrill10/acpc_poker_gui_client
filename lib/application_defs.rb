@@ -32,8 +32,7 @@ module ApplicationDefs
       text: '2-player limit',
       bots: {'tester' => RunTestingBot}
     }
-  }
+  } unless const_defined? :GAME_DEFINITIONS
 
-  MATCH_LOG_DIRECTORY = File.expand_path('../../log/match_logs', __FILE__)
-
+  MATCH_LOG_DIRECTORY = File.expand_path('../../log/match_logs', __FILE__) unless const_defined? :MATCH_LOG_DIRECTORY
 end

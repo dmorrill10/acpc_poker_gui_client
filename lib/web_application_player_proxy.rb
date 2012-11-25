@@ -41,7 +41,7 @@ class WebApplicationPlayerProxy
     ) do |players_at_the_table|
 
       log __method__, {
-        players_at_the_table: players_at_the_table
+        # players_at_the_table: players_at_the_table
       }
 
       if players_at_the_table.transition.next_state
@@ -78,7 +78,7 @@ class WebApplicationPlayerProxy
 
     log __method__, {
       match_id: @match_id,
-      players_at_the_table: players_at_the_table
+      # players_at_the_table: players_at_the_table
     }
 
     match = Match.find(@match_id)

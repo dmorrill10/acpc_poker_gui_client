@@ -31,8 +31,7 @@ class StdinStdoutPlayerProxy
                               host_name: host_name, port_number: port_number,
                               game_definition_file_name: game_definition_file_name,
                               player_names: list_of_player_names.join(' '),
-                              number_of_hands: number_of_hands,
-                              millisecond_response_timeout: DEALER_MILLISECOND_TIMEOUT}
+                              number_of_hands: number_of_hands}
 
     start_background_job 'PlayerProxy.start', player_proxy_arguments
 

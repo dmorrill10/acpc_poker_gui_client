@@ -148,7 +148,6 @@
     
     scaledHeight = elementToScale.height() * smallestRatio
     
-    # It seems strange but placing these long math values in variables seemed to cause memory leaks on every http request, though I'm not totally sure
     elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()), left: Math.floor(($(window).width() - elementToScale.width()) / 2)})
     
     # Inversely scale slider and adjust width manually
@@ -192,12 +191,11 @@
 
   # Adjust wager amount
   $('#hidden-wager.with_modifier').click(->
-    wager_to_amount_over_round = $('input#user_poker_action_modifier').val()
-    if !wager_to_amount_over_round
-      wager_to_amount_over_round = "#{@minimum_wager}"
-    wager_to_amount_over_hand = parseInt(wager_to_amount_over_round) + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
+    wager_to_amount_over_round = parseInt($('input#user_poker_action_modifier').val())
+    if !wager_to_amount_over_round or isNaN(wager_to_amount_over_round)
+      wager_to_amount_over_round = parseInt("#{@minimum_wager}")
+    wager_to_amount_over_hand = wager_to_amount_over_round + parseInt("#{@amount_user_has_contributed_over_previous_rounds}")
 
-    # Weirdest memory leak ever: Sending an int to val instead of a string seems to leak a couple megs every http request
     $('input#user_poker_action_modifier').val(wager_to_amount_over_hand.toString())
   )
 
@@ -213,7 +211,7 @@
     ]
     WagerAmountSlider.initialize(sliderValues)
 
-    $('#user_poker_action_modifier').focus()
+    $('#user_poker_action_modifier').focus() unless $.browser.mozilla
 - if next_hand_button_should_be_visible
   :coffeescript
     $("##{next_hand_id}").focus()

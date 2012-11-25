@@ -20,9 +20,7 @@
 .card {
    $blank_card_color: #01b0b0;
    @include set_card_color($blank_card_color);
-   @include background-image(linear-gradient(top left,
-                                             darken($blank_card_color, 25%),
-                                             $blank_card_color));
+
    * {
       @include box-sizing(border-box);
    }
@@ -53,6 +51,24 @@
       padding-right: $card_padding;
       text-align: right;
       font-size: $default_primary_font_size*4;
+   }
+   @include background-image(linear-gradient(top left, darken($blank_card_color, 25%), $blank_card_color));
+   // background-size: ;
+   .logo {
+      @include box-sizing(border-box);
+
+      // Include card logo like this:
+      // @include background-image(image-url('cprg_chip_label_front.png'));
+      
+      height: $card_height;
+      width: $card_width;
+
+      $logo_radius: $card_width - 2 * $card_padding;
+      margin-left: $card_padding;
+      margin-right: $card_padding;
+      background-size: $logo_radius;
+      background-repeat: no-repeat;
+      margin-top: ($card_height - $logo_radius) / 2;
    }
 }
 

@@ -1,7 +1,4 @@
-
 @import 'compass';
-
-/*@import '../mixins';*/
 @import 'card_defs';
 
 @mixin set_card_color($color) {
@@ -37,7 +34,7 @@
       padding-top: $card_padding;
       height: $top_row_height;
       
-      font-size: $default_primary_font_size*1.5;
+      font-size: $default_primary_font_size*1.2;
    }
    .suit {
       padding-right: $card_padding;
@@ -50,10 +47,10 @@
    .bottom_right_rank {
       padding-right: $card_padding;
       text-align: right;
-      font-size: $default_primary_font_size*4;
+      font-size: $default_primary_font_size*3.5;
    }
    @include background-image(linear-gradient(top left, darken($blank_card_color, 25%), $blank_card_color));
-   // background-size: ;
+
    .logo {
       @include box-sizing(border-box);
 

@@ -1,8 +1,8 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.6'
+gem 'rails', '~>3.2'
 
-gem 'rack', '1.4.1'
+gem 'rack', '~>1.4'
 
 # Database module
 gem 'origin'
@@ -20,67 +20,6 @@ gem 'coffee-filter'
 
 # JavaScript library
 gem 'jquery-rails'
-
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets do
-  # JavaScript library
-  gem 'jquery-ui-rails'
-
-  gem 'sass-rails'
-  gem 'coffee-rails'
-  gem 'uglifier'
-
-  gem "bootstrap-sass-rails"
-
-  # compass uses this for sprites
-  gem 'chunky_png'
-
-  # native c library for png routines to speed up chunky_png
-  gem 'oily_png'
-end
-
-group :development do
-  # YARD documentation library
-  gem 'yard'
-  gem 'yard-rspec'
-
-  # To interpret markdown
-  gem 'redcarpet'
-
-  # Improved generators
-  gem 'nifty-generators'
-
-  # gem 'rack-mini-profiler'
-end
-
-group :development, :test do
-  gem 'rspec'
-  gem 'rspec-rails'
-
-  # Remove deprecation error
-  gem 'thin'
-  
-  # User interaction simulation for testing
-  gem 'capybara'
-  
-  # Allows Capybara to test through a browser
-  gem 'launchy'
-      
-  # Factory gem
-  gem 'factory_girl_rails'
-  
-  # For testing JavaScript/Coffeescript
-  gem 'jasmine'
-  
-  # Compiling JS for automatic Jasmine tests
-  gem 'rack-asset-compiler'
-
-  gem 'simplecov'
-end
-
-# JavaScript runtime
-gem 'therubyracer'
 
 # Enable HAML format views. Prettier than ERB format views.
 gem "haml"
@@ -113,3 +52,36 @@ gem 'client_side_validations-mongoid'
 
 # Improved logging output
 gem 'awesome_print'
+
+# Gems used only for assets and not required
+# in production environments by default.
+group :assets do
+  # JavaScript library
+  gem 'jquery-ui-rails'
+
+  gem 'sass-rails'
+  gem 'coffee-rails'
+  gem 'uglifier'
+  gem "bootstrap-sass-rails"
+
+  # compass uses this for sprites
+  gem 'chunky_png'
+
+  # native c library for png routines to speed up chunky_png
+  gem 'oily_png'
+end
+
+group :development do
+  # YARD documentation library
+  gem 'yard'
+
+  # To interpret markdown
+  gem 'kramdown'
+
+  # gem 'rack-mini-profiler'
+
+  # Better error information
+  gem 'better_errors'
+  gem 'binding_of_caller'
+  gem 'meta_request'
+end

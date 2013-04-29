@@ -1,15 +1,13 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 gem 'rails', '~>3.2'
 
 gem 'rack', '~>1.4'
 
 # Database module
-gem 'origin'
-gem 'moped'
-gem "mongoid"
-gem 'bson'
-gem 'bson_ext'
+gem 'origin', '~>1.0.11'
+gem 'moped', '~>1.4.3'
+gem "mongoid", '~>3.1.2'
 
 # For convenient styling macros and SASS
 gem 'compass-rails'

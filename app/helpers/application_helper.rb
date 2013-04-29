@@ -8,8 +8,8 @@ module ApplicationHelper
   MATCH_STATE_TIMEOUT = 10 unless const_defined? :MATCH_STATE_TIMEOUT
 
   NEW_MATCH_PARTIAL = 'new_game/new' unless const_defined? :NEW_MATCH_PARTIAL
-  REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents.js.haml' unless const_defined? :REPLACE_CONTENTS_JS
-  SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS = 'shared_javascripts/send_parameters_to_connect_to_dealer.js.haml' unless const_defined? :SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
+  REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
+  SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS = 'shared_javascripts/send_parameters_to_connect_to_dealer' unless const_defined? :SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
 
   # Renders a shared +JavaScript+ template that replaces the old contents
   # of the current page with new contents.  In essence, it acts like a

@@ -51,10 +51,14 @@ class PlayerActionsController < ApplicationController
       begin
         update_match!
       rescue
-        reset_to_match_entry_view "Sorry, there was a problem starting the match! Please report this incident to #{ADMINISTRATOR_EMAIL}."
+        reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."
       end
     end
-    replace_page_contents_with_updated_game_view
+    begin
+      replace_page_contents_with_updated_game_view
+    rescue
+      reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+    end
   end
 
   def take_action
@@ -73,11 +77,9 @@ class PlayerActionsController < ApplicationController
   def update_match_state
     begin
       update_match!
-    rescue
-      reset_to_match_entry_view "Sorry, there was a problem continuing the match! Please report this incident to #{ADMINISTRATOR_EMAIL}."
-    else
-      # @todo Move into exception handling
       replace_page_contents_with_updated_game_view
+    rescue
+      reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
     end
   end
 

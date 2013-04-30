@@ -54,7 +54,7 @@ Stalker.job('Dealer.start') do |params|
     options: (params['options'] || {})
   }
   log_directory = params['log_directory']
-  
+
   background_processes = @match_id_to_background_processes[match_id] || {}
 
   log "Stalker.job('Dealer.start'): Before starting dealer: ", {
@@ -200,7 +200,7 @@ Stalker.job('PlayerProxy.play') do |params|
   match_id = params.retrieve_match_id_or_raise_exception
 
   action = PokerAction.new(
-    params.retrieve_parameter_or_raise_exception('action').to_sym, 
+    params.retrieve_parameter_or_raise_exception('action').to_sym,
     {modifier: params['modifier']}
   )
 

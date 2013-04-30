@@ -76,7 +76,7 @@ class MatchStartController < ApplicationController
         temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition) {}
       rescue
         @match.delete
-        reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
+        reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
         return
       end
       @match = temp_match

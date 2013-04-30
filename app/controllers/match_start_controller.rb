@@ -57,7 +57,7 @@ class MatchStartController < ApplicationController
         '--t_per_hand ' + @match.millisecond_response_timeout.to_s
       ].join ' '
 
-      start_background_job(
+      Stalker.start_background_job(
         'Dealer.start',
         {
           match_id: @match.id,
@@ -73,7 +73,7 @@ class MatchStartController < ApplicationController
 
       continue_looping_condition = lambda { |match| !match.port_numbers }
       begin
-        temp_match = failsafe_while_for_match(@match.id, continue_looping_condition) {}
+        temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition) {}
       rescue
         @match.delete
         reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
@@ -107,7 +107,7 @@ class MatchStartController < ApplicationController
         bot_start_command: bot_start_command.split(' ')
       }
 
-      start_background_job 'Opponent.start', opponent_arguments
+      Stalker.start_background_job 'Opponent.start', opponent_arguments
 
       send_parameters_to_connect_to_dealer
     end

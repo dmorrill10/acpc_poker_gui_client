@@ -211,8 +211,8 @@ module PlayerActionsHelper
   end
 
   def setup_user_and_opponents!(players)
-    failsafe_while(lambda{ !@betting_type }) do
-      @match = current_match @match_id
+    Match.failsafe_while(lambda{ !@betting_type }) do
+      @match = Match.find @match_id
       @betting_type = @match.betting_type
     end
     @is_no_limit = @betting_type == GameDefinition::BETTING_TYPES[:nolimit]
@@ -254,7 +254,7 @@ module PlayerActionsHelper
 
   def delete_match!(match_id)
     begin
-      match = current_match(match_id)
+      match = Match.find(match_id)
     rescue
     else
       match.delete
@@ -270,7 +270,7 @@ module PlayerActionsHelper
 
   def update_match_slice!
     if new_match_state_available?
-      @match = current_match @match_id
+      @match = Match.find @match_id
 
       # @todo Ensure that an array out of bounds error from here is handled gracefully
       @match_slice = @match.slices[@match_slice_index]
@@ -285,10 +285,10 @@ module PlayerActionsHelper
   end
 
   def new_match_state_available?
-    match = current_match @match_id
+    match = Match.find @match_id
     looping_condition = lambda{ |proc_match| !new_match_state?(proc_match) }
     begin
-      match = failsafe_while_for_match @match_id, looping_condition do
+      match = Match.failsafe_while_for_match @match_id, looping_condition do
         # @todo Log here
         # @todo Maybe use a processing spinner
       end

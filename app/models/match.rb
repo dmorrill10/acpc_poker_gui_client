@@ -1,13 +1,21 @@
 
 require 'mongoid'
 
+# @todo Use this for DB recovery
 Mongoid.logger = nil
 
-require File.expand_path('../match_slice', __FILE__)
+require_relative 'match_slice'
+
+module MatchConstants
+  MATCH_STATE_RETRIEVAL_TIMEOUT = 10 unless const_defined? :MATCH_STATE_RETRIEVAL_TIMEOUT
+end
 
 class Match
   include Mongoid::Document
   include Mongoid::Timestamps::Updated
+  include MatchConstants
+
+  embeds_many :slices, class_name: "MatchSlice"
 
   scope :expired, ->(lifespan) do
     where(:updated_at.lt => (Time.new - lifespan))
@@ -40,7 +48,25 @@ class Match
     validates_presence_of :bot
   end
 
-  embeds_many :slices, class_name: "MatchSlice"
+  def self.delete_matches_older_than(lifespan)
+    expired(lifespan).delete_all
+  end
+
+  def self.failsafe_while_for_match(match_id, method_for_condition)
+    match = find match_id
+    failsafe_while lambda{ method_for_condition.call(match) } do
+      match = find match_id
+    end
+    match
+  end
+
+  def self.failsafe_while(method_for_condition)
+    time_beginning_to_wait = Time.now
+    while method_for_condition.call
+      yield
+      raise if time_limit_reached?(time_beginning_to_wait)
+    end
+  end
 
   # Table parameters
   field :port_numbers, type: Array
@@ -62,8 +88,8 @@ class Match
     if current_index > 0
       slices.where(
         :_id.in => (
-          slices[0..current_index-1].map do |slice| 
-            slice.id 
+          slices[0..current_index-1].map do |slice|
+            slice.id
           end
         )
       ).delete_all
@@ -72,14 +98,22 @@ class Match
     end
   end
 
-  def self.delete_matches_older_than(lifespan)
-    Match.expired(lifespan).delete_all
-  end
-
   def parameters
     {'Match name:' => match_name,
      'Game definition file name:' => game_definition_file_name,
      'Number of hands:' => number_of_hands,
      'Random seed:' => random_seed}
+  end
+
+  private
+
+  def self.time_limit_reached?(start_time)
+    Time.now > start_time + MATCH_STATE_RETRIEVAL_TIMEOUT
+  end
+end
+
+module Stalker
+  def self.start_background_job(job_name, arguments, options={ttr: MatchConstants::MATCH_STATE_RETRIEVAL_TIMEOUT})
+    enqueue job_name, arguments, options
   end
 end

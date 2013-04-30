@@ -33,7 +33,7 @@ class StdinStdoutPlayerProxy
                               player_names: list_of_player_names.join(' '),
                               number_of_hands: number_of_hands}
 
-    start_background_job 'PlayerProxy.start', player_proxy_arguments
+    Stalker.start_background_job 'PlayerProxy.start', player_proxy_arguments
 
     puts 'Getting first match slice...'
 

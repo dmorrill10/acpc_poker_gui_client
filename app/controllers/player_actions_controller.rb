@@ -45,7 +45,7 @@ class PlayerActionsController < ApplicationController
         users_seat: (@match_params[:seat].to_i - 1)
       }
 
-      start_background_job 'PlayerProxy.start', player_proxy_arguments
+      Stalker.start_background_job 'PlayerProxy.start', player_proxy_arguments
 
       # Wait for the player to start and catch errors
       begin
@@ -64,7 +64,7 @@ class PlayerActionsController < ApplicationController
     params[:match_id] = user_poker_action.match_id
     params[:match_slice_index] = user_poker_action.match_slice_index
 
-    start_background_job('PlayerProxy.play', match_id: user_poker_action.match_id,
+    Stalker.start_background_job('PlayerProxy.play', match_id: user_poker_action.match_id,
                          action: user_poker_action.poker_action, modifier: user_poker_action.modifier)
 
     update_match_state

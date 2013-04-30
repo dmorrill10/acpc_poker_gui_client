@@ -5,7 +5,6 @@ require 'acpc_poker_types'
 # General controller/view helpers for this application.
 module ApplicationHelper
   ADMINISTRATOR_EMAIL = 'morrill@ualberta.ca' unless const_defined? :ADMINISTRATOR_EMAIL
-  MATCH_STATE_TIMEOUT = 10 unless const_defined? :MATCH_STATE_TIMEOUT
 
   NEW_MATCH_PARTIAL = 'match_start/index' unless const_defined? :NEW_MATCH_PARTIAL
   REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
@@ -50,35 +49,5 @@ module ApplicationHelper
   def reset_to_match_entry_view(error_message=nil)
     @match = Match.new
     replace_page_contents NEW_MATCH_PARTIAL, error_message
-  end
-
-  # @todo Move to match retrieval module
-
-  def current_match(match_id)
-    Match.find match_id
-  end
-
-  def time_limit_reached?(start_time)
-    Time.now > start_time + MATCH_STATE_TIMEOUT
-  end
-
-  def failsafe_while_for_match(match_id, method_for_condition)
-    match = current_match match_id
-    failsafe_while lambda{ method_for_condition.call(match) } do
-      match = current_match match_id
-    end
-    match
-  end
-
-  def failsafe_while(method_for_condition)
-    time_beginning_to_wait = Time.now
-    while method_for_condition.call
-      yield
-      raise if time_limit_reached?(time_beginning_to_wait)
-    end
-  end
-
-  def start_background_job(job_name, arguments, options={ttr: MATCH_STATE_TIMEOUT})
-    Stalker.enqueue job_name, arguments, options
   end
 end

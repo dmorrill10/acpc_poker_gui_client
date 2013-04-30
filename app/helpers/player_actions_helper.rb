@@ -105,7 +105,7 @@ module PlayerActionsHelper
     #   end
     # end
 
-    delete_match!(@match_id) if @match_ended
+    Match.delete_match!(@match_id) if @match_ended
   end
 
   def setup_board_cards!
@@ -252,13 +252,20 @@ module PlayerActionsHelper
     end
   end
 
-  def delete_match!(match_id)
-    begin
-      match = Match.find(match_id)
-    rescue
-    else
-      match.delete
-    end
+  def next_hand_id
+    'next_state'
+  end
+
+  def leave_match_id
+    'match_ended_leave'
+  end
+
+  def leave_match_confirmation_message
+    "Are you sure you want to leave this match?"
+  end
+
+  def leave_match_label
+    "Leave Match"
   end
 
   # Updates the current match state.

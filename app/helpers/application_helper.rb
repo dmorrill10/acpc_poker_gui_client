@@ -4,6 +4,7 @@ require 'acpc_poker_types'
 
 # General controller/view helpers for this application.
 module ApplicationHelper
+  APP_NAME = 'ACPC Poker GUI Client' unless const_defined? :APP_NAME
   ADMINISTRATOR_EMAIL = 'morrill@ualberta.ca' unless const_defined? :ADMINISTRATOR_EMAIL
 
   NEW_MATCH_PARTIAL = 'match_start/index' unless const_defined? :NEW_MATCH_PARTIAL

@@ -52,6 +52,15 @@ class Match
     expired(lifespan).delete_all
   end
 
+  def self.delete_match!(match_id)
+    begin
+      match = find match_id
+    rescue
+    else
+      match.delete
+    end
+  end
+
   def self.failsafe_while_for_match(match_id, method_for_condition)
     match = find match_id
     failsafe_while lambda{ method_for_condition.call(match) } do

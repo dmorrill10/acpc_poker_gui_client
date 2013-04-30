@@ -120,6 +120,7 @@ end
 desc 'Kill production server'
 task :kill_prod_server do
   Rake::Task[:kill_god].invoke
+  begin; sh %{ killall stalk }; rescue; end
   # Stop production server here
 end
 

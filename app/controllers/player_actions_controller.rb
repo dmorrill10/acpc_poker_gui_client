@@ -10,6 +10,8 @@ require 'application_helper'
 require 'match'
 require 'user_poker_action'
 
+require 'ap'
+
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
 class PlayerActionsController < ApplicationController
@@ -30,7 +32,13 @@ class PlayerActionsController < ApplicationController
     }
 
     @match_id = @match_params[:match_id]
-    @match = Match.find @match_id
+    begin
+      @match = Match.find @match_id
+    rescue => e
+      ap({exception: e})
+      reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
+    end
     if @match && @match.slices.length > 0 # Match is being resumed
       @match_slice = @match.slices.last
       @match_slice_index = @match.slices.length
@@ -50,13 +58,15 @@ class PlayerActionsController < ApplicationController
       # Wait for the player to start and catch errors
       begin
         update_match!
-      rescue
+      rescue => e
+        ap({exception: e})
         reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."
       end
     end
     begin
       replace_page_contents_with_updated_game_view
-    rescue
+    rescue => e
+      ap({exception: e})
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
     end
   end
@@ -78,7 +88,8 @@ class PlayerActionsController < ApplicationController
     begin
       update_match!
       replace_page_contents_with_updated_game_view
-    rescue
+    rescue => e
+      ap({exception: e})
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
     end
   end

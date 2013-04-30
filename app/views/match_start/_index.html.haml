@@ -1,7 +1,5 @@
-.navbar
-  .navbar-inner
-    %a.brand ACPC Poker GUI Client
-.match_entry_tabs
+= render partial: 'layouts/navbar', locals: { partial: nil }
+#match_entry_tabs
   %ul
     %li= link_to 'New match', '#new_match_form'
     %li= link_to 'Rejoin match', '#rejoin_match_form'
@@ -15,4 +13,4 @@
   %h4= link_to 'Report issues or make requests', 'https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open'
 
 :coffeescript
-  $('.match_entry_tabs').tabs();
+  $('#match_entry_tabs').tabs();

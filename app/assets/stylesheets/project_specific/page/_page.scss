@@ -2,56 +2,69 @@
 @import 'blueprint/reset/utilities';
 
 html {
-   @include blueprint-reset;
-   font-family: Verdana, Helvetica, Arial;
-   font-size: $default_primary_font_size;
-  
-   padding: 0 0 0 0;
-   margin: 0 0 0 0;
-   
-   background-color: $page_background_color;
-   background-image: $page_background;
-   background-repeat: no-repeat;
-   
-   overflow: hidden;
-   
-   body {
-      @include center_horizontally;
-      @include no_border;
-      
-      padding: 0 0 0 0;
-      margin-top: 0;
-      margin-bottom: 0;
-   }
-      
-   a img {
-      border: none;
-   }
-   
-   hr {
-      margin-top: 0;
-      margin-bottom: $vertical_divider_buffer;
-      border-width: $vertical_divider_thickness/2;
-      border-left: none;
-      border-right: none;
-   }
-   
-   .hidden {
-      @include no_size;
-   }
-   
-   p {
-      margin-top: 0;
-      margin-right: 0;
-      margin-left: 0;
-      margin-bottom: $information_container_text_margin;
-      padding: 0;
-   }
-   ul {
-      padding: 0;
-      margin: 0;
-   }
-   h4 {
-      font-size: $h4_font_size;
-   }
+  @include blueprint-reset;
+  font-family: Verdana, Helvetica, Arial;
+  font-size: $default_primary_font_size;
+
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+
+  background-color: $page_background_color;
+  background-image: $page_background;
+  background-repeat: no-repeat;
+
+  overflow: hidden;
+
+  body {
+    @include center_horizontally;
+    @include no_border;
+
+    padding: 0 0 0 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  a img {
+    border: none;
+  }
+
+  a {
+    text-decoration: none;
+
+    [disabled]
+    {
+      color: gray;
+
+      :hover {
+        color: gray;
+      }
+    }
+  }
+
+  hr {
+    margin-top: 0;
+    margin-bottom: $vertical_divider_buffer;
+    border-width: $vertical_divider_thickness/2;
+    border-left: none;
+    border-right: none;
+  }
+
+  .hidden {
+    @include no_size;
+  }
+
+  p {
+    margin-top: 0;
+    margin-right: 0;
+    margin-left: 0;
+    margin-bottom: $information_container_text_margin;
+    padding: 0;
+  }
+  ul {
+    padding: 0;
+    margin: 0;
+  }
+  h4 {
+    font-size: $h4_font_size;
+  }
 }

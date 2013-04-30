@@ -4,7 +4,7 @@ require 'acpc_poker_types'
 
 # General controller/view helpers for this application.
 module ApplicationHelper
-
+  ADMINISTRATOR_EMAIL = 'morrill@ualberta.ca' unless const_defined? :ADMINISTRATOR_EMAIL
   MATCH_STATE_TIMEOUT = 10 unless const_defined? :MATCH_STATE_TIMEOUT
 
   NEW_MATCH_PARTIAL = 'new_game/new' unless const_defined? :NEW_MATCH_PARTIAL

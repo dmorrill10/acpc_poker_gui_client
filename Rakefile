@@ -48,14 +48,14 @@ task :reinstall_beanstalkd do
     print "Cloning #{BEANSTALKD_NAME} from GitHub..."
     sh %{ git clone git://github.com/kr/beanstalkd.git }
     puts 'Done'
-    
+
     print "Building #{BEANSTALKD_NAME}..."
     temp_name = 'beanstalkd_executable'
     FileUtils.cd BEANSTALKD_NAME do
       sh %{ make }
       puts 'Done'
 
-      print 'Cleaning up...' 
+      print 'Cleaning up...'
       FileUtils.cp BEANSTALKD_NAME, "../#{temp_name}"
     end
 
@@ -83,22 +83,20 @@ end
 desc 'Installs gems and Beanstalkd, compiles the ACPC Dealer, and sets up MongoDB'
 task :install => [:install_gems, :compile_dealer, :setup_mongodb, :install_beanstalkd]
 
+desc 'Start god process manager'
+task :god do
+  sh %{ god -c config/god.rb }
+end
+
+desc 'Stop god process manager'
+task :kill_god do
+  begin; sh %{ god terminate }; rescue; end
+end
+
 desc 'Starts a development server'
 task :start_dev_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY, BEANSTALKD_EXECUTABLE] do
-  mongod_command = "#{MONGOD_EXECUTABLE} --nojournal --dbpath #{MONGODB_DATA_DIRECTORY} &"
-  print "Running '#{mongod_command}'..."
-  sh %{ #{mongod_command} }
-  puts "Done"
-
-  beanstalkd_command = "#{BEANSTALKD_EXECUTABLE} &"
-  print "Running '#{beanstalkd_command}'"
-  sh %{ #{beanstalkd_command} }
-  puts "Done"
-
-  stalk_command = "stalk #{RAILS_ROOT}/lib/background/worker.rb &"
-  print "Running '#{stalk_command}'..."
-  sh %{ #{stalk_command} }
-  puts "Done"
+  print "Starting god..."
+  Rake::Task[:god].invoke
 
   rails_command = 'rails s'
   print "Running '#{rails_command}'..."
@@ -110,18 +108,25 @@ desc 'Update code and gem dependencies'
 task :update do
   sh %{ git pull }
   Rake::Task[:install_gems].invoke
+  sh %{ bundle exec rake assets:precompile RAILS_ENV=production }
 end
 
 desc 'Start production server'
-task :start_prod_server do
-  sh %{ god -c config/god.rb }
-  sh %{ bundle exec rake assets:precompile RAILS_ENV=production }
+task :start_prod_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY, BEANSTALKD_EXECUTABLE] do
+  Rake::Task[:god].invoke
+  # Start production server here
 end
 
 desc 'Kill production server'
 task :kill_prod_server do
-  begin; sh %{ god terminate }; rescue; end
-  begin; sh %{ apache2ctl -f ~/httpd.conf -k stop }; rescue; end
+  Rake::Task[:kill_god].invoke
+  # Stop production server here
+end
+
+desc 'Restart production server'
+task :restart_prod_server do
+  Rake::Task[:kill_prod_server].invoke
+  Rake::Task[:start_prod_server].invoke
 end
 
 desc 'Kill the background process and database servers'

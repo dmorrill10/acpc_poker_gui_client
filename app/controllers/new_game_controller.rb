@@ -39,7 +39,7 @@ class NewGameController < ApplicationController
     end.call unless @match.random_seed
 
     names = [
-      'user', 
+      'user',
       GAME_DEFINITIONS[@match.game_definition_key][:bots].find do |name, runner_class|
         runner_class.to_s == @match.bot
       end.first
@@ -59,9 +59,9 @@ class NewGameController < ApplicationController
       ].join ' '
 
       start_background_job(
-        'Dealer.start', 
+        'Dealer.start',
         {
-          match_id: @match.id, 
+          match_id: @match.id,
           match_name: @match.match_name,
           game_def_file_name: @match.game_definition_file_name,
           number_of_hands: @match.number_of_hands.to_s,

@@ -1,7 +1,7 @@
 .toolbar
 
    .meta_action
-      = button "Leave this game", leave_game_url, match_id: @match_id, confirm:  "Are you sure you want to leave this game?"
+      = button "Leave this game", leave_match_url, match_id: @match_id, confirm:  "Are you sure you want to leave this game?"
 
    .match_information.dynamic_menu
       .title= "Match: @match.match_name"
@@ -19,7 +19,7 @@
                - @chip_balances = {'p1' => 100, 'p2' => -100}
                - @chip_balances.each do |player_name, balance|
                   .leaf_item= "#{player_name}: #{balance}"
-   
+
    %h1.debug{ :style => 'color: #000'} "hello"
 
 - is_no_limit = true
@@ -62,7 +62,7 @@
          //   .stack_added_to_pot
          //      //= render partial: 'player_actions/chip_stack', locals: { amount: '5' }
          //   //= render partial: 'player_actions/dealer_button'
-   
+
       .community_information
          %ul.board_cards
             - board_cards = [{rank: 'A', suit: '&spades;', suit_id: 's'},
@@ -89,7 +89,7 @@
                %p ...
             %li
                %p more details
-   
+
       .users_information#acting_player
          .held_player_information
             - amount_won_from_pot = 100
@@ -112,7 +112,7 @@
             .stack_taken_from_pot
                = render partial: 'player_actions/chip_stack', locals: { amount: amount_won_from_pot }
          //= render partial: 'player_actions/dealer_button'
-   
+
    - action_dashboard_id = if @hand_ended
       - 'next_hand'
    - elsif is_no_limit
@@ -138,7 +138,7 @@
                      %li.slider_label#two_times_pot 2xPot
                      %li.slider_label#all_in All-in
                   .ui_slider
-               
+
          .actions
             - @legal_actions = ['c', 'b']
             - @user_poker_action = UserPokerAction.new
@@ -167,24 +167,24 @@
 
 :coffeescript
    ChipStackMutator.adjustAmountFontSizeOfAllStacks()
-   
+
    adjustScale = (elementToScale) ->
       widthRatio = $(window).width() / elementToScale.width()
       heightRatio = ($(window).height() - $('.toolbar').height()) / elementToScale.height()
-      
+
       smallestRatio = Math.min(heightRatio, widthRatio)
-      
+
       elementToScale.css('-moz-transform', 'scale(' + smallestRatio.toString() + ')')
       elementToScale.css('-webkit-transform', 'scale(' + smallestRatio.toString() + ')')
       elementToScale.css('-ms-transform', 'scale(' + smallestRatio.toString() + ')')
       elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')')
-      
+
       scaledHeight = elementToScale.height() * smallestRatio
       deviationFromTop = Math.ceil((elementToScale.height() - scaledHeight) / 2) - ($('.toolbar').height() + 2)
       deviationFromLeft = Math.floor(($(window).width() - elementToScale.width()) / 2)
-      
+
       elementToScale.css({top: -deviationFromTop, left: deviationFromLeft})
-   
+
    adjustScale($('.game_interface'))
    jQuery(window).resize(->
       adjustScale($('.game_interface'))

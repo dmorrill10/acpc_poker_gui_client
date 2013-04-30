@@ -14,7 +14,7 @@
     %a.brand ACPC Poker GUI Client
     %ul.nav
       %li
-        = link_to leave_match_label, leave_game_url, {remote: true, id: 'leave', data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+        = link_to leave_match_label, leave_match_url, {remote: true, id: 'leave', data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
       %li.dropdown
         %a.dropdown-toggle{:data => {:toggle => "dropdown"}, role: 'button', :href => "#"}= 'Hotkeys <b class="caret"></b>'.html_safe
         %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}
@@ -99,7 +99,7 @@
       = update_state_form @match_id, @match_slice_index, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@users_turn_to_act || @match_ended) && !@hand_ended
     - if @match_ended
       .meta_action
-        = link_to leave_match_label, leave_game_url, {remote: true, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+        = link_to leave_match_label, leave_match_url, {remote: true, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
     - elsif next_hand_button_should_be_visible
       .meta_action
         - next_hand_label = "Next Hand"
@@ -138,18 +138,18 @@
   adjustScale = (elementToScale) ->
     widthRatio = $(window).width() / elementToScale.width()
     heightRatio = ($(window).height() - $('.navbar').height()) / elementToScale.height()
-      
+
     smallestRatio = Math.min(heightRatio, widthRatio)
-    
+
     elementToScale.css('-moz-transform', 'scale(' + smallestRatio.toString() + ')')
     elementToScale.css('-webkit-transform', 'scale(' + smallestRatio.toString() + ')')
     elementToScale.css('-ms-transform', 'scale(' + smallestRatio.toString() + ')')
     elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')')
-    
+
     scaledHeight = elementToScale.height() * smallestRatio
-    
+
     elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()), left: Math.floor(($(window).width() - elementToScale.width()) / 2)})
-    
+
     # Inversely scale slider and adjust width manually
     slider = $('.ui_slider')
     inverseScaling = 1 / smallestRatio
@@ -157,7 +157,7 @@
     slider.css('-webkit-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-ms-transform', 'scaleX(' + inverseScaling.toString() + ')')
     slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')')
-    
+
     originalSliderWidth = 410 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
     slider.width(originalSliderWidth * smallestRatio)
     slider.css({left: -(Math.floor((slider.width() - originalSliderWidth) / 2))})

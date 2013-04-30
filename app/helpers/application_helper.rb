@@ -7,7 +7,7 @@ module ApplicationHelper
   ADMINISTRATOR_EMAIL = 'morrill@ualberta.ca' unless const_defined? :ADMINISTRATOR_EMAIL
   MATCH_STATE_TIMEOUT = 10 unless const_defined? :MATCH_STATE_TIMEOUT
 
-  NEW_MATCH_PARTIAL = 'new_game/new' unless const_defined? :NEW_MATCH_PARTIAL
+  NEW_MATCH_PARTIAL = 'match_start/index' unless const_defined? :NEW_MATCH_PARTIAL
   REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
   SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS = 'shared_javascripts/send_parameters_to_connect_to_dealer' unless const_defined? :SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
 
@@ -32,7 +32,7 @@ module ApplicationHelper
   # Places a hidden form in a view, within which game parameters may be placed that can be
   # submitted to the +PlayerActionsController+.
   def hidden_game_parameter_form
-    form_tag game_home_url, :remote => true do
+    form_tag match_home_url, :remote => true do
       form = hidden_field_tag(:match_id, nil, :id => 'match_id_hidden_field')
       form << hidden_field_tag(:port_number, nil, :id => 'port_number_hidden_field')
       form << hidden_field_tag(:match_name, nil, :id => 'match_name_hidden_field')
@@ -43,7 +43,7 @@ module ApplicationHelper
       form << hidden_field_tag(:player_names, nil, :id => 'player_names_hidden_field')
       form << hidden_field_tag(:millisecond_response_timeout, nil, :id => 'millisecond_response_timeout_hidden_field')
 
-      form << submit_tag('Hidden', :id => 'game_home_hidden_button', style: 'visibility: hidden')
+      form << submit_tag('Hidden', :id => 'match_home_hidden_button', style: 'visibility: hidden')
     end
   end
 

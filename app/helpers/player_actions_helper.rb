@@ -19,7 +19,7 @@ module PlayerActionsHelper
   end
   def update_state_form(match_id, match_slice_index, submit_button_label='', button_options={})
     button_options[:id] = 'update_match_state' unless button_options[:id]
-    form_tag update_game_state_url, :remote => true do
+    form_tag update_match_state_url, :remote => true do
       form = hidden_match_fields match_id, match_slice_index
       form << submit_tag(submit_button_label, button_options)
     end

@@ -1,14 +1,14 @@
 AcpcPokerGuiClient::Application.routes.draw do
-  # Routes for NewGame:
-  match 'new_game/create' => 'new_game#create', :as => :create_new_match
-  match 'new_game/rejoin' => 'new_game#rejoin', :as => :rejoin_match
+  # Routes for MatchStart:
+  match 'match_start/new' => 'match_start#new', :as => :new_match
+  match 'match_start/rejoin' => 'match_start#rejoin', :as => :rejoin_match
 
   # Routes for PlayerActions
-  match 'game_home' => 'player_actions#index', :as => :game_home
+  match 'match_home' => 'player_actions#index', :as => :match_home
   match 'take_action' => 'player_actions#take_action', :as => :take_action
-  match 'update_game_state' => 'player_actions#update_game_state', as: :update_game_state
-  match 'leave_game' => 'player_actions#leave_game', :as => :leave_game
+  match 'update_match_state' => 'player_actions#update_match_state', as: :update_match_state
+  match 'leave_match' => 'player_actions#leave_match', :as => :leave_match
 
   # Root of the site
-  root :to => 'new_game#new'
+  root :to => 'match_start#index'
 end

@@ -67,11 +67,10 @@ class PlayerActionsController < ApplicationController
     start_background_job('PlayerProxy.play', match_id: user_poker_action.match_id,
                          action: user_poker_action.poker_action, modifier: user_poker_action.modifier)
 
-    update_game_state
+    update_match_state
   end
 
-  # @todo Rename "game" to "match"
-  def update_game_state
+  def update_match_state
     begin
       update_match!
     rescue
@@ -82,8 +81,7 @@ class PlayerActionsController < ApplicationController
     end
   end
 
-  # @todo Rename "game" to "match"
-  def leave_game
-    redirect_to root_path, :remote => true
+  def leave_match
+    redirect_to root_path, remote: true
   end
 end

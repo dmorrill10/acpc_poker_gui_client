@@ -10,13 +10,12 @@ require 'application_helper'
 require 'match'
 
 # Controller for the 'start a new game' view.
-class NewGameController < ApplicationController
+class MatchStartController < ApplicationController
   include ApplicationDefs
   include ApplicationHelper
-  include NewGameHelper
 
   # Presents the main 'start a new game' view.
-  def new
+  def index
     @match = Match.new
     respond_to do |format|
       format.html {}
@@ -26,7 +25,7 @@ class NewGameController < ApplicationController
     end
   end
 
-  def create
+  def new
     @match = Match.new params[:match]
 
     @match.match_name.strip!

@@ -30,15 +30,6 @@ html {
 
   a {
     text-decoration: none;
-
-    [disabled]
-    {
-      color: gray;
-
-      :hover {
-        color: gray;
-      }
-    }
   }
 
   hr {
@@ -66,5 +57,13 @@ html {
   }
   h4 {
     font-size: $h4_font_size;
+  }
+  .help-inline {
+    font-weight: 900;
+    font-size: $h4_font_size;
+  }
+  .help-block {
+    font-size: $default_primary_font_size - 2;
+    color: gray;
   }
 }

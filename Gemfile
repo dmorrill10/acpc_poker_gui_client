@@ -23,7 +23,7 @@ gem 'jquery-rails'
 gem "haml"
 
 # For deployment. Phusion Passenger integrates the rails app. with Apache.
-gem 'passenger'
+gem 'passenger', '~>4.0.0.rc6'
 
 # Beanstalkd wrapper
 gem 'beanstalk-client'

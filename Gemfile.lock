@@ -94,14 +94,13 @@ GEM
       sass (~> 3.1)
     compass-rails (1.0.3)
       compass (>= 0.12.2, < 0.14)
-    daemon_controller (1.1.2)
+    daemon_controller (1.1.3)
     debug_inspector (0.0.2)
     dmorrill10-utils (1.2.1)
       awesome_print
     erubis (2.7.0)
     execjs (1.4.0)
       multi_json (~> 1.0)
-    fastthread (1.0.7)
     fssm (0.2.10)
     god (0.13.2)
     haml (3.1.8)
@@ -135,9 +134,8 @@ GEM
     oily_png (1.1.0)
       chunky_png (~> 1.2.7)
     origin (1.0.11)
-    passenger (3.0.19)
-      daemon_controller (>= 1.0.0)
-      fastthread (>= 1.0.1)
+    passenger (4.0.0.rc6)
+      daemon_controller (>= 1.1.0)
       rack
       rake (>= 0.8.1)
     polyglot (0.3.3)
@@ -229,7 +227,7 @@ DEPENDENCIES
   moped (~> 1.4.3)
   oily_png
   origin (~> 1.0.11)
-  passenger
+  passenger (~> 4.0.0.rc6)
   rack (~> 1.4)
   rails (~> 3.2)
   sass-rails

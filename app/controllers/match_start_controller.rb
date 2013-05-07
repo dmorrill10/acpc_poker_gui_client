@@ -52,9 +52,12 @@ class MatchStartController < ApplicationController
       reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
     else
       options = [
-        '--t_response ' + @match.millisecond_response_timeout.to_s,
-        '--t_hand ' + @match.millisecond_response_timeout.to_s,
-        '--t_per_hand ' + @match.millisecond_response_timeout.to_s
+        # '--t_response ' + @match.millisecond_response_timeout.to_s,
+        # '--t_hand ' + @match.millisecond_response_timeout.to_s,
+        '--t_response -1',
+        '--t_hand -1',
+        '--t_per_hand -1'
+        # '--t_per_hand ' + @match.millisecond_response_timeout.to_s
       ].join ' '
 
       Stalker.start_background_job(

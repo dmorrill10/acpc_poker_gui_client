@@ -92,12 +92,4 @@ watch('worker') do |w|
   w.start = "stalk #{GOD_RAILS_ROOT}/lib/background/worker.rb"
 end
 
-watch('apache') do |w|
-  w.start = '/usr/sbin/apache2 -f ~/httpd.conf -k start'
-  w.stop = '/usr/sbin/apache2 -f ~/httpd.conf -k stop'
-  w.restart = '/usr/sbin/apache2 -f ~/httpd.conf -k graceful'
-  w.start_grace = 10.seconds
-  w.restart_grace = 10.seconds
-end
-
 keep_match_database_tidy

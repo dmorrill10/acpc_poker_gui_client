@@ -71,9 +71,12 @@ class Match
 
   def self.failsafe_while(method_for_condition)
     time_beginning_to_wait = Time.now
+    attempts = 0
     while method_for_condition.call
+      sleep Math.log(attempts) if attempts > 1
       yield
       raise if time_limit_reached?(time_beginning_to_wait)
+      attempts += 1
     end
   end
 

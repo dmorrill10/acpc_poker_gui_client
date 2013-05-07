@@ -51,6 +51,7 @@ gem 'client_side_validations-mongoid'
 # Improved logging output
 gem 'awesome_print'
 
+# Simple exception email notifications
 gem 'rusen'
 
 # Gems used only for assets and not required

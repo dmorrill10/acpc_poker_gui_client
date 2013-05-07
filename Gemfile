@@ -51,6 +51,8 @@ gem 'client_side_validations-mongoid'
 # Improved logging output
 gem 'awesome_print'
 
+gem 'rusen'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

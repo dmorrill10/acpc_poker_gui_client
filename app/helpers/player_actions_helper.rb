@@ -159,7 +159,7 @@ module PlayerActionsHelper
   def setup_pot_information!(players)
     # @todo This becomes more complicated in multi-player
     players.each do |player|
-      player['chip_contributions'] = [] unless player['chip_contributions']
+      player['chip_contributions'] = [[0]] unless player['chip_contributions']
       player['chip_contributions'][@round] = 0 unless player['chip_contributions'].length > @round
     end
 

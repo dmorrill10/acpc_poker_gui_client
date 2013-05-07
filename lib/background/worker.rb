@@ -29,6 +29,8 @@ require 'dmorrill10-utils/process_runner'
 # Helpers
 require_relative 'worker_helpers'
 
+require_relative 'setup_rusen'
+
 include WorkerHelpers
 
 # Ensures that the map used to keep track of background processes is initialized properly
@@ -228,8 +230,7 @@ Stalker.job('PlayerProxy.play') do |params|
 end
 
 error do |e, job, args|
-  # For now, all exceptions are being handled where they occur so do nothing
-  # here.
+  Rusen.notify e # Send an email notification
 end
 
 Stalker.work

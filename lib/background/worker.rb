@@ -132,7 +132,6 @@ Stalker.job('PlayerProxy.start') do |params|
       raise e
     end
 
-    # @todo Move AcpcDealerInformation from basic_proxy gem to acpc_dealer as DealerInformation
     dealer_information = AcpcDealerInformation.new host_name, port_number, millisecond_response_timeout
 
     begin

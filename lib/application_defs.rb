@@ -3,7 +3,7 @@
 Dir.glob("#{File.expand_path('../../', __FILE__)}/lib/bots/run_*_bot.rb").each do |runner_class|
   begin
     require runner_class
-  rescue 
+  rescue
   end
 end
 
@@ -21,11 +21,7 @@ module ApplicationDefs
     two_player_nolimit: {
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
       text: '2-player no-limit',
-      bots: {
-        # 'UAlberta2012' => RunUAlberta2012Bot,
-        # 'UAlberta2011' => RunUAlberta2011Bot,
-        'tester' => RunTestingBot
-      }
+      bots: {'tester' => RunTestingBot}
     },
     two_player_limit: {
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],

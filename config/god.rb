@@ -31,8 +31,8 @@ def watch(name)
       end
 
       restart.condition(:cpu_usage) do |c|
-        c.above = 90.percent
-        c.times = 5
+        c.above = 99.percent
+        c.times = 15
       end
     end
 
@@ -73,7 +73,7 @@ def keep_match_database_tidy
     #  ignore it and try again tomorrow.
     w.start = lambda do
       begin
-        delete_matches_older_than(DEALER_MILLISECOND_TIMEOUT * 10**(-3))
+        delete_matches_older_than(1.month)
       rescue
       end
     end

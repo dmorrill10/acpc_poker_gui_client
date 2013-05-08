@@ -73,9 +73,9 @@ class Match
     time_beginning_to_wait = Time.now
     attempts = 0
     while method_for_condition.call
-      if attempts > 2
-        ap "    #{attempts}"
-        sleep Math.log(attempts/2.to_f)
+      if attempts > 5
+        ap "Attempts: #{attempts}"
+        sleep Math.log(attempts - 4)
       end
       yield
       raise if time_limit_reached?(time_beginning_to_wait)

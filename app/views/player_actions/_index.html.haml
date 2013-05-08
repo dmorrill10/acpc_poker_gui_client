@@ -9,9 +9,6 @@
 
 .chip_balances.hero-unit
   %h4= "#{@match.match_name} <span class=\"right\">#{@match_slice.hand_number+1} / #{@match.number_of_hands}</span>".html_safe
-  %h4= "GDMW: #{@match_slice.minimum_wager}"
-  %h4= "Min wager: #{@minimum_wager}"
-  %h4= "User contrib: #{@user['chip_contributions'][@round]}"
   %table.table.table-striped
     %thead
       %tr

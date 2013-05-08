@@ -76,6 +76,7 @@ class Match
       if attempts > 2
         ap "    #{attempts}"
         sleep Math.log(attempts/2.to_f)
+      end
       yield
       raise if time_limit_reached?(time_beginning_to_wait)
       attempts += 1

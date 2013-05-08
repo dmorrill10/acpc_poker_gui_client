@@ -146,7 +146,7 @@ module PlayerActionsHelper
     if @match_slice.betting_sequence && @match_slice.player_acting_sequence
       i = 0
       @match_slice.betting_sequence.scan(/.\d*/).each do |action|
-        @action_summary += if @match_slice.player_acting_sequence[i].to_i == @user['seat']
+        @action_summary << if @match_slice.player_acting_sequence[i].to_i == @user['seat']
           action.capitalize
         else
           action

@@ -21,8 +21,8 @@ GEM
       acpc_poker_match_state
       acpc_poker_types
       dmorrill10-utils
-    acpc_poker_types (0.0.7)
-      acpc_dealer
+    acpc_poker_types (0.0.10)
+      acpc_dealer (~> 0.0)
       dmorrill10-utils
     actionmailer (3.2.13)
       actionpack (= 3.2.13)
@@ -207,6 +207,7 @@ DEPENDENCIES
   acpc_dealer
   acpc_dealer_data
   acpc_poker_player_proxy
+  acpc_poker_types (~> 0.0)
   awesome_print
   beanstalk-client
   better_errors

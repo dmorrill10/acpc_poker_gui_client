@@ -36,6 +36,7 @@ gem 'god'
 gem 'dmorrill10-utils'
 
 # Poker logic
+gem 'acpc_poker_types', '~> 0.0'
 gem 'acpc_poker_player_proxy'
 gem 'acpc_dealer'
 gem 'acpc_dealer_data'

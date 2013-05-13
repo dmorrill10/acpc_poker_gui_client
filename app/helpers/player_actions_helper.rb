@@ -59,6 +59,13 @@ module PlayerActionsHelper
     Suit::DOMAIN[suit_symbol][:html_character]
   end
 
+
+
+
+
+
+
+
   def setup_match_view!
     @match_state = MatchState.new @match_slice.state_string
 

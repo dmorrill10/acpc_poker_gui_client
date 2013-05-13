@@ -37,9 +37,9 @@ gem 'dmorrill10-utils'
 
 # Poker logic
 gem 'acpc_poker_types', '~> 0.0'
-gem 'acpc_poker_player_proxy'
-gem 'acpc_dealer'
-gem 'acpc_dealer_data'
+gem 'acpc_poker_player_proxy', '~> 0.0'
+gem 'acpc_dealer', '~> 0.0'
+gem 'acpc_dealer_data', '~> 0.0'
 
 # Improved forms
 gem 'simple_form'
@@ -86,4 +86,9 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'meta_request'
+end
+
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'capybara'
 end

@@ -8,8 +8,10 @@ module WorkerHelpers
     puts message.to_s
   end
 
-  def log(method, variables)
-    log_message "#{self.class}: #{method}: #{variables.awesome_inspect}"
+  def log(method, variables={})
+    message_to_log = "#{self.class}: #{method}"
+    message_to_log << variables.awesome_inspect unless variables.empty?
+    log_message message_to_log
   end
 
   def delete_state!(match_id)
@@ -71,7 +73,7 @@ end
 
 class Hash
   include WorkerHelpers
-  
+
   MATCH_ID_KEY = 'match_id'
 
   # @param parameter_key The key of the parameter to be retrieved.

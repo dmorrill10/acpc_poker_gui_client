@@ -41,9 +41,11 @@ end
 # @param [Hash] params Parameters for the dealer. Must contain values for +'match_id'+ and +'dealer_arguments'+.
 Stalker.job('Dealer.start') do |params|
   # Clean up data from dead matches
-  prev_len = @match_id_to_background_processes.length
   @match_id_to_background_processes.each do |match_id, match_processes|
-    @match_id_to_background_processes.delete(match_id) unless match_processes[:dealer][:pid].process_exists?
+    unless match_processes[:dealer][:pid].process_exists?
+      log "Stalker.job('Dealer.start'): Deleting background processes with match ID #{match_id}"
+      @match_id_to_background_processes.delete(match_id)
+    end
   end
 
   match_id = params.retrieve_match_id_or_raise_exception
@@ -59,10 +61,9 @@ Stalker.job('Dealer.start') do |params|
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
-  log "Stalker.job('Dealer.start'): Before starting dealer: ", {
+  log "Stalker.job('Dealer.start'): ", {
     match_id: match_id,
     dealer_arguments: dealer_arguments,
-    num_processes_removed: prev_len - @match_id_to_background_processes.length,
     log_directory: log_directory,
     num_background_processes: background_processes.length,
     num_match_id_to_background_processes: @match_id_to_background_processes.length
@@ -94,12 +95,6 @@ Stalker.job('Dealer.start') do |params|
       raise unable_to_retrieve_port_numbers_from_dealer_exception
     end
   end
-
-  log "Stalker.job('Dealer.start'): After starting dealer: ", {
-    match_id: match_id,
-    num_background_processes: background_processes.length,
-    num_match_id_to_background_processes: @match_id_to_background_processes.length
-  }
 end
 
 # @param [Hash] params Parameters for the player proxy. Must contain values for
@@ -110,12 +105,13 @@ Stalker.job('PlayerProxy.start') do |params|
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
-  log "Stalker.job('PlayerProxy.start'): Before: ", {
+  log "Stalker.job('PlayerProxy.start'): ", {
     match_id: match_id,
     num_background_processes: background_processes.length,
     num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
+  game_definition = nil
   unless background_processes[:player_proxy]
     host_name = params.retrieve_parameter_or_raise_exception 'host_name'
     port_number = params.retrieve_parameter_or_raise_exception 'port_number'
@@ -125,16 +121,10 @@ Stalker.job('PlayerProxy.start') do |params|
     millisecond_response_timeout = params.retrieve_parameter_or_raise_exception('millisecond_response_timeout').to_i
     users_seat = params.retrieve_parameter_or_raise_exception('users_seat').to_i
 
-    begin
-      game_definition = GameDefinition.parse_file game_definition_file_name
-    rescue => e
-      handle_exception match_id, "unable to create a game definition: #{e.message}"
-      raise e
-    end
-
     dealer_information = AcpcDealerInformation.new host_name, port_number, millisecond_response_timeout
 
     begin
+      game_definition = GameDefinition.parse_file(game_definition_file_name)
       background_processes[:player_proxy] = WebApplicationPlayerProxy.new(
         match_id,
         dealer_information,
@@ -149,12 +139,6 @@ Stalker.job('PlayerProxy.start') do |params|
     end
 
     @match_id_to_background_processes[match_id] = background_processes
-
-    log "Stalker.job('PlayerProxy.start'): After: ", {
-      match_id: match_id,
-      num_background_processes: background_processes.length,
-      num_match_id_to_background_processes: @match_id_to_background_processes.length
-    }
 
     # Store game definition properties in the database so the web app. can access them
     match = match_instance match_id
@@ -171,7 +155,7 @@ Stalker.job('Opponent.start') do |params|
 
   background_processes = @match_id_to_background_processes[match_id] || {}
 
-  log "Stalker.job('Opponent.start'): Before: ", {
+  log "Stalker.job('Opponent.start'): ", {
     match_id: match_id,
     num_background_processes: background_processes.length,
     num_match_id_to_background_processes: @match_id_to_background_processes.length
@@ -188,12 +172,6 @@ Stalker.job('Opponent.start') do |params|
     end
     @match_id_to_background_processes[match_id] = background_processes
   end
-
-  log "Stalker.job('Opponent.start'): After: ", {
-    match_id: match_id,
-    num_background_processes: background_processes.length,
-    num_match_id_to_background_processes: @match_id_to_background_processes.length
-  }
 end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.
@@ -205,9 +183,8 @@ Stalker.job('PlayerProxy.play') do |params|
     {modifier: params['modifier']}
   )
 
-  log "Stalker.job('PlayerProxy.play'): Before: ", {
+  log "Stalker.job('PlayerProxy.play'): ", {
     match_id: match_id,
-    action: action,
     num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
@@ -219,13 +196,9 @@ Stalker.job('PlayerProxy.play') do |params|
   end
 
   if @match_id_to_background_processes[match_id][:player_proxy].match_ended?
+    log "Stalker.job('PlayerProxy.play'): Deleting background processes with match ID #{match_id}"
     @match_id_to_background_processes.delete match_id
   end
-
-  log "Stalker.job('PlayerProxy.play'): After: ", {
-    match_id: match_id,
-    num_match_id_to_background_processes: @match_id_to_background_processes.length
-  }
 end
 
 error do |e, job, args|

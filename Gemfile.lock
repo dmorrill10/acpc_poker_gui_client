@@ -130,7 +130,10 @@ GEM
     meta_request (0.2.3)
       rack-contrib
       railties
+    metaclass (0.0.1)
     mime-types (1.23)
+    mocha (0.13.3)
+      metaclass (~> 0.0.1)
     mongoid (3.1.3)
       activemodel (~> 3.2)
       moped (~> 1.4.2)
@@ -189,6 +192,9 @@ GEM
       rspec-core (~> 2.13.0)
       rspec-expectations (~> 2.13.0)
       rspec-mocks (~> 2.13.0)
+    rspec-rails-mocha (0.3.2)
+      mocha (>= 0.9.8)
+      rspec-rails (>= 2.0.0)
     rusen (0.0.2)
       pony
     sass (3.2.8)
@@ -250,6 +256,7 @@ DEPENDENCIES
   jquery-ui-rails
   kramdown
   meta_request
+  mocha
   mongoid (~> 3.1.2)
   moped (~> 1.4.3)
   oily_png
@@ -258,6 +265,7 @@ DEPENDENCIES
   rack (~> 1.4)
   rails (~> 3.2)
   rspec-rails
+  rspec-rails-mocha
   rusen
   sass-rails
   simple_form

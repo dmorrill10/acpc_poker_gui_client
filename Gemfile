@@ -91,4 +91,6 @@ end
 group :development, :test do
   gem 'rspec-rails'
   gem 'capybara'
+  gem 'mocha', require: false
+  gem 'rspec-rails-mocha', require: false
 end

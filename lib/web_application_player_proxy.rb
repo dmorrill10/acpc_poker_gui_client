@@ -11,22 +11,30 @@ require_relative '../app/models/match'
 class WebApplicationPlayerProxy
   include AcpcPokerTypes
 
+  # @todo Use contextual exceptions
   exceptions :unable_to_create_match_slice
 
+  # @todo Reduce the # of params
+  #
   # @param [String] match_id The ID of the match in which this player is participating.
   # @param [DealerInformation] dealer_information Information about the dealer to which this bot should connect.
-  # @param [GameDefinition, #to_s] game_definition_argument A game definition; either a +GameDefinition+ or the name of the file containing a game definition.
+  # @param [GameDefinition, #to_s] game_definition A game definition; either a +GameDefinition+ or the name of the file containing a game definition.
   # @param [String] player_names The names of the players in this match.
   # @param [Integer] number_of_hands The number of hands in this match.
-  def initialize(match_id, dealer_information, users_seat,
-                 game_definition_file_name, player_names='user p2',
-                 number_of_hands=1)
+  def initialize(
+    match_id,
+    dealer_information,
+    users_seat,
+    game_definition,
+    player_names='user p2',
+    number_of_hands=1
+  )
 
     log __method__, {
       match_id: match_id,
       dealer_information: dealer_information,
       users_seat: users_seat,
-      game_definition_file_name: game_definition_file_name,
+      game_definition: game_definition,
       player_names: player_names,
       number_of_hands: number_of_hands
     }
@@ -35,17 +43,15 @@ class WebApplicationPlayerProxy
     @player_proxy = PlayerProxy.new(
       dealer_information,
       users_seat,
-      game_definition_file_name,
+      game_definition,
       player_names,
       number_of_hands
     ) do |players_at_the_table|
 
-      log __method__, {
-        # players_at_the_table: players_at_the_table
-      }
-
       if players_at_the_table.transition.next_state
         update_database! players_at_the_table
+      else
+        log __method__, {before_first_match_state: true}
       end
     end
   end
@@ -53,7 +59,6 @@ class WebApplicationPlayerProxy
   # Player action interface
   # @see PlayerProxy#play!
   def play!(action)
-
     log __method__, {action: action}
 
     @player_proxy.play! action do |players_at_the_table|
@@ -76,10 +81,10 @@ class WebApplicationPlayerProxy
 
   def update_database!(players_at_the_table)
 
-    log __method__, {
-      match_id: @match_id,
-      # players_at_the_table: players_at_the_table
-    }
+    # log __method__, {
+    #   match_id: @match_id
+    #   # @todo Add a #to_s method for PATT where it would print all the necessary information to play a poker match in terminal, then maybe use it here.
+    # }
 
     match = Match.find(@match_id)
 

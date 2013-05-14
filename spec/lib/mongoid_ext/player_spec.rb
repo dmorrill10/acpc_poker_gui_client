@@ -46,29 +46,20 @@ describe Player do
       .start_new_hand!
       .assign_cards!(x_hand)
       .take_action!(x_action)
-
-
   end
-  #   x_pile = ['Ah', 'Ks']
-  #   Player.demongoize(x_pile).should == Player.new(x_pile)
-  # end
-  # describe '::mongoize' do
-  #   it 'converts piles of cards to Arrays' do
-  #     x_pile = ['Ah', 'Ks']
-  #     Player.mongoize(Player.new(x_pile)).should == x_pile
-  #   end
-  #   it 'leaves Arrays unmodified' do
-  #     x_pile = ['Ah', 'Ks']
-  #     Player.mongoize(x_pile).should == x_pile
-  #   end
-  # end
-  # describe '::evolve' do
-  #   it 'converts piles of cards to Arrays' do
-  #     x_pile = ['Ah', 'Ks']
-  #     Player.evolve(Player.new(x_pile)).should == x_pile
-  #   end
-  #   it 'leaves Arrays unmodified' do
-  #     x_pile = ['Ah', 'Ks']
-  #     Player.evolve(x_pile).should == x_pile
-  #   end
+  describe '::mongoize' do
+    it 'converts piles of cards to Arrays' do
+      pending 'Trivial'
+    end
+    it 'leaves Arrays unmodified' do
+      pending 'Trivial'
+    end
+  end
+  describe '::evolve' do
+    it 'converts piles of cards to Arrays' do
+      pending 'Trivial'
+    end
+    it 'leaves Arrays unmodified' do
+      pending 'Trivial'
+    end
 end

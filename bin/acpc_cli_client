@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'methadone'
+require 'acpc_dealer'
+require 'acpc_poker_player_proxy'
+
+class App
+  include Methadone::Main
+  include Methadone::CLILogging
+
+  main do |port, seat, game_definition, player_names, number_of_hands, host|
+    proxy = AcpcPokerPlayerProxy::PlayerProxy.new(
+      AcpcDealer::ConnectionInformation.new(port, host),
+      seat.to_i - 1,
+      game_definition,
+      player_names[1..-2],
+      number_of_hands.to_i
+    ) do |patt|
+      p patt.transition.next_state.to_s
+    end
+
+    while !proxy.players_at_the_table.match_ended? do
+      print 'Your turn to act: '; STDOUT.flush
+      action = AcpcPokerTypes::PokerAction.new(STDIN.gets.chomp)
+      proxy.play! action do |patt|
+        p patt.transition.next_state.to_s
+      end
+    end
+  end
+
+  # Declare command-line interface
+  description "Command line interface to play in ACPC Dealer hosted poker matches."
+
+  arg :port
+  arg :seat
+  arg :game_definition
+  arg :player_names, :optional
+  arg :number_of_hands, :optional
+  arg :host, :optional
+
+  version AcpcPokerPlayerProxy::VERSION
+
+  use_log_level_option
+
+  go!
+end

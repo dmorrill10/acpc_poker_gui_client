@@ -1,48 +1,57 @@
 
 require 'mongoid'
 
+require 'mongoid_ext/player'
+require 'mongoid_ext/chip_stack'
+require 'mongoid_ext/card'
+
 class MatchSlice
   include Mongoid::Document
 
   embedded_in :match, inverse_of: :slices
 
-  field :state_string, type: String
-
-  # @return [Array<Integer>] The pot values at the beginning of the current round.
-  field :pot_values_at_start_of_round, type: Array
-
   # @return [Array<Integer>] The distribution of this match's pot of chips to each player at the table.
-  field :pot_distribution, type: Array
-
-  # @return [Array<Player>] The hash forms of the players in this match.
-  field :players, type: Array
+  # @todo Shouldn't be needed now
+  # field :pot_distribution, type: Array
 
   # @return [Hash<Symbol, String>] Information about turns and blinds.
   field :player_turn_information, type: Hash
 
+  # Non-accumulating state
+  field :hand_has_ended, type: Boolean
+  field :match_has_ended, type: Boolean
+  field :users_turn_to_act, type: Boolean
+  field :hand_number, type: Integer
+  field :minimum_wager, type: Integer
+  field :seat_with_dealer_button, type: Integer
+  field :seat_with_small_blind, type: Integer
+  field :seat_with_big_blind, type: Integer
+
+  field :seat_next_to_act, type: Integer
+
+  # Current match state
+  field :state_string, type: String
+
   # @return [String] The current betting sequence.
   field :betting_sequence, type: String
 
-  # @return [String] The sequence of seats of acting players.
-  field :player_acting_sequence, type: String
+  # @return [Array<Integer>] The pot values at the beginning of the current round.
+  # # @todo Not necessary
+  # field :pot_values_at_start_of_round, type: Array
 
   # @return [Array<String>] The legal actions of the currently acting player (in ACPC format).
   field :legal_actions, type: Array
 
-  # Match interface
-  field :hand_has_ended, type: Boolean
-  field :match_has_ended, type: Boolean
-  field :users_turn_to_act, type: Boolean
+  # Related to all players
 
-  field :minimum_wager, type: Integer
+  # @return [Array<Player>] The hash forms of the players in this match.
+  field :players, type: Array
 
-  # @return [Hash<String, Integer>] The amounts required for each player to call.
-  #  Each element contains a mapping between a player's name and the amount that player has put in the pot to call.
-  field :amounts_to_call, type: Hash
+  # @return [Array<Integer>] The amounts required for each player to call arranged by seat.
+  field :amounts_to_call, type: Array
 
-  field :hand_number, type: Integer
-
-  # @todo add to this
+  # @return [String] The sequence of seats of acting players.
+  field :player_acting_sequence, type: String
 
   def hand_ended?
     hand_has_ended

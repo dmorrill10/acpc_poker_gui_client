@@ -32,14 +32,8 @@ gem 'stalker'
 # To manage background processes
 gem 'god'
 
-# Custom utilities
-gem 'dmorrill10-utils'
-
 # Poker logic
-gem 'acpc_poker_types', '~> 0.0'
-gem 'acpc_poker_player_proxy', '~> 0.0'
-gem 'acpc_dealer', '~> 0.0'
-gem 'acpc_dealer_data', '~> 0.0'
+gem 'acpc_poker_player_proxy', '~> 1.0'
 
 # Improved forms
 gem 'simple_form'
@@ -54,6 +48,9 @@ gem 'awesome_print'
 
 # Simple exception email notifications
 gem 'rusen'
+
+# For CLI client application
+gem 'methadone'
 
 # Gems used only for assets and not required
 # in production environments by default.

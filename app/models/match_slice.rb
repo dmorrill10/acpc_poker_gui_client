@@ -14,7 +14,7 @@ class MatchSlice
   # @return [Array<Integer>] The distribution of this match's pot of chips to each player at the table.
   field :pot_distribution, type: Array
 
-  # @return [Array<Hash>] The hash forms of the players in this match.
+  # @return [Array<Player>] The hash forms of the players in this match.
   field :players, type: Array
 
   # @return [Hash<Symbol, String>] Information about turns and blinds.

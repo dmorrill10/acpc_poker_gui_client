@@ -62,4 +62,5 @@ describe Player do
     it 'leaves Arrays unmodified' do
       pending 'Trivial'
     end
+  end
 end

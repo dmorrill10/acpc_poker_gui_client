@@ -26,9 +26,11 @@ class Player
         hash[:hole_cards]
       ) unless hash[:hole_cards].empty?
 
-      flat_actions_taken_this_hand = hash[:actions_taken_this_hand].flatten
+      winnings = if !hash[:chip_contributions].empty? && hash[:chip_contributions].last < 0
+        hash[:chip_contributions].pop
+      end
 
-      raise if hash[:chip_contributions].length > flat_actions_taken_this_hand.length
+      flat_actions_taken_this_hand = hash[:actions_taken_this_hand].flatten
 
       flat_actions_taken_this_hand.zip(
         hash[:chip_contributions]
@@ -38,6 +40,8 @@ class Player
           amount.to_r
         )
       end
+
+      new_player.take_winnings! winnings if winnings
 
       raise unless new_player.chip_balance == hash[:chip_balance]
 

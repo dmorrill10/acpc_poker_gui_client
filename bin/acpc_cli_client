@@ -3,40 +3,110 @@
 require 'optparse'
 require 'methadone'
 require 'acpc_dealer'
-require 'acpc_poker_player_proxy'
+
+require_relative '../app/models/match'
+require_relative '../app/models/match_slice'
+
+require_relative '../lib/web_application_player_proxy'
+require_relative '../lib/application_defs'
 
 class App
   include Methadone::Main
   include Methadone::CLILogging
 
-  main do |port, seat, game_definition, player_names, number_of_hands, host|
-    proxy = AcpcPokerPlayerProxy::PlayerProxy.new(
-      AcpcDealer::ConnectionInformation.new(port, host),
-      seat.to_i - 1,
-      game_definition,
-      player_names[1..-2],
-      number_of_hands.to_i
-    ) do |patt|
-      p patt.transition.next_state.to_s
-    end
+  main do |name, port, seat, game_definition_key, number_of_hands, random_seed, host|
 
-    while !proxy.players_at_the_table.match_ended? do
-      print 'Your turn to act: '; STDOUT.flush
-      action = AcpcPokerTypes::PokerAction.new(STDIN.gets.chomp)
-      proxy.play! action do |patt|
-        p patt.transition.next_state.to_s
-      end
-    end
+    match = create_match name, port, seat, game_definition_key, number_of_hands, random_seed, host
+
+    options = [
+      # '--t_response ' << @match.millisecond_response_timeout.to_s,
+      # '--t_hand ' << @match.millisecond_response_timeout.to_s,
+      '--t_response -1',
+      '--t_hand -1',
+      '--t_per_hand -1'
+      # '--t_per_hand ' << @match.millisecond_response_timeout.to_s
+    ].join ' '
+
+    # Start dealer
+    # options: options,
+    # log_directory: MATCH_LOG_DIRECTORY
+
+    # Start bot
+
+
+    # Start WAPP
+    # proxy = WebApplicationPlayerProxy.new(
+    #   match.id
+    #   AcpcDealer::ConnectionInformation.new(port, host),
+    #   seat.to_i - 1,
+    #   game_definition,
+    #   player_names,
+    #   number_of_hands.to_i
+    # )
+
+    # while !current_slice.match_ended? do
+    #   print 'Your turn to act: '; STDOUT.flush
+    #   action = AcpcPokerTypes::PokerAction.new(STDIN.gets.chomp)
+    #   proxy.play! action do |patt|
+    #     p patt.transition.next_state.to_s
+    #   end
+    # end
+
+    # # Delete the match
+    # Match.delete
+  end
+
+  def create_match(
+    name,
+    port,
+    seat,
+    game_definition_key,
+    number_of_hands,
+    random_seed,
+    host
+  )
+    random_seed ||= -> do
+      random_float = rand
+      random_int = (random_float * 10**random_float.to_s.length).to_i
+      random_int
+    end.call
+
+    seat ||= (rand(2) + 1)
+
+    # @todo Only works for two player
+    bot ||= "RunTestingBot"
+
+    # @todo Only works for two player
+    player_names = [
+      'user',
+      GAME_DEFINITIONS[@match.game_definition_key][:bots].find do |name, runner_class|
+        runner_class.to_s == bot
+      end.first
+    ].join ' '
+
+    # Create a new match
+    Match.new(
+      "match_name" => name,
+      "game_definition_key" => game_definition_key,
+      'game_definition_file_name' => ApplicationDefs::GAME_DEFINITIONS[game_definition_key][:file],
+      "bot"=>bot,
+      "seat" => seat,
+      "number_of_hands" => number_of_hands,
+      "random_seed" => random_seed,
+      'player_names' => player_names
+    ).save!
   end
 
   # Declare command-line interface
   description "Command line interface to play in ACPC Dealer hosted poker matches."
 
+  arg :name
   arg :port
-  arg :seat
-  arg :game_definition
-  arg :player_names, :optional
+  arg :game_definition_key
+  arg :seat, :optional
+  arg :bot, :optional
   arg :number_of_hands, :optional
+  arg :random_seed, :optional
   arg :host, :optional
 
   version AcpcPokerPlayerProxy::VERSION

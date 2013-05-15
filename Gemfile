@@ -33,6 +33,7 @@ gem 'stalker'
 gem 'god'
 
 # Poker logic
+gem 'acpc_dealer', '~> 1.0'
 gem 'acpc_poker_player_proxy', '~> 1.0'
 
 # Improved forms
@@ -51,6 +52,9 @@ gem 'rusen'
 
 # For CLI client application
 gem 'methadone'
+
+# For better errors in WAPP
+gem 'contextual_exceptions'
 
 # Gems used only for assets and not required
 # in production environments by default.

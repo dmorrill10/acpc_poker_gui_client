@@ -1,7 +1,7 @@
 require 'acpc_poker_types/player'
 
-require 'mongoid_ext/chip_stack'
-require 'mongoid_ext/card'
+require_relative 'chip_stack'
+require_relative 'card'
 
 class Player
   # @todo This is a little bit of a hack and needs to be changed whenever the player interface does, but it's super easy and works like a charm thanks to Ruby's duck-typing.

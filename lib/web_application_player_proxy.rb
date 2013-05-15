@@ -1,16 +1,15 @@
 
 require 'awesome_print'
-require 'acpc_poker_types'
-require 'acpc_poker_match_state'
 require 'acpc_poker_player_proxy'
 
 require_relative 'database_config'
 require_relative '../app/models/match'
 
+require 'contextual_exceptions'
+using ContextualExceptions::ClassRefinement
+
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
-  include AcpcPokerTypes
-
   # @todo Use contextual exceptions
   exceptions :unable_to_create_match_slice
 
@@ -40,7 +39,7 @@ class WebApplicationPlayerProxy
     }
 
     @match_id = match_id
-    @player_proxy = PlayerProxy.new(
+    @player_proxy = AcpcPokerPlayerProxy::PlayerProxy.new(
       dealer_information,
       users_seat,
       game_definition,

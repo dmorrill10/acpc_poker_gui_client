@@ -1,9 +1,9 @@
 
 require 'mongoid'
 
-require 'mongoid_ext/player'
-require 'mongoid_ext/chip_stack'
-require 'mongoid_ext/card'
+require_relative '../../lib/mongoid_ext/player'
+require_relative '../../lib/mongoid_ext/chip_stack'
+require_relative '../../lib/mongoid_ext/card'
 
 class MatchSlice
   include Mongoid::Document

@@ -31,7 +31,7 @@ class MatchStartController < ApplicationController
     @match.match_name.strip!
 
     @match.seat = (rand(2) + 1) unless @match.seat
-    @match.random_seed = lambda do
+    @match.random_seed = -> do
       random_float = rand
       random_int = (random_float * 10**random_float.to_s.length).to_i
       random_int

@@ -232,6 +232,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  acpc_dealer (~> 1.0)
   acpc_poker_player_proxy (~> 1.0)
   awesome_print
   beanstalk-client
@@ -247,6 +248,7 @@ DEPENDENCIES
   coffee-filter
   coffee-rails
   compass-rails
+  contextual_exceptions
   god
   haml
   jquery-rails

@@ -21,12 +21,14 @@ module ApplicationDefs
     two_player_nolimit: {
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
       text: '2-player no-limit',
-      bots: {'tester' => RunTestingBot}
+      bots: {'tester' => RunTestingBot},
+      num_players: 2
     },
     two_player_limit: {
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],
       text: '2-player limit',
-      bots: {'tester' => RunTestingBot}
+      bots: {'tester' => RunTestingBot},
+      num_players: 2
     }
   } unless const_defined? :GAME_DEFINITIONS
 

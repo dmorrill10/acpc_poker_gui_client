@@ -1,21 +1,23 @@
 require 'acpc_poker_types/card'
 
-class Card
-  def mongoize
-    to_s
-  end
-  class << self
-    def demongoize(string)
-      Card.from_acpc(string)
+module AcpcPokerTypes
+  class Card
+    def mongoize
+      to_s
     end
-    def mongoize(object)
-      case object
-      when Card then object.mongoize
-      else object
+    class << self
+      def demongoize(string)
+        Card.from_acpc(string)
       end
-    end
-    def evolve(object)
-      mongoize(object)
+      def mongoize(object)
+        case object
+        when Card then object.mongoize
+        else object
+        end
+      end
+      def evolve(object)
+        mongoize(object)
+      end
     end
   end
 end

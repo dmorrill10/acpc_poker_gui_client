@@ -45,9 +45,9 @@ class Match
     field :random_seed, type: Integer
   end
 
-  def self.include_opponent_agent
-    field :bot, type: String
-    validates_presence_of :bot
+  def self.include_opponent_agents
+    field :bots, type: Array
+    validates_presence_of :bots
   end
 
   def self.delete_matches_older_than(lifespan)
@@ -90,6 +90,7 @@ class Match
     name,
     game_definition_key,
     seat=nil,
+    bots=nil,
     number_of_hands=nil,
     random_seed=nil
   )
@@ -101,30 +102,36 @@ class Match
 
     seat ||= (rand(2) + 1)
 
-    # @todo Only works for two player
-    bot ||= "RunTestingBot"
+    game_def_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym]
 
-    # @todo Only works for two player
+    bots ||= (game_def_info[:num_players] - 1).times.map { |i| "RunTestingBot" }
+
     player_names = [
       'user',
-      ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym][:bots].find do |name, runner_class|
-        runner_class.to_s == bot
-      end.first
-    ].join ' '
+      bots.map do |bot|
+        game_def_info[:bots].find do |name, runner_class|
+          runner_class.to_s == bot
+        end.first
+      end
+    ].flatten.join ' '
 
     number_of_hands ||= 1
 
     # Create a new match
-    Match.new(
+    match = Match.new(
       "match_name" => name,
       "game_definition_key" => game_definition_key,
       'game_definition_file_name' => ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym][:file],
-      "bot"=>bot,
+      "bots"=>bots,
       "seat" => seat,
       "number_of_hands" => number_of_hands,
       "random_seed" => random_seed,
       'player_names' => player_names
-    ).save!
+    )
+
+    match.save!
+
+    match
   end
 
   # Table parameters
@@ -137,7 +144,7 @@ class Match
   include_game_definition
   include_number_of_hands
   include_random_seed
-  include_opponent_agent
+  include_opponent_agents
 
   # Game definition information
   field :betting_type, type: String

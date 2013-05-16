@@ -4,6 +4,7 @@ require 'acpc_poker_player_proxy'
 
 require_relative 'database_config'
 require_relative '../app/models/match'
+require_relative '../app/models/match_slice'
 
 require 'contextual_exceptions'
 using ContextualExceptions::ClassRefinement
@@ -129,9 +130,9 @@ class WebApplicationPlayerProxy
       state_string: players_at_the_table.transition.next_state.to_s,
       betting_sequence: players_at_the_table.betting_sequence_string,
       legal_actions: players_at_the_table.legal_actions.to_a.map do |action|
-        action.to_acpc
+        action.to_s
       end,
-      players: players_at_the_table.players,
+      players: players_at_the_table.players.map { |player| player.to_h },
       amounts_to_call: players_at_the_table.players.sort do |player|
         player.seat
       end.map { |player| players_at_the_table.amount_to_call(player) },
@@ -147,30 +148,11 @@ class WebApplicationPlayerProxy
       match.update_attribute(:updated_at, Time.now)
       match.save!
     rescue => e
-      raise UnableToCreateMatchSlice, e.message
+      raise UnableToCreateMatchSlice.with_context('Unable to create match slice', e)
     end
 
     self
   end
-
-  # def sanitize_player_for_database(player)
-  #   {
-  #     'name' => player.name.to_s,
-  #     'seat' => player.seat.to_i,
-  #     'chip_stack' => player.chip_stack.to_i,
-  #     'chip_contributions' => player.chip_contributions.map do |contribution_per_round|
-  #       contribution_per_round.to_i
-  #     end,
-  #     'chip_balance' => player.chip_balance.to_i,
-  #     'hole_cards' => player.hole_cards.to_acpc,
-  #     'actions_taken_this_hand' => player.actions_taken_this_hand.map do |actions_per_round|
-  #       actions_per_round.map { |action| action.to_acpc }
-  #     end,
-  #     'folded?' => player.folded?,
-  #     'all_in?' => player.all_in?,
-  #     'active?' => player.active?
-  #   }
-  # end
 
   def log(method, variables)
     puts "#{self.class}: #{method}: #{variables.awesome_inspect}"

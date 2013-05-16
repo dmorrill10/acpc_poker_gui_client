@@ -92,7 +92,7 @@ class MatchStartController < ApplicationController
       @opponent_port_number = port_numbers[opponent_port_index]
 
       # Start an opponent
-      bot_class = Object::const_get(@match.bot)
+      bot_class = Object::const_get(@match.bots.first)
 
       # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
       # ARGUMENT HASH.

@@ -3,12 +3,12 @@
 # Gems
 require 'acpc_poker_types'
 require 'acpc_poker_basic_proxy'
+require 'acpc_dealer'
 
 class TestingBot
   def initialize(port_number, server_host_name='localhost', millisecond_timeout=nil, random=false)
-    dealer_info = AcpcDealerInformation.new server_host_name,
-      port_number.to_i, millisecond_timeout.to_i
-    @proxy_bot = BasicProxy.new dealer_info
+    dealer_info = AcpcDealer::ConnectionInformation.new port_number, server_host_name, millisecond_timeout.to_i
+    @proxy_bot = AcpcPokerBasicProxy::BasicProxy.new dealer_info
 
     log __method__, 'Connected to dealer'
 
@@ -28,13 +28,13 @@ class TestingBot
 
         log __method__, "match_state: #{match_state}"
 
-        if match_state.last_action && match_state.last_action.to_acpc_character == 'r'
+        if match_state.last_action && match_state.last_action.action == 'r'
           @fold_allowed = true
         else
           @fold_allowed = false
         end
       rescue => e
-        puts e.message
+        puts "Error in main loop: #{e.message}, backtrace: #{e.backtrace.join("\n")}"
         exit
       end
     end
@@ -46,15 +46,15 @@ class TestingBot
 
     case (@counter % 3)
     when 0
-      @proxy_bot.send_action PokerAction.new(:call)
+      @proxy_bot.send_action AcpcPokerTypes::PokerAction::CALL
     when 1
       if @fold_allowed
-        @proxy_bot.send_action PokerAction.new(:fold)
+        @proxy_bot.send_action AcpcPokerTypes::PokerAction::FOLD
       else
-        @proxy_bot.send_action PokerAction.new(:call)
+        @proxy_bot.send_action AcpcPokerTypes::PokerAction::CALL
       end
     when 2
-      @proxy_bot.send_action PokerAction.new(:raise, {modifier: 1})
+      @proxy_bot.send_action AcpcPokerTypes::PokerAction.new('r1')
     end
     @counter += 1
   end

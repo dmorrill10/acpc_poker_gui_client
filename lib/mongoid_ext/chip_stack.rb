@@ -1,18 +1,20 @@
 require 'acpc_poker_types/chip_stack'
 
-class ChipStack
-  class << self
-    def demongoize(rational)
-      ChipStack.new(rational)
-    end
-    def mongoize(object)
-      case object
-      when ChipStack then object.mongoize
-      else object
+module AcpcPokerTypes
+  class ChipStack
+    class << self
+      def demongoize(rational)
+        ChipStack.new(rational)
       end
-    end
-    def evolve(object)
-      mongoize(object)
+      def mongoize(object)
+        case object
+        when ChipStack then object.mongoize
+        else object
+        end
+      end
+      def evolve(object)
+        mongoize(object)
+      end
     end
   end
 end

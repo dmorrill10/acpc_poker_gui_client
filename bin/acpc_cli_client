@@ -3,6 +3,7 @@
 require 'optparse'
 require 'methadone'
 require 'acpc_dealer'
+require 'process_runner'
 
 require_relative '../app/models/match'
 require_relative '../app/models/match_slice'
@@ -10,17 +11,61 @@ require_relative '../app/models/match_slice'
 require_relative '../lib/web_application_player_proxy'
 require_relative '../lib/application_defs'
 
+require 'pry'
+
 class App
   include Methadone::Main
   include Methadone::CLILogging
 
   change_logger(Logger.new(STDOUT))
 
-  main do |name, game_definition_key, seat, number_of_hands, random_seed, host|
+
+
+
+
+  #   continue_looping_condition = lambda { |match| !match.port_numbers }
+  #     begin
+  #       temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition) {}
+  #     rescue
+  #       @match.delete
+  #       reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
+  #       return
+  #     end
+  #     @match = temp_match
+
+  #     port_numbers = @match.port_numbers
+
+  #     user_port_index = @match.seat-1
+  #     opponent_port_index = if 0 == user_port_index then 1 else 0 end
+  #     @port_number = port_numbers[user_port_index]
+  #     @opponent_port_number = port_numbers[opponent_port_index]
+
+  #     # Start an opponent
+  #     bot_class = Object::const_get(@match.bot)
+
+  #     # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
+  #     # ARGUMENT HASH.
+  #     bot_argument_hash = {
+  #       port_number: @opponent_port_number,
+  #       millisecond_response_timeout: @match.millisecond_response_timeout,
+  #       server: Socket.gethostname,
+  #       game_def: @match.game_definition_file_name
+  #     }
+
+  #     bot_start_command = bot_class.run_command bot_argument_hash
+
+  #     opponent_arguments = {
+  #       match_id: @match.id,
+  #       bot_start_command: bot_start_command.split(' ')
+  #     }
+  # end
+
+  main do |name, game_definition_key, seat, bots, number_of_hands, random_seed, host|
     match = Match.start_match(
       name,
       game_definition_key,
       seat,
+      bots,
       number_of_hands,
       random_seed
     )
@@ -34,22 +79,54 @@ class App
       # '--t_per_hand ' << @match.millisecond_response_timeout.to_s
     ].join ' '
 
-    # Start dealer
-    # options: options,
-    # log_directory: MATCH_LOG_DIRECTORY
+    match.port_numbers = AcpcDealer::DealerRunner.start(
+      {
+        match_name: match.match_name,
+        game_def_file_name: match.game_definition_file_name,
+        hands: match.number_of_hands,
+        random_seed: match.random_seed,
+        player_names: match.player_names,
+        options: options
+      },
+      ApplicationDefs::MATCH_LOG_DIRECTORY
+    )[:port_numbers]
+    match.save
 
-    # Start bot
+    raise unless match.port_numbers.length == match.player_names.split.length &&
+      match.port_numbers.length == match.bots.length + 1
 
+    port_numbers = match.port_numbers.dup
+    users_port = port_numbers.delete_at(match.seat - 1)
 
-    # Start WAPP
-    # proxy = WebApplicationPlayerProxy.new(
-    #   match.id
-    #   AcpcDealer::ConnectionInformation.new(port, host),
-    #   seat.to_i - 1,
-    #   game_definition,
-    #   player_names,
-    #   number_of_hands.to_i
-    # )
+    # @todo Assumes localhost
+    dealer_host = Socket.gethostname
+
+    port_numbers.zip(match.bots).each do |port_num, bot|
+      # Start an opponent
+      bot_class = Object::const_get(bot)
+
+      # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
+      # ARGUMENT HASH.
+      bot_argument_hash = {
+        port_number: port_num,
+        millisecond_response_timeout: match.millisecond_response_timeout,
+        server: dealer_host,
+        game_def: match.game_definition_file_name
+      }
+
+      ProcessRunner.go bot_class.run_command(bot_argument_hash).split(' ')
+    end
+
+    proxy = WebApplicationPlayerProxy.new(
+      match.id,
+      AcpcDealer::ConnectionInformation.new(users_port, dealer_host),
+      match.seat - 1,
+      match.game_definition_file_name,
+      match.player_names,
+      match.number_of_hands
+    )
+
+    binding.pry
 
     # while !current_slice.match_ended? do
     #   print 'Your turn to act: '; STDOUT.flush
@@ -59,8 +136,7 @@ class App
     #   end
     # end
 
-    # # Delete the match
-    # Match.delete
+    match.delete
   end
 
   # Declare command-line interface
@@ -69,7 +145,7 @@ class App
   arg :name
   arg :game_definition_key
   arg :seat, :optional
-  arg :bot, :optional
+  arg :bots, :optional
   arg :number_of_hands, :optional
   arg :random_seed, :optional
   arg :host, :optional

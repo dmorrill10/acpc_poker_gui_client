@@ -14,9 +14,16 @@ class App
   include Methadone::Main
   include Methadone::CLILogging
 
-  main do |name, port, seat, game_definition_key, number_of_hands, random_seed, host|
+  change_logger(Logger.new(STDOUT))
 
-    match = create_match name, port, seat, game_definition_key, number_of_hands, random_seed, host
+  main do |name, game_definition_key, seat, number_of_hands, random_seed, host|
+    match = Match.start_match(
+      name,
+      game_definition_key,
+      seat,
+      number_of_hands,
+      random_seed
+    )
 
     options = [
       # '--t_response ' << @match.millisecond_response_timeout.to_s,
@@ -56,52 +63,10 @@ class App
     # Match.delete
   end
 
-  def create_match(
-    name,
-    port,
-    seat,
-    game_definition_key,
-    number_of_hands,
-    random_seed,
-    host
-  )
-    random_seed ||= -> do
-      random_float = rand
-      random_int = (random_float * 10**random_float.to_s.length).to_i
-      random_int
-    end.call
-
-    seat ||= (rand(2) + 1)
-
-    # @todo Only works for two player
-    bot ||= "RunTestingBot"
-
-    # @todo Only works for two player
-    player_names = [
-      'user',
-      GAME_DEFINITIONS[@match.game_definition_key][:bots].find do |name, runner_class|
-        runner_class.to_s == bot
-      end.first
-    ].join ' '
-
-    # Create a new match
-    Match.new(
-      "match_name" => name,
-      "game_definition_key" => game_definition_key,
-      'game_definition_file_name' => ApplicationDefs::GAME_DEFINITIONS[game_definition_key][:file],
-      "bot"=>bot,
-      "seat" => seat,
-      "number_of_hands" => number_of_hands,
-      "random_seed" => random_seed,
-      'player_names' => player_names
-    ).save!
-  end
-
   # Declare command-line interface
-  description "Command line interface to play in ACPC Dealer hosted poker matches."
+  description "Command line interface to play in an ACPC match."
 
   arg :name
-  arg :port
   arg :game_definition_key
   arg :seat, :optional
   arg :bot, :optional
@@ -109,7 +74,7 @@ class App
   arg :random_seed, :optional
   arg :host, :optional
 
-  version AcpcPokerPlayerProxy::VERSION
+  version '0.0.1'
 
   use_log_level_option
 

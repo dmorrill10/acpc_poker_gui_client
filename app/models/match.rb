@@ -1,6 +1,8 @@
 
 require 'mongoid'
 
+require_relative '../../lib/application_defs'
+
 # @todo Use this for DB recovery
 Mongoid.logger = nil
 
@@ -81,6 +83,48 @@ class Match
       raise if time_limit_reached?(time_beginning_to_wait)
       attempts += 1
     end
+  end
+
+  # @todo Generalize this so that MSC can use it
+  def self.start_match(
+    name,
+    game_definition_key,
+    seat=nil,
+    number_of_hands=nil,
+    random_seed=nil
+  )
+    random_seed ||= -> do
+      random_float = rand
+      random_int = (random_float * 10**random_float.to_s.length).to_i
+      random_int
+    end.call
+
+    seat ||= (rand(2) + 1)
+
+    # @todo Only works for two player
+    bot ||= "RunTestingBot"
+
+    # @todo Only works for two player
+    player_names = [
+      'user',
+      ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym][:bots].find do |name, runner_class|
+        runner_class.to_s == bot
+      end.first
+    ].join ' '
+
+    number_of_hands ||= 1
+
+    # Create a new match
+    Match.new(
+      "match_name" => name,
+      "game_definition_key" => game_definition_key,
+      'game_definition_file_name' => ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym][:file],
+      "bot"=>bot,
+      "seat" => seat,
+      "number_of_hands" => number_of_hands,
+      "random_seed" => random_seed,
+      'player_names' => player_names
+    ).save!
   end
 
   # Table parameters

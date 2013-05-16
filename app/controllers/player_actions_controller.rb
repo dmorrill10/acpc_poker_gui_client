@@ -35,7 +35,7 @@ class PlayerActionsController < ApplicationController
     begin
       @match = Match.find @match_id
     rescue => e
-      ap({exception: {message: e.message, backtrace: e.backtrace}})
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
       return
     end
@@ -59,14 +59,14 @@ class PlayerActionsController < ApplicationController
       begin
         update_match!
       rescue => e
-        ap({exception: {message: e.message, backtrace: e.backtrace}})
+        Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
         reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."
       end
     end
     begin
       replace_page_contents_with_updated_game_view
     rescue => e
-      ap({exception: {message: e.message, backtrace: e.backtrace}})
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
     end
   end
@@ -89,7 +89,7 @@ class PlayerActionsController < ApplicationController
       update_match!
       replace_page_contents_with_updated_game_view
     rescue => e
-      ap({exception: {message: e.message, backtrace: e.backtrace}})
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
     end
   end

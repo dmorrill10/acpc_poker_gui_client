@@ -100,11 +100,12 @@ class Match
       random_int
     end.call
 
-    seat ||= (rand(2) + 1)
-
     game_def_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym]
+    num_players = game_def_info[:num_players]
 
-    bots ||= (game_def_info[:num_players] - 1).times.map { |i| "RunTestingBot" }
+    seat ||= (rand(num_players) + 1)
+
+    bots ||= (num_players - 1).times.map { |i| "RunTestingBot" }
 
     player_names = [
       'user',
@@ -121,7 +122,7 @@ class Match
     match = Match.new(
       "match_name" => name,
       "game_definition_key" => game_definition_key,
-      'game_definition_file_name' => ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym][:file],
+      'game_definition_file_name' => game_def_info[:file],
       "bots"=>bots,
       "seat" => seat,
       "number_of_hands" => number_of_hands,

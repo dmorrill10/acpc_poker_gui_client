@@ -35,4 +35,12 @@ module ApplicationDefs
   LOG_DIRECTORY = File.expand_path('../../log', __FILE__) unless const_defined? :LOG_DIRECTORY
 
   MATCH_LOG_DIRECTORY = File.join(LOG_DIRECTORY, 'match_logs') unless const_defined? :MATCH_LOG_DIRECTORY
+
+  # @return [Array<Class>] Returns only the names that correspond to bot runner
+  #   classes as those classes.
+  def self.bots(game_def_key, player_names)
+    player_names.map do |name|
+      GAME_DEFINITIONS[game_def_key][:bots][name]
+    end.reject { |elem| elem.nil? }
+  end
 end

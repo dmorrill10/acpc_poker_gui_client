@@ -32,5 +32,7 @@ module ApplicationDefs
     }
   } unless const_defined? :GAME_DEFINITIONS
 
-  MATCH_LOG_DIRECTORY = File.expand_path('../../log/match_logs', __FILE__) unless const_defined? :MATCH_LOG_DIRECTORY
+  LOG_DIRECTORY = File.expand_path('../../log', __FILE__) unless const_defined? :LOG_DIRECTORY
+
+  MATCH_LOG_DIRECTORY = File.join(LOG_DIRECTORY, 'match_logs') unless const_defined? :MATCH_LOG_DIRECTORY
 end

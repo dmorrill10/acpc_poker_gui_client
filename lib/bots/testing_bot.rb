@@ -33,6 +33,9 @@ class TestingBot
         else
           @fold_allowed = false
         end
+      rescue AcpcPokerBasicProxy::DealerStream::UnableToWriteToDealer
+        # Ignore this since it will always occur at the end of the match
+        # since this bot doesn't know anything about the match or turns.
       rescue => e
         puts "Error in main loop: #{e.message}, backtrace: #{e.backtrace.join("\n")}"
         exit

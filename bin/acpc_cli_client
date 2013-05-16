@@ -17,48 +17,7 @@ class App
   include Methadone::Main
   include Methadone::CLILogging
 
-  change_logger(Logger.new(STDOUT))
-
-
-
-
-
-  #   continue_looping_condition = lambda { |match| !match.port_numbers }
-  #     begin
-  #       temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition) {}
-  #     rescue
-  #       @match.delete
-  #       reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
-  #       return
-  #     end
-  #     @match = temp_match
-
-  #     port_numbers = @match.port_numbers
-
-  #     user_port_index = @match.seat-1
-  #     opponent_port_index = if 0 == user_port_index then 1 else 0 end
-  #     @port_number = port_numbers[user_port_index]
-  #     @opponent_port_number = port_numbers[opponent_port_index]
-
-  #     # Start an opponent
-  #     bot_class = Object::const_get(@match.bot)
-
-  #     # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
-  #     # ARGUMENT HASH.
-  #     bot_argument_hash = {
-  #       port_number: @opponent_port_number,
-  #       millisecond_response_timeout: @match.millisecond_response_timeout,
-  #       server: Socket.gethostname,
-  #       game_def: @match.game_definition_file_name
-  #     }
-
-  #     bot_start_command = bot_class.run_command bot_argument_hash
-
-  #     opponent_arguments = {
-  #       match_id: @match.id,
-  #       bot_start_command: bot_start_command.split(' ')
-  #     }
-  # end
+  change_logger(Logger.new(File.join(ApplicationDefs::LOG_DIRECTORY, 'acpc_cli_client.log')))
 
   main do |name, game_definition_key, seat, bots, number_of_hands, random_seed, host|
     match = Match.start_match(
@@ -117,6 +76,8 @@ class App
       ProcessRunner.go bot_class.run_command(bot_argument_hash).split(' ')
     end
 
+    WebApplicationPlayerProxy.logger = logger
+
     proxy = WebApplicationPlayerProxy.new(
       match.id,
       AcpcDealer::ConnectionInformation.new(users_port, dealer_host),
@@ -126,15 +87,18 @@ class App
       match.number_of_hands
     )
 
-    binding.pry
+    current_slice = Match.find(match.id).slices.last
 
-    # while !current_slice.match_ended? do
-    #   print 'Your turn to act: '; STDOUT.flush
-    #   action = AcpcPokerTypes::PokerAction.new(STDIN.gets.chomp)
-    #   proxy.play! action do |patt|
-    #     p patt.transition.next_state.to_s
-    #   end
-    # end
+    while !current_slice.match_ended? do
+      puts current_slice.awesome_inspect
+      print 'Your turn to act: '; STDOUT.flush
+      action = AcpcPokerTypes::PokerAction.new(STDIN.gets.chomp)
+      proxy.play! action
+      current_slice = Match.find(match.id).slices.last
+    end
+
+    puts current_slice.awesome_inspect
+    puts "MATCH ENDED"
 
     match.delete
   end

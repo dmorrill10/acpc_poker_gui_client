@@ -3,7 +3,7 @@ require 'mongoid'
 
 require_relative '../../lib/mongoid_ext/player'
 require_relative '../../lib/mongoid_ext/chip_stack'
-require_relative '../../lib/mongoid_ext/card'
+# require_relative '../../lib/mongoid_ext/card'
 
 class MatchSlice
   include Mongoid::Document
@@ -13,9 +13,6 @@ class MatchSlice
   # @return [Array<Integer>] The distribution of this match's pot of chips to each player at the table.
   # @todo Shouldn't be needed now
   # field :pot_distribution, type: Array
-
-  # @return [Hash<Symbol, String>] Information about turns and blinds.
-  field :player_turn_information, type: Hash
 
   # Non-accumulating state
   field :hand_has_ended, type: Boolean
@@ -44,7 +41,7 @@ class MatchSlice
 
   # Related to all players
 
-  # @return [Array<Player>] The hash forms of the players in this match.
+  # @return [Array<Hash<String,Object>] The hash forms of the players in this match.
   field :players, type: Array
 
   # @return [Array<Integer>] The amounts required for each player to call arranged by seat.
@@ -63,10 +60,5 @@ class MatchSlice
 
   def users_turn_to_act?
     users_turn_to_act
-  end
-
-  # @todo This is just for testing
-  def to_s
-    "state_string: #{state_string}, match_ended?: #{match_ended?}, hand_ended?: #{hand_ended?}, users_turn_to_act?: #{users_turn_to_act?}"
   end
 end

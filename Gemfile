@@ -10,24 +10,24 @@ gem 'moped', '~>1.4.3'
 gem "mongoid", '~>3.1.2'
 
 # For convenient styling macros and SASS
-gem 'compass-rails'
-gem 'blueprint-rails'
+gem 'compass-rails', '~> 1.0'
+gem 'blueprint-rails', '~> 0.2'
 
 # To interpret Coffeescript in HAML
-gem 'coffee-filter'
+gem 'coffee-filter', '~> 0.1'
 
 # JavaScript library
-gem 'jquery-rails'
+gem 'jquery-rails', '~> 2.2'
 
 # Enable HAML format views. Prettier than ERB format views.
-gem "haml"
+gem "haml", '~> 3.1'
 
 # For deployment. Phusion Passenger integrates the rails app. with Apache.
-gem 'passenger', '~>4.0.0.rc6'
+gem 'passenger', '~>4.0'
 
 # Beanstalkd wrapper
 gem 'beanstalk-client'
-gem 'stalker'
+gem 'stalker', '~> 0.9'
 
 # To manage background processes
 gem 'god'

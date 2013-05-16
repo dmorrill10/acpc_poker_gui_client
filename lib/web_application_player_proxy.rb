@@ -1,5 +1,6 @@
 
 require 'awesome_print'
+require 'logger'
 require 'acpc_poker_player_proxy'
 
 require_relative 'database_config'
@@ -13,6 +14,15 @@ using ContextualExceptions::ClassRefinement
 class WebApplicationPlayerProxy
   # @todo Use contextual exceptions
   exceptions :unable_to_create_match_slice
+
+  class << self
+    def logger=(logger)
+      @logger = logger
+    end
+    def logger
+      @logger ||= Logger.new(STDERR)
+    end
+  end
 
   # @todo Reduce the # of params
   #
@@ -135,7 +145,7 @@ class WebApplicationPlayerProxy
       players: players_at_the_table.players.map { |player| player.to_h },
       amounts_to_call: players_at_the_table.players.sort do |player|
         player.seat
-      end.map { |player| players_at_the_table.amount_to_call(player) },
+      end.map { |player| players_at_the_table.amount_to_call(player).to_f },
       player_acting_sequence: players_at_the_table.player_acting_sequence_string
     }
 
@@ -155,6 +165,6 @@ class WebApplicationPlayerProxy
   end
 
   def log(method, variables)
-    puts "#{self.class}: #{method}: #{variables.awesome_inspect}"
+    WebApplicationPlayerProxy.logger.info "#{self.class}: #{method}: #{variables.awesome_inspect}"
   end
 end

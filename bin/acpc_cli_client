@@ -19,24 +19,22 @@ class App
 
   change_logger(Logger.new(File.join(ApplicationDefs::LOG_DIRECTORY, 'acpc_cli_client.log')))
 
-  main do |name, game_definition_key, player_names, number_of_hands, random_seed, host|
+  main do |name, game_definition_key, opponent_names, seat, number_of_hands, random_seed, host|
     game_definition_key = game_definition_key.to_sym
 
     match = Match.start_match(
       name,
       game_definition_key,
-      player_names.split(' '),
-      number_of_hands,
+      if opponent_names then opponent_names.split(' ') end,
+      seat,
+      if number_of_hands then number_of_hands.to_i end,
       random_seed
     )
 
     options = [
-      # '--t_response ' << @match.millisecond_response_timeout.to_s,
-      # '--t_hand ' << @match.millisecond_response_timeout.to_s,
       '--t_response -1',
       '--t_hand -1',
       '--t_per_hand -1'
-      # '--t_per_hand ' << @match.millisecond_response_timeout.to_s
     ].join ' '
 
     match.port_numbers = AcpcDealer::DealerRunner.start(
@@ -52,35 +50,18 @@ class App
     )[:port_numbers]
     match.save
 
-    raise unless match.port_numbers.length == match.player_names.length
-
-    port_numbers = match.port_numbers.dup
-    users_port = port_numbers.delete_at(ApplicationDefs.users_seat_index(game_definition_key, match.player_names))
-
     # @todo Assumes localhost
     dealer_host = Socket.gethostname
-
-    raise unless port_numbers.length == ApplicationDefs.bots(game_definition_key, match.player_names).length
-
-    port_numbers.zip(ApplicationDefs.bots(game_definition_key, match.player_names)).each do |port_num, bot|
-      # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
-      # ARGUMENT HASH.
-      bot_argument_hash = {
-        port_number: port_num,
-        millisecond_response_timeout: match.millisecond_response_timeout,
-        server: dealer_host,
-        game_def: match.game_definition_file_name
-      }
-
-      ProcessRunner.go bot.run_command(bot_argument_hash).split(' ')
+    match.every_bot(dealer_host) do |bot_command|
+      ProcessRunner.go bot_command
     end
 
     WebApplicationPlayerProxy.logger = logger
 
     proxy = WebApplicationPlayerProxy.new(
       match.id,
-      AcpcDealer::ConnectionInformation.new(users_port, dealer_host),
-      ApplicationDefs.users_seat_index(game_definition_key, match.player_names),
+      AcpcDealer::ConnectionInformation.new(match.users_port, dealer_host),
+      match.seat-1,
       match.game_definition_file_name,
       match.player_names.join(' '),
       match.number_of_hands
@@ -107,12 +88,13 @@ class App
 
   arg :name
   arg :game_definition_key
-  arg :player_names, :optional
+  arg :opponent_names, :optional
+  arg :seat, :optional
   arg :number_of_hands, :optional
   arg :random_seed, :optional
   arg :host, :optional
 
-  version '1.0.0'
+  version '2.0.0'
 
   use_log_level_option
 

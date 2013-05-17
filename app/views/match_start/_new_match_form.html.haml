@@ -1,6 +1,6 @@
 - game_defs_collection = ApplicationDefs::GAME_DEFINITIONS.inject({}) do |hash, game_def_key_to_properties|
   - (game_def_key, properties) = game_def_key_to_properties
-  - hash[{game_def_key => properties[:text]}] = properties[:bots]
+  - hash[{game_def_key => properties[:text]}] = properties[:bots].keys
   - hash
 - bots_collection = game_defs_collection.map { |game_def, bots| [game_def.map { |key, value| value }.first, bots]}
 
@@ -9,11 +9,13 @@
     = f.input :match_name, hint: "Matches can be rejoined with this name for #{(((ApplicationDefs::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600)/24).to_i} days after the last action was taken."
     = f.input :game_definition_key, label: 'Game definition ', collection: game_defs_collection.map { |key, value| key.first }, value_method: :first, label_method: :last, include_blank: false
     .control-group.select.required
-      = f.label 'Opponent', for: :match_bot, required: true, as: :select
+      = f.label 'Opponents', for: :player_names, required: true, as: :select
       .controls
-        = f.grouped_collection_select :bot, bots_collection, :last, :first, :last, :first, include_blank: false
+        = f.grouped_collection_select :player_names, bots_collection, :last, :first, :to_s, :to_s, {include_blank: false}, {class: 'match_player_names', name: 'match[player_names][]'}
+      .controls
+        = f.grouped_collection_select :player_names, bots_collection, :last, :first, :to_s, :to_s, {include_blank: false}, {class: 'match_player_names', name: 'match[player_names][]'}
     = f.input :number_of_hands, as: :integer
-    = f.input :seat, collection: {'Random' => nil, '1' => 1, '2' => 2}, value_method: :last, label_method: :first, include_blank: false, required: true
+    = f.input :seat, collection: {'Random' => nil, '1' => 1, '2' => 2, '3' => 3}, value_method: :last, label_method: :first, include_blank: false, required: true
     = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed'
     .form-actions
       - start_match_label = "Start match"

@@ -142,10 +142,13 @@ class WebApplicationPlayerProxy
       legal_actions: players_at_the_table.legal_actions.to_a.map do |action|
         action.to_s
       end,
-      players: players_at_the_table.players.map { |player| player.to_h },
-      amounts_to_call: players_at_the_table.players.sort do |player|
+      players: players_at_the_table.players.sort_by do |player|
         player.seat
-      end.map { |player| players_at_the_table.amount_to_call(player).to_f },
+      end.map do |player|
+        player.to_h.merge(
+          { amount_to_call: players_at_the_table.amount_to_call(player).to_f }
+        )
+      end,
       player_acting_sequence: players_at_the_table.player_acting_sequence_string
     }
 

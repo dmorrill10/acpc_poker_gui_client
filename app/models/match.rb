@@ -28,28 +28,25 @@ class Match
     validates_presence_of :match_name
     validates_uniqueness_of :match_name
   end
-
   def self.include_game_definition
     field :game_definition_key, type: Symbol
     validates_presence_of :game_definition_key
     field :game_definition_file_name
   end
-
   def self.include_number_of_hands
     field :number_of_hands, type: Integer
     validates_presence_of :number_of_hands
     validates_numericality_of :number_of_hands, greater_than: 0, only_integer: true
   end
-
-  def self.include_random_seed
-    field :random_seed, type: Integer
+  def self.include_opponent_names
+    field :opponent_names, type: Array
+    validates_presence_of :opponent_names
   end
-
-  def self.include_player_names
-    field :player_names, type: Array
-    validates_presence_of :player_names
+  def self.include_seat
+    field :seat, type: Integer
+    validates_presence_of :seat
+    validates_numericality_of :seat, greater_than: 0, only_integer: true
   end
-
   def self.delete_matches_older_than(lifespan)
     expired(lifespan).delete_all
   end
@@ -84,55 +81,38 @@ class Match
       attempts += 1
     end
   end
-
-  # @todo Generalize this so that MSC can use it
   def self.start_match(
     name,
     game_definition_key,
-    player_names=nil,
+    opponent_names=nil,
+    seat=nil,
     number_of_hands=nil,
     random_seed=nil
   )
-    random_seed ||= -> do
-      random_float = rand
-      random_int = (random_float * 10**random_float.to_s.length).to_i
-      random_int
-    end.call
-
-    game_def_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym]
-    num_players = game_def_info[:num_players]
-
-    player_names ||= [
-      'user',
-      (num_players - 1).times.map { |i| "tester" }
-    ].flatten
-
-    number_of_hands ||= 1
-
-    # Create a new match
-    match = Match.new(
+    new(
       "match_name" => name,
       "game_definition_key" => game_definition_key,
-      'game_definition_file_name' => game_def_info[:file],
-      "player_names"=>player_names,
+      "opponent_names"=>opponent_names,
+      'seat'=>seat,
       "number_of_hands" => number_of_hands,
       "random_seed" => random_seed
-    )
-
-    match.save!
-
-    match
+    ).finish_starting!
   end
 
   # Table parameters
   field :port_numbers, type: Array
   field :millisecond_response_timeout, type: Integer
+  field :random_seed, type: Integer
 
   include_match_name
   include_game_definition
   include_number_of_hands
-  include_random_seed
-  include_player_names
+  include_opponent_names
+  include_seat
+
+  # Game definition information
+  field :betting_type, type: String
+  field :number_of_hole_cards, type: Integer
 
   def delete_previous_slices!(current_index)
     if current_index > 0
@@ -147,12 +127,60 @@ class Match
       0
     end
   end
+  def finish_starting!
+    local_match_name = match_name.strip
+    self.match_name = local_match_name
 
-  def parameters
-    {'Match name:' => match_name,
-     'Game definition file name:' => game_definition_file_name,
-     'Number of hands:' => number_of_hands,
-     'Random seed:' => random_seed}
+    game_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key]
+
+    # Adjust or initialize seat
+    self.seat ||= ApplicationDefs.random_seat(game_info[:num_players])
+    if seat > game_info[:num_players]
+      seat = game_info[:num_players]
+    end
+
+    self.random_seed ||= ApplicationDefs.random_seed
+
+    self.game_definition_file_name = game_info[:file]
+
+    self.opponent_names ||= (game_info[:num_players] - 1).times.map { |i| "tester" }
+
+    self.number_of_hands ||= 1
+    self.millisecond_response_timeout ||= ApplicationDefs::DEALER_MILLISECOND_TIMEOUT
+
+    save!
+
+    self
+  end
+  def player_names(users_name='user')
+    opponent_names.dup.insert seat-1, users_name
+  end
+  def every_bot(dealer_host)
+    raise unless port_numbers.length == player_names.length ||
+      opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
+
+    opponent_ports.zip(
+      ApplicationDefs.bots(game_definition_key, opponent_names)
+    ).each do |port_num, bot|
+      # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
+      # ARGUMENT HASH.
+      bot_argument_hash = {
+        port_number: port_num,
+        millisecond_response_timeout: millisecond_response_timeout,
+        server: dealer_host,
+        game_def: game_definition_file_name
+      }
+
+      yield bot.run_command(bot_argument_hash).split(' ')
+    end
+  end
+  def users_port
+    port_numbers[seat - 1]
+  end
+  def opponent_ports
+    local_port_numbers = port_numbers.dup
+    users_port = local_port_numbers.delete_at(seat - 1)
+    local_port_numbers
   end
 
   private

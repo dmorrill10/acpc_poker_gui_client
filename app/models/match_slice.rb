@@ -23,7 +23,6 @@ class MatchSlice
   field :seat_with_dealer_button, type: Integer
   field :seat_with_small_blind, type: Integer
   field :seat_with_big_blind, type: Integer
-
   field :seat_next_to_act, type: Integer
 
   # Current match state
@@ -45,7 +44,7 @@ class MatchSlice
   field :players, type: Array
 
   # @return [Array<Integer>] The amounts required for each player to call arranged by seat.
-  field :amounts_to_call, type: Array
+  # field :amounts_to_call, type: Array
 
   # @return [String] The sequence of seats of acting players.
   field :player_acting_sequence, type: String

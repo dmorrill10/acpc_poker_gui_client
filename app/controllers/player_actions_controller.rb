@@ -56,6 +56,7 @@ class PlayerActionsController < ApplicationController
       Stalker.start_background_job 'PlayerProxy.start', player_proxy_arguments
 
       # Wait for the player to start and catch errors
+      # @todo Important place to try events instead of polling when the chance arises
       begin
         update_match!
       rescue => e

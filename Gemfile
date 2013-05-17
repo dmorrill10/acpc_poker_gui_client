@@ -56,6 +56,9 @@ gem 'methadone'
 # For better errors in WAPP
 gem 'contextual_exceptions'
 
+# To run background process
+gem 'process_runner'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

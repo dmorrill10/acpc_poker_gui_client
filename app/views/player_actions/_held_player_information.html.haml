@@ -10,5 +10,5 @@
 - elsif player['chip_contributions'].last < 0
    .stack_taken_from_pot
       = render partial: 'chip_stack', locals: { amount: -player['chip_contributions'].last }
-- if player_with_the_dealer_button == player['name']
+- if seat_with_dealer_button == player['seat']
    = render partial: 'dealer_button'

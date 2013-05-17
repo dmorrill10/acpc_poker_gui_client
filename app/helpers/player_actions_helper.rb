@@ -69,54 +69,41 @@ module PlayerActionsHelper
   def setup_match_view!
     @match_state = MatchState.new @match_slice.state_string
 
-    @hand_number = @match_state.hand_number
+    @pot_at_start_of_round = @match_slice.players.inject(0) do |sum, player|
+      sum += if @match_state.round > 0
+        player[:chip_contributions][0..@match_state.round-1].inject(:+)
+      else
+        0
+      end
+    end
+    @template.logger.info "Pot at start of round: #{@pot_at_start_of_round}"
 
-    @match_name = @match.parameters[:match_name]
-    @last_action = @match_state.last_action
-    @legal_actions = @match_slice.legal_actions
-    @hand_ended = @match_slice.hand_ended?
-    @match_ended = @match_slice.match_ended?
-    @users_turn_to_act = @match_slice.users_turn_to_act?
-
-    @pot_values_at_start_of_round = @match_slice.pot_values_at_start_of_round
-    @round = @match_state.round
-
-    @player_whose_turn_is_next = @match_slice.player_turn_information['whose_turn_is_next']
-    @player_with_the_dealer_button = @match_slice.player_turn_information['with_the_dealer_button']
-    @player_who_submitted_big_blind = @match_slice.player_turn_information['submitted_big_blind']
-    @player_who_submitted_small_blind = @match_slice.player_turn_information['submitted_small_blind']
-
-    setup_board_cards!
     setup_player_information!
 
     # @todo Will later be used to display an action log in English
     # @action_summary = []
     # if @match_state.first_state_of_first_round?
-    #   @action_summary << "Hand ##{@hand_number+1} dealt by #{@player_with_the_dealer_button['name']}, #{@player_who_submitted_small_blind['name']} pays SB, #{@player_who_submitted_big_blind['name']} pays BB"
+    #   @action_summary << "Hand ##{@match_state.hand_number+1} dealt by #{@player_with_the_dealer_button['name']}, #{@player_who_submitted_small_blind['name']} pays SB, #{@player_who_submitted_big_blind['name']} pays BB"
     # end
 
     setup_betting_and_acting_sequence!
 
     # @todo Will later be used to display an action log in English
-    # if @hand_ended
-    #   @players.each do |player|
+    # if @match_slice.hand_ended?
+    #   @match_slice.players.each do |player|
     #     if player['chip_contributions'].sum > 0
     #       @action_summary << "#{player['name']} wins #{player['chip_contributions'].sum}, increasing balance to #{player['chip_balance']}"
     #     end
     #   end
     # end
-    # if @match_ended
+    # if @match_slice.match_ended?
     #   @action_summary << "Match over"
-    #   @players.each do |player|
+    #   @match_slice.players.each do |player|
     #     @action_summary[-1] += ", #{player['name']}'s balance is #{player['chip_balance']}"
     #   end
     # end
 
-    Match.delete_match!(@match_id) if @match_ended
-  end
-
-  def setup_board_cards!
-    @board_cards = @match_state.board_cards
+    Match.delete_match!(@match_id) if @match_slice.match_ended?
   end
 
   # @todo Will later be used to display an action log in English
@@ -133,7 +120,7 @@ module PlayerActionsHelper
   #     "raises"
   #   end
 
-  #   player_name = @players[seat_taking_action]['name']
+  #   player_name = @match_slice.players[seat_taking_action]['name']
   #   "seat_taking_action: #{seat_taking_action}, action: #{action}, #{player_name} #{action_description}"
   # end
   # def setup_betting_and_acting_sequence!
@@ -167,40 +154,40 @@ module PlayerActionsHelper
     # @todo This becomes more complicated in multi-player
     players.each do |player|
       player['chip_contributions'] = [[0]] unless player['chip_contributions']
-      player['chip_contributions'][@round] = 0 unless player['chip_contributions'].length > @round
+      player['chip_contributions'][@match_state.round] = 0 unless player['chip_contributions'].length > @match_state.round
     end
 
-    @amount_for_user_to_call = @match_slice.amounts_to_call[@user['name']]
-    @minimum_wager = @match_slice.minimum_wager + @amount_for_user_to_call + @user['chip_contributions'][@round]
+    @minimum_wager = @match_slice.minimum_wager + @user['amount_to_call'] +
+      @user['chip_contributions'][@match_state.round]
 
     wager_pot_above_current_round_contribution = players.map do |player|
-      player['chip_contributions']
-    end.mapped_sum.sum + @amount_for_user_to_call
+      player['chip_contributions'].inject(:+)
+    end.inject(:+) + @user['amount_to_call']
 
-    current_round_contribution = @user['chip_contributions'][@round]
+    current_round_contribution = @user['chip_contributions'][@match_state.round]
 
     @half_pot_wager_amount = [
       (0.50 * wager_pot_above_current_round_contribution).floor +
-        current_round_contribution + @amount_for_user_to_call,
+        current_round_contribution + @user['amount_to_call'],
       @minimum_wager
     ].max
 
     @three_quarter_pot_wager_amount = [
       (0.75 * wager_pot_above_current_round_contribution).floor +
-        current_round_contribution  + @amount_for_user_to_call,
+        current_round_contribution  + @user['amount_to_call'],
       @minimum_wager
     ].max
 
     @pot_wager_amount = [
       wager_pot_above_current_round_contribution + current_round_contribution +
-        @amount_for_user_to_call,
+        @user['amount_to_call'],
       @minimum_wager
     ].max
 
 
     @two_pot_wager_amount = [
       (2 * wager_pot_above_current_round_contribution) +
-        current_round_contribution  + @amount_for_user_to_call,
+        current_round_contribution  + @user['amount_to_call'],
       @minimum_wager
     ].max
 
@@ -210,27 +197,17 @@ module PlayerActionsHelper
       @user['chip_contributions'].sum - current_round_contribution
   end
 
-  def setup_chip_balances!(players)
-    @chip_balances = players.inject({}) do |balances, player|
-      balances[player['name']] = player['chip_balance']
-      balances
-    end
-  end
-
   def setup_user_and_opponents!(players)
-    Match.failsafe_while(lambda{ !@betting_type }) do
+    Match.failsafe_while(lambda{ !@match.betting_type }) do
       @match = Match.find @match_id
-      @betting_type = @match.betting_type
     end
-    @is_no_limit = @betting_type == GameDefinition::BETTING_TYPES[:nolimit]
-
-    number_of_hole_cards = @match.number_of_hole_cards
+    @is_no_limit = @match.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
 
     @opponents = players.dup
     @user = @opponents.delete_at(@match.seat.to_i - 1)
     @opponents.each do |opponent|
       opponent['hole_cards'] = if opponent['hole_cards'].empty?
-        (0..number_of_hole_cards-1).inject(Hand.new) { |hand, i| hand << '' }
+        (0..@match.number_of_hole_cards-1).inject(Hand.new) { |hand, i| hand << '' }
       else
         Hand.from_acpc opponent['hole_cards']
       end
@@ -244,15 +221,12 @@ module PlayerActionsHelper
   end
 
   def setup_player_information!
-    @players = @match_slice.players
-
-    setup_chip_balances! @players
-    setup_user_and_opponents! @players
-    setup_pot_information! @players
+    setup_user_and_opponents! @match_slice.players
+    setup_pot_information! @match_slice.players
   end
 
-  def acting_player_id(player_name)
-    if !@hand_ended && @player_whose_turn_is_next == player_name
+  def acting_player_id(player_seat)
+    if !@match_slice.hand_ended? && @match_slice.seat_next_to_act == player_seat
       'acting_player'
     else
       'not_acting_player'

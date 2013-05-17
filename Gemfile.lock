@@ -263,6 +263,7 @@ DEPENDENCIES
   oily_png
   origin (~> 1.0.11)
   passenger (~> 4.0)
+  process_runner
   rack (~> 1.4)
   rails (~> 3.2)
   rspec-rails

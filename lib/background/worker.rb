@@ -24,7 +24,7 @@ require_relative '../web_application_player_proxy'
 require 'acpc_dealer'
 
 # For an opponent bot
-require 'dmorrill10-utils/process_runner'
+require 'process_runner'
 
 # Helpers
 require_relative 'worker_helpers'

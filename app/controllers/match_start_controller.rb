@@ -26,94 +26,53 @@ class MatchStartController < ApplicationController
   end
 
   def new
-    @match = Match.new params[:match]
-
-    @match.match_name.strip!
-
-    @match.seat = (rand(2) + 1) unless @match.seat
-    @match.random_seed = -> do
-      random_float = rand
-      random_int = (random_float * 10**random_float.to_s.length).to_i
-      random_int
-    end.call unless @match.random_seed
-
-    names = [
-      'user',
-      GAME_DEFINITIONS[@match.game_definition_key][:bots].find do |name, runner_class|
-        runner_class.to_s == @match.bot
-      end.first
-    ]
-    @match.player_names = (if @match.seat.to_i == 2 then names.reverse else names end).join(' ')
-
-    @match.number_of_hands ||= 1
-    @match.game_definition_file_name = GAME_DEFINITIONS[@match.game_definition_key][:file]
-    @match.millisecond_response_timeout = DEALER_MILLISECOND_TIMEOUT
-    unless @match.save
+    @match = begin
+      Match.new(params[:match]).finish_starting!
+    rescue
       reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
-    else
-      options = [
-        # '--t_response ' << @match.millisecond_response_timeout.to_s,
-        # '--t_hand ' << @match.millisecond_response_timeout.to_s,
-        '--t_response -1',
-        '--t_hand -1',
-        '--t_per_hand -1'
-        # '--t_per_hand ' << @match.millisecond_response_timeout.to_s
-      ].join ' '
+      return
+    end
 
-      Stalker.start_background_job(
-        'Dealer.start',
-        {
-          match_id: @match.id,
-          match_name: @match.match_name,
-          game_def_file_name: @match.game_definition_file_name,
-          number_of_hands: @match.number_of_hands.to_s,
-          random_seed: @match.random_seed.to_s,
-          player_names: @match.player_names,
-          options: options,
-          log_directory: MATCH_LOG_DIRECTORY
-        }
-      )
+    options = [
+      '--t_response -1',
+      '--t_hand -1',
+      '--t_per_hand -1'
+    ].join ' '
 
-      continue_looping_condition = lambda { |match| !match.port_numbers }
-      begin
-        temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition) {}
-      rescue
-        @match.delete
-        reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
-        return
-      end
-      @match = temp_match
-
-      port_numbers = @match.port_numbers
-
-      user_port_index = @match.seat-1
-      opponent_port_index = if 0 == user_port_index then 1 else 0 end
-      @port_number = port_numbers[user_port_index]
-      @opponent_port_number = port_numbers[opponent_port_index]
-
-      # Start an opponent
-      bot_class = Object::const_get(@match.bots.first)
-
-      # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
-      # ARGUMENT HASH.
-      bot_argument_hash = {
-        port_number: @opponent_port_number,
-        millisecond_response_timeout: @match.millisecond_response_timeout,
-        server: Socket.gethostname,
-        game_def: @match.game_definition_file_name
+    Stalker.start_background_job(
+      'Dealer.start',
+      {
+        match_id: @match.id,
+        match_name: @match.match_name,
+        game_def_file_name: @match.game_definition_file_name,
+        number_of_hands: @match.number_of_hands.to_s,
+        random_seed: @match.random_seed.to_s,
+        player_names: @match.player_names.join(' '),
+        options: options,
+        log_directory: MATCH_LOG_DIRECTORY
       }
+    )
 
-      bot_start_command = bot_class.run_command bot_argument_hash
+    # @todo Easy place to try events instead of polling when the chance arises
+    continue_looping_condition = lambda { |match| !match.port_numbers }
+    begin
+      temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition) {}
+    rescue
+      @match.delete
+      reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
+      return
+    end
+    @match = temp_match
 
+    @match.every_bot(Socket.gethostname) do |bot_command|
       opponent_arguments = {
         match_id: @match.id,
-        bot_start_command: bot_start_command.split(' ')
+        bot_start_command: bot_command
       }
-
       Stalker.start_background_job 'Opponent.start', opponent_arguments
-
-      send_parameters_to_connect_to_dealer
     end
+
+    send_parameters_to_connect_to_dealer
   end
 
   def rejoin

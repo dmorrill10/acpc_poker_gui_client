@@ -29,6 +29,18 @@ module ApplicationDefs
       text: '2-player limit',
       bots: {'tester' => RunTestingBot},
       num_players: 2
+    },
+    three_player_nolimit: {
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
+      text: '3-player no-limit',
+      bots: {'tester' => RunTestingBot},
+      num_players: 3
+    },
+    three_player_limit: {
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:limit],
+      text: '3-player limit',
+      bots: {'tester' => RunTestingBot},
+      num_players: 3
     }
   } unless const_defined? :GAME_DEFINITIONS
 

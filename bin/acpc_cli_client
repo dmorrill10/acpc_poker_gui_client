@@ -21,10 +21,11 @@ class App
 
   main do |name, game_definition_key, player_names, number_of_hands, random_seed, host|
     game_definition_key = game_definition_key.to_sym
+
     match = Match.start_match(
       name,
       game_definition_key,
-      player_names,
+      player_names.split(' '),
       number_of_hands,
       random_seed
     )

@@ -19,12 +19,12 @@ class App
 
   change_logger(Logger.new(File.join(ApplicationDefs::LOG_DIRECTORY, 'acpc_cli_client.log')))
 
-  main do |name, game_definition_key, seat, bots, number_of_hands, random_seed, host|
+  main do |name, game_definition_key, player_names, number_of_hands, random_seed, host|
+    game_definition_key = game_definition_key.to_sym
     match = Match.start_match(
       name,
       game_definition_key,
-      seat,
-      bots,
+      player_names,
       number_of_hands,
       random_seed
     )
@@ -44,26 +44,24 @@ class App
         game_def_file_name: match.game_definition_file_name,
         hands: match.number_of_hands,
         random_seed: match.random_seed,
-        player_names: match.player_names,
+        player_names: match.player_names.join(' '),
         options: options
       },
       ApplicationDefs::MATCH_LOG_DIRECTORY
     )[:port_numbers]
     match.save
 
-    raise unless match.port_numbers.length == match.player_names.split.length &&
-      match.port_numbers.length == match.bots.length + 1
+    raise unless match.port_numbers.length == match.player_names.length
 
     port_numbers = match.port_numbers.dup
-    users_port = port_numbers.delete_at(match.seat - 1)
+    users_port = port_numbers.delete_at(ApplicationDefs.users_seat_index(game_definition_key, match.player_names))
 
     # @todo Assumes localhost
     dealer_host = Socket.gethostname
 
-    port_numbers.zip(match.bots).each do |port_num, bot|
-      # Start an opponent
-      bot_class = Object::const_get(bot)
+    raise unless port_numbers.length == ApplicationDefs.bots(game_definition_key, match.player_names).length
 
+    port_numbers.zip(ApplicationDefs.bots(game_definition_key, match.player_names)).each do |port_num, bot|
       # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
       # ARGUMENT HASH.
       bot_argument_hash = {
@@ -73,7 +71,7 @@ class App
         game_def: match.game_definition_file_name
       }
 
-      ProcessRunner.go bot_class.run_command(bot_argument_hash).split(' ')
+      ProcessRunner.go bot.run_command(bot_argument_hash).split(' ')
     end
 
     WebApplicationPlayerProxy.logger = logger
@@ -81,20 +79,20 @@ class App
     proxy = WebApplicationPlayerProxy.new(
       match.id,
       AcpcDealer::ConnectionInformation.new(users_port, dealer_host),
-      match.seat - 1,
+      ApplicationDefs.users_seat_index(game_definition_key, match.player_names),
       match.game_definition_file_name,
-      match.player_names,
+      match.player_names.join(' '),
       match.number_of_hands
     )
 
-    current_slice = Match.find(match.id).slices.last
+    current_slice = Match.find(match.id).slices.pop
 
     while !current_slice.match_ended? do
       puts current_slice.awesome_inspect
       print 'Your turn to act: '; STDOUT.flush
       action = AcpcPokerTypes::PokerAction.new(STDIN.gets.chomp)
       proxy.play! action
-      current_slice = Match.find(match.id).slices.last
+      current_slice = Match.find(match.id).slices.pop
     end
 
     puts current_slice.awesome_inspect
@@ -108,13 +106,12 @@ class App
 
   arg :name
   arg :game_definition_key
-  arg :seat, :optional
-  arg :bots, :optional
+  arg :player_names, :optional
   arg :number_of_hands, :optional
   arg :random_seed, :optional
   arg :host, :optional
 
-  version '0.0.1'
+  version '1.0.0'
 
   use_log_level_option
 

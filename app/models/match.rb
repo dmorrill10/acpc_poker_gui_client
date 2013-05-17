@@ -45,9 +45,9 @@ class Match
     field :random_seed, type: Integer
   end
 
-  def self.include_opponent_agents
-    field :bots, type: Array
-    validates_presence_of :bots
+  def self.include_player_names
+    field :player_names, type: Array
+    validates_presence_of :player_names
   end
 
   def self.delete_matches_older_than(lifespan)
@@ -89,8 +89,7 @@ class Match
   def self.start_match(
     name,
     game_definition_key,
-    seat=nil,
-    bots=nil,
+    player_names=nil,
     number_of_hands=nil,
     random_seed=nil
   )
@@ -103,18 +102,10 @@ class Match
     game_def_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key.to_sym]
     num_players = game_def_info[:num_players]
 
-    seat ||= (rand(num_players) + 1)
-
-    bots ||= (num_players - 1).times.map { |i| "RunTestingBot" }
-
-    player_names = [
+    player_names ||= [
       'user',
-      bots.map do |bot|
-        game_def_info[:bots].find do |name, runner_class|
-          runner_class.to_s == bot
-        end.first
-      end
-    ].flatten.join ' '
+      (num_players - 1).times.map { |i| "tester" }
+    ].flatten
 
     number_of_hands ||= 1
 
@@ -123,11 +114,9 @@ class Match
       "match_name" => name,
       "game_definition_key" => game_definition_key,
       'game_definition_file_name' => game_def_info[:file],
-      "bots"=>bots,
-      "seat" => seat,
+      "player_names"=>player_names,
       "number_of_hands" => number_of_hands,
-      "random_seed" => random_seed,
-      'player_names' => player_names
+      "random_seed" => random_seed
     )
 
     match.save!
@@ -137,19 +126,13 @@ class Match
 
   # Table parameters
   field :port_numbers, type: Array
-  field :player_names, type: String
   field :millisecond_response_timeout, type: Integer
-  field :seat, type: Integer
 
   include_match_name
   include_game_definition
   include_number_of_hands
   include_random_seed
-  include_opponent_agents
-
-  # Game definition information
-  field :betting_type, type: String
-  field :number_of_hole_cards, type: Integer
+  include_player_names
 
   def delete_previous_slices!(current_index)
     if current_index > 0

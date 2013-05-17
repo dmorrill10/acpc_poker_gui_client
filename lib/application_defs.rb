@@ -43,4 +43,12 @@ module ApplicationDefs
       GAME_DEFINITIONS[game_def_key][:bots][name]
     end.reject { |elem| elem.nil? }
   end
+  def self.random_seat(num_players)
+    rand(num_players) + 1
+  end
+  def self.users_seat_index(game_def_key, player_names)
+    player_names.index do |name|
+      GAME_DEFINITIONS[game_def_key][:bots][name].nil?
+    end
+  end
 end

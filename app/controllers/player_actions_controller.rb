@@ -19,6 +19,7 @@ class PlayerActionsController < ApplicationController
   include PlayerActionsHelper
 
   def index
+    # @todo This is horribly broken
     @match_params = {
       match_id: params[:match_id],
       port_number: params[:port_number],
@@ -27,7 +28,7 @@ class PlayerActionsController < ApplicationController
       number_of_hands: params[:number_of_hands],
       seat: params[:seat],
       random_seed: params[:random_seed],
-      player_names: params[:player_names],
+      opponent_names: params[:opponent_names],
       millisecond_response_timeout: params[:millisecond_response_timeout]
     }
 

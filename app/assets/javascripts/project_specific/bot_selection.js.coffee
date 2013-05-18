@@ -2,7 +2,7 @@ root = exports ? this
 
 root.BotSelection =
   makeDynamicAccordingToGameDef: ->
-    $('.match_player_names').each((index)->
+    $('.match_opponent_names').each((index)->
       bots = $(this).html()
       # console.log(bots)
       $('#match_game_definition_key').change ->
@@ -13,9 +13,9 @@ root.BotSelection =
         options = filtered.html()
         # console.log(options)
         if options
-          $('.match_player_names').html(options).parent().show()
+          $('.match_opponent_names').html(options).parent().show()
         else
-          $('.match_player_names').empty().parent().hide()
+          $('.match_opponent_names').empty().parent().hide()
     )
   selectDefaultGameDef: ->
     $('#match_game_definition_key').trigger('change')

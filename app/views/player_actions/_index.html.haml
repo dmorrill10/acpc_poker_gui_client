@@ -68,7 +68,7 @@
     - else
       - fold_label = 'Fold'
       - fold_is_disabled_when = !(@match_slice.users_turn_to_act? && @match_slice.legal_actions.include?('f'))
-      - pass_action_button_label = if (@match_slice.legal_actions.include?('c') && @user['amount_to_call'] > 0) then (if @is_no_limit then "Call (#{@user['amount_to_call']})" else 'Call' end) else 'Check' end
+      - pass_action_button_label = if (@match_slice.legal_actions.include?('c') && @user['amount_to_call'] > 0) then (if @is_no_limit then "Call (#{@user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end
       - make_wager_button_label = if @match_slice.legal_actions.include?('b') then 'Bet' else 'Raise' end
       - make_wager_button_label += ' to' if @is_no_limit
       - wager_classes = if @is_no_limit then ['with_modifier'] else [] end

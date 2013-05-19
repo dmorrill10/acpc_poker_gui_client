@@ -65,74 +65,21 @@ module PlayerActionsHelper
 
     @pot_at_start_of_round = @match_slice.players.inject(0) do |sum, player|
       sum += if @match_state.round > 0
-        player[:chip_contributions][0..@match_state.round-1].inject(:+)
+        player['chip_contributions'][0..@match_state.round-1].inject(:+)
       else
         0
       end
     end
-    ap "Pot at start of round: #{@pot_at_start_of_round}"
-
     setup_player_information!
-
-    # @todo Will later be used to display an action log in English
-    # @action_summary = []
-    # if @match_state.first_state_of_first_round?
-    #   @action_summary << "Hand ##{@match_state.hand_number+1} dealt by #{@player_with_the_dealer_button['name']}, #{@player_who_submitted_small_blind['name']} pays SB, #{@player_who_submitted_big_blind['name']} pays BB"
-    # end
-
     setup_betting_and_acting_sequence!
-
-    # @todo Will later be used to display an action log in English
-    # if @match_slice.hand_ended?
-    #   @match_slice.players.each do |player|
-    #     if player['chip_contributions'].sum > 0
-    #       @action_summary << "#{player['name']} wins #{player['chip_contributions'].sum}, increasing balance to #{player['chip_balance']}"
-    #     end
-    #   end
-    # end
-    # if @match_slice.match_ended?
-    #   @action_summary << "Match over"
-    #   @match_slice.players.each do |player|
-    #     @action_summary[-1] += ", #{player['name']}'s balance is #{player['chip_balance']}"
-    #   end
-    # end
-
     Match.delete_match!(@match_id) if @match_slice.match_ended?
   end
-
-  # @todo Will later be used to display an action log in English
-  # def english_description(seat_taking_action, action)
-  #   action_description = if action.match('b') # @todo get amount
-  #     "bets"
-  #   elsif action == 'c'
-  #     "calls"
-  #   elsif action == 'f'
-  #     "fold"
-  #   elsif action == 'k'
-  #     'checks'
-  #   elsif action.match('r')
-  #     "raises"
-  #   end
-
-  #   player_name = @match_slice.players[seat_taking_action]['name']
-  #   "seat_taking_action: #{seat_taking_action}, action: #{action}, #{player_name} #{action_description}"
-  # end
-  # def setup_betting_and_acting_sequence!
-  #   if @match_slice.betting_sequence && @match_slice.player_acting_sequence
-  #     i = 0
-  #     @action_summary += @match_slice.betting_sequence.scan(/.\d*/).inject([]) do |summary, action|
-  #       seat_taking_action = @match_slice.player_acting_sequence[i].to_i
-  #       summary << english_description(seat_taking_action, action)
-  #       i += 1
-  #       summary
-  #     end
-  #   end
-  # end
 
   def setup_betting_and_acting_sequence!
     @action_summary = ""
     if @match_slice.betting_sequence && @match_slice.player_acting_sequence
       i = 0
+      # @todo Adjust amounts to 'wager-to over round' from 'wager-to over hand'
       @match_slice.betting_sequence.scan(/.\d*/).each do |action|
         @action_summary << if @match_slice.player_acting_sequence[i].to_i == @user['seat']
           action.capitalize
@@ -142,15 +89,17 @@ module PlayerActionsHelper
         i += 1
       end
     end
+    self
   end
 
   def setup_pot_information!(players)
-    # @todo This becomes more complicated in multi-player
+    # @todo Is this still needed?
     players.each do |player|
-      player['chip_contributions'] = [[0]] unless player['chip_contributions']
+      player['chip_contributions'] = [0] unless player['chip_contributions']
       player['chip_contributions'][@match_state.round] = 0 unless player['chip_contributions'].length > @match_state.round
     end
 
+    # @todo A lot of these variables should be methods instead. No need to copy them
     @minimum_wager = @match_slice.minimum_wager + @user['amount_to_call'] +
       @user['chip_contributions'][@match_state.round]
 
@@ -178,7 +127,6 @@ module PlayerActionsHelper
       @minimum_wager
     ].max
 
-
     @two_pot_wager_amount = [
       (2 * wager_pot_above_current_round_contribution) +
         current_round_contribution  + @user['amount_to_call'],
@@ -189,16 +137,23 @@ module PlayerActionsHelper
 
     @amount_user_has_contributed_over_previous_rounds =
       @user['chip_contributions'].sum - current_round_contribution
+
+    self
   end
 
   def setup_user_and_opponents!(players)
+    # @todo Still necessary?
     Match.failsafe_while(lambda{ !@match.betting_type }) do
       @match = Match.find @match_id
     end
+    # @todo This should be a method
     @is_no_limit = @match.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
 
+    # @todo These should be methods rather than copies
     @opponents = players.dup
     @user = @opponents.delete_at(@match.seat.to_i - 1)
+
+    # @todo Clean this up
     @opponents.each do |opponent|
       opponent['hole_cards'] = if opponent['hole_cards'].empty?
         (0..@match.number_of_hole_cards-1).inject(Hand.new) { |hand, i| hand << '' }
@@ -210,8 +165,11 @@ module PlayerActionsHelper
     @user['hole_cards'] = Hand.from_acpc @user['hole_cards']
 
     players.each do |player|
+      # @todo Can this be replaced with #from_acpc?
       player['hole_cards'] = Hand.new if player['folded?']
     end
+
+    self
   end
 
   def setup_player_information!
@@ -243,6 +201,7 @@ module PlayerActionsHelper
     "Leave Match"
   end
 
+  # @todo This should return self
   # Updates the current match state.
   def update_match!
     @match_slice_index = params[:match_slice_index].to_i || 0
@@ -250,6 +209,7 @@ module PlayerActionsHelper
     update_match_slice!
   end
 
+  # @todo This should return self
   def update_match_slice!
     if new_match_state_available?
       @match = Match.find @match_id
@@ -278,10 +238,5 @@ module PlayerActionsHelper
       return false
     end
     true
-  end
-
-  def round_specific_sequence(sequence, round)
-    return '' if sequence.empty?
-    sequence.split(/\//)[round]
   end
 end

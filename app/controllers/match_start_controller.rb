@@ -26,7 +26,7 @@ class MatchStartController < ApplicationController
   end
 
   def new
-    if(
+    while (
       params[:match][:opponent_names].length >
       ApplicationDefs::GAME_DEFINITIONS[
         params[:match][:game_definition_key].to_sym

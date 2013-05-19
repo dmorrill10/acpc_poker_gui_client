@@ -27,10 +27,7 @@
   .poker_table.span-24
     - opponent = @opponents[0]
     .information_about_an_opponent{ :id => acting_player_id(opponent['seat']) }
-      = render partial: 'held_player_information', locals: {player: opponent,
-        hand_ended: @match_slice.hand_ended?,
-        seat_with_dealer_button: @match_slice.seat_with_dealer_button,
-        round: @match_state.round}
+      = render partial: 'held_player_information', locals: {player: opponent, hand_ended: @match_slice.hand_ended?, seat_with_dealer_button: @match_slice.seat_with_dealer_button, round: @match_state.round}
     .community_information
       %ul.board_cards
         = render partial: 'cards', locals: {cards: @match_state.board_cards.flatten}
@@ -46,10 +43,7 @@
           %li
             %p The match has ended, thanks for playing!
     .users_information{ :id => acting_player_id(@user['seat']) }
-      = render partial: 'held_player_information', locals: {player: @user,
-        hand_ended: @match_slice.hand_ended?,
-        seat_with_dealer_button: @match_slice.seat_with_dealer_button,
-        round: @match_state.round}
+      = render partial: 'held_player_information', locals: {player: @user, hand_ended: @match_slice.hand_ended?, seat_with_dealer_button: @match_slice.seat_with_dealer_button, round: @match_state.round}
 
   - next_hand_button_should_be_visible = @match_slice.hand_ended? && !@match_slice.match_ended?
   - action_dashboard_id = if @is_no_limit

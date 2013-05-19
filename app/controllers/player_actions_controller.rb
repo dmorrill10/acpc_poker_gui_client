@@ -19,7 +19,6 @@ class PlayerActionsController < ApplicationController
   include PlayerActionsHelper
 
   def index
-    # @todo This is horribly broken
     @match_params = {
       match_id: params[:match_id],
       port_number: params[:port_number],
@@ -46,9 +45,9 @@ class PlayerActionsController < ApplicationController
     else # A new match is being started so the user's proxy needs to be started
       player_proxy_arguments = {
         match_id: @match_params[:match_id],
-        host_name: 'localhost', port_number: @match_params[:port_number],
+        host_name: 'localhost', port_number: @match.users_port,
         game_definition_file_name: @match_params[:game_definition_file_name],
-        player_names: @match_params[:player_names],
+        player_names: @match.player_names.join(' '),
         number_of_hands: @match_params[:number_of_hands],
         millisecond_response_timeout: @match_params[:millisecond_response_timeout],
         users_seat: (@match_params[:seat].to_i - 1)

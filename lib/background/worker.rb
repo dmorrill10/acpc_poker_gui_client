@@ -32,6 +32,7 @@ require_relative 'worker_helpers'
 require_relative 'setup_rusen'
 
 include WorkerHelpers
+include AcpcPokerTypes
 
 # Ensures that the map used to keep track of background processes is initialized properly
 before do |job|
@@ -72,7 +73,7 @@ Stalker.job('Dealer.start') do |params|
   # Start the dealer
   unless background_processes[:dealer]
     begin
-      background_processes[:dealer] = DealerRunner.start(
+      background_processes[:dealer] = AcpcDealer::DealerRunner.start(
         dealer_arguments,
         log_directory
       )
@@ -121,7 +122,7 @@ Stalker.job('PlayerProxy.start') do |params|
     millisecond_response_timeout = params.retrieve_parameter_or_raise_exception('millisecond_response_timeout').to_i
     users_seat = params.retrieve_parameter_or_raise_exception('users_seat').to_i
 
-    dealer_information = AcpcDealerInformation.new host_name, port_number, millisecond_response_timeout
+    dealer_information = AcpcDealer::ConnectionInformation.new port_number, host_name, millisecond_response_timeout
 
     begin
       game_definition = GameDefinition.parse_file(game_definition_file_name)

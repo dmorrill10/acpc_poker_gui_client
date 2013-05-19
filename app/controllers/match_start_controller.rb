@@ -26,9 +26,23 @@ class MatchStartController < ApplicationController
   end
 
   def new
+    if(
+      params[:match][:opponent_names].length >
+      ApplicationDefs::GAME_DEFINITIONS[
+        params[:match][:game_definition_key].to_sym
+      ][:num_players] - 1
+    )
+      params[:match][:opponent_names].pop
+    end
     @match = begin
       Match.new(params[:match]).finish_starting!
     rescue
+      ap "MatchStartController#index: "
+      p e.message
+      ap 'Backtrace:'
+      e.backtrace.each do |line|
+        ap line
+      end
       reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
       return
     end
@@ -54,10 +68,16 @@ class MatchStartController < ApplicationController
     )
 
     # @todo Easy place to try events instead of polling when the chance arises
-    continue_looping_condition = lambda { |match| !match.port_numbers }
+    continue_looping_condition = lambda { |match| match.port_numbers.nil? }
     begin
-      temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition) {}
-    rescue
+      temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition)
+    rescue => e
+      ap "MatchStartController#index: "
+      p e.message
+      ap 'Backtrace:'
+      e.backtrace.each do |line|
+        ap line
+      end
       @match.delete
       reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
       return
@@ -84,7 +104,13 @@ class MatchStartController < ApplicationController
 
       @port_number = @match.port_numbers[@match.seat-1]
       send_parameters_to_connect_to_dealer
-    rescue
+    rescue => e
+      ap "MatchStartController#index: "
+      p e.message
+      ap 'Backtrace:'
+      e.backtrace.each do |line|
+        ap line
+      end
       reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\"."
     end
   end

@@ -3,12 +3,14 @@
    .hole_cards
       = render partial: 'cards', locals: { cards: player['hole_cards'] }
    .player_stack
-      = render partial: 'player_actions/chip_stack', locals: { amount: player['chip_stack'] + (if hand_ended && player['chip_contributions'].last < 0 then player['chip_contributions'].last else 0 end) }
+      - players_stack = player['chip_stack'].to_i + (if hand_ended && player['chip_contributions'].last < 0 then player['chip_contributions'].last else 0 end)
+      - players_stack = players_stack.to_i unless players_stack.to_i != players_stack
+      = render partial: 'chip_stack', locals: { amount: players_stack }
 - if !hand_ended && player['chip_contributions'][round] > 0
    .stack_added_to_pot
-      = render partial: 'chip_stack', locals: { amount: player['chip_contributions'][round] }
+      = render partial: 'chip_stack', locals: { amount: player['chip_contributions'][round].to_i }
 - elsif player['chip_contributions'].last < 0
    .stack_taken_from_pot
-      = render partial: 'chip_stack', locals: { amount: -player['chip_contributions'].last }
+      = render partial: 'chip_stack', locals: { amount: -player['chip_contributions'].last.to_i }
 - if seat_with_dealer_button == player['seat']
    = render partial: 'dealer_button'

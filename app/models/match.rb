@@ -44,8 +44,7 @@ class Match
   end
   def self.include_seat
     field :seat, type: Integer
-    validates_presence_of :seat
-    validates_numericality_of :seat, greater_than: 0, only_integer: true
+    # Can't validate since I want to allow nil and don't know how to
   end
   def self.delete_matches_older_than(lifespan)
     expired(lifespan).delete_all
@@ -76,7 +75,7 @@ class Match
         ap "Attempts: #{attempts}"
         sleep Math.log(attempts - 4)
       end
-      yield
+      yield if block_given?
       raise if time_limit_reached?(time_beginning_to_wait)
       attempts += 1
     end
@@ -156,6 +155,8 @@ class Match
     opponent_names.dup.insert seat-1, users_name
   end
   def every_bot(dealer_host)
+    ap "port_numbers.length: #{port_numbers.length}, player_names: #{player_names}, opponent_ports: #{opponent_ports}, ApplicationDefs.bots(game_definition_key, opponent_names).length: #{ApplicationDefs.bots(game_definition_key, opponent_names).length}"
+
     raise unless port_numbers.length == player_names.length ||
       opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
 

@@ -15,8 +15,7 @@ module ApplicationDefs
   # @return [String] Improper amount warning message.
   IMPROPER_AMOUNT_MESSAGE = "Improper amount entered" unless const_defined?(:IMPROPER_AMOUNT_MESSAGE)
 
-  DEALER_MILLISECOND_TIMEOUT = nil unless const_defined? :DEALER_MILLISECOND_TIMEOUT
-  # 7 * 24 * 3600000 unless const_defined? :DEALER_MILLISECOND_TIMEOUT
+  DEALER_MILLISECOND_TIMEOUT = 7 * 24 * 3600000 unless const_defined? :DEALER_MILLISECOND_TIMEOUT
 
   GAME_DEFINITIONS = {
     two_player_nolimit: {

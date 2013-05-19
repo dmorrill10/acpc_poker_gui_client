@@ -10,6 +10,7 @@ require File.expand_path('../application_helper', __FILE__)
 # Helpers for +PlayerActions+ controller and views.
 module PlayerActionsHelper
   include ApplicationHelper
+  include AcpcPokerTypes
 
   def poker_action_submission_options(label, disabled_when, classes=[], ids=[], link=nil)
     {class: (classes + ['btn', 'btn-primary', 'btn-block', 'poker_action_button']), id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
@@ -59,13 +60,6 @@ module PlayerActionsHelper
     Suit::DOMAIN[suit_symbol][:html_character]
   end
 
-
-
-
-
-
-
-
   def setup_match_view!
     @match_state = MatchState.new @match_slice.state_string
 
@@ -76,7 +70,7 @@ module PlayerActionsHelper
         0
       end
     end
-    @template.logger.info "Pot at start of round: #{@pot_at_start_of_round}"
+    ap "Pot at start of round: #{@pot_at_start_of_round}"
 
     setup_player_information!
 

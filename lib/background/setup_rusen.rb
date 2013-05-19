@@ -1,4 +1,4 @@
-# require 'rusen'
+require 'rusen'
 # Rusen.settings.outputs = [:email]
 # Rusen.settings.sections = [:backtrace]
 # Rusen.settings.email_prefix = '[ERROR] '

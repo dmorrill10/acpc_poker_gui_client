@@ -138,7 +138,7 @@ module PlayerActionsHelper
     @all_in_amount = @user['chip_stack'] + current_round_contribution
 
     @amount_user_has_contributed_over_previous_rounds =
-      @user['chip_contributions'].sum - current_round_contribution
+      @user['chip_contributions'].inject(:+) - current_round_contribution
 
     self
   end

@@ -149,7 +149,7 @@ class WebApplicationPlayerProxy
           { amount_to_call: players_at_the_table.amount_to_call(player).to_f }
         )
       end,
-      player_acting_sequence: players_at_the_table.player_acting_sequence
+      player_acting_sequence: players_at_the_table.player_acting_sequence_string
     }
 
     log __method__, slice_attributes

@@ -264,12 +264,7 @@ describe MatchView do
     ]
     slice.stubs(:players).returns(players)
     slice.stubs(:player_acting_sequence).returns(
-      [
-        [2, 0, 1, 2, 0],
-        [0, 1, 2, 0],
-        [0, 2],
-        [0, 2]
-      ]
+      '20120/0120/02/02'
     )
     @patient.betting_sequence.should == 'ccR15cc/b35Fr85c/kk/kk'
   end

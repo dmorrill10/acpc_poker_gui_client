@@ -88,23 +88,13 @@ class MatchView
   end
   def betting_sequence
     sequence = ''
-    slice.betting_sequence.scan(/.\d*/).each_with_index do |action, i|
-      amount_to_over_hand = action[1..-1]
-      unless amount_to_over_hand.empty?
-        # @todo This is wrong
-        current_round = 0
-        while slice.player_acting_sequence[current_round].length <
-        amount_to_over_round = (
-          amount_to_over_hand.to_i -
-          MatchView.chip_contributions_in_previous_rounds(
-            players[slice.player_acting_sequence.flatten[i]],
+    round = 0
+    slice.betting_sequence.scan(/.\d*/)
+      .each_with_index do |action, action_index|
+      round += 1 if action == '/'
+      action = adjust_action_amount action, round, action_index
 
-          )
-        )
-        action = "#{action[0]}#{amount_to_over_round}"
-      end
-
-      sequence << if slice.player_acting_sequence.flatten[i] == @match.seat-1
+      sequence << if slice.player_acting_sequence[action_index].to_i == @match.seat-1
         action.capitalize
       else
         action
@@ -115,8 +105,21 @@ class MatchView
 
   private
 
-  # @todo Finish
-  def round_from_player_acting_sequence(action_index)
-
+  def adjust_action_amount(action, round, action_index)
+    amount_to_over_hand = action[1..-1]
+    if amount_to_over_hand.empty?
+      action
+    else
+      # @todo This is broken
+      puts "round: #{round}"
+      amount_to_over_round = (
+        amount_to_over_hand.to_i -
+        MatchView.chip_contributions_in_previous_rounds(
+          players[slice.player_acting_sequence[action_index].to_i],
+          round
+        )
+      )
+      "#{action[0]}#{amount_to_over_round}"
+    end
   end
 end

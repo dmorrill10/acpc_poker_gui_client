@@ -112,7 +112,6 @@ Stalker.job('PlayerProxy.start') do |params|
     num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
-  game_definition = nil
   unless background_processes[:player_proxy]
     host_name = params.retrieve_parameter_or_raise_exception 'host_name'
     port_number = params.retrieve_parameter_or_raise_exception 'port_number'
@@ -126,6 +125,13 @@ Stalker.job('PlayerProxy.start') do |params|
 
     begin
       game_definition = GameDefinition.parse_file(game_definition_file_name)
+      # Store some necessary game definition properties in the database so the web app can access
+      # them without parsing the game definition itself
+      match = match_instance match_id
+      match.betting_type = game_definition.betting_type
+      match.number_of_hole_cards = game_definition.number_of_hole_cards
+      save_match_instance match
+
       background_processes[:player_proxy] = WebApplicationPlayerProxy.new(
         match_id,
         dealer_information,
@@ -140,12 +146,6 @@ Stalker.job('PlayerProxy.start') do |params|
     end
 
     @match_id_to_background_processes[match_id] = background_processes
-
-    # Store game definition properties in the database so the web app. can access them
-    match = match_instance match_id
-    match.betting_type = game_definition.betting_type
-    match.number_of_hole_cards = game_definition.number_of_hole_cards
-    save_match_instance match
   end
 end
 

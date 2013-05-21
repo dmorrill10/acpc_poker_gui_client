@@ -70,6 +70,8 @@ module PlayerActionsHelper
         0
       end
     end
+
+
     setup_player_information!
     setup_betting_and_acting_sequence!
     Match.delete_match!(@match_id) if @match_slice.match_ended?
@@ -142,10 +144,6 @@ module PlayerActionsHelper
   end
 
   def setup_user_and_opponents!(players)
-    # @todo Still necessary?
-    Match.failsafe_while(lambda{ !@match.betting_type }) do
-      @match = Match.find @match_id
-    end
     # @todo This should be a method
     @is_no_limit = @match.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
 

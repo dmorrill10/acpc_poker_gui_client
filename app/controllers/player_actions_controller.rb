@@ -90,7 +90,8 @@ class PlayerActionsController < ApplicationController
     @match_id ||= params['match_id']
     begin
       # Delete the last slice since it's no longer needed
-      Match.find(@match_id).slices.first.delete
+      last_slice = Match.find(@match_id).slices.first
+      last_slice.delete
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice before taking action #{params[:user_poker_action]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
@@ -101,6 +102,17 @@ class PlayerActionsController < ApplicationController
       replace_page_contents_with_updated_game_view
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
+      # Save the last match state again so that it can
+      # be resumed
+      begin
+        match = Match.find(@match_id)
+        match.slices << last_slice if match.slices.empty?
+        match.save!
+      rescue
+        # If the match can't be retrieved or saved then
+        # it can't be resumed anyway, so nothing
+        # special to do here.
+      end
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
     end
   end

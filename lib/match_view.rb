@@ -19,7 +19,7 @@ class MatchView
     player,
     round = player['chip_contributions'].length - 1
   )
-    if player['chip_contributions'].length > 1
+    if round > 0
       player['chip_contributions'][0..round-1].inject(:+)
     else
       0
@@ -27,6 +27,11 @@ class MatchView
   end
   def self.chip_contribution_after_calling(player)
     player['chip_contributions'].inject(:+) + player['amount_to_call']
+  end
+  def user_contributions_in_previous_rounds(
+    round = user['chip_contributions'].length - 1
+  )
+    MatchView.chip_contributions_in_previous_rounds(user, round)
   end
   def pot_at_start_of_round
     slice.players.inject(0) do |sum, player|
@@ -38,7 +43,7 @@ class MatchView
   end
   def players
     slice.players.map do |player|
-      if player['hole_cards'].nil?
+      if player['hole_cards'].nil? || player['hole_cards'].kind_of?(AcpcPokerTypes::Hand)
         # Do nothing
       elsif player['folded?']
         player['hole_cards'] = AcpcPokerTypes::Hand.new
@@ -63,29 +68,43 @@ class MatchView
       players[slice.seat_next_to_act - 1]
     end
   end
+  # Over round
   def minimum_wager_to
-    slice.minimum_wager + next_player_to_act['amount_to_call'] +
-      next_player_to_act['chip_contributions'].inject(:+)
+    return 0 unless next_player_to_act
+    slice.minimum_wager +
+    next_player_to_act['amount_to_call'] +
+    next_player_to_act['chip_contributions'].last
   end
   def pot
     players.inject(0) { |sum, player| sum += player['chip_contributions'].inject(:+) }
   end
   def pot_after_call
-    pot + next_player_to_act['amount_to_call']
+    pot + if next_player_to_act
+      next_player_to_act['amount_to_call']
+    else
+      0
+    end
   end
+  # Over round
   def pot_fraction_wager_to(fraction=1)
+    return 0 unless next_player_to_act
     [
       (
         fraction * pot_after_call +
-        MatchView.chip_contribution_after_calling(next_player_to_act)
+        next_player_to_act['chip_contributions'].last +
+        next_player_to_act['amount_to_call']
       ),
       minimum_wager_to
     ].max
   end
+  # Over round
   def all_in
+    return 0 unless next_player_to_act
     next_player_to_act['chip_stack'] +
-    MatchView.chip_contribution_after_calling(next_player_to_act)
+    next_player_to_act['chip_contributions'].last +
+    next_player_to_act['amount_to_call']
   end
+  # Over round
   def betting_sequence
     sequence = ''
     round = 0
@@ -110,8 +129,6 @@ class MatchView
     if amount_to_over_hand.empty?
       action
     else
-      # @todo This is broken
-      puts "round: #{round}"
       amount_to_over_round = (
         amount_to_over_hand.to_i -
         MatchView.chip_contributions_in_previous_rounds(

@@ -31,8 +31,9 @@ class PlayerActionsController < ApplicationController
       millisecond_response_timeout: params[:millisecond_response_timeout]
     }
 
-    @match_id = @match_params[:match_id]
+    @match_id = params[:match_id]
     begin
+      # @todo This shouldn't be necessary anymore
       @match = Match.find @match_id
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
@@ -40,8 +41,7 @@ class PlayerActionsController < ApplicationController
       return
     end
     if @match && @match.slices.length > 0 # Match is being resumed
-      @match_slice = @match.slices.last
-      @match_slice_index = @match.slices.length
+      # Do nothing
     else # A new match is being started so the user's proxy needs to be started
       player_proxy_arguments = {
         match_id: @match_params[:match_id],
@@ -73,19 +73,29 @@ class PlayerActionsController < ApplicationController
   end
 
   def take_action
-    puts "   ACTIION: #{params[:user_poker_action]}"
-
     user_poker_action = UserPokerAction.new params[:user_poker_action]
-    params[:match_id] = user_poker_action.match_id
-    params[:match_slice_index] = user_poker_action.match_slice_index
+    @match_id ||= user_poker_action.match_id
 
-    Stalker.start_background_job('PlayerProxy.play', match_id: user_poker_action.match_id,
-                         action: user_poker_action.poker_action, modifier: user_poker_action.modifier)
+    Stalker.start_background_job(
+      'PlayerProxy.play',
+      match_id: user_poker_action.match_id,
+      action: user_poker_action.poker_action,
+      modifier: user_poker_action.modifier
+    )
 
     update_match_state
   end
 
   def update_match_state
+    @match_id ||= params['match_id']
+    begin
+      # Delete the last slice since it's no longer needed
+      Match.find(@match_id).slices.first.delete
+    rescue => e
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
+      reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice before taking action #{params[:user_poker_action]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
+    end
     begin
       update_match!
       replace_page_contents_with_updated_game_view

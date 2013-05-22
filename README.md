@@ -14,7 +14,7 @@ Components
 Much of this application's functionality comes from component gems that began as part of this project and subsequently branched away to become stand-alone projects:
 
 * [ACPC Dealer][ACPC Dealer GitHub] - Wraps the [<em>ACPC Dealer Server</em>][ACPC competition server] in a handy gem with a convenient runner class, and a script for compiling and running the dealer and example players.
-* [ACPC Dealer Data][ACPC Dealer Data GitHub] - Utilities for extracting information from [<em>ACPC Dealer Server</em>][ACPC competition server] logs. Used for mostly for testing.
+* [ACPC Dealer Data][ACPC Dealer Data GitHub] - Utilities for extracting information from [<em>ACPC Dealer Server</em>][ACPC competition server] logs. Used for testing.
 * [ACPC Poker Basic Proxy][ACPC Poker Basic Proxy GitHub] - Utilities for communicating with the [<em>ACPC Dealer Server</em>][ACPC competition server].
 * [ACPC Poker Match State][ACPC Poker Match State GitHub] - Provides a manager for the state of a poker match.
 * [ACPC Poker Player Proxy][ACPC Poker Player Proxy GitHub] - Provides a full proxy through which a match of poker may be played with the [<em>ACPC Dealer Server</em>][ACPC competition server]. Match states sent by the dealer are retrieved automatically whenever they are available, and are interpreted and managed for the user.
@@ -87,10 +87,12 @@ in the project's root directory, which will pull the newest down code from the [
 
 These tasks can be done separately too (as can all rake tasks, see Rakefile for more details), with [Git][Git homepage] and [Bundler][Bundler homepage] commands.
 
+CLI
+------
+`bin/acpc_cli_client` is a somewhat crude command line interface that allows users to start and participate in `dealer` hosted matches through the command line.
 
 Generators
 ------------
-
 This project includes custom generators:
 
 * poker_bot
@@ -114,12 +116,11 @@ See the [issue tracker](https://github.com/dmorrill10/acpc_poker_gui_client/issu
 
 Copyright
 ---------
-Copyright &copy; 2012 by the Computer Poker Research Group, University of Alberta. See [LICENSE](LICENSE.md) for details.
+Copyright &copy; 2013 by the Computer Poker Research Group, University of Alberta. See [LICENSE](LICENSE.md) for details.
 
 
 Further resources
 ------------------
-
 * [Annual Computer Poker Competition][ACPC homepage]
 * [Beanstalkd][Beanstalkd homepage] - The background process server used by this project.
 * [Coffescript][Coffeescript homepage] - JavaScript in a candy coating. Used by default as of [Rails][Rails] 3.1 and used in this project's views.
@@ -139,7 +140,7 @@ Further resources
 * [Ruby on Rails][Rails] - Web application framework used by this project.
 * [RubyDoc.info][RubyDoc.info] - Documentation hosting site used by this project.
 * [SASS][SASS] - Styling language extension of CSS used by default as of [Rails][Rails] 3.1 and is used in this project.
-* [Stalker gem][Stalker homepage] - Ruby [_Beanstalkd_][Beanstalkd homepage] interface.
+* [Stalker][Stalker homepage] - Ruby [_Beanstalkd_][Beanstalkd homepage] interface.
 * [The Apache Project][Apache homepage] - The production web server used by this project.
 * [The Computer Poker Research Group][CPRG homepage]
 * [The Ruby Programming Language][Ruby] - The foundational language of this project.

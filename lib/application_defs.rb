@@ -1,4 +1,6 @@
 
+# @todo Try moving to config/initializers to remove inane unless const_defined? checks that only serve to quiet warning messages.
+
 # require each bot runner class
 Dir.glob("#{File.expand_path('../../', __FILE__)}/lib/bots/run_*_bot.rb").each do |runner_class|
   begin
@@ -16,6 +18,8 @@ module ApplicationDefs
   IMPROPER_AMOUNT_MESSAGE = "Improper amount entered" unless const_defined?(:IMPROPER_AMOUNT_MESSAGE)
 
   DEALER_MILLISECOND_TIMEOUT = 7 * 24 * 3600000 unless const_defined? :DEALER_MILLISECOND_TIMEOUT
+
+  MATCH_STATE_RETRIEVAL_TIMEOUT = 120 unless const_defined? :MATCH_STATE_RETRIEVAL_TIMEOUT
 
   GAME_DEFINITIONS = {
     two_player_nolimit: {
@@ -66,5 +70,24 @@ module ApplicationDefs
   def self.random_seed
     random_float = rand
     random_int = (random_float * 10**random_float.to_s.length).to_i
+  end
+  def self.failsafe_while(method_for_condition)
+    time_beginning_to_wait = Time.now
+    attempts = 0
+    while method_for_condition.call
+      if attempts > 5
+        ap "Attempts: #{attempts}"
+        sleep Math.log(attempts - 4)
+      end
+      yield if block_given?
+      raise if time_limit_reached?(time_beginning_to_wait)
+      attempts += 1
+    end
+  end
+
+  private
+
+  def self.time_limit_reached?(start_time)
+    Time.now > start_time + MATCH_STATE_RETRIEVAL_TIMEOUT
   end
 end

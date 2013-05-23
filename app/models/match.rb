@@ -8,14 +8,9 @@ Mongoid.logger = nil
 
 require_relative 'match_slice'
 
-module MatchConstants
-  MATCH_STATE_RETRIEVAL_TIMEOUT = 10 unless const_defined? :MATCH_STATE_RETRIEVAL_TIMEOUT
-end
-
 class Match
   include Mongoid::Document
   include Mongoid::Timestamps::Updated
-  include MatchConstants
 
   embeds_many :slices, class_name: "MatchSlice"
 
@@ -59,27 +54,6 @@ class Match
     end
   end
 
-  def self.failsafe_while_for_match(match_id, method_for_condition)
-    match = find match_id
-    failsafe_while lambda{ method_for_condition.call(match) } do
-      match = find match_id
-    end
-    match
-  end
-
-  def self.failsafe_while(method_for_condition)
-    time_beginning_to_wait = Time.now
-    attempts = 0
-    while method_for_condition.call
-      if attempts > 5
-        ap "Attempts: #{attempts}"
-        sleep Math.log(attempts - 4)
-      end
-      yield if block_given?
-      raise if time_limit_reached?(time_beginning_to_wait)
-      attempts += 1
-    end
-  end
   def self.start_match(
     name,
     game_definition_key,
@@ -183,16 +157,10 @@ class Match
     users_port = local_port_numbers.delete_at(seat - 1)
     local_port_numbers
   end
-
-  private
-
-  def self.time_limit_reached?(start_time)
-    Time.now > start_time + MATCH_STATE_RETRIEVAL_TIMEOUT
-  end
 end
 
 module Stalker
-  def self.start_background_job(job_name, arguments, options={ttr: MatchConstants::MATCH_STATE_RETRIEVAL_TIMEOUT})
+  def self.start_background_job(job_name, arguments, options={ttr: ApplicationDefs::MATCH_STATE_RETRIEVAL_TIMEOUT})
     enqueue job_name, arguments, options
   end
 end

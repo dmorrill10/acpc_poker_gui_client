@@ -33,21 +33,20 @@ class PlayerActionsController < ApplicationController
 
     @match_id = params[:match_id]
     begin
-      # @todo This shouldn't be necessary anymore
-      @match = Match.find @match_id
+      @match_view ||= MatchView.new @match_id
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
       return
     end
-    if @match && @match.slices.length > 0 # Match is being resumed
+    if @match_view.match && !@match_view.match.slices.empty? # Match is being resumed
       # Do nothing
     else # A new match is being started so the user's proxy needs to be started
       player_proxy_arguments = {
         match_id: @match_params[:match_id],
-        host_name: 'localhost', port_number: @match.users_port,
+        host_name: 'localhost', port_number: @match_view.match.users_port,
         game_definition_file_name: @match_params[:game_definition_file_name],
-        player_names: @match.player_names.join(' '),
+        player_names: @match_view.match.player_names.join(' '),
         number_of_hands: @match_params[:number_of_hands],
         millisecond_response_timeout: @match_params[:millisecond_response_timeout],
         users_seat: (@match_params[:seat].to_i - 1)
@@ -90,7 +89,8 @@ class PlayerActionsController < ApplicationController
     @match_id ||= params['match_id']
     begin
       # Delete the last slice since it's no longer needed
-      last_slice = Match.find(@match_id).slices.first
+      @match_view ||= MatchView.new @match_id
+      last_slice = @match_view.match.slices.first
       last_slice.delete
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
@@ -105,13 +105,13 @@ class PlayerActionsController < ApplicationController
       # Save the last match state again so that it can
       # be resumed
       begin
-        match = Match.find(@match_id)
-        match.slices << last_slice if match.slices.empty?
-        match.save!
+        @match_view.match.slices << last_slice if @match_view.match.slices.empty?
+        @match_view.match.save!
       rescue
         # If the match can't be retrieved or saved then
         # it can't be resumed anyway, so nothing
         # special to do here.
+        ap "Unable to restore match slice in match #{@match_id}"
       end
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
     end

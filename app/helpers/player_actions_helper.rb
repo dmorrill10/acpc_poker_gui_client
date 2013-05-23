@@ -50,16 +50,12 @@ module PlayerActionsHelper
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view
     @user_poker_action = UserPokerAction.new
-    setup_match_view!
+    @match_view ||= MatchView.new(@match_id)
     replace_page_contents 'player_actions/index'
   end
 
   def html_character(suit_symbol)
     Suit::DOMAIN[suit_symbol][:html_character]
-  end
-
-  def setup_match_view!
-    @match_view = MatchView.new(@match_id)
   end
 
   def acting_player_id(player_seat)
@@ -89,7 +85,6 @@ module PlayerActionsHelper
     "Leave Match"
   end
 
-  # @todo This should return self
   # Updates the current match state.
   def update_match!
     @match_id ||= params[:match_id]
@@ -101,9 +96,8 @@ module PlayerActionsHelper
     match.slices.length > 0
   end
   def assert_new_match_state
-    match = Match.find @match_id
     looping_condition = ->(proc_match) { !new_match_state?(proc_match) }
-    match = Match.failsafe_while_for_match @match_id, looping_condition do
+    @match_view = MatchView.failsafe_while_for_match @match_id, looping_condition do
       # @todo Log here
       # @todo Maybe use a processing spinner
     end

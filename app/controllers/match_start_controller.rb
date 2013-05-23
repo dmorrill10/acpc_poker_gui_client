@@ -70,7 +70,7 @@ class MatchStartController < ApplicationController
     # @todo Easy place to try events instead of polling when the chance arises
     continue_looping_condition = lambda { |match| match.port_numbers.nil? }
     begin
-      temp_match = Match.failsafe_while_for_match(@match.id, continue_looping_condition)
+      temp_match_view = MatchView.failsafe_while_for_match(@match.id, continue_looping_condition)
     rescue => e
       ap "MatchStartController#index: "
       p e.message
@@ -78,11 +78,11 @@ class MatchStartController < ApplicationController
       e.backtrace.each do |line|
         ap line
       end
-      @match.delete
+      temp_match_view.match.delete
       reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
       return
     end
-    @match = temp_match
+    @match = temp_match_view.match
 
     @match.every_bot(Socket.gethostname) do |bot_command|
       opponent_arguments = {

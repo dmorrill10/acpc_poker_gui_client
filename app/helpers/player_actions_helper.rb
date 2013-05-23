@@ -27,7 +27,7 @@ module PlayerActionsHelper
   end
 
   def poker_action_form(action, label, disabled_when, classes=[], ids=[])
-    form_for @user_poker_action, url: take_action_url, remote: true, validate: true do |f|
+    form_for @user_poker_action, url: take_action_url, remote: true do |f|
       form = f.hidden_field :match_id, value: @match_id
       form << f.hidden_field(:poker_action, value: action)
       form << poker_action_submission(label, disabled_when, classes, ids)

@@ -179,6 +179,11 @@ end
 Stalker.job('PlayerProxy.play') do |params|
   match_id = params.retrieve_match_id_or_raise_exception
 
+  unless @match_id_to_background_processes[match_id]
+    puts "Ignoring request to play in match #{match_id} that doesn't exist."
+    break
+  end
+
   action = PokerAction.new(
     params.retrieve_parameter_or_raise_exception('action').to_sym,
     {modifier: params['modifier']}

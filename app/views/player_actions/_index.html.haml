@@ -139,7 +139,7 @@
   # Take actions
   takeAction = (idOfSubmissionElement)->
     submissionElement = $(idOfSubmissionElement)
-    submissionElement.click() unless submissionElement.is(':disabled')
+    submissionElement.submit() unless submissionElement.is(':disabled')
 
   registerHiddenAction = (triggerId)->
     $('#' + triggerId).click(->
@@ -151,7 +151,7 @@
   registerHiddenAction("#{next_hand_id}")
 
   # Adjust wager amount
-  $('#hidden-wager.with_modifier').click(->
+  $('#hidden-wager.with_modifier').submit((e)->
     wager_to_amount_over_round = parseInt($('input#user_poker_action_modifier').val())
     minimum_wager_to = parseInt("#{@match_view.minimum_wager_to}")
     if (
@@ -165,6 +165,14 @@
     wager_to_amount_over_hand = wager_to_amount_over_round + parseInt("#{@match_view.user_contributions_in_previous_rounds}")
 
     $('input#user_poker_action_modifier').val(wager_to_amount_over_hand.toString())
+  )
+
+  # Ensure that pressing enter properly submits a wager
+  # after typing an amount
+  $('input#user_poker_action_modifier').keypress((evt)->
+    if evt.keyCode == 13
+      evt.preventDefault()
+      $('#hidden-wager.with_modifier').submit()
   )
 
 - if @match_view.no_limit?

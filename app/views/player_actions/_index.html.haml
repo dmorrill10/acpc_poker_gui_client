@@ -94,93 +94,30 @@
         .span-8.last= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
 :javascript
   ChipStackMutator.adjustAmountFontSizeOfAllStacks();
-  // Inteface scale adjustment
-  var adjustScale;
-  adjustScale = function(elementToScale) {
-    var heightRatio, inverseScaling, originalSliderWidth, scaledHeight, slider, smallestRatio, widthRatio;
-    widthRatio = $(window).width() / elementToScale.width();
-    heightRatio = ($(window).height() - $('.navbar').height()) / elementToScale.height();
-    smallestRatio = Math.min(heightRatio, widthRatio);
-    elementToScale.css('-moz-transform', 'scale(' + smallestRatio.toString() + ')');
-    elementToScale.css('-webkit-transform', 'scale(' + smallestRatio.toString() + ')');
-    elementToScale.css('-ms-transform', 'scale(' + smallestRatio.toString() + ')');
-    elementToScale.css('-o-transform', 'scale(' + smallestRatio.toString() + ')');
-    scaledHeight = elementToScale.height() * smallestRatio;
-    elementToScale.css({
-      top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()),
-      left: Math.floor(($(window).width() - elementToScale.width()) / 2)
-    });
-    // Inversely scale slider and adjust width manually
-    slider = $('.ui_slider');
-    inverseScaling = 1 / smallestRatio;
-    slider.css('-moz-transform', 'scaleX(' + inverseScaling.toString() + ')');
-    slider.css('-webkit-transform', 'scaleX(' + inverseScaling.toString() + ')');
-    slider.css('-ms-transform', 'scaleX(' + inverseScaling.toString() + ')');
-    slider.css('-o-transform', 'scaleX(' + inverseScaling.toString() + ')');
-    originalSliderWidth = 410; // Hardcoded slider width separate from that set in CSS, not sure how to get around this
-    slider.width(originalSliderWidth * smallestRatio);
-    return slider.css({
-      left: -(Math.floor((slider.width() - originalSliderWidth) / 2))
-    });
-  };
-  adjustScale($('.game_interface'));
-  jQuery(window).resize(function() {
-    return adjustScale($('.game_interface'));
-  });
-  // Disable all buttons upon one being clicked
-  var registerHiddenAction, takeAction;
 
-  $('.btn').click(function() {
-    if (this.id === 'leave') {
-      return;
-    }
-    $('.btn:not(.hidden)').attr("disabled", true);
-    return $(this).attr("disabled", false);
-  });
+  GameInterface.adjustScale();
+  ActionDashboard.disableButtonsOnClick();
+  ActionDashboard.registerHiddenAction('fold');
+  ActionDashboard.registerHiddenAction('pass');
+  ActionDashboard.registerHiddenAction('wager');
+  ActionDashboard.registerHiddenAction("#{next_hand_id}");
+  ActionDashboard.adjustWagerOnSubmission(
+    parseInt("#{@match_view.minimum_wager_to}"),
+    parseInt("#{@match_view.user_contributions_in_previous_rounds}")
+  );
+  ActionDashboard.fixEnterWagerSubmission();
 
-  takeAction = function(idOfSubmissionElement) {
-    var submissionElement;
-
-    submissionElement = $(idOfSubmissionElement);
-    if (!submissionElement.is(':disabled')) {
-      return submissionElement.submit();
-    }
-  };
-  registerHiddenAction = function(triggerId) {
-    return $('#' + triggerId).click(function() {
-      return takeAction('#hidden-' + triggerId);
-    });
-  };
-  registerHiddenAction('fold');
-  registerHiddenAction('pass');
-  registerHiddenAction('wager');
-  registerHiddenAction("#{next_hand_id}");
-  // Adjust wager amount
-  $('#hidden-wager.with_modifier').submit(function(e) {
-    var minimum_wager_to, wager_to_amount_over_hand, wager_to_amount_over_round;
-    wager_to_amount_over_round = parseInt($('input#user_poker_action_modifier').val());
-    minimum_wager_to = parseInt("#{@match_view.minimum_wager_to}");
-    if (!wager_to_amount_over_round || isNaN(wager_to_amount_over_round) || wager_to_amount_over_round < minimum_wager_to) {
-      if (wager_to_amount_over_round < minimum_wager_to) {
-        alert("Wager of " + wager_to_amount_over_round.toString() + " is too small. Making a minimum wager of " + minimum_wager_to.toString() + " instead.");
-      }
-      wager_to_amount_over_round = minimum_wager_to;
-    }
-    wager_to_amount_over_hand = wager_to_amount_over_round + parseInt("#{@match_view.user_contributions_in_previous_rounds}");
-    return $('input#user_poker_action_modifier').val(wager_to_amount_over_hand.toString());
-  });
-  // Ensure that pressing enter properly submits a wager
-  // after typing an amount
-  $('input#user_poker_action_modifier').keypress(function(evt) {
-    if (evt.keyCode === 13) {
-      evt.preventDefault();
-      return $('#hidden-wager.with_modifier').submit();
-    }
-  });
 - if @match_view.no_limit?
   :javascript
     var sliderValues;
-    sliderValues = [parseInt("#{@match_view.minimum_wager_to}"), parseInt("#{(@match_view.pot_fraction_wager_to(1 / 2.to_f))}"), parseInt("#{(@match_view.pot_fraction_wager_to(3 / 4.to_f))}"), parseInt("#{@match_view.pot_fraction_wager_to}"), parseInt("#{(@match_view.pot_fraction_wager_to(2))}"), parseInt("#{@match_view.all_in}")];
+    sliderValues = [
+      parseInt("#{@match_view.minimum_wager_to}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(1 / 2.to_f))}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(3 / 4.to_f))}"),
+      parseInt("#{@match_view.pot_fraction_wager_to}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(2))}"),
+      parseInt("#{@match_view.all_in}")
+    ];
     WagerAmountSlider.initialize(sliderValues);
     if (!$.browser.mozilla) {
       $('#user_poker_action_modifier').focus();

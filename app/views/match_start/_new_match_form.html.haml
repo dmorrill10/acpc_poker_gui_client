@@ -22,7 +22,7 @@
       = f.button :submit, class: 'btn-primary', data: { disable_with: start_match_label }, id: 'start_match', value: start_match_label
   .hidden= hidden_game_parameter_form
 
-:coffeescript
-  BotSelection.makeDynamicAccordingToGameDef()
-  BotSelection.selectDefaultGameDef()
-  $('#new_match_form').children('form').enableClientSideValidations()
+:javascript
+  BotSelection.makeDynamicAccordingToGameDef();
+  BotSelection.selectDefaultGameDef();
+  $('#new_match_form').children('form').enableClientSideValidations();

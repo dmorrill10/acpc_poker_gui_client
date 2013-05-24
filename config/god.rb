@@ -89,7 +89,7 @@ watch('beanstalkd') do |w|
 end
 
 watch('worker') do |w|
-  w.start = "stalk #{GOD_RAILS_ROOT}/lib/background/worker.rb"
+  w.start = "bundle exec stalk #{GOD_RAILS_ROOT}/lib/background/worker.rb"
 end
 
 keep_match_database_tidy

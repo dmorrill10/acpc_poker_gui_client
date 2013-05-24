@@ -7,7 +7,7 @@ AcpcPokerGuiClient::Application.load_tasks
 
 desc 'Compile the ACPC Dealer server'
 task :compile_dealer => :install_gems do
-  sh %{ acpc_dealer compile }
+  sh %{ bundle exec acpc_dealer compile }
 end
 
 VENDOR_DIRECTORY = "#{RAILS_ROOT}/vendor"
@@ -83,12 +83,12 @@ task :install => [:install_gems, :compile_dealer, :setup_mongodb, :install_beans
 
 desc 'Start god process manager'
 task :god do
-  sh %{ god -c config/god.rb }
+  sh %{ bundle exec god -c config/god.rb }
 end
 
 desc 'Stop god process manager'
 task :kill_god do
-  begin; sh %{ god terminate }; rescue; end
+  begin; sh %{ bundle exec god terminate }; rescue; end
 end
 
 desc 'Starts a development server'

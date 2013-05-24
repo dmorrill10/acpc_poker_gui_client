@@ -102,11 +102,15 @@ task :start_dev_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY, BEANSTALKD
   puts "Done"
 end
 
+task :precompile_assets do
+  sh %{ bundle exec rake assets:precompile RAILS_ENV=production }
+end
+
 desc 'Update code and gem dependencies'
 task :update do
   sh %{ git pull }
   Rake::Task[:install_gems].invoke
-  sh %{ bundle exec rake assets:precompile RAILS_ENV=production }
+  Rake::Task[:precompile_assets].invoke
 end
 
 desc 'Start production server'

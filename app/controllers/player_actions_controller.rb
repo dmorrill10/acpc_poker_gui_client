@@ -61,6 +61,7 @@ class PlayerActionsController < ApplicationController
       rescue => e
         Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
         reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."
+        return
       end
     end
     begin
@@ -68,6 +69,7 @@ class PlayerActionsController < ApplicationController
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
     end
   end
 
@@ -114,6 +116,7 @@ class PlayerActionsController < ApplicationController
         ap "Unable to restore match slice in match #{@match_id}"
       end
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
     end
   end
 

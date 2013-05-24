@@ -1,9 +1,8 @@
 - unless @match_view.slice.hand_ended? || @match_view.slice.match_ended? || @match_view.slice.users_turn_to_act?
   :javascript
-    setTimeout(
-      (function() { $('#hidden-next_state').submit() }),
-      100
-    );
+    if (typeof updateNotifierInstance === "undefined" || updateNotifierInstance === null) {
+      updateNotifierInstance = UpdateNotifier.connect('ws://0.0.0.0:25252');
+    }
 
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 

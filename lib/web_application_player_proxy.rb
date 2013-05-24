@@ -2,6 +2,7 @@
 require 'awesome_print'
 require 'logger'
 require 'acpc_poker_player_proxy'
+require 'rubame'
 
 require_relative 'database_config'
 require_relative '../app/models/match'
@@ -9,6 +10,34 @@ require_relative '../app/models/match_slice'
 
 require 'contextual_exceptions'
 using ContextualExceptions::ClassRefinement
+
+module SimpleRubame
+  refine Rubame::Server do
+    # @return The first client to connect
+    attr_reader :client
+    def wait_for_client!(timeout=nil)
+      readable, writable = IO.select(@reading, @writing, nil, timeout)
+
+      if readable
+        readable.each do |socket|
+          client = @clients[socket]
+          if socket == @socket
+            @client = accept
+
+            ap({readable: readable, writable: writable, client: @client})
+
+            return self
+          end
+        end
+      end
+
+      ap({readable: readable, writable: writable, client: @client})
+
+      return self
+    end
+  end
+end
+using SimpleRubame
 
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
@@ -39,7 +68,6 @@ class WebApplicationPlayerProxy
     player_names='user p2',
     number_of_hands=1
   )
-
     log __method__, {
       match_id: match_id,
       dealer_information: dealer_information,
@@ -90,32 +118,7 @@ class WebApplicationPlayerProxy
   private
 
   def update_database!(players_at_the_table)
-
-    # log __method__, {
-    #   match_id: @match_id
-    #   # @todo Add a #to_s method for PATT where it would print all the necessary information to play a poker match in terminal, then maybe use it here.
-    # }
-
     match = Match.find(@match_id)
-
-    # players = players_at_the_table.players.map { |player| sanitize_player_for_database(player) }
-
-    # pot_distribution = if players_at_the_table.hand_ended?
-    #   players_at_the_table.chip_contributions.map do |contributions|
-    #     contributions.last
-    #   end
-    # else
-    #   players_at_the_table.players.map { |player| 0 }
-    # end
-
-# @todo Move to gui side
-    # pot_values_at_start_of_round = if players_at_the_table.transition.next_state.round < 1
-    #   [0]
-    # else
-    #   players_at_the_table.chip_contributions.map do |contributions|
-    #     contributions[0..players_at_the_table.transition.next_state.round-1].inject(:+)
-    #   end
-    # end
 
     # @todo Move to PATT
     large_blind = players_at_the_table.player_blind_relation.values.max
@@ -160,7 +163,21 @@ class WebApplicationPlayerProxy
       # Since creating a new slice doesn't "update" the match for some reason
       match.update_attribute(:updated_at, Time.now)
       match.save!
+
+      unless @browser_connection && @browser_connection.client
+        if @browser_connection
+          @browser_connection.stop
+        end
+        @browser_connection = Rubame::Server.new("0.0.0.0", 25252)
+        @browser_connection.wait_for_client!
+      end
+      if @browser_connection && @browser_connection.client
+        ap "SENDING #{@match_id}"
+        @browser_connection.client.send @match_id
+        @browser_connection.stop if players_at_the_table.match_ended?
+      end
     rescue => e
+      @browser_connection.stop if @browser_connection
       raise UnableToCreateMatchSlice.with_context('Unable to create match slice', e)
     end
 

@@ -59,6 +59,9 @@ gem 'contextual_exceptions'
 # To run background process
 gem 'process_runner'
 
+# For new match slice alerts
+gem 'rubame'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

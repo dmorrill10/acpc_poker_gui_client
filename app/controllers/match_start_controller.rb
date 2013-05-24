@@ -36,7 +36,7 @@ class MatchStartController < ApplicationController
     end
     @match = begin
       Match.new(params[:match]).finish_starting!
-    rescue
+    rescue => e
       ap "MatchStartController#index: "
       p e.message
       ap 'Backtrace:'

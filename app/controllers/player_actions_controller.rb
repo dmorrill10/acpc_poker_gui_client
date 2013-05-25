@@ -75,16 +75,15 @@ class PlayerActionsController < ApplicationController
   end
 
   def take_action
-    user_poker_action = UserPokerAction.new params[:user_poker_action]
-    puts "   ACTION: #{user_poker_action.awesome_inspect}"
+    puts "   ACTION: #{params[:user_poker_action].awesome_inspect}"
 
-    @match_id ||= user_poker_action.match_id
+    @match_id ||= params[:user_poker_action][:match_id]
 
     Stalker.start_background_job(
       'PlayerProxy.play',
-      match_id: user_poker_action.match_id,
-      action: user_poker_action.poker_action,
-      modifier: user_poker_action.modifier
+      match_id: @match_id,
+      action: params[:user_poker_action][:poker_action],
+      modifier: params[:user_poker_action][:modifier]
     )
 
     update_match_state

@@ -36,13 +36,8 @@ class MatchStartController < ApplicationController
     end
     @match = begin
       Match.new(params[:match]).finish_starting!
-    rescue
-      ap "MatchStartController#index: "
-      p e.message
-      ap 'Backtrace:'
-      e.backtrace.each do |line|
-        ap line
-      end
+    rescue => e
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
       return
     end
@@ -72,12 +67,7 @@ class MatchStartController < ApplicationController
     begin
       temp_match_view = MatchView.failsafe_while_for_match(@match.id, continue_looping_condition)
     rescue => e
-      ap "MatchStartController#index: "
-      p e.message
-      ap 'Backtrace:'
-      e.backtrace.each do |line|
-        ap line
-      end
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       temp_match_view.match.delete
       reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
       return
@@ -105,13 +95,9 @@ class MatchStartController < ApplicationController
       @port_number = @match.port_numbers[@match.seat-1]
       send_parameters_to_connect_to_dealer
     rescue => e
-      ap "MatchStartController#index: "
-      p e.message
-      ap 'Backtrace:'
-      e.backtrace.each do |line|
-        ap line
-      end
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\"."
+      return
     end
   end
 end

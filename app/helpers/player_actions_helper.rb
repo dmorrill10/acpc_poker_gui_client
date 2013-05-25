@@ -25,6 +25,13 @@ module PlayerActionsHelper
       form << submit_tag(submit_button_label, button_options)
     end
   end
+  def check_update_state_form(match_id, submit_button_label='', button_options={})
+    button_options[:id] = 'check update_match_state' unless button_options[:id]
+    form_tag check_update_match_state_url, :remote => true do
+      form = hidden_match_fields match_id
+      form << submit_tag(submit_button_label, button_options)
+    end
+  end
 
   def poker_action_form(action, label, disabled_when, classes=[], ids=[])
     form_for @user_poker_action, url: take_action_url, remote: true do |f|
@@ -33,13 +40,6 @@ module PlayerActionsHelper
       form << poker_action_submission(label, disabled_when, classes, ids)
       form << yield(f) if block_given?
       form
-    end
-  end
-
-  def hidden_check_for_new_match_state_form(match_id)
-    form_tag check_for_new_match_state_url, remote: true do
-      form = hidden_match_fields match_id
-      form << submit_tag('Check for new match state', id: 'check_for_new_match_state', style: 'visibility: hidden')
     end
   end
 
@@ -93,6 +93,7 @@ module PlayerActionsHelper
     self
   end
   def new_match_state?(match)
+    puts "   NUM SLICES: #{match.slices.length}"
     match.slices.length > 0
   end
   def assert_new_match_state

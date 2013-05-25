@@ -75,9 +75,9 @@ module ApplicationDefs
     time_beginning_to_wait = Time.now
     attempts = 0
     while method_for_condition.call
-      if attempts > 5
+      if attempts > 0
         ap "Attempts: #{attempts}"
-        sleep Math.log(attempts - 4)
+        sleep 0.001 + Math.log(attempts)
       end
       yield if block_given?
       raise if time_limit_reached?(time_beginning_to_wait)

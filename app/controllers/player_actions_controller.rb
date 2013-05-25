@@ -61,18 +61,23 @@ class PlayerActionsController < ApplicationController
       rescue => e
         Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
         reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."
+        return
       end
     end
     begin
       replace_page_contents_with_updated_game_view
+      return
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
     end
   end
 
   def take_action
     user_poker_action = UserPokerAction.new params[:user_poker_action]
+    puts "   ACTION: #{user_poker_action.awesome_inspect}"
+
     @match_id ||= user_poker_action.match_id
 
     Stalker.start_background_job(
@@ -100,6 +105,7 @@ class PlayerActionsController < ApplicationController
     begin
       update_match!
       replace_page_contents_with_updated_game_view
+      return
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       # Save the last match state again so that it can
@@ -114,6 +120,26 @@ class PlayerActionsController < ApplicationController
         ap "Unable to restore match slice in match #{@match_id}"
       end
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
+    end
+  end
+
+  def check_update_match_state
+    @match_id ||= params['match_id']
+    begin
+      @match_view ||= MatchView.new @match_id
+      if @match_view.match.slices.length > 1
+        ap "Updating match state..."
+        update_match_state
+        return
+      else
+        replace_page_contents_with_updated_game_view
+        return
+      end
+    rescue => e
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
+      reset_to_match_entry_view "Sorry, there was a problem checking for a new match state, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
     end
   end
 

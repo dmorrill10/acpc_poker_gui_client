@@ -1,7 +1,7 @@
 - unless @match_view.slice.hand_ended? || @match_view.slice.match_ended? || @match_view.slice.users_turn_to_act?
   :javascript
     setTimeout(
-      (function() { $('#hidden-next_state').submit() }),
+      (function() { $('#hidden-check_next_state').submit() }),
       100
     );
 
@@ -57,6 +57,7 @@
     - 'span-24'
   .action_dashboard{ id: action_dashboard_id, class:  action_dashboard_grid_class }
     .hidden
+      = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
       = update_state_form @match_id, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
     - if @match_view.slice.match_ended?
       .meta_action

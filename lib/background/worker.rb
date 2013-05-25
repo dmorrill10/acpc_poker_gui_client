@@ -162,7 +162,8 @@ Stalker.job('Opponent.start') do |params|
     num_match_id_to_background_processes: @match_id_to_background_processes.length
   }
 
-  unless background_processes[:opponent]
+  # @todo What was this check for?
+  # unless background_processes[:opponent]
     bot_start_command = params.retrieve_parameter_or_raise_exception 'bot_start_command'
 
     begin
@@ -172,7 +173,7 @@ Stalker.job('Opponent.start') do |params|
       raise unable_to_start_bot_exception
     end
     @match_id_to_background_processes[match_id] = background_processes
-  end
+  # end
 end
 
 # @param [Hash] params Parameters for an opponent. Must contain values for +'match_id'+, +'action'+, and optionally +'modifier'+.

@@ -25,9 +25,11 @@
   - 'limit'
 .game_interface.span-24{ id: game_interface_id}
   .poker_table.span-24
-    - opponent = @match_view.opponents[0]
-    .information_about_an_opponent{ :id => acting_player_id(opponent['seat']) }
-      = render partial: 'held_player_information', locals: {player: opponent, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
+    .opponents
+      .player_set
+        - @match_view.opponents.each do |opponent|
+          .information_about_an_opponent{ :id => acting_player_id(opponent['seat']) }
+            = render partial: 'held_player_information', locals: {player: opponent, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
     .community_information
       %ul.board_cards
         = render partial: 'cards', locals: {cards: @match_view.state.board_cards.flatten}
@@ -42,8 +44,9 @@
         - if @match_view.slice.match_ended?
           %li
             %p The match has ended, thanks for playing!
-    .users_information{ :id => acting_player_id(@match_view.user['seat']) }
-      = render partial: 'held_player_information', locals: {player: @match_view.user, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
+    .player_set
+      .users_information{ :id => acting_player_id(@match_view.user['seat']) }
+        = render partial: 'held_player_information', locals: {player: @match_view.user, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
 
   - next_hand_button_should_be_visible = @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
   - action_dashboard_id = if @match_view.no_limit?
@@ -107,6 +110,7 @@
     parseInt("#{@match_view.user_contributions_in_previous_rounds}")
   );
   ActionDashboard.fixEnterWagerSubmission();
+  GameInterface.adjustPlayerSetSize();
 
 - if @match_view.no_limit?
   :javascript

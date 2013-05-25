@@ -10,9 +10,9 @@
 
 .poker_table {
    @include soft_edges(#8B4513, $poker_table_border_width, 500px 500px 500px 500px);
-   
+
    padding: 0;
-  
+
    background: image-url('nick_morrill/small_felt.jpg');
 
    height: $poker_table_combined_height;
@@ -26,50 +26,53 @@
    .pot_associated_stack {
       @extend .chip_stack_wrapper;
    }
-   
+   .player_set {
+      @include center_horizontally;
+   }
+
    .information_about_an_opponent {
       @extend .player_information;
       @include center_horizontally;
-      
+
       margin-top: 0;
       margin-bottom: 0;
-      
+
       .card {
          margin-right: $cards_margin;
       }
-      
+
       .pot_associated_stack {
          top: $list_element_margin;
       }
-      
+
       .player_stack {
          bottom: $card_bare_image_height;
       }
-      
+
       .dealer_button {
          top: $held_player_information_combined_height + $poker_table_border_width;
          left: 0;
       }
    }
-   
+
    .community_information {
       margin-top: $community_information_margin;
       margin-bottom: $community_information_margin;
    }
-   
+
    .users_information {
       @extend .player_information;
       @include center_horizontally;
-      
+
       .held_player_information {
          position: absolute;
          top: $chip_stack_diameter + $list_element_margin;
-         
+
          .player_stack {
            bottom: ($held_player_information_height + $chip_stack_diameter)/2;
          }
       }
-      
+
       .dealer_button {
          top: $chip_stack_diameter - $dealer_button_diameter;
          left: 0;

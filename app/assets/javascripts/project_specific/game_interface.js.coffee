@@ -33,3 +33,12 @@ root.GameInterface =
     jQuery(window).resize(->
       GameInterface.adjustScaleOnce()
     )
+  adjustPlayerSetSize: ->
+    $('.player_set').each((i) ->
+      ps = $(this)
+      totalWidth = 0
+      ps.children().each((j) ->
+        totalWidth = totalWidth + $(this).outerWidth()
+      )
+      ps.width(totalWidth + 10) # Buffer needed to make sure multiple players end up on the same line
+    )

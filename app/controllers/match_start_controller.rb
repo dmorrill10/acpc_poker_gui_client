@@ -79,6 +79,8 @@ class MatchStartController < ApplicationController
         match_id: @match.id,
         bot_start_command: bot_command
       }
+
+      ap opponent_arguments
       Stalker.start_background_job 'Opponent.start', opponent_arguments
     end
 

@@ -1,0 +1,13 @@
+.wager_amount_slider
+  @include zen-grid-item(4, 1)
+  @include zen-nested-container
+  margin-bottom: 25px
+
+  .slider_labels
+    @include zen-grid-item($zen-column-count, 1)
+    .slider_label
+      display: inline
+      position: absolute
+  .ui_slider
+    @include zen-grid-item($zen-column-count, 1)
+    @include zen-clear

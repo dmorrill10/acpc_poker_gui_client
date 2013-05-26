@@ -1,0 +1,6 @@
+$num_actions: 3
+.actions
+  @include zen-clear
+  @for $n from 1 through $num_actions
+    .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
+      @include zen-grid-item(2, 2 * $n - 1)

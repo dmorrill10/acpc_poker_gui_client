@@ -69,6 +69,7 @@ group :assets do
   gem 'coffee-rails'
   gem 'uglifier'
   gem "bootstrap-sass-rails"
+  gem 'zen-grids'
 
   # compass uses this for sprites
   gem 'chunky_png'

@@ -23,8 +23,8 @@
   - 'no_limit'
 - else
   - 'limit'
-.game_interface.span-24{ id: game_interface_id}
-  .poker_table.span-24
+.game_interface{ id: game_interface_id}
+  .poker_table
     .opponents
       .player_set
         - @match_view.opponents.each do |opponent|
@@ -55,10 +55,10 @@
     - 'limit'
 
   - action_dashboard_grid_class = if @match_view.slice.match_ended? || next_hand_button_should_be_visible
-    - 'span-8 prepend-8 append-8'
+    - 'for_next_hand'
   - else
-    - 'span-24'
-  .action_dashboard{ id: action_dashboard_id, class:  action_dashboard_grid_class }
+    - 'for_actions'
+  .action_dashboard.show-grid{ id: action_dashboard_id, class:  action_dashboard_grid_class }
     .hidden
       = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
       = update_state_form @match_id, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
@@ -78,28 +78,23 @@
       - wager_classes = if @match_view.no_limit? then ['with_modifier'] else [] end
       .action_modification_tools
         - if @match_view.no_limit?
-          .wager_amount_slider.span-12.prepend-6
-            .slider_label.span-2#min Min
-            .slider_label.span-2#half_pot 50%
-            .slider_label.span-2#three_quarters_pot 75%
-            .slider_label.span-2#one_pot Pot
-            .slider_label.span-2#two_times_pot 2xPot
-            .slider_label.span-2.last#all_in All-in
-            .ui_slider.span-12
-        .hidden_action_forms.span-6.last
-          = poker_action_form 'f', fold_label, fold_is_disabled_when, [], ['hidden-fold']
-          = poker_action_form 'c', pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['hidden-pass']
-          = poker_action_form 'r', make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['hidden-wager'] do |f|
-            - if @match_view.no_limit?
-              - f.number_field :modifier, class: 'span-6 last'
-      .actions.btn-group.span-24
-        .span-8= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
-        .span-8= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['pass'])
-        .span-8.last= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
+          .wager_amount_slider.show-grid
+            .slider_labels
+              .slider_label#min Min
+              .slider_label#half_pot 50%
+              .slider_label#three_quarters_pot 75%
+              .slider_label#one_pot Pot
+              .slider_label#two_times_pot 2xPot
+              .slider_label.last#all_in All-in
+            .ui_slider
+      .actions
+        = button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
+        = button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['pass'])
+        = button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
 :javascript
-  ChipStackMutator.adjustAmountFontSizeOfAllStacks();
+  //ChipStackMutator.adjustAmountFontSizeOfAllStacks();
 
-  GameInterface.adjustScale();
+  //GameInterface.adjustScale();
   ActionDashboard.disableButtonsOnClick();
   ActionDashboard.registerHiddenAction('fold');
   ActionDashboard.registerHiddenAction('pass');
@@ -110,7 +105,7 @@
     parseInt("#{@match_view.user_contributions_in_previous_rounds}")
   );
   ActionDashboard.fixEnterWagerSubmission();
-  GameInterface.adjustPlayerSetSize();
+  // GameInterface.adjustPlayerSetSize();
 
 - if @match_view.no_limit?
   :javascript

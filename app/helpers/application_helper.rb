@@ -19,7 +19,7 @@ module ApplicationHelper
   def replace_page_contents(replacement_partial, alert_message=nil)
     @alert_message = alert_message
     @replacement_partial = replacement_partial
-    render REPLACE_CONTENTS_JS
+    render REPLACE_CONTENTS_JS, formats: [:js]
   end
 
   # Renders a shared +JavaScript+ template that sends parameters to

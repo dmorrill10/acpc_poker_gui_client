@@ -7,18 +7,18 @@
 
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 
-.chip_balances.hero-unit
-  %h4= "#{@match_view.match.match_name} <span class=\"right\">#{@match_view.slice.hand_number+1} / #{@match_view.match.number_of_hands}</span>".html_safe
-  %table.table.table-striped
-    %thead
-      %tr
-        %th Player
-        %th Balance
-    %tbody
-      - @match_view.slice.players.each do |player|
-        %tr
-          %td= "#{player['name']}"
-          %td= "#{player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)}"
+/ .chip_balances.hero-unit
+/   %h4= "#{@match_view.match.match_name} <span class=\"right\">#{@match_view.slice.hand_number+1} / #{@match_view.match.number_of_hands}</span>".html_safe
+/   %table.table.table-striped
+/     %thead
+/       %tr
+/         %th Player
+/         %th Balance
+/     %tbody
+/       - @match_view.slice.players.each do |player|
+/         %tr
+/           %td= "#{player['name']}"
+/           %td= "#{player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)}"
 - game_interface_id = if @match_view.no_limit?
   - 'no_limit'
 - else
@@ -88,7 +88,6 @@
 :javascript
   //ChipStackMutator.adjustAmountFontSizeOfAllStacks();
 
-  //GameInterface.adjustScale();
   ActionDashboard.disableButtonsOnClick();
   ActionDashboard.registerHiddenAction('fold');
   ActionDashboard.registerHiddenAction('pass');
@@ -100,7 +99,6 @@
   );
   ActionDashboard.fixEnterWagerSubmission();
   // GameInterface.adjustPlayerSetSize();
-
 - if @match_view.no_limit?
   :javascript
     var sliderValues;
@@ -113,13 +111,18 @@
       parseInt("#{@match_view.all_in}")
     ];
     WagerAmountSlider.initialize(sliderValues);
-    if (!$.browser.mozilla) {
-      $('#user_poker_action_modifier').focus();
-    }
-- if next_hand_button_should_be_visible
   :javascript
-    $("##{next_hand_id}").focus();
+    GameInterface.adjustScale();
+
 - if @match_view.slice.match_ended?
   :javascript
     $("##{leave_match_id}").focus();
+- elsif next_hand_button_should_be_visible
+  :javascript
+    $("##{next_hand_id}").focus();
+- else
+  :javascript
+    if (!$.browser.mozilla) {
+      $('#user_poker_action_modifier').focus();
+    }
 - Match.delete_match!(@match_id) if @match_view.slice.match_ended?

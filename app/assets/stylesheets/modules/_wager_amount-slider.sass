@@ -15,17 +15,18 @@
       &.half_pot
         padding-left: 3%
       &.three_quarters_pot
-        padding-left: 6%
+        padding-left: 5%
       &.one_pot
-        padding-left: 9%
+        padding-left: 7%
       &.two_pot
-        padding-left: 11%
+        text-align: right
     .slider_label:last-child
       text-align: right
   .slider
     @include zen-grid-item($l-action_dashboard-column-count, 1)
     @include zen-grid-container
     @include zen-clear
+    position: relative
 
     .ui_slider
       @include zen-grid-item($l-action_dashboard-column-count, 1)

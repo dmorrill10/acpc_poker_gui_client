@@ -1,0 +1,11 @@
+$background_color: #000
+
+$default_radius: 5px
+$default_border_radius: $default_radius $default_radius $default_radius $default_radius
+$default_border_width: 2px
+
+@mixin soft_edges($border_color: transparent, $border_width: $default_border_width, $border_radius: $default_border_radius)
+  border-color: $border_color
+  border-width: $border_width
+  border-style: solid/*@todo Make this a chalky/particled style.*/
+  border-radius: $border_radius

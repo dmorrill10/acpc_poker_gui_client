@@ -1,0 +1,37 @@
+.wager_amount-slider
+  @include zen-grid-item(4, 1)
+  @include zen-nested-container
+  margin-bottom: $zen-gutter-width
+
+  .slider_labels
+    @include zen-grid-item($l-action_dashboard-column-count, 1)
+    @include zen-nested-container
+    $num_labels: 6
+    @for $n from 1 through $num_labels
+      .slider_label:nth-child(#{$num_labels}n+#{$n})
+        @include zen-grid-item(1, $n)
+    .slider_label
+      text-align: left
+      &.half_pot
+        padding-left: 21px
+      &.three_quarters_pot
+        padding-left: 32px
+      &.one_pot
+        padding-left: 43px
+      &.two_pot
+        text-align: right
+    .slider_label:last-child
+      text-align: right
+  .ui_slider
+    @include zen-grid-item($l-action_dashboard-column-count, 1)
+    @include zen-clear
+    width: 93%
+    left: 20px
+
+    $ui_slider_second_color: #006CCC
+    .ui-slider-handle
+      background-image: none
+      background-color: $ui_slider_second_color
+    .ui-slider-range
+      background-image: none
+      background-color: $ui_slider_second_color

@@ -78,19 +78,20 @@
       - wager_classes = if @match_view.no_limit? then ['with_modifier'] else [] end
       .action_modification_tools
         - if @match_view.no_limit?
-          .wager_amount_slider.show-grid
+          .wager_amount-slider.show-grid
             .slider_labels
-              .slider_label#min Min
-              .slider_label#half_pot 50%
-              .slider_label#three_quarters_pot 75%
-              .slider_label#one_pot Pot
-              .slider_label#two_times_pot 2xPot
-              .slider_label.last#all_in All-in
+              .slider_label.min Min
+              .slider_label.half_pot 50%
+              .slider_label.three_quarters_pot 75%
+              .slider_label.one_pot Pot
+              .slider_label.two_pot 2xPot
+              .slider_label.all_in All-in
             .ui_slider
+          .wager_amount-num_field= number_field_tag :modifier
       .actions
-        = button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
-        = button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['pass'])
-        = button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
+        .poker_actn_btn= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
+        .poker_actn_btn= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['pass'])
+        .poker_actn_btn= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
 :javascript
   //ChipStackMutator.adjustAmountFontSizeOfAllStacks();
 

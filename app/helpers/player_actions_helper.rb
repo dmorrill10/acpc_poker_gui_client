@@ -13,7 +13,7 @@ module PlayerActionsHelper
   include AcpcPokerTypes
 
   def poker_action_submission_options(label, disabled_when, classes=[], ids=[], link=nil)
-    {class: (classes + ['poker_actn_btn']), id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
+    {class: classes, id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
   end
   def poker_action_submission(label, disabled_when, classes=[], ids=[])
     submit_tag label, poker_action_submission_options(label, disabled_when, classes + ['hidden'], ids)

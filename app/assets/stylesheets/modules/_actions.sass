@@ -1,6 +1,15 @@
 $num_actions: 3
 .actions
   @include zen-clear
+  @include zen-grid-item($l-action_dashboard-column-count, 1)
+
+  .poker_actn_btn
+    @include zen-nested-container
+    button
+      @extend .btn
+      @extend .btn-primary
+      @include zen-grid-item($l-action_dashboard-column-count, 1)
+
   @for $n from 1 through $num_actions
     .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
       @include zen-grid-item(2, 2 * $n - 1)

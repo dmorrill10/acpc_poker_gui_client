@@ -1,3 +1,11 @@
+$l-action_dashboard-column-count: 6
 .action_dashboard
-  $zen-column-count: 6
+  $zen-column-count: $l-action_dashboard-column-count
   @include zen-grid-container
+
+  .wager_amount-num_field
+    @include zen-grid-item(2, 5)
+    input
+      float: right
+      margin-bottom: 0
+      margin-top: 10px

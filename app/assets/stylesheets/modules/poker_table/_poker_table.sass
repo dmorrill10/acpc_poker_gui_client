@@ -7,21 +7,26 @@
 
   background: image-url('nick_morrill/small_felt.jpg')
 
-  @include parent_grid($l-poker_table-column-count)
   .user
+    @include parent_grid($l-poker_table-column-count)
     @include player(3)
     @include zen-clear
 
   .opponent.opponent_1_of_1
+    @include parent_grid($l-poker_table-column-count)
     @include player(3)
 
   // Two player
   .opponent.opponent_1_of_2
+    @include parent_grid($l-poker_table-column-count)
     @include player(2)
+
   .opponent.opponent_2_of_2
+    @include parent_grid($l-poker_table-column-count)
     @include player(4)
 
   .community_information
+    @include parent_grid($l-poker_table-column-count)
     @include zen-grid-item($l-poker_table-column-count, 1)
     @include zen-nested-container
     @include zen-clear

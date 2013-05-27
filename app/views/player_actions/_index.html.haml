@@ -25,7 +25,17 @@
     - opponents << @match_view.opponents.first
     - opponents.each_with_index do |opponent, i|
       .opponent{ :class => [acting_player_id(opponent['seat']), "opponent_#{i+1}_of_#{opponents.length}"] }
-        = render partial: 'held_player_information', locals: {player: opponent, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
+        = render partial: 'held_player_information', locals: {player: opponent}
+        - if @match_view.slice.seat_with_dealer_button == opponent['seat']
+          = render partial: 'dealer_button'
+        - unless opponent['chip_contributions'].length < @match_view.state.round + 1
+          - if !@match_view.slice.hand_ended? && opponent['chip_contributions'][@match_view.state.round] > 0
+            .stack_added_to_pot
+              = render partial: 'chip_stack', locals: { amount: opponent['chip_contributions'][@match_view.state.round].to_i }
+          - elsif opponent['chip_contributions'].last < 0
+            .stack_taken_from_pot
+              = render partial: 'chip_stack', locals: { amount: -opponent['chip_contributions'].last.to_i }
+
     .community_information
       %ul.board_cards
         = render partial: 'cards', locals: {cards: @match_view.state.board_cards.flatten}
@@ -42,6 +52,15 @@
             %p The match has ended, thanks for playing!
     .user
       .player{ :class => acting_player_id(@match_view.user['seat']) }
+        - unless @match_view.user['chip_contributions'].length < @match_view.state.round + 1
+          - if !@match_view.slice.hand_ended? && @match_view.user['chip_contributions'][@match_view.state.round] > 0
+            .stack_added_to_pot
+              = render partial: 'chip_stack', locals: { amount: @match_view.user['chip_contributions'][@match_view.state.round].to_i }
+          - elsif @match_view.user['chip_contributions'].last < 0
+            .stack_taken_from_pot
+              = render partial: 'chip_stack', locals: { amount: -@match_view.user['chip_contributions'].last.to_i }
+        - if @match_view.slice.seat_with_dealer_button == @match_view.user['seat']
+          = render partial: 'dealer_button'
         = render partial: 'held_player_information', locals: {player: @match_view.user, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
 
   - next_hand_button_should_be_visible = @match_view.slice.hand_ended? && !@match_view.slice.match_ended?

@@ -10,7 +10,10 @@ $default_border_width: 2px
   border-style: solid/*@todo Make this a chalky/particled style.*/
   border-radius: $border_radius
 
+@mixin raised_border
+  border-style: outset
+  border-width: 1px
+
 @mixin parent_grid($num_columns: $zen-column-count, $gutter_width: $zen-gutter-width)
   $zen-column-count: $num_columns
   $zen-gutter-width: $gutter_width
-

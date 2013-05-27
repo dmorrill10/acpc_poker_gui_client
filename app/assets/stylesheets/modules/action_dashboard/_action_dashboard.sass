@@ -1,7 +1,8 @@
 @import 'action_dashboard-defs'
 @import '../poker_table/poker_table-defs'
 .action_dashboard
-  @include grid-item($l-poker_table-column-count, 1, $l-poker_table-column-count)
+  @include parent_grid($l-poker_table-column-count)
+  @include zen-grid-item($l-poker_table-column-count, 1)
   @include zen-nested-container
 
   $dark_background_color: darken($c-action_dashboard-background-color, 30%)
@@ -17,7 +18,8 @@
       text-decoration: none
 
   .wager_amount-num_field
-    @include grid-item(1, 3, $l-action_dashboard-column-count)
+    @include parent_grid($l-action_dashboard-column-count)
+    @include zen-grid-item(1, 3)
     input
       float: right
       margin-bottom: 0

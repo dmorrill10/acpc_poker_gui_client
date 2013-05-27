@@ -1,0 +1,18 @@
+$l-player-column-count: 3
+
+@mixin player($position: 1)
+  @include zen-grid-item(2, $position)
+  @include zen-grid-container
+  background-color: #000
+  background-style: solid
+
+  @include parent_grid($l-player-column-count)
+
+  .held_player_information
+    @include zen-grid-item($l-player-column-count, 1)
+    @include zen-nested-container
+    background-color: #fff
+    background-style: solid
+
+  .dealer_button
+  .stack_added_to_pot

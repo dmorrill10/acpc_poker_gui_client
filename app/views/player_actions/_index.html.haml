@@ -19,17 +19,13 @@
 /         %tr
 /           %td= "#{player['name']}"
 /           %td= "#{player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)}"
-- game_interface_id = if @match_view.no_limit?
-  - 'no_limit'
-- else
-  - 'limit'
-.game_interface{ id: game_interface_id}
-  .poker_table.show-grid
-    .opponents
-      .player_set
-        - @match_view.opponents.each do |opponent|
-          .information_about_an_opponent{ :id => acting_player_id(opponent['seat']) }
-            = render partial: 'held_player_information', locals: {player: opponent, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
+.game_interface
+  .poker_table
+    - opponents = @match_view.opponents
+    - opponents << @match_view.opponents.first
+    - opponents.each_with_index do |opponent, i|
+      .opponent{ :class => [acting_player_id(opponent['seat']), "opponent_#{i+1}_of_#{opponents.length}"] }
+        = render partial: 'held_player_information', locals: {player: opponent, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
     .community_information
       %ul.board_cards
         = render partial: 'cards', locals: {cards: @match_view.state.board_cards.flatten}
@@ -44,8 +40,8 @@
         - if @match_view.slice.match_ended?
           %li
             %p The match has ended, thanks for playing!
-    .player_set
-      .users_information{ :id => acting_player_id(@match_view.user['seat']) }
+    .user
+      .player{ :class => acting_player_id(@match_view.user['seat']) }
         = render partial: 'held_player_information', locals: {player: @match_view.user, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
 
   - next_hand_button_should_be_visible = @match_view.slice.hand_ended? && !@match_view.slice.match_ended?

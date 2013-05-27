@@ -1,6 +1,27 @@
 @import 'poker_table-defs'
-.poker_table
-  @include grid-container($l-poker_table-column-count)
-  //@include soft_edges(#8B4513, 100%, 500px 500px 500px 500px)
+@import '../player/player-defs'
 
-  // background: image-url('nick_morrill/small_felt.jpg')
+.poker_table
+  @include zen-grid-container
+  @include soft_edges(#8B4513, 100%, 500px 500px 500px 500px)
+
+  background: image-url('nick_morrill/small_felt.jpg')
+
+  @include parent_grid($l-poker_table-column-count)
+  .user
+    @include player(3)
+    @include zen-clear
+
+  .opponent.opponent_1_of_1
+    @include player(3)
+
+  // Two player
+  .opponent.opponent_1_of_2
+    @include player(2)
+  .opponent.opponent_2_of_2
+    @include player(4)
+
+  .community_information
+    @include zen-grid-item($l-poker_table-column-count, 1)
+    @include zen-nested-container
+    @include zen-clear

@@ -1,24 +1,26 @@
 @import 'action_dashboard/action_dashboard-defs'
 
 .wager_amount-slider
-  @include grid-item(2, 1, $l-action_dashboard-column-count)
-
-  $l-wager_amount-slider-column-count: 1
-
+  @include parent_grid($l-action_dashboard-column-count)
+  @include zen-grid-item(2, 1)
   @include zen-nested-container
 
   margin-bottom: $zen-gutter-width
 
+  $l-wager_amount-slider-column-count: 1
+
   .slider_labels
-    @include grid-item($l-wager_amount-slider-column-count, 1, $l-wager_amount-slider-column-count)
+    @include parent_grid($l-wager_amount-slider-column-count)
+    @include zen-grid-item($l-wager_amount-slider-column-count, 1)
+    @include zen-nested-container
 
     $num_labels: 6
 
-    @include zen-nested-container
-
+    .slider_label
+      @include parent_grid($num_labels)
     @for $n from 1 through $num_labels
       .slider_label:nth-child(#{$num_labels}n+#{$n})
-        @include grid-item(1, $n, $num_labels)
+        @include zen-grid-item(1, $n)
     .slider_label
       text-align: left
       &.half_pot
@@ -32,17 +34,18 @@
     .slider_label:last-child
       text-align: right
   .slider
-    @include grid-item($l-wager_amount-slider-column-count, 1, $l-wager_amount-slider-column-count)
-
-    $l-slider-column-count: 1
-
+    @include parent_grid($l-wager_amount-slider-column-count)
+    @include zen-grid-item($l-wager_amount-slider-column-count, 1)
     @include zen-grid-container
     @include zen-clear
 
     position: relative
 
+    $l-slider-column-count: 1
+
     .ui_slider
-      @include grid-item($l-slider-column-count, 1, $l-slider-column-count)
+      @include parent_grid($l-slider-column-count)
+      @include zen-grid-item($l-slider-column-count, 1)
 
       $ui_slider_second_color: #006CCC
       .ui-slider-handle

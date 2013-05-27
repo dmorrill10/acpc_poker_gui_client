@@ -1,0 +1,40 @@
+$background_color: #000
+
+$default_radius: 5px
+$default_border_radius: $default_radius $default_radius $default_radius $default_radius
+$default_border_width: 2px
+
+@mixin soft_edges($border_color: transparent, $border_width: $default_border_width, $border_radius: $default_border_radius)
+  border-color: $border_color
+  border-width: $border_width
+  border-style: solid/*@todo Make this a chalky/particled style.*/
+  border-radius: $border_radius
+
+@mixin grid-item($span, $start, $num_columns: $zen-column-count, $gutter_width: $zen-gutter-width)
+  @include zen-grid-item($span, $start, $zen-float-direction, $num_columns, $gutter_width)
+
+//@todo depricated
+@mixin grid-container($num_columns: $zen-column-count, $gutter_width: $zen-gutter-width)
+  $original-zen-column-count: $zen-column-count
+  $original-zen-gutter-width: $zen-gutter-width
+
+  $zen-column-count: $num_columns
+  $zen-gutter-width: $gutter_width
+
+  @include zen-grid-container
+
+  $zen-column-count: $original-zen-column-count
+  $zen-gutter-width: $original-zen-gutter-width
+
+//@todo depricated
+@mixin nested-container($num_columns: $zen-column-count, $gutter_width: $zen-gutter-width)
+  $original-zen-column-count: $zen-column-count
+  $original-zen-gutter-width: $zen-gutter-width
+
+  $zen-column-count: $num_columns
+  $zen-gutter-width: $gutter_width
+
+  @include zen-nested-container
+
+  $zen-column-count: $original-zen-column-count
+  $zen-gutter-width: $original-zen-gutter-width

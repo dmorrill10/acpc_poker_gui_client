@@ -1,19 +1,22 @@
-$num_actions: 3
+@import 'action_dashboard/action_dashboard-defs'
+
 .actions
   @include zen-grid-item($l-action_dashboard-column-count, 1)
-  @include zen-nested-container
+  $num_actions: 3
+  @include nested-container($num_actions)
   @include zen-clear
 
+  @for $n from 1 through $num_actions
+    .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
+      @include zen-grid-item(1, $n)
+
   .poker_actn_btn
-    @include zen-nested-container
+    $l-poker_actn_btn-column-count: 1
+    @include nested-container($l-poker_actn_btn-column-count)
 
     button
       @extend .btn
       @extend .btn-primary
-      @include zen-grid-item($l-action_dashboard-column-count, 1)
+      @include zen-grid-item($l-poker_actn_btn-column-count, 1)
 
       height: 90px
-
-  @for $n from 1 through $num_actions
-    .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
-      @include zen-grid-item(2, 2 * $n - 1)

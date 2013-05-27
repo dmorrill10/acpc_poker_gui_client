@@ -1,0 +1,24 @@
+@import 'action_dashboard-defs'
+@import '../poker_table/poker_table-defs'
+.action_dashboard
+  @include grid-item($l-poker_table-column-count, 1, $l-poker_table-column-count)
+  @include zen-nested-container
+
+  $dark_background_color: darken($c-action_dashboard-background-color, 30%)
+  @include soft_edges($dark_background_color)
+  @include background-image(linear-gradient(top, $c-action_dashboard-background-color, $dark_background_color))
+
+  .meta_action
+    a
+      @extend button
+      @extend .btn-info
+      @extend .poker_actn_btn
+
+      text-decoration: none
+
+  .wager_amount-num_field
+    @include grid-item(1, 3, $l-action_dashboard-column-count)
+    input
+      float: right
+      margin-bottom: 0
+      margin-top: 10px

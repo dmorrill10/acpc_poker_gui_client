@@ -1,15 +1,24 @@
+@import 'action_dashboard/action_dashboard-defs'
+
 .wager_amount-slider
-  @include zen-grid-item(4, 1)
+  @include grid-item(2, 1, $l-action_dashboard-column-count)
+
+  $l-wager_amount-slider-column-count: 1
+
   @include zen-nested-container
+
   margin-bottom: $zen-gutter-width
 
   .slider_labels
-    @include zen-grid-item($l-action_dashboard-column-count, 1)
-    @include zen-nested-container
+    @include grid-item($l-wager_amount-slider-column-count, 1, $l-wager_amount-slider-column-count)
+
     $num_labels: 6
+
+    @include zen-nested-container
+
     @for $n from 1 through $num_labels
       .slider_label:nth-child(#{$num_labels}n+#{$n})
-        @include zen-grid-item(1, $n)
+        @include grid-item(1, $n, $num_labels)
     .slider_label
       text-align: left
       &.half_pot
@@ -23,13 +32,17 @@
     .slider_label:last-child
       text-align: right
   .slider
-    @include zen-grid-item($l-action_dashboard-column-count, 1)
+    @include grid-item($l-wager_amount-slider-column-count, 1, $l-wager_amount-slider-column-count)
+
+    $l-slider-column-count: 1
+
     @include zen-grid-container
     @include zen-clear
+
     position: relative
 
     .ui_slider
-      @include zen-grid-item($l-action_dashboard-column-count, 1)
+      @include grid-item($l-slider-column-count, 1, $l-slider-column-count)
 
       $ui_slider_second_color: #006CCC
       .ui-slider-handle

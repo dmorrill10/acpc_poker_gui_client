@@ -49,16 +49,8 @@
         = render partial: 'held_player_information', locals: {player: @match_view.user, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
 
   - next_hand_button_should_be_visible = @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
-  - action_dashboard_id = if @match_view.no_limit?
-    - 'no_limit'
-  - else
-    - 'limit'
 
-  - action_dashboard_grid_class = if @match_view.slice.match_ended? || next_hand_button_should_be_visible
-    - 'for_next_hand'
-  - else
-    - 'for_actions'
-  .action_dashboard.show-grid{ id: action_dashboard_id, class:  action_dashboard_grid_class }
+  .action_dashboard
     .hidden
       = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
       = update_state_form @match_id, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
@@ -78,7 +70,7 @@
       - wager_classes = if @match_view.no_limit? then ['with_modifier'] else [] end
       .action_modification_tools
         - if @match_view.no_limit?
-          .wager_amount-slider.show-grid
+          .wager_amount-slider
             .slider_labels
               .slider_label.min Min
               .slider_label.half_pot 50%
@@ -86,7 +78,8 @@
               .slider_label.one_pot Pot
               .slider_label.two_pot 2xPot
               .slider_label.all_in All-in
-            .ui_slider
+            .slider
+              .ui_slider
           .wager_amount-num_field= number_field_tag :modifier
       .actions
         .poker_actn_btn= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])

@@ -1,7 +1,33 @@
+$background_color: #000
+
+$default_radius: 5px
+$default_border_radius: $default_radius $default_radius $default_radius $default_radius
+$default_border_width: 2px
+
+@mixin soft_edges($border_color: transparent, $border_width: $default_border_width, $border_radius: $default_border_radius)
+  border-color: $border_color
+  border-width: $border_width
+  border-style: solid/*@todo Make this a chalky/particled style.*/
+  border-radius: $border_radius
+
 $l-action_dashboard-column-count: 6
+
 .action_dashboard
   $zen-column-count: $l-action_dashboard-column-count
   @include zen-grid-container
+
+  $background_color: #ffbb55
+  $dark_background_color: darken($background_color, 30%)
+  @include soft_edges($dark_background_color)
+  @include background-image(linear-gradient(top, $background_color, $dark_background_color))
+
+  .meta_action
+    a
+      @extend button
+      @extend .btn-info
+      @extend .poker_actn_btn
+
+      text-decoration: none
 
   .wager_amount-num_field
     @include zen-grid-item(2, 5)

@@ -1,0 +1,32 @@
+@mixin no_size
+  padding: 0
+  margin: 0
+  height: 0
+  width: 0
+  overflow: hidden
+  display: none
+
+$page_background_color: #515250
+$page_background: image-url('nick_morrill/chip_background.foggy.jpg')
+html
+  background-color: $page_background_color
+  background-image: $page_background
+  background-repeat: no-repeat
+body
+  background: none
+.container
+  background: none
+  width: 100%
+  margin: 0
+a
+  text-decoration: none
+a img
+  border: none
+.help-inline
+  font-weight: 900
+  font-size: 18px
+.help-block
+  font-size: 8px
+  color: gray
+.hidden
+  @include no_size

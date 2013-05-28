@@ -16,7 +16,16 @@
    }
 }
 
+$card_padding: 10px;
+
+@mixin align_top {
+   line-height: 1;
+   // margin-top: $card_padding;
+}
+
 .card {
+   @include zen-grid-container;
+
    $blank_card_color: #01b0b0;
    @include set_card_color($blank_card_color);
 
@@ -24,44 +33,48 @@
       @include box-sizing(border-box);
    }
 
-   margin: 0;
-   padding: 0;
-
    height: $card_height;
    width: $card_width;
 
    position: relative;
 
-   $card_padding: 8px;
    $top_row_height: $card_height / 1.7;
 
-   .top_left_rank {
-      padding-left: $card_padding;
-      padding-top: $card_padding;
-      height: $top_row_height;
+   $card-column-count: 3;
+   @include parent_grid($card-column-count);
 
-      font-size: $c-font-size-primary*1.2;
+   .top_left_rank {
+      @include zen-grid-item(1, 1);
+      @include align_top;
+
+      font-size: $c-font-size-primary*1.5;
    }
    .suit {
-      padding-right: $card_padding;
-      padding-top: $card_padding;
-      height: $top_row_height;
+      @include zen-grid-item(2, 2);
+      @include align_top;
+
       text-align: right;
 
       font-size: $c-font-size-primary*3;
    }
    .bottom_right_rank {
-      padding-right: $card_padding;
+      @include zen-grid-item($card-column-count, 1);
+      @include zen-clear;
+
+      line-height: 2;
+
       text-align: right;
       font-size: $c-font-size-primary*3.5;
    }
    @include background-image(linear-gradient(top left, darken($blank_card_color, 25%), $blank_card_color));
 
    .logo {
+      @include zen-grid-item(1, 1);
+      @include zen-clear;
       @include box-sizing(border-box);
 
       // Include card logo like this:
-      // @include background-image(image-url('cprg_chip_label_front.png'));
+      @include background-image(image-url('nick_morrill/chip_background.foggy.jpg'));
 
       height: $card_height;
       width: $card_width;

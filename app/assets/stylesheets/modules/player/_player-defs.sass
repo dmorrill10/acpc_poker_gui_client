@@ -1,22 +1,70 @@
+@import '../abstract/chip_stack-defs'
+@import '../abstract/cards-defs'
+@import '../page/page-defs'
+
 $l-player-column-count: 3
 
 @mixin player($position: 1)
   @include zen-grid-item(2, $position)
   @include zen-grid-container
-  background-color: #000
-  background-style: solid
-
-  @include parent_grid($l-player-column-count)
 
   .held_player_information
+    @include parent_grid($l-player-column-count)
     @include zen-grid-item($l-player-column-count, 1)
     @include zen-nested-container
-    background-color: #00f
-    background-style: solid
 
-  .dealer_button
-    background-color: #f00
-    background-style: solid
-  .stack_added_to_pot
-    background-color: #0f0
-    background-style: solid
+    $l-held_player_information-column-count: 2
+
+    .name
+      @include parent_grid($l-held_player_information-column-count)
+      @include zen-grid-item($l-held_player_information-column-count, 1)
+
+      font-size: $c-font-size-primary*1.3
+    .hole_cards
+      @include parent_grid($l-held_player_information-column-count)
+      @include zen-grid-item(1, 1)
+      @include zen-clear
+      @include cards
+    .player_stack
+      @include parent_grid($l-held_player_information-column-count)
+      @include zen-grid-item(1, 2)
+      .chip_stack
+        @include chip_stack(#ff9900)
+  .outer_player_information
+    @include parent_grid($l-player-column-count)
+    @include zen-grid-item($l-player-column-count, 1)
+    @include zen-nested-container
+
+    $l-outer_player_information-column-count: 3
+
+    .dealer_button
+      @include parent_grid($l-outer_player_information-column-count)
+      @include zen-grid-item(1, 1)
+      padding: 0
+
+      $dealer_button_font_size: $c-font-size-primary - 3
+      $dealer_button_diameter: ceil($chip_stack_diameter/1.5)
+      @include align_text_center_horizontally_and_vertically($dealer_button_diameter, $dealer_button_font_size)
+      @include raised_border
+      @include circular_border_radius
+      @include align_center_vertically($dealer_button_diameter, $chip_stack_diameter)
+
+      font-size: $dealer_button_font_size
+      color: #000
+      font-weight: bold
+
+      height: $dealer_button_diameter
+      width: $dealer_button_diameter
+
+      background-color: #fff
+    %stack_associated_with_pot
+      @include parent_grid($l-outer_player_information-column-count)
+      @include zen-grid-item(2, 2)
+    .stack_added_to_pot
+      @extend %stack_associated_with_pot
+      .chip_stack
+        @include chip_stack(#aa0142)
+    .stack_taken_from_pot
+      @extend %stack_associated_with_pot
+      .chip_stack
+        @include chip_stack(#001eb7)

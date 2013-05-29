@@ -1,0 +1,10 @@
+.outer_player_information
+  - if seat_with_dealer_button == player['seat']
+    = render partial: 'dealer_button'
+  - unless player['chip_contributions'].length < round + 1
+    - if !hand_ended && player['chip_contributions'][round] > 0
+      .stack_added_to_pot
+        = render partial: 'chip_stack', locals: { amount: player['chip_contributions'][round].to_i }
+    - elsif player['chip_contributions'].last < 0
+      .stack_taken_from_pot
+        = render partial: 'chip_stack', locals: { amount: -player['chip_contributions'].last.to_i }

@@ -1,5 +1,5 @@
 .held_player_information
-  .title= "#{player['name']}"
+  .name= "#{player['name']}"
   .hole_cards
     = render partial: 'cards', locals: { cards: player['hole_cards'] }
   .player_stack

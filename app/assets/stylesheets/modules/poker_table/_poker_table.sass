@@ -1,5 +1,7 @@
 @import 'poker_table-defs'
 @import '../player/player-defs'
+@import '../abstract/chip_stack-defs'
+@import '../card/card-defs'
 
 .poker_table
   @include zen-grid-container
@@ -9,24 +11,33 @@
 
   .user
     @include parent_grid($l-poker_table-column-count)
-    @include player(3)
+    @include player($l-poker_table-column-count/2)
     @include zen-clear
 
+    .held_player_information
+      @include zen-clear
+  .opponent
+    .outer_player_information
+      @include zen-clear
   .opponent.opponent_1_of_1
     @include parent_grid($l-poker_table-column-count)
-    @include player(3)
-
+    @include player($l-poker_table-column-count/2)
   // Two player
   .opponent.opponent_1_of_2
     @include parent_grid($l-poker_table-column-count)
-    @include player(2)
-
+    @include player($l-poker_table-column-count/2 - 1)
   .opponent.opponent_2_of_2
     @include parent_grid($l-poker_table-column-count)
-    @include player(4)
-
+    @include player($l-poker_table-column-count/2 + 1)
   .community_information
     @include parent_grid($l-poker_table-column-count)
     @include zen-grid-item($l-poker_table-column-count, 1)
     @include zen-nested-container
     @include zen-clear
+  *
+    white-space: normal
+  .pot
+    top: floor(($card_bare_image_height - $chip_stack_diameter)/2)
+
+    .chip_stack
+      @include chip_stack(#770B77)

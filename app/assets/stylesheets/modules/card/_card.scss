@@ -2,7 +2,7 @@
 @import 'card-defs';
 
 @import '../page/page-defs';
-@import '../abstract/cards';
+@import '../abstract/cards-defs';
 
 @mixin set_card_color($color) {
    @include soft_edges($color);
@@ -64,8 +64,6 @@
    @include background-image(linear-gradient(top left, darken($blank_card_color, 25%), $blank_card_color));
 
    .logo {
-      // @include box-sizing(border-box);
-
       // Include card logo like this:
       @include background-image(image-url('nick_morrill/chip_background.foggy.jpg'));
 
@@ -88,8 +86,4 @@
    &#s {
       @include set_card_color(#303030);
    }
-}
-
-.hole_cards {
-   @include cards;
 }

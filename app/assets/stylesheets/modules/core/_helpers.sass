@@ -7,7 +7,7 @@ $default_border_width: 2px
 @mixin soft_edges($border_color: transparent, $border_width: $default_border_width, $border_radius: $default_border_radius)
   border-color: $border_color
   border-width: $border_width
-  border-style: solid/*@todo Make this a chalky/particled style.*/
+  border-style: solid
   border-radius: $border_radius
 
 @mixin raised_border
@@ -17,6 +17,36 @@ $default_border_width: 2px
 $original-zen-gutter-width: $zen-gutter-width
 $original-zen-column-count: $zen-column-count
 
-@mixin parent_grid($num_columns: $zen-column-count, $gutter_width: $zen-gutter-width)
+@mixin parent_grid($num_columns: $original-zen-column-count, $gutter_width: $original-zen-gutter-width)
   $zen-column-count: $num_columns
   $zen-gutter-width: $gutter_width
+
+@mixin auto_adjusted_horizontal_margins
+  margin-left: auto
+  margin-right: auto
+
+@mixin no_border
+  border-width: 0
+  border-style: none
+
+@mixin center_horizontally
+  @include auto_adjusted_horizontal_margins
+  position: relative
+
+@mixin align_center($width_of_item_to_center, $width_of_item_in_which_to_center)
+  position: absolute
+  left: ($width_of_item_in_which_to_center - $width_of_item_to_center)/2
+
+@mixin align_center_vertically($height_of_item_to_center, $height_of_item_in_which_to_center)
+  position: relative
+  top: ($height_of_item_in_which_to_center - $height_of_item_to_center)/2
+
+@mixin align_text_center_horizontally_and_vertically($block_height, $font_size)
+  line-height: $block_height
+  text-align: center
+
+@function circular_border_radius()
+  @return 50px 50px 50px 50px
+
+@mixin circular_border_radius
+  border-radius: circular_border_radius()

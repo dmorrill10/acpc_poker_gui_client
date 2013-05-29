@@ -1,0 +1,11 @@
+@import '../card/card-defs'
+
+@mixin cards($num_cards: 2)
+  @include zen-grid-container
+
+  width: $num_cards * ($card_width + $l-card-margin)
+
+  @include parent_grid($num_cards, $l-card-margin)
+  @for $n from 1 through $num_cards
+    .card:nth-child(#{$num_cards}n+#{$n})
+      @include zen-grid-item(1, $n)

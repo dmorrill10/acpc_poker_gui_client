@@ -2,6 +2,7 @@
 @import 'card-defs';
 
 @import '../page/page-defs';
+@import '../abstract/cards';
 
 @mixin set_card_color($color) {
    @include soft_edges($color);
@@ -16,13 +17,6 @@
    }
 }
 
-$card_padding: 10px;
-
-@mixin align_top {
-   line-height: 1;
-   // margin-top: $card_padding;
-}
-
 .card {
    @include zen-grid-container;
 
@@ -34,69 +28,68 @@ $card_padding: 10px;
    }
 
    height: $card_height;
-   width: $card_width;
 
    position: relative;
 
-   $top_row_height: $card_height / 1.7;
-
-   $card-column-count: 3;
-   @include parent_grid($card-column-count);
+   $card-column-count: 2;
+   @include parent_grid($card-column-count, $l-card-margin);
 
    .top_left_rank {
       @include zen-grid-item(1, 1);
-      @include align_top;
 
-      font-size: $c-font-size-primary*1.5;
+      line-height: 1;
+      font-size: $c-font-size-primary;
+
+      margin-top: $l-card-margin;
    }
    .suit {
-      @include zen-grid-item(2, 2);
-      @include align_top;
+      @include zen-grid-item(1, 2);
 
+      line-height: 1;
       text-align: right;
+      font-size: $c-font-size-primary*2;
 
-      font-size: $c-font-size-primary*3;
+      margin-top: $l-card-margin;
    }
    .bottom_right_rank {
       @include zen-grid-item($card-column-count, 1);
       @include zen-clear;
 
-      line-height: 2;
-
+      line-height: 1;
       text-align: right;
-      font-size: $c-font-size-primary*3.5;
+      font-size: $c-font-size-primary*3;
+
+      margin-top: $l-card-margin;
    }
    @include background-image(linear-gradient(top left, darken($blank_card_color, 25%), $blank_card_color));
 
    .logo {
-      @include zen-grid-item(1, 1);
-      @include zen-clear;
-      @include box-sizing(border-box);
+      // @include box-sizing(border-box);
 
       // Include card logo like this:
       @include background-image(image-url('nick_morrill/chip_background.foggy.jpg'));
 
       height: $card_height;
-      width: $card_width;
 
-      $logo_radius: $card_width - 2 * $card_padding;
-      margin-left: $card_padding;
-      margin-right: $card_padding;
-      background-size: $logo_radius;
+      background-size: contain;
       background-repeat: no-repeat;
-      margin-top: ($card_height - $logo_radius) / 2;
+      background-position: center;
+   }
+
+   &#c {
+   @include set_card_color(#107010);
+   }
+   &#d {
+      @include set_card_color(#2020A0);
+   }
+   &#h {
+      @include set_card_color(#B00101);
+   }
+   &#s {
+      @include set_card_color(#303030);
    }
 }
 
-.card#c {
-   @include set_card_color(#107010);
-}
-.card#d {
-   @include set_card_color(#2020A0);
-}
-.card#h {
-   @include set_card_color(#B00101);
-}
-.card#s {
-   @include set_card_color(#303030);
+.hole_cards {
+   @include cards;
 }

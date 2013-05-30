@@ -18,7 +18,7 @@ GEM
       acpc_poker_types (~> 3.2)
       contextual_exceptions (~> 0.0)
       methadone (~> 1.2)
-    acpc_poker_types (3.2.0)
+    acpc_poker_types (3.2.1)
       acpc_dealer (~> 1.0)
       celluloid (~> 0.14)
       contextual_exceptions (~> 0.0)

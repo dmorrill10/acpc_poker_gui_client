@@ -12,9 +12,10 @@
 
   color: #ff8
 
+  height: 480px
+
   *
     white-space: normal
-
   .user
     @include parent_grid($l-poker_table-column-count)
     @include player($l-poker_table-column-count/2)
@@ -44,6 +45,8 @@
     margin-top: $original-zen-gutter-width
     margin-bottom: $original-zen-gutter-width
 
+    height: $card_height
+
     $l-community_information-column-count: 7
     .board_cards
       @include parent_grid($l-community_information-column-count)
@@ -57,7 +60,7 @@
       @include parent_grid($l-community_information-column-count)
       @include zen-grid-item(1, 4)
 
-      @include align_center_vertically($chip_stack_diameter, $card_height)
+      // @include align_center_vertically($chip_stack_diameter, $card_height)
 
       .chip_stack
         @include chip_stack(#770B77)

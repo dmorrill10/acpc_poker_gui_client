@@ -9,14 +9,21 @@
   @include soft_edges($dark_background_color)
   @include background-image(linear-gradient(top, $c-action_dashboard-background-color, $dark_background_color))
 
+  $l-action_dashboard-height: 150px
+  height: $l-action_dashboard-height
+
+  form
+    margin: 0
+  $l-poker_actn_btn-height: 90px
   .meta_action
-    a
-      @extend button
+    @include parent_grid($l-action_dashboard-column-count)
+    @include zen-grid-item(1, 2)
+    button
+      @extend .btn
       @extend .btn-info
-      @extend .poker_actn_btn
 
-      text-decoration: none
-
+      width: 100%
+      height: $l-action_dashboard-height
   .wager_amount-num_field
     @include parent_grid($l-action_dashboard-column-count)
     @include zen-grid-item(1, 3)
@@ -24,3 +31,28 @@
       float: right
       margin-bottom: 0
       margin-top: 10px
+  .actions
+    @include parent_grid($l-action_dashboard-column-count)
+    @include zen-grid-item($l-action_dashboard-column-count, 1)
+    @include zen-nested-container
+    @include zen-clear
+
+    $num_actions: 3
+    .poker_actn_btn
+      @include parent_grid($num_actions)
+
+    @for $n from 1 through $num_actions
+      .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
+        @include zen-grid-item(1, $n)
+
+    .poker_actn_btn
+      $l-poker_actn_btn-column-count: 1
+      @include zen-nested-container
+
+      button
+        @extend .btn
+        @extend .btn-primary
+        @include parent_grid($l-poker_actn_btn-column-count)
+        @include zen-grid-item($l-poker_actn_btn-column-count, 1)
+
+        height: $l-poker_actn_btn-height

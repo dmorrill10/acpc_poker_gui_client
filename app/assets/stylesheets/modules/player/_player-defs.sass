@@ -42,6 +42,9 @@ $l-player-column-count: 3
     @include zen-grid-item($l-player-column-count, 1)
     @include zen-nested-container
 
+    // @todo Not quite sure where the extra 3px come from, maybe border on the chip...
+    height: $chip_stack_diameter + 3px
+
     $l-outer_player_information-column-count: 3
 
     .dealer_button

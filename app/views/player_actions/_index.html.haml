@@ -47,14 +47,13 @@
   .action_dashboard
     .hidden
       = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
-      = update_state_form @match_id, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
     - if @match_view.slice.match_ended?
       .meta_action
         = link_to leave_match_label, leave_match_url, {remote: true, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
     - elsif next_hand_button_should_be_visible
       .meta_action
         - next_hand_label = "Next Hand"
-        = button_tag next_hand_label, id: next_hand_id, class: ['btn', 'btn-info', 'btn-block', 'poker_action_button'], disabled: !@match_view.slice.hand_ended? || @match_view.slice.match_ended?, data: { disable_with: next_hand_label }
+        = update_state_form next_hand_label, id: next_hand_id, disabled: @match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?, data: { disable_with: next_hand_label }
     - else
       - fold_is_disabled_when = !(@match_view.slice.users_turn_to_act? && @match_view.slice.legal_actions.include?('f'))
       - pass_action_button_label = if (@match_view.slice.legal_actions.include?('c') && @match_view.user['amount_to_call'] > 0) then (if @match_view.no_limit? then "Call (#{@match_view.user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end

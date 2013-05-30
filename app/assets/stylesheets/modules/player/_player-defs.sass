@@ -13,23 +13,30 @@ $l-player-column-count: 3
     @include zen-grid-item($l-player-column-count, 1)
     @include zen-nested-container
 
-    $l-held_player_information-column-count: 2
+    @include soft_edges(transparent)
+
+    $l-held_player_information-column-count: 5
+    $l-held_player_information-gutter-width: $original-zen-gutter-width/2
 
     .name
-      @include parent_grid($l-held_player_information-column-count)
+      @include parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
       @include zen-grid-item($l-held_player_information-column-count, 1)
 
       font-size: $c-font-size-primary*1.3
+      color: #fff
     .hole_cards
-      @include parent_grid($l-held_player_information-column-count)
-      @include zen-grid-item(1, 1)
+      @include parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
+      @include zen-grid-item(3, 1)
       @include zen-clear
       @include cards
     .player_stack
-      @include parent_grid($l-held_player_information-column-count)
-      @include zen-grid-item(1, 2)
+      @include parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
+      @include zen-grid-item(2, 4)
       .chip_stack
         @include chip_stack(#ff9900)
+  &.acting_player
+    .held_player_information
+      @include soft_edges(#ff0)
   .outer_player_information
     @include parent_grid($l-player-column-count)
     @include zen-grid-item($l-player-column-count, 1)

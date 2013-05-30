@@ -40,6 +40,7 @@ $original-zen-column-count: $zen-column-count
 @mixin align_center_vertically($height_of_item_to_center, $height_of_item_in_which_to_center)
   position: relative
   top: ($height_of_item_in_which_to_center - $height_of_item_to_center)/2
+  height: $height_of_item_to_center
 
 @mixin align_text_center_horizontally_and_vertically($block_height, $font_size)
   line-height: $block_height

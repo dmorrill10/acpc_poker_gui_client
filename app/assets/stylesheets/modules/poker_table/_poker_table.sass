@@ -1,6 +1,7 @@
 @import 'poker_table-defs'
 @import '../player/player-defs'
 @import '../abstract/chip_stack-defs'
+@import '../abstract/cards-defs'
 @import '../card/card-defs'
 
 .poker_table
@@ -8,6 +9,11 @@
   @include soft_edges(#8B4513, 100%, 500px 500px 500px 500px)
 
   background: image-url('nick_morrill/small_felt.jpg')
+
+  color: #ff8
+
+  *
+    white-space: normal
 
   .user
     @include parent_grid($l-poker_table-column-count)
@@ -34,10 +40,35 @@
     @include zen-grid-item($l-poker_table-column-count, 1)
     @include zen-nested-container
     @include zen-clear
-  *
-    white-space: normal
-  .pot
-    top: floor(($card_bare_image_height - $chip_stack_diameter)/2)
 
-    .chip_stack
-      @include chip_stack(#770B77)
+    margin-top: $original-zen-gutter-width
+    margin-bottom: $original-zen-gutter-width
+
+    $l-community_information-column-count: 7
+    .board_cards
+      @include parent_grid($l-community_information-column-count)
+      @include zen-grid-item(3, 1)
+      @include cards(5)
+
+      .card_set
+        float: right
+        height: $card_height
+    .pot
+      @include parent_grid($l-community_information-column-count)
+      @include zen-grid-item(1, 4)
+
+      @include align_center_vertically($chip_stack_diameter, $card_height)
+
+      .chip_stack
+        @include chip_stack(#770B77)
+        @include center_horizontally
+    .summary_information
+      @include parent_grid($l-community_information-column-count)
+      @include zen-grid-item(3, 5)
+
+      $c-summary_information-font-size: $c-font-size-primary * 2
+      $c-summary_information-line-height: 1.5
+      @include align_center_vertically($c-summary_information-font-size * $c-summary_information-line-height, $card_height)
+
+      line-height: $c-summary_information-line-height
+      font-size: $c-summary_information-font-size

@@ -23,13 +23,12 @@
    $blank_card_color: #01b0b0;
    @include set_card_color($blank_card_color);
 
-   * {
-      @include box-sizing(border-box);
-   }
-
    height: $card_height;
+   width: $card_width;
 
    position: relative;
+
+   color: #fff;
 
    $card-column-count: 2;
    @include parent_grid($card-column-count, $l-card-margin);
@@ -48,8 +47,6 @@
       line-height: 1;
       text-align: right;
       font-size: $c-font-size-primary*2;
-
-      margin-top: $l-card-margin;
    }
    .bottom_right_rank {
       @include zen-grid-item($card-column-count, 1);
@@ -75,7 +72,7 @@
    }
 
    &#c {
-   @include set_card_color(#107010);
+      @include set_card_color(#107010);
    }
    &#d {
       @include set_card_color(#2020A0);

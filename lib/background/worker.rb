@@ -130,6 +130,7 @@ Stalker.job('PlayerProxy.start') do |params|
       match = match_instance match_id
       match.betting_type = game_definition.betting_type
       match.number_of_hole_cards = game_definition.number_of_hole_cards
+      match.min_wagers = game_definition.min_wagers
       save_match_instance match
 
       background_processes[:player_proxy] = WebApplicationPlayerProxy.new(

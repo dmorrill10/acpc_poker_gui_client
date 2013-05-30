@@ -2,7 +2,7 @@ Hotkey =
   bind: (element, key) ->
     $(document).bind('keypress', key, (evt)->
       elementOnPage = $(element)
-      elementOnPage.submit() unless elementOnPage.is(':disabled')
+      elementOnPage.click() unless elementOnPage.is(':disabled')
     )
 
 Hotkey.bind('.fold', 'a')

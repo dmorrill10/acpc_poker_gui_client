@@ -7,7 +7,7 @@
 
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 
-.chip_balances.hero-unit
+.chip_balances
   %h4= "#{@match_view.match.match_name} <span class=\"right\">#{@match_view.slice.hand_number+1} / #{@match_view.match.number_of_hands}</span>".html_safe
   %table.table.table-striped
     %thead
@@ -44,7 +44,7 @@
 
   - next_hand_button_should_be_visible = @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
 
-  .action_dashboard
+  .action_dashboard{ class: if @match_view.no_limit? then 'nolimit' else 'limit' end}
     .hidden
       = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
     - if @match_view.slice.match_ended?
@@ -71,7 +71,7 @@
               .slider_label.all_in All-in
             .slider
               .ui_slider
-          .wager_amount-num_field= number_field_tag :modifier
+          .wager_amount-num_field= number_field_tag :modifier, @match_view.minimum_wager_to.to_i, min: @match_view.minimum_wager_to.to_i, max: @match_view.all_in.to_i, step: @match_view.match.min_wagers[@match_view.state.round].to_i
       .actions
         .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::FOLD, 'Fold', fold_is_disabled_when, ['fold'])
         .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::CALL, pass_action_button_label, !@match_view.slice.users_turn_to_act?, ['pass'])
@@ -108,7 +108,5 @@
     $("##{next_hand_id}").focus();
 - else
   :javascript
-    if (!$.browser.mozilla) {
-      $('#user_poker_action_modifier').focus();
-    }
+    $('.wager_amount-num_field > input#modifier').focus();
 - Match.delete_match!(@match_id) if @match_view.slice.match_ended?

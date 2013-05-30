@@ -9,12 +9,10 @@ root.ActionDashboard =
       $(this).attr("disabled", false)
     )
   adjustWagerOnSubmission: (minimum_wager_to, user_contributions_in_previous_rounds)->
-    $('form.wager > button.wager').submit((e)->
-      alert ".wager_amount-num_field > input#modifier length: #{$('.wager_amount-num_field > input#modifier').length}"
+    $('form.wager > button.wager').click((e)->
       if $('.wager_amount-num_field > input#modifier').length == 0
         return
       wager_to_amount_over_round = parseInt($('.wager_amount-num_field > input#modifier').val())
-      alert "wager_to_amount_over_round: #{wager_to_amount_over_round}"
       if (
         !wager_to_amount_over_round or
         isNaN(wager_to_amount_over_round) or
@@ -31,5 +29,5 @@ root.ActionDashboard =
     $('.wager_amount-num_field > input#modifier').keypress((evt)->
       if evt.keyCode == 13
         evt.preventDefault()
-        $('form.wager > .wager').submit()
+        $('form.wager > button.wager').click()
     )

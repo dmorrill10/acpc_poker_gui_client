@@ -48,7 +48,6 @@ module PlayerActionsHelper
 
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view
-    @user_poker_action = UserPokerAction.new
     @match_view ||= MatchView.new(@match_id)
     replace_page_contents 'player_actions/index'
   end

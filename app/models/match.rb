@@ -86,6 +86,7 @@ class Match
   # Game definition information
   field :betting_type, type: String
   field :number_of_hole_cards, type: Integer
+  field :min_wagers, type: Array
 
   def delete_previous_slices!(current_index)
     if current_index > 0

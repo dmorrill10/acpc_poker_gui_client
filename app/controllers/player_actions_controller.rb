@@ -8,7 +8,6 @@ require 'application_helper'
 
 # Local classes
 require 'match'
-require 'user_poker_action'
 
 require 'ap'
 

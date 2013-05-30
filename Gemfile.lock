@@ -135,6 +135,7 @@ GEM
     mime-types (1.23)
     mocha (0.14.0)
       metaclass (~> 0.0.1)
+    modernizr-rails (2.6.2.2)
     mongoid (3.1.4)
       activemodel (~> 3.2)
       moped (~> 1.4)
@@ -260,6 +261,7 @@ DEPENDENCIES
   meta_request
   methadone
   mocha
+  modernizr-rails
   mongoid (~> 3.1.2)
   moped (~> 1.4.3)
   oily_png

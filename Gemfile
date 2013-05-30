@@ -76,6 +76,8 @@ group :assets do
 
   # native c library for png routines to speed up chunky_png
   gem 'oily_png'
+
+  gem 'modernizr-rails'
 end
 
 group :development do

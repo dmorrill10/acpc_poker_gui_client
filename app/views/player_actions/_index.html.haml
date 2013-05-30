@@ -108,5 +108,6 @@
     $("##{next_hand_id}").focus();
 - else
   :javascript
-    $('.wager_amount-num_field > input#modifier').focus();
+    if (Modernizr.inputtypes.number)
+      $('.wager_amount-num_field > input#modifier').focus();
 - Match.delete_match!(@match_id) if @match_view.slice.match_ended?

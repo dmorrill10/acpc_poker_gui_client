@@ -22,7 +22,7 @@
 .game_interface
   .poker_table
     - @match_view.opponents.each_with_index do |opponent, i|
-      .opponent{ :class => [acting_player_id(opponent['seat']), "opponent_#{i+1}_of_#{opponents.length}"] }
+      .opponent{ :class => [acting_player_id(opponent['seat']), "opponent_#{i+1}_of_#{@match_view.opponents.length}"] }
         = render partial: 'held_player_information', locals: {player: opponent}
         = render partial: 'outer_player_information', locals: { player: opponent, round: @match_view.state.round, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button }
 
@@ -56,12 +56,10 @@
         - next_hand_label = "Next Hand"
         = button_tag next_hand_label, id: next_hand_id, class: ['btn', 'btn-info', 'btn-block', 'poker_action_button'], disabled: !@match_view.slice.hand_ended? || @match_view.slice.match_ended?, data: { disable_with: next_hand_label }
     - else
-      - fold_label = 'Fold'
       - fold_is_disabled_when = !(@match_view.slice.users_turn_to_act? && @match_view.slice.legal_actions.include?('f'))
       - pass_action_button_label = if (@match_view.slice.legal_actions.include?('c') && @match_view.user['amount_to_call'] > 0) then (if @match_view.no_limit? then "Call (#{@match_view.user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end
       - make_wager_button_label = if @match_view.slice.legal_actions.include?('b') then 'Bet' else 'Raise' end
       - make_wager_button_label += ' to' if @match_view.no_limit?
-      - wager_classes = if @match_view.no_limit? then ['with_modifier'] else [] end
       .action_modification_tools
         - if @match_view.no_limit?
           .wager_amount-slider
@@ -76,24 +74,17 @@
               .ui_slider
           .wager_amount-num_field= number_field_tag :modifier
       .actions
-        .poker_actn_btn= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
-        .poker_actn_btn= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['pass'])
-        .poker_actn_btn= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
-:javascript
-  ChipStackMutator.adjustAmountFontSizeOfAllStacks();
-
-  ActionDashboard.disableButtonsOnClick();
-  ActionDashboard.registerHiddenAction('fold');
-  ActionDashboard.registerHiddenAction('pass');
-  ActionDashboard.registerHiddenAction('wager');
-  ActionDashboard.registerHiddenAction("#{next_hand_id}");
-  ActionDashboard.adjustWagerOnSubmission(
-    parseInt("#{@match_view.minimum_wager_to}"),
-    parseInt("#{@match_view.user_contributions_in_previous_rounds}")
-  );
-  ActionDashboard.fixEnterWagerSubmission();
+        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::FOLD, 'Fold', fold_is_disabled_when, ['fold'])
+        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::CALL, pass_action_button_label, !@match_view.slice.users_turn_to_act?, ['pass'])
+        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::RAISE, make_wager_button_label, !@match_view.slice.users_turn_to_act?, ['wager'])
 - if @match_view.no_limit?
   :javascript
+    ActionDashboard.adjustWagerOnSubmission(
+      parseInt("#{@match_view.minimum_wager_to}"),
+      parseInt("#{@match_view.user_contributions_in_previous_rounds}")
+    );
+    ActionDashboard.fixEnterWagerSubmission();
+
     var sliderValues;
     sliderValues = [
       parseInt("#{@match_view.minimum_wager_to}"),
@@ -104,9 +95,12 @@
       parseInt("#{@match_view.all_in}")
     ];
     WagerAmountSlider.initialize(sliderValues);
-  :javascript
-    GameInterface.adjustScale();
-
+:javascript
+  ActionDashboard.disableButtonsOnClick();
+  ChipStackMutator.adjustAmountFontSizeOfAllStacks();
+  // Must come before change in focus code and as late into loading the page as possible
+  // to make sure the window fits exactly as expected.
+  GameInterface.adjustScale();
 - if @match_view.slice.match_ended?
   :javascript
     $("##{leave_match_id}").focus();

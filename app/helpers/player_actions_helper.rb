@@ -15,9 +15,6 @@ module PlayerActionsHelper
   def poker_action_submission_options(label, disabled_when, classes=[], ids=[], link=nil)
     {class: classes, id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
   end
-  def poker_action_submission(label, disabled_when, classes=[], ids=[])
-    submit_tag label, poker_action_submission_options(label, disabled_when, classes + ['hidden'], ids)
-  end
   def update_state_form(match_id, submit_button_label='', button_options={})
     button_options[:id] = 'update_match_state' unless button_options[:id]
     form_tag update_match_state_url, :remote => true do
@@ -32,19 +29,19 @@ module PlayerActionsHelper
       form << submit_tag(submit_button_label, button_options)
     end
   end
-
   def poker_action_form(action, label, disabled_when, classes=[], ids=[])
-    form_for @user_poker_action, url: take_action_url, remote: true do |f|
-      form = f.hidden_field :match_id, value: @match_id
-      form << f.hidden_field(:poker_action, value: action)
-      form << poker_action_submission(label, disabled_when, classes, ids)
-      form << yield(f) if block_given?
+    form_tag(take_action_url, poker_action_submission_options(label, disabled_when, classes, ids).merge({remote: true})) do
+      form = hidden_match_fields
+      form << hidden_field_tag(:poker_action, action)
+      form << hidden_field_tag(:modifier)
+      form << button_tag(label, poker_action_submission_options(label, disabled_when, classes, ids))
+      form << yield(form) if block_given?
       form
     end
   end
 
-  def hidden_match_fields(match_id)
-    form = hidden_field_tag(:match_id, match_id, id: 'match_id_hidden_field')
+  def hidden_match_fields(match_id = @match_id)
+    hidden_field_tag(:match_id, match_id, id: 'match_id_hidden_field')
   end
 
   # Replaces the page contents with an updated game view

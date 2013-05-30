@@ -1,23 +1,20 @@
 root = exports ? this
 
 root.ActionDashboard =
-  takeAction: (idOfSubmissionElement)->
-    submissionElement = $(idOfSubmissionElement)
-    submissionElement.submit() unless submissionElement.is(':disabled')
-  registerHiddenAction: (triggerId)->
-    $("##{triggerId}").click(->
-      ActionDashboard.takeAction("#hidden-#{triggerId}")
-    )
   disableButtonsOnClick: ->
-    $('.btn').click(->
+    $('button').click(->
       return if this.id is 'leave'
 
-      $('.btn:not(.hidden)').attr("disabled", true)
+      $('button').attr("disabled", true)
       $(this).attr("disabled", false)
     )
   adjustWagerOnSubmission: (minimum_wager_to, user_contributions_in_previous_rounds)->
-    $('#hidden-wager.with_modifier').submit((e)->
-      wager_to_amount_over_round = parseInt($('input#user_poker_action_modifier').val())
+    $('form.wager > .wager').submit((e)->
+      alert ".wager_amount-num_field > input#modifier length: #{$('.wager_amount-num_field > input#modifier').length}"
+      if $('.wager_amount-num_field > input#modifier').length == 0
+        return
+      wager_to_amount_over_round = parseInt($('.wager_amount-num_field > input#modifier').val())
+      alert "wager_to_amount_over_round: #{wager_to_amount_over_round}"
       if (
         !wager_to_amount_over_round or
         isNaN(wager_to_amount_over_round) or
@@ -28,11 +25,11 @@ root.ActionDashboard =
         wager_to_amount_over_round = minimum_wager_to
       wager_to_amount_over_hand = wager_to_amount_over_round + user_contributions_in_previous_rounds
 
-      $('input#user_poker_action_modifier').val(wager_to_amount_over_hand.toString())
+      $('form.wager > input#modifier').val(wager_to_amount_over_hand.toString())
     )
   fixEnterWagerSubmission: ->
-    $('input#user_poker_action_modifier').keypress((evt)->
+    $('.wager_amount-num_field > input#modifier').keypress((evt)->
       if evt.keyCode == 13
         evt.preventDefault()
-        $('#hidden-wager.with_modifier').submit()
+        $('form.wager > .wager').submit()
     )

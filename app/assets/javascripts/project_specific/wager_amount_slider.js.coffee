@@ -1,7 +1,7 @@
 root = exports ? this
 
 root.WagerAmountSlider =
-   
+
    initialize: (sliderValues) ->
       $('.ui_slider').slider({
          range: 'min',
@@ -10,6 +10,6 @@ root.WagerAmountSlider =
          value: 0,
          step: 1,
          slide: ((event, ui) ->
-            $('input#user_poker_action_modifier').val(sliderValues[ui.value])
+            $('.wager_amount-num_field > input#modifier').val(sliderValues[ui.value])
          )
       })

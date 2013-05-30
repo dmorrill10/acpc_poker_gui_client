@@ -7,43 +7,37 @@
 
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 
-/ .chip_balances.hero-unit
-/   %h4= "#{@match_view.match.match_name} <span class=\"right\">#{@match_view.slice.hand_number+1} / #{@match_view.match.number_of_hands}</span>".html_safe
-/   %table.table.table-striped
-/     %thead
-/       %tr
-/         %th Player
-/         %th Balance
-/     %tbody
-/       - @match_view.slice.players.each do |player|
-/         %tr
-/           %td= "#{player['name']}"
-/           %td= "#{player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)}"
+.chip_balances.hero-unit
+  %h4= "#{@match_view.match.match_name} <span class=\"right\">#{@match_view.slice.hand_number+1} / #{@match_view.match.number_of_hands}</span>".html_safe
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Player
+        %th Balance
+    %tbody
+      - @match_view.slice.players.each do |player|
+        %tr
+          %td= "#{player['name']}"
+          %td= "#{player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)}"
 .game_interface
   .poker_table
-    - opponents = @match_view.opponents
-    - opponents << @match_view.opponents.first
-    - opponents.each_with_index do |opponent, i|
+    - @match_view.opponents.each_with_index do |opponent, i|
       .opponent{ :class => [acting_player_id(opponent['seat']), "opponent_#{i+1}_of_#{opponents.length}"] }
         = render partial: 'held_player_information', locals: {player: opponent}
         = render partial: 'outer_player_information', locals: { player: opponent, round: @match_view.state.round, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button }
 
     .community_information
       .board_cards
-        - bc = [@match_view.opponents.first]*5
-        = render partial: 'cards', locals: { cards: bc }
-        / = render partial: 'cards', locals: {cards: @match_view.state.board_cards.flatten}
+        = render partial: 'cards', locals: {cards: @match_view.state.board_cards.flatten}
       .pot
         / @todo Assumes Doyle's game in multi-player
         - pot = if @match_view.slice.hand_ended? then 0 else @match_view.pot_at_start_of_round end
-        = render partial: 'player_actions/chip_stack', locals: { amount: 250 }
         - if pot > 0
           = render partial: 'player_actions/chip_stack', locals: { amount: pot }
       .summary_information
-        %p= "Actions: cBf/ccc/Rrrccf/rrrccc"
-        / %p= "Actions: #{@match_view.betting_sequence}"
-        / - if @match_view.slice.match_ended?
-        %p The match has ended, thanks for playing!
+        %p= "Actions: #{@match_view.betting_sequence}"
+        - if @match_view.slice.match_ended?
+          %p The match has ended, thanks for playing!
     .user{ :class => acting_player_id(@match_view.user['seat']) }
       = render partial: 'outer_player_information', locals: { player: @match_view.user, round: @match_view.state.round, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button }
       = render partial: 'held_player_information', locals: { player: @match_view.user }
@@ -86,7 +80,7 @@
         .poker_actn_btn= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['pass'])
         .poker_actn_btn= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
 :javascript
-  //ChipStackMutator.adjustAmountFontSizeOfAllStacks();
+  ChipStackMutator.adjustAmountFontSizeOfAllStacks();
 
   ActionDashboard.disableButtonsOnClick();
   ActionDashboard.registerHiddenAction('fold');
@@ -98,7 +92,6 @@
     parseInt("#{@match_view.user_contributions_in_previous_rounds}")
   );
   ActionDashboard.fixEnterWagerSubmission();
-  // GameInterface.adjustPlayerSetSize();
 - if @match_view.no_limit?
   :javascript
     var sliderValues;
@@ -112,7 +105,7 @@
     ];
     WagerAmountSlider.initialize(sliderValues);
   :javascript
-    // GameInterface.adjustScale();
+    GameInterface.adjustScale();
 
 - if @match_view.slice.match_ended?
   :javascript

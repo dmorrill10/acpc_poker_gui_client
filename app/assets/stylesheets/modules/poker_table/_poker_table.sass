@@ -64,12 +64,12 @@
 
       .chip_stack
         @include chip_stack(#770B77)
-        @include center_horizontally
+        @extend centerHorizontally
     .summary_information
       @include parent_grid($l-community_information-column-count)
       @include zen-grid-item(3, 5)
 
-      $c-summary_information-font-size: $c-font-size-primary * 2
+      $c-summary_information-font-size: ($base-fontSize - 4) * 2
       $c-summary_information-line-height: 1.5
       @include align_center_vertically($c-summary_information-font-size * $c-summary_information-line-height, $card_height)
 

@@ -10,8 +10,8 @@ $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
 
 @mixin chip_stack($outer_ring_color)
   @include chip_stack_size
-  @include raised_border
-  @include circular_border_radius
+  @extend raisedBorder
+  @extend circularBorderRadius
 
   $color_variation: 10%
   $ring_color: $outer_ring_color
@@ -20,7 +20,7 @@ $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
   background-color: darken($outer_ring_color, $color_variation)
 
   color: #000
-  $stack_amount_font_size: $c-font-size-primary + 1
+  $stack_amount_font_size: ($base-fontSize - 4) + 1
   font-size: $stack_amount_font_size
   font-weight: bold
 
@@ -29,7 +29,7 @@ $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
   position: relative
 
   .amount
-    @include center_horizontally
+    @extend centerHorizontally
     @include align_center_vertically($stack_amount_font_size, $chip_stack_diameter)
 
     @include align_text_center_horizontally_and_vertically($stack_amount_font_size, $stack_amount_font_size)
@@ -54,7 +54,7 @@ $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
 
     position: absolute
 
-  $suit_symbol_font_size: $c-font-size-primary - 4
+  $suit_symbol_font_size: ($base-fontSize - 4) - 4
   .suit_symbol
     position: absolute
     margin: 0

@@ -6,7 +6,7 @@
 
 @mixin set_card_color($color) {
    @include soft_edges($color);
-   @include raised_border;
+   @extend raisedBorder;
 
    $dark_color: darken($color, $card_color_variation_amount);
    $light_color: lighten($color, $card_color_variation_amount);
@@ -37,7 +37,7 @@
       @include zen-grid-item(1, 1);
 
       line-height: 1;
-      font-size: $c-font-size-primary;
+      font-size: ($base-fontSize - 4);
 
       margin-top: $l-card-margin;
    }
@@ -46,7 +46,7 @@
 
       line-height: 1;
       text-align: right;
-      font-size: $c-font-size-primary*2;
+      font-size: ($base-fontSize - 4)*2;
    }
    .bottom_right_rank {
       @include zen-grid-item($card-column-count, 1);
@@ -54,7 +54,7 @@
 
       line-height: 1;
       text-align: right;
-      font-size: $c-font-size-primary*3;
+      font-size: ($base-fontSize - 4)*3;
 
       margin-top: $l-card-margin;
    }

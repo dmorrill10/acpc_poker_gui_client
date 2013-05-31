@@ -27,7 +27,7 @@
       width: 100%
       height: $l-action_dashboard-height
 
-      font-size: $c-font-size-primary * 2.5
+      font-size: ($base-fontSize - 4) * 2.5
   .wager_amount-num_field
     @include parent_grid($l-action_dashboard-column-count)
     @include zen-grid-item(1, 3)
@@ -61,7 +61,7 @@
 
         height: $l-poker_actn_btn-height
 
-        font-size: $c-font-size-primary * 2
+        font-size: ($base-fontSize - 4) * 2
   &.limit
     height: $l-poker_actn_btn-height
     .meta_action

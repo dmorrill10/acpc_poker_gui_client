@@ -1,6 +1,5 @@
 @import 'compass/css3/transform'
 @import '../card/card-defs'
-@import '../page/page-defs'
 
 $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
 
@@ -10,8 +9,8 @@ $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
 
 @mixin chip_stack($outer_ring_color)
   @include chip_stack_size
-  @extend raisedBorder
-  @extend circularBorderRadius
+  @extend %raisedBorder
+  @extend %circularBorderRadius
 
   $color_variation: 10%
   $ring_color: $outer_ring_color
@@ -29,7 +28,7 @@ $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
   position: relative
 
   .amount
-    @extend centerHorizontally
+    @extend %centerHorizontally
     @include align_center_vertically($stack_amount_font_size, $chip_stack_diameter)
 
     @include align_text_center_horizontally_and_vertically($stack_amount_font_size, $stack_amount_font_size)

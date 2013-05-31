@@ -20,16 +20,18 @@ footer
   margin: 0
 
 .hidden
-  @extend noSize
+  @extend %noSize
 
 .help-inline
   font-weight: 900
   font-size: $base-fontSize * 1.5
 .help-block
-  font-size: $base-fontSize / 2
+  font-size: $base-fontSize / 1.5
   color: gray
 .license
-  font-size: $base-fontSize / 2
+  font-size: $base-fontSize / 1.5
+select
+  height: $base-fontSize * 2.5
 
 // ----- Block Content ----- //
 
@@ -44,5 +46,5 @@ a
   &:hover,
   &:focus
     text-decoration: underline
-  &img
+  img
     border: none

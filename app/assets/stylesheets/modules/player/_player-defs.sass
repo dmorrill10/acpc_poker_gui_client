@@ -1,6 +1,5 @@
 @import '../abstract/chip_stack-defs'
 @import '../abstract/cards-defs'
-@import '../page/page-defs'
 
 $l-player-column-count: 3
 
@@ -57,8 +56,8 @@ $l-player-column-count: 3
       $dealer_button_font_size: ($base-fontSize - 4) - 3
       $dealer_button_diameter: ceil($chip_stack_diameter/1.5)
       @include align_text_center_horizontally_and_vertically($dealer_button_diameter, $dealer_button_font_size)
-      @extend raisedBorder
-      @extend circularBorderRadius
+      @extend %raisedBorder
+      @extend %circularBorderRadius
       @include align_center_vertically($dealer_button_diameter, $chip_stack_diameter)
 
       font-size: $dealer_button_font_size

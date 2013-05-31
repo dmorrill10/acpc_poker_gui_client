@@ -1,6 +1,5 @@
 @import 'action_dashboard-defs'
 @import '../poker_table/poker_table-defs'
-@import '../page/page-defs'
 
 .action_dashboard
   @include parent_grid($l-poker_table-column-count)
@@ -20,7 +19,7 @@
   .meta_action
     @include parent_grid($l-action_dashboard-column-count)
     @include zen-grid-item(1, 2)
-    button
+    %a_button
       @extend .btn
       @extend .btn-info
 
@@ -28,6 +27,10 @@
       height: $l-action_dashboard-height
 
       font-size: ($base-fontSize - 4) * 2.5
+    button
+      @extend %a_button
+    a
+      @extend %a_button
   .wager_amount-num_field
     @include parent_grid($l-action_dashboard-column-count)
     @include zen-grid-item(1, 3)

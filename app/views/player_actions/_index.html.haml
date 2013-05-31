@@ -49,7 +49,8 @@
       = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
     - if @match_view.slice.match_ended?
       .meta_action
-        = link_to leave_match_label, leave_match_url, {remote: true, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+        - leave_match_class= 'leave-btn'
+        = button_tag leave_match_label, data: { disable_with: leave_match_label }, class: leave_match_class
     - elsif next_hand_button_should_be_visible
       .meta_action
         - next_hand_label = "Next Hand"
@@ -102,7 +103,10 @@
   GameInterface.adjustScale();
 - if @match_view.slice.match_ended?
   :javascript
-    $("##{leave_match_id}").focus();
+    $("button.#{leave_match_class}").click(function() {
+      $('#leave').click();
+    })
+    $("button.#{leave_match_class}").focus();
 - elsif next_hand_button_should_be_visible
   :javascript
     $("##{next_hand_id}").focus();

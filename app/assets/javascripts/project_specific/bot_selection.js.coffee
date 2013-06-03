@@ -2,6 +2,8 @@ root = exports ? this
 
 root.BotSelection =
   makeDynamicAccordingToGameDef: ->
+    # $('#match_game_definition_key').change ->
+    # )
     $('.match_opponent_names').each((index)->
       bots = $(this).html()
       # console.log(bots)

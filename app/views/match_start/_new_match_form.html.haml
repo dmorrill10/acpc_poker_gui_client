@@ -1,7 +1,7 @@
 - bot_options_for_grouped_select = {}
 - game_def_options = []
 - ApplicationDefs::GAME_DEFINITIONS.each do |game_def_key, properties|
-  - bot_options_for_grouped_select[properties[:text]] = (properties[:bots].to_a)
+  - bot_options_for_grouped_select[properties[:text]] = properties[:bots].keys
   - game_def_options << (
   -   [properties[:text], game_def_key, {"data-num_players" => properties[:num_players]}]
   - )
@@ -14,9 +14,8 @@
         = f.select :game_definition_key, options_for_select(game_def_options), {include_blank: false}
     .control-group.select.required
       = f.label 'Opponents', for: :opponent_names, required: true, as: :select
-      - 2.times do |opponent_num|
-        .controls
-          = f.select :opponent_names, grouped_options_for_select(bot_options_for_grouped_select), {include_blank: false}, {class: 'match_opponent_names', name: 'match[opponent_names][]'}
+      .controls
+        = f.select :opponent_names, grouped_options_for_select(bot_options_for_grouped_select), {include_blank: false}, {class: 'match_opponent_names', name: 'match[opponent_names][]'}
     = f.input :number_of_hands, as: :integer
     = f.input :seat, collection: {'Random' => nil, '1' => 1, '2' => 2, '3' => 3}, value_method: :last, label_method: :first, include_blank: false, required: true
     = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed'

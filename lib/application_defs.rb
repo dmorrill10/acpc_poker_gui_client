@@ -37,7 +37,7 @@ module ApplicationDefs
     three_player_nolimit: {
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
       text: '3-player no-limit',
-      bots: {'tester' => RunTestingBot},
+      bots: {'tester' => RunTestingBot, 'NOTtester' => RunTestingBot},
       num_players: 3
     },
     three_player_limit: {

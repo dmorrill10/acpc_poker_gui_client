@@ -90,32 +90,7 @@ class WebApplicationPlayerProxy
   private
 
   def update_database!(players_at_the_table)
-
-    # log __method__, {
-    #   match_id: @match_id
-    #   # @todo Add a #to_s method for PATT where it would print all the necessary information to play a poker match in terminal, then maybe use it here.
-    # }
-
     match = Match.find(@match_id)
-
-    # players = players_at_the_table.players.map { |player| sanitize_player_for_database(player) }
-
-    # pot_distribution = if players_at_the_table.hand_ended?
-    #   players_at_the_table.chip_contributions.map do |contributions|
-    #     contributions.last
-    #   end
-    # else
-    #   players_at_the_table.players.map { |player| 0 }
-    # end
-
-# @todo Move to gui side
-    # pot_values_at_start_of_round = if players_at_the_table.transition.next_state.round < 1
-    #   [0]
-    # else
-    #   players_at_the_table.chip_contributions.map do |contributions|
-    #     contributions[0..players_at_the_table.transition.next_state.round-1].inject(:+)
-    #   end
-    # end
 
     # @todo Move to PATT
     large_blind = players_at_the_table.player_blind_relation.values.max
@@ -131,11 +106,11 @@ class WebApplicationPlayerProxy
       users_turn_to_act: players_at_the_table.users_turn_to_act?,
       hand_number: players_at_the_table.transition.next_state.hand_number,
       minimum_wager: players_at_the_table.min_wager,
-      seat_with_small_blind: player_who_submitted_small_blind.seat,
-      seat_with_big_blind: player_who_submitted_big_blind.seat,
-      seat_with_dealer_button: players_at_the_table.player_with_dealer_button.seat,
+      seat_with_small_blind: player_who_submitted_small_blind.seat.to_i,
+      seat_with_big_blind: player_who_submitted_big_blind.seat.to_i,
+      seat_with_dealer_button: players_at_the_table.player_with_dealer_button.seat.to_i,
       seat_next_to_act: if players_at_the_table.next_player_to_act
-        players_at_the_table.next_player_to_act.seat
+        players_at_the_table.next_player_to_act.seat.to_i
       end,
       state_string: players_at_the_table.transition.next_state.to_s,
       betting_sequence: players_at_the_table.betting_sequence_string,
@@ -143,7 +118,7 @@ class WebApplicationPlayerProxy
         action.to_s
       end,
       players: players_at_the_table.players.sort_by do |player|
-        player.seat
+        player.seat.to_i
       end.map do |player|
         player.to_h.merge(
           { amount_to_call: players_at_the_table.amount_to_call(player).to_f }

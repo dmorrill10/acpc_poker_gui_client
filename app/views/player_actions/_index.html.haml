@@ -13,15 +13,18 @@
     %thead
       %tr
         %th Player
-        %th Balance
+        %th Balance (chips)
+        %th Balance (big blinds)
     %tbody
       - @match_view.slice.players.each do |player|
         %tr
           %td= "#{player['name']}"
-          %td= "#{player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)}"
+          - chip_balance = player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)
+          %td= "#{chip_balance}"
+          %td= "#{chip_balance/@match_view.match.blinds.max}"
 .game_interface
   .poker_table
-    - @match_view.opponents.each_with_index do |opponent, i|
+    - @match_view.opponents.sort_by { |opp| AcpcPokerTypes::Seat.new(opp['seat'], @match_view.players.length).seats_from(@match_view.user['seat'])  }.each_with_index do |opponent, i|
       .opponent{ :class => [acting_player_id(opponent['seat']), "opponent_#{i+1}_of_#{@match_view.opponents.length}"] }
         = render partial: 'held_player_information', locals: {player: opponent}
         = render partial: 'outer_player_information', locals: { player: opponent, round: @match_view.state.round, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button }

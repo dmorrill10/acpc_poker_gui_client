@@ -11,6 +11,8 @@ require 'match'
 
 require 'ap'
 
+require 'acpc_poker_types/seat'
+
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
 class PlayerActionsController < ApplicationController

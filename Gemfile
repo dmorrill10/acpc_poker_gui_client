@@ -34,7 +34,7 @@ gem 'god'
 
 # Poker logic
 gem 'acpc_dealer', '~> 1.0'
-gem 'acpc_poker_player_proxy', '~> 1.0'
+gem 'acpc_poker_player_proxy', '~> 1.1'
 
 # Improved forms
 gem 'simple_form'

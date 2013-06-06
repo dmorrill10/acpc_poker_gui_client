@@ -1,7 +1,9 @@
 root = exports ? this
 
 root.GameInterface =
-  adjustScaleOnce: ->
+  # @todo Adding an optional extra left offset is a complete hack but I can't figure out
+  #   why it's too far to the left when initially being adjusted.
+  adjustScaleOnce: (extraLeftOffset = 0)->
     elementToScale = $('.game_interface')
     widthRatio = $(window).width() / elementToScale.width()
     heightRatio = ($(window).height() - $('.navbar').height()) / elementToScale.height()
@@ -15,9 +17,7 @@ root.GameInterface =
 
     scaledHeight = elementToScale.height() * smallestRatio
 
-    # @todo Not sure where the extra 7 pixels left comes from but otherwise the interface
-    #   is set too far left.
-    elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2.0) - $('.navbar').height()), left: Math.ceil(($(window).width() - elementToScale.width()) / 2.0) + 7})
+    elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2.0) - $('.navbar').height()), left: Math.ceil(($(window).width() - elementToScale.width()) / 2.0) + extraLeftOffset})
 
     # Inversely scale slider and adjust width manually
     slider = $('.slider')
@@ -31,7 +31,7 @@ root.GameInterface =
     slider.width(originalSliderWidth * smallestRatio)
     slider.css({left: -(Math.ceil((slider.width() - originalSliderWidth) / 2.0))})
   adjustScale: ->
-    @adjustScaleOnce()
     jQuery(window).resize(->
       GameInterface.adjustScaleOnce()
     )
+    @adjustScaleOnce(7)

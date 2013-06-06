@@ -13,15 +13,13 @@
     %thead
       %tr
         %th Player
-        %th Balance (chips)
-        %th Balance (big blinds)
+        %th Balance
     %tbody
       - @match_view.slice.players.each do |player|
         %tr
           %td= "#{player['name']}"
           - chip_balance = player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)
           %td= "#{chip_balance}"
-          %td= "#{chip_balance/@match_view.match.blinds.max}"
 .game_interface
   .poker_table
     - @match_view.opponents.sort_by { |opp| AcpcPokerTypes::Seat.new(opp['seat'], @match_view.players.length).seats_from(@match_view.user['seat'])  }.each_with_index do |opponent, i|

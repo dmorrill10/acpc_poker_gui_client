@@ -24,7 +24,7 @@
       @extend .btn-info
 
       width: 100%
-      height: $l-action_dashboard-height
+      height: $l-action_dashboard-height - 2 * $default_border_width
 
       font-size: ($base-fontSize - 4) * 2.5
     button
@@ -62,11 +62,11 @@
         @include parent_grid($l-poker_actn_btn-column-count)
         @include zen-grid-item($l-poker_actn_btn-column-count, 1)
 
-        height: $l-poker_actn_btn-height
+        height: $l-poker_actn_btn-height - 2 * $default_border_width
 
         font-size: ($base-fontSize - 4) * 2
   &.limit
     height: $l-poker_actn_btn-height
     .meta_action
       button
-        height: $l-poker_actn_btn-height
+        height: $l-poker_actn_btn-height - 2 * $default_border_width

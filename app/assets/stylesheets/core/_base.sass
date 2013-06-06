@@ -3,7 +3,7 @@
 //-------------------------------------
 
 html
-  font-size: $base-fontSize
+  font-size: rem($base-fontSize)
 
 body
   background-color: $base-background-color
@@ -24,14 +24,15 @@ footer
 
 .help-inline
   font-weight: 900
-  font-size: $base-fontSize * 1.5
+  font-size: rem($base-fontSize * 0.9)
 .help-block
-  font-size: $base-fontSize / 1.5
+  font-size: rem($base-fontSize * 0.75)
   color: gray
 .license
-  font-size: $base-fontSize / 1.5
-select
-  height: $base-fontSize * 2.5
+  font-size: rem($base-fontSize * 0.75)
+.form-horizontal
+  select
+    font-size: rem($base-fontSize * 0.9)
 
 // ----- Block Content ----- //
 

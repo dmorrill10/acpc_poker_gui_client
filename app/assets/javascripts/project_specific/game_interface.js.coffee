@@ -15,7 +15,9 @@ root.GameInterface =
 
     scaledHeight = elementToScale.height() * smallestRatio
 
-    elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2) - $('.navbar').height()), left: Math.floor(($(window).width() - elementToScale.width()) / 2)})
+    # @todo Not sure where the extra 7 pixels left comes from but otherwise the interface
+    #   is set too far left.
+    elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2.0) - $('.navbar').height()), left: Math.ceil(($(window).width() - elementToScale.width()) / 2.0) + 7})
 
     # Inversely scale slider and adjust width manually
     slider = $('.slider')
@@ -27,7 +29,7 @@ root.GameInterface =
 
     originalSliderWidth = 604 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
     slider.width(originalSliderWidth * smallestRatio)
-    slider.css({left: -(Math.floor((slider.width() - originalSliderWidth) / 2))})
+    slider.css({left: -(Math.ceil((slider.width() - originalSliderWidth) / 2.0))})
   adjustScale: ->
     @adjustScaleOnce()
     jQuery(window).resize(->

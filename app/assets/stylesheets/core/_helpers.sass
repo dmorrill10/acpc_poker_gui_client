@@ -39,10 +39,10 @@ $original-zen-column-count: $zen-column-count
   @media #{$media} and ($query: $val)
     @content
 
-=soft_edges($border_color: transparent, $border_width: $default_border_width, $border_radius: $default_border_radius)
+=soft_edges($border_color: transparent, $border_width: $default_border_width, $border_radius: $default_border_radius, $border_style: solid)
   border-color: $border_color
   border-width: $border_width
-  border-style: solid
+  border-style: $border_style
   border-radius: $border_radius
 
 =parent_grid($num_columns: $original-zen-column-count, $gutter_width: $original-zen-gutter-width)
@@ -112,7 +112,7 @@ $original-zen-column-count: $zen-column-count
 
 %raisedBorder
   border-style: outset
-  border-width: 1px
+  border-width: $l-raisedBorder-border-width
 
 %autoAdjustedHorizontalMargins
   margin-left: auto

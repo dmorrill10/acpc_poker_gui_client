@@ -4,8 +4,7 @@
 @import '../abstract/cards-defs';
 
 @mixin set_card_color($color) {
-   @include soft_edges($color);
-   @extend %raisedBorder;
+   @include soft_edges($color, 1px, $default_border_radius, outset);
 
    $dark_color: darken($color, $card_color_variation_amount);
    $light_color: lighten($color, $card_color_variation_amount);

@@ -47,10 +47,10 @@
 
     height: $card_height
 
-    $l-community_information-column-count: 7
+    $l-community_information-column-count: 14
     .board_cards
       @include parent_grid($l-community_information-column-count)
-      @include zen-grid-item(3, 1)
+      @include zen-grid-item(7, 1)
       @include cards(5)
 
       .card_set
@@ -58,16 +58,13 @@
         height: $card_height
     .pot
       @include parent_grid($l-community_information-column-count)
-      @include zen-grid-item(1, 4)
-
-      // @include align_center_vertically($chip_stack_diameter, $card_height)
-
+      @include zen-grid-item(2, 8)
       .chip_stack
-        @include chip_stack(#770B77)
+        @include chip_stack(#550155)
         @extend %centerHorizontally
     .summary_information
       @include parent_grid($l-community_information-column-count)
-      @include zen-grid-item(3, 5)
+      @include zen-grid-item(5, 10)
 
       $c-summary_information-font-size: ($base-fontSize - 4) * 2
       $c-summary_information-line-height: 1.5

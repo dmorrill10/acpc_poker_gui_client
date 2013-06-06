@@ -18,7 +18,7 @@
 .card {
    @include zen-grid-container;
 
-   $blank_card_color: #01b0b0;
+   $blank_card_color: #eddf94;
    @include set_card_color($blank_card_color);
 
    height: $card_height;
@@ -35,7 +35,7 @@
       @include zen-grid-item(1, 1);
 
       line-height: 1;
-      font-size: ($base-fontSize - 4);
+      font-size: rem($base-fontSize - 4);
 
       margin-top: $l-card-margin;
    }
@@ -44,7 +44,7 @@
 
       line-height: 1;
       text-align: right;
-      font-size: ($base-fontSize - 4)*2;
+      font-size: rem($base-fontSize * 1.2);
    }
    .bottom_right_rank {
       @include zen-grid-item($card-column-count, 1);
@@ -52,7 +52,7 @@
 
       line-height: 1;
       text-align: right;
-      font-size: ($base-fontSize - 4)*3;
+      font-size: rem($base-fontSize * 2);
 
       margin-top: $l-card-margin;
    }

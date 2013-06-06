@@ -1,15 +1,23 @@
 @import compass/css3
 @import ../card/card-defs
 
+$suit_symbol_font_size: floor($base-fontSize * 0.4)
+%suit_symbol
+  position: absolute
+  margin: 0
+  font-size: rem($suit_symbol_font_size)
+  color: #fff
+  text-align: center
+
 $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
 $chip_stack_diameter-without_border: $chip_stack_diameter - 2 * $l-raisedBorder-border-width
 
-@mixin chip_stack_size
+%chip_stack_size
   height: $chip_stack_diameter-without_border
   width: $chip_stack_diameter-without_border
 
-@mixin chip_stack($outer_ring_color)
-  @include chip_stack_size
+=chip_stack($outer_ring_color)
+  @extend %chip_stack_size
   @extend %raisedBorder
   @extend %circularBorderRadius
 
@@ -20,8 +28,8 @@ $chip_stack_diameter-without_border: $chip_stack_diameter - 2 * $l-raisedBorder-
   background-color: darken($outer_ring_color, $color_variation)
 
   color: #000
-  $stack_amount_font_size: ($base-fontSize - 4) + 1
-  font-size: $stack_amount_font_size
+  $stack_amount_font_size: $base-fontSize
+  font-size: rem($stack_amount_font_size)
   font-weight: bold
 
   display: block
@@ -54,36 +62,28 @@ $chip_stack_diameter-without_border: $chip_stack_diameter - 2 * $l-raisedBorder-
 
     position: absolute
 
-  $suit_symbol_font_size: ($base-fontSize - 4) - 4
-  .suit_symbol
-    position: absolute
-    margin: 0
-    font-size: $suit_symbol_font_size
-    color: #fff
-
   $horizontal_aligned_symbol_top: ceil(($chip_stack_diameter-without_border - $suit_symbol_font_size)/2) - 3px
   .club_symbol
-    @extend .suit_symbol
+    @extend %suit_symbol
 
     top: $horizontal_aligned_symbol_top
     right: 0
 
   .diamond_symbol
-    @extend .suit_symbol
+    @extend %suit_symbol
 
     top: $horizontal_aligned_symbol_top - 2px
     left: 0
-    font-size: $suit_symbol_font_size + 3
+    font-size: rem($suit_symbol_font_size + 2)
 
-  $font_size_vertical_void_space_above: ceil($suit_symbol_font_size/2.7)
-  $font_size_vertical_void_space_below: ceil($suit_symbol_font_size/3.5)
-  $font_size_vertical_void_space: $font_size_vertical_void_space_above + $font_size_vertical_void_space_below
-  $vertical_aligned_symbol_left: ceil(($chip_stack_diameter-without_border - (9/15)*$suit_symbol_font_size)/2)
   .heart_symbol
-    @extend .suit_symbol
-    bottom: -$font_size_vertical_void_space_below
-    left: $vertical_aligned_symbol_left
+    @extend %suit_symbol
+    +align_center($suit_symbol_font_size - 2, $chip_stack_diameter-without_border)
+    font-size: rem($suit_symbol_font_size - 1)
+    bottom: 0
+
   .spade_symbol
-    @extend .suit_symbol
-    top: -$font_size_vertical_void_space_above
-    left: $vertical_aligned_symbol_left
+    @extend %suit_symbol
+    +align_center($suit_symbol_font_size, $chip_stack_diameter-without_border)
+    top: 0
+    line-height: 1

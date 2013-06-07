@@ -43,6 +43,7 @@ class MatchStartController < ApplicationController
     end
 
     options = [
+      '-a', # Append logs with the same name rather than overwrite
       '--t_response -1',
       '--t_hand -1',
       '--t_per_hand -1'
@@ -62,7 +63,6 @@ class MatchStartController < ApplicationController
       }
     )
 
-    # @todo Easy place to try events instead of polling when the chance arises
     continue_looping_condition = lambda { |match| match.port_numbers.nil? }
     begin
       temp_match_view = MatchView.failsafe_while_for_match(@match.id, continue_looping_condition)

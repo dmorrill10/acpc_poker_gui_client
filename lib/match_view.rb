@@ -64,25 +64,32 @@ class MatchView
       player
     end
   end
+  # zero indexed
+  def users_seat
+    @match.seat - 1
+  end
   def user
-    players[@match.seat - 1]
+    players[users_seat]
   end
   def opponents
     opp = players.dup
-    opp.delete_at(@match.seat-1)
+    opp.delete_at(users_seat)
     opp
   end
   def next_player_to_act
     if slice.seat_next_to_act
-      players[slice.seat_next_to_act - 1]
+      players[slice.seat_next_to_act]
     end
   end
   # Over round
   def minimum_wager_to
     return 0 unless next_player_to_act
-    slice.minimum_wager +
-    next_player_to_act['amount_to_call'] +
-    next_player_to_act['chip_contributions'].last
+    [
+      slice.minimum_wager +
+      next_player_to_act['amount_to_call'] +
+      next_player_to_act['chip_contributions'].last,
+      all_in
+    ].min
   end
   def pot
     players.inject(0) { |sum, player| sum += player['chip_contributions'].inject(:+) }
@@ -98,20 +105,24 @@ class MatchView
   def pot_fraction_wager_to(fraction=1)
     return 0 unless next_player_to_act
     [
-      (
-        fraction * pot_after_call +
-        next_player_to_act['chip_contributions'].last +
-        next_player_to_act['amount_to_call']
-      ),
-      minimum_wager_to
-    ].max
+      [
+        (
+          fraction * pot_after_call +
+          next_player_to_act['chip_contributions'].last +
+          next_player_to_act['amount_to_call']
+        ),
+        minimum_wager_to
+      ].max,
+      all_in
+    ].min
   end
   # Over round
   def all_in
     return 0 unless next_player_to_act
-    next_player_to_act['chip_stack'] +
-    next_player_to_act['chip_contributions'].last +
-    next_player_to_act['amount_to_call']
+    (
+      next_player_to_act['chip_stack'] +
+      next_player_to_act['chip_contributions'].last
+    )
   end
   # Over round
   def betting_sequence

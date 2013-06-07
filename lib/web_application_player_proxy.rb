@@ -92,22 +92,14 @@ class WebApplicationPlayerProxy
   def update_database!(players_at_the_table)
     match = Match.find(@match_id)
 
-    # @todo Move to PATT
-    large_blind = players_at_the_table.player_blind_relation.values.max
-    player_who_submitted_big_blind = players_at_the_table.player_blind_relation.key large_blind
-    small_blind = players_at_the_table.player_blind_relation.reject do |player, blind|
-      blind == large_blind
-    end.values.max
-    player_who_submitted_small_blind = players_at_the_table.player_blind_relation.key small_blind
-
     slice_attributes = {
       hand_has_ended: players_at_the_table.hand_ended?,
       match_has_ended: players_at_the_table.match_ended?,
       users_turn_to_act: players_at_the_table.users_turn_to_act?,
       hand_number: players_at_the_table.transition.next_state.hand_number,
       minimum_wager: players_at_the_table.min_wager,
-      seat_with_small_blind: player_who_submitted_small_blind.seat.to_i,
-      seat_with_big_blind: player_who_submitted_big_blind.seat.to_i,
+      seat_with_small_blind: players_at_the_table.small_blind_payer.seat.to_i,
+      seat_with_big_blind: players_at_the_table.big_blind_payer.seat.to_i,
       seat_with_dealer_button: players_at_the_table.player_with_dealer_button.seat.to_i,
       seat_next_to_act: if players_at_the_table.next_player_to_act
         players_at_the_table.next_player_to_act.seat.to_i

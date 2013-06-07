@@ -8,7 +8,7 @@ GEM
     acpc_poker_basic_proxy (3.0.2)
       acpc_poker_types (~> 5.0)
       contextual_exceptions (~> 0.0)
-    acpc_poker_match_state (2.0.1)
+    acpc_poker_match_state (2.1.0)
       acpc_poker_types (~> 5.0)
       contextual_exceptions (~> 0.0)
     acpc_poker_player_proxy (1.1.2)

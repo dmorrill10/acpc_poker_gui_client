@@ -57,8 +57,8 @@
         - next_hand_label = "Next Hand"
         = update_state_form next_hand_label, id: next_hand_id, disabled: @match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?, data: { disable_with: next_hand_label }
     - else
-      - fold_is_disabled_when = !(@match_view.slice.users_turn_to_act? && @match_view.slice.legal_actions.include?('f'))
-      - pass_action_button_label = if (@match_view.slice.legal_actions.include?('c') && @match_view.user['amount_to_call'] > 0) then (if @match_view.no_limit? then "Call (#{@match_view.user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end
+      - fold_is_disabled_when = !(@match_view.slice.users_turn_to_act? && @match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD))
+      - pass_action_button_label = if (@match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::CALL) && @match_view.user['amount_to_call'] > 0) then (if @match_view.no_limit? then "Call (#{@match_view.user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end
       - make_wager_button_label = if @match_view.slice.legal_actions.include?('b') then 'Bet' else 'Raise' end
       - make_wager_button_label += ' to' if @match_view.no_limit?
       .action_modification_tools
@@ -77,23 +77,26 @@
       .actions
         .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::FOLD, 'Fold', fold_is_disabled_when, ['fold'])
         .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::CALL, pass_action_button_label, !@match_view.slice.users_turn_to_act?, ['pass'])
-        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::RAISE, make_wager_button_label, !@match_view.slice.users_turn_to_act?, ['wager'])
+        / # @todo Should be disabled when opponent is all-in
+        - wager_disabled_when = !@match_view.slice.users_turn_to_act? || !(@match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) || @match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::BET))
+        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::RAISE, make_wager_button_label, wager_disabled_when, ['wager'])
 - if @match_view.no_limit?
   :javascript
     ActionDashboard.adjustWagerOnSubmission(
-      parseInt("#{@match_view.minimum_wager_to}"),
-      parseInt("#{@match_view.user_contributions_in_previous_rounds}")
+      parseInt("#{@match_view.minimum_wager_to.to_i}"),
+      parseInt("#{@match_view.user_contributions_in_previous_rounds.to_i}"),
+      parseInt("#{@match_view.all_in.to_i}")
     );
     ActionDashboard.fixEnterWagerSubmission();
 
     var sliderValues;
     sliderValues = [
-      parseInt("#{@match_view.minimum_wager_to}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(1 / 2.to_f))}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(3 / 4.to_f))}"),
-      parseInt("#{@match_view.pot_fraction_wager_to}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(2))}"),
-      parseInt("#{@match_view.all_in}")
+      parseInt("#{@match_view.minimum_wager_to.to_i}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(1 / 2.to_f)).to_i}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(3 / 4.to_f)).to_i}"),
+      parseInt("#{@match_view.pot_fraction_wager_to.to_i}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(2)).to_i}"),
+      parseInt("#{@match_view.all_in.to_i}")
     ];
     WagerAmountSlider.initialize(sliderValues);
 :javascript

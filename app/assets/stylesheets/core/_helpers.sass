@@ -118,12 +118,21 @@ $original-zen-column-count: $zen-column-count
   margin-left: auto
   margin-right: auto
 
+%autoAdjustedVerticalMargins
+  margin-top: auto
+  margin-bottom: auto
+
 %noBorder
   border-width: 0
   border-style: none
 
 %centerHorizontally
   @extend autoAdjustedHorizontalMargins
+  position: relative
+  display: block
+
+%centerVertically
+  @extend autoAdjustedVerticalMargins
   position: relative
   display: block
 

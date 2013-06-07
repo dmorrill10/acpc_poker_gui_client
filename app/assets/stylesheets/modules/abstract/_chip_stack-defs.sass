@@ -1,13 +1,17 @@
 @import compass/css3
 @import ../card/card-defs
 
-$suit_symbol_font_size: floor($base-fontSize * 0.4)
+$suit_symbol_font_size: floor($base-fontSize * 0.5)
+$suit_symbol_height: 15px
+$suit_symbol_width: 15px
 %suit_symbol
   position: absolute
-  margin: 0
   font-size: rem($suit_symbol_font_size)
-  color: #fff
+  color: #000
   text-align: center
+  line-height: 1
+  // height: $suit_symbol_height
+  // width: $suit_symbol_width
 
 $chip_stack_diameter: ceil(1.3 * $card_bare_image_width)
 $chip_stack_diameter-without_border: $chip_stack_diameter - 2 * $l-raisedBorder-border-width
@@ -62,28 +66,24 @@ $chip_stack_diameter-without_border: $chip_stack_diameter - 2 * $l-raisedBorder-
 
     position: absolute
 
-  $horizontal_aligned_symbol_top: ceil(($chip_stack_diameter-without_border - $suit_symbol_font_size)/2) - 3px
-  .club_symbol
-    @extend %suit_symbol
-
-    top: $horizontal_aligned_symbol_top
-    right: 0
-
-  .diamond_symbol
-    @extend %suit_symbol
-
-    top: $horizontal_aligned_symbol_top - 2px
-    left: 0
-    font-size: rem($suit_symbol_font_size + 2)
-
-  .heart_symbol
-    @extend %suit_symbol
-    +align_center($suit_symbol_font_size - 2, $chip_stack_diameter-without_border)
-    font-size: rem($suit_symbol_font_size - 1)
-    bottom: 0
-
-  .spade_symbol
-    @extend %suit_symbol
-    +align_center($suit_symbol_font_size, $chip_stack_diameter-without_border)
+  .symbols
+    position: absolute
     top: 0
-    line-height: 1
+    width: $chip_stack_diameter-without_border
+    height: $chip_stack_diameter-without_border
+    .club_symbol
+      @extend %suit_symbol
+      right: 2%
+      top: 42%
+    .diamond_symbol
+      @extend %suit_symbol
+      left: 2%
+      top: 42%
+    .heart_symbol
+      @extend %suit_symbol
+      bottom: 0
+      left: 47%
+    .spade_symbol
+      @extend %suit_symbol
+      left: 47%
+      top: -2%

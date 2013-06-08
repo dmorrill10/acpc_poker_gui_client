@@ -33,7 +33,7 @@ gem 'stalker', '~> 0.9'
 gem 'god'
 
 # Poker logic
-gem 'acpc_dealer', '~> 1.0'
+gem 'acpc_dealer', '~> 2.0'
 gem 'acpc_poker_player_proxy', '~> 1.1'
 
 # Improved forms

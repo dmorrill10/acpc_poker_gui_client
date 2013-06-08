@@ -100,7 +100,7 @@ end
 
 # @param [Hash] params Parameters for the player proxy. Must contain values for
 #  +'match_id'+, +'host_name'+, +'port_number'+, +'game_definition_file_name'+,
-#  +'player_names'+, +'number_of_hands'+, and +'millisecond_response_timeout'+.
+#  +'player_names'+, +'number_of_hands'+, and +'users_seat'+.
 Stalker.job('PlayerProxy.start') do |params|
   match_id = params.retrieve_match_id_or_raise_exception
 
@@ -118,10 +118,9 @@ Stalker.job('PlayerProxy.start') do |params|
     player_names = params.retrieve_parameter_or_raise_exception 'player_names'
     number_of_hands = params.retrieve_parameter_or_raise_exception('number_of_hands').to_i
     game_definition_file_name = params.retrieve_parameter_or_raise_exception 'game_definition_file_name'
-    millisecond_response_timeout = params.retrieve_parameter_or_raise_exception('millisecond_response_timeout').to_i
     users_seat = params.retrieve_parameter_or_raise_exception('users_seat').to_i
 
-    dealer_information = AcpcDealer::ConnectionInformation.new port_number, host_name, millisecond_response_timeout
+    dealer_information = AcpcDealer::ConnectionInformation.new port_number, host_name
 
     begin
       game_definition = GameDefinition.parse_file(game_definition_file_name)

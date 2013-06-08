@@ -7,7 +7,6 @@ var number_of_hands = document.getElementById('number_of_hands_hidden_field');
 var seat = document.getElementById('seat_hidden_field');
 var random_seed = document.getElementById('random_seed_hidden_field');
 var opponent_names = document.getElementById('opponent_names_hidden_field');
-var millisecond_response_timeout = document.getElementById('millisecond_response_timeout_hidden_field');
 
 match_id.value = "#{@match.id}";
 port_number.value = "#{@port_number}";
@@ -17,7 +16,6 @@ number_of_hands.value = "#{@match.number_of_hands}";
 seat.value = "#{@match.seat}";
 random_seed.value = "#{@match.random_seed}";
 opponent_names.value = "#{@match.opponent_names}";
-millisecond_response_timeout.value = "#{@match.millisecond_response_timeout}";
 
 // Disable all inputs except the hidden form
 $('#start_match,#rejoin_match').removeAttr('data-disable-with');

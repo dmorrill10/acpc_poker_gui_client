@@ -74,7 +74,6 @@ class Match
 
   # Table parameters
   field :port_numbers, type: Array
-  field :millisecond_response_timeout, type: Integer
   field :random_seed, type: Integer
 
   include_match_name
@@ -121,7 +120,6 @@ class Match
     self.opponent_names ||= (game_info[:num_players] - 1).times.map { |i| "tester" }
 
     self.number_of_hands ||= 1
-    self.millisecond_response_timeout ||= ApplicationDefs::DEALER_MILLISECOND_TIMEOUT
 
     save!
 
@@ -143,7 +141,6 @@ class Match
       # ARGUMENT HASH.
       bot_argument_hash = {
         port_number: port_num,
-        millisecond_response_timeout: millisecond_response_timeout,
         server: dealer_host,
         game_def: game_definition_file_name
       }

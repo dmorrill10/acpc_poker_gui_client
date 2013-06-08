@@ -1,25 +1,25 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    acpc_dealer (1.0.4)
+    acpc_dealer (2.0.0)
       clive (~> 1.2)
       process_runner (~> 0.0)
       rake-compiler (~> 0.8)
-    acpc_poker_basic_proxy (3.0.2)
+    acpc_poker_basic_proxy (3.0.3)
       acpc_poker_types (~> 5.0)
       contextual_exceptions (~> 0.0)
-    acpc_poker_match_state (2.1.0)
+    acpc_poker_match_state (2.1.1)
       acpc_poker_types (~> 5.0)
       contextual_exceptions (~> 0.0)
-    acpc_poker_player_proxy (1.1.2)
-      acpc_dealer (~> 1.0)
+    acpc_poker_player_proxy (1.1.3)
+      acpc_dealer (~> 2.0)
       acpc_poker_basic_proxy (~> 3.0)
       acpc_poker_match_state (~> 2.0)
       acpc_poker_types (~> 5.0)
       contextual_exceptions (~> 0.0)
       methadone (~> 1.2)
-    acpc_poker_types (5.0.1)
-      acpc_dealer (~> 1.0)
+    acpc_poker_types (5.0.2)
+      acpc_dealer (~> 2.0)
       celluloid (~> 0.14)
       contextual_exceptions (~> 0.0)
       process_runner (~> 0.0)
@@ -236,7 +236,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  acpc_dealer (~> 1.0)
+  acpc_dealer (~> 2.0)
   acpc_poker_player_proxy (~> 1.1)
   awesome_print
   beanstalk-client

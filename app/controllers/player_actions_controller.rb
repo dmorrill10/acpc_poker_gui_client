@@ -28,8 +28,7 @@ class PlayerActionsController < ApplicationController
       number_of_hands: params[:number_of_hands],
       seat: params[:seat],
       random_seed: params[:random_seed],
-      opponent_names: params[:opponent_names],
-      millisecond_response_timeout: params[:millisecond_response_timeout]
+      opponent_names: params[:opponent_names]
     }
 
     @match_id = params[:match_id]
@@ -49,7 +48,6 @@ class PlayerActionsController < ApplicationController
         game_definition_file_name: @match_params[:game_definition_file_name],
         player_names: @match_view.match.player_names.join(' '),
         number_of_hands: @match_params[:number_of_hands],
-        millisecond_response_timeout: @match_params[:millisecond_response_timeout],
         users_seat: (@match_params[:seat].to_i - 1)
       }
 

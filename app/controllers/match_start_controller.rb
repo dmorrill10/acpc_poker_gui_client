@@ -44,7 +44,7 @@ class MatchStartController < ApplicationController
 
     options = [
       '-a', # Append logs with the same name rather than overwrite
-      '--t_response -1',
+      "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
       '--t_hand -1',
       '--t_per_hand -1'
     ].join ' '

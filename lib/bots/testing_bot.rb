@@ -6,8 +6,8 @@ require 'acpc_poker_basic_proxy'
 require 'acpc_dealer'
 
 class TestingBot
-  def initialize(port_number, server_host_name='localhost', millisecond_timeout=nil, random=false)
-    dealer_info = AcpcDealer::ConnectionInformation.new port_number, server_host_name, millisecond_timeout.to_i
+  def initialize(port_number, server_host_name='localhost', random=false)
+    dealer_info = AcpcDealer::ConnectionInformation.new port_number, server_host_name
     @proxy_bot = AcpcPokerBasicProxy::BasicProxy.new dealer_info
 
     log __method__, 'Connected to dealer'
@@ -95,18 +95,13 @@ def run_script
   else
     'localhost'
   end
-  millisecond_timeout = if ARGV.length > 2
-    ARGV[2].chomp.to_i
-  else
-    1000000000
-  end
   random = if ARGV.length > 3
     ARGV[3].chomp == 'true'
   else
     false
   end
 
-   TestingBot.new ARGV[0].chomp, server_host_name, millisecond_timeout, random
+   TestingBot.new ARGV[0].chomp, server_host_name, random
 end
 
 if $0 == __FILE__

@@ -13,7 +13,6 @@ require 'acpc_dealer'
 
 # Assortment of constant definitions.
 module ApplicationDefs
-
   # @return [String] Improper amount warning message.
   IMPROPER_AMOUNT_MESSAGE = "Improper amount entered" unless const_defined?(:IMPROPER_AMOUNT_MESSAGE)
 

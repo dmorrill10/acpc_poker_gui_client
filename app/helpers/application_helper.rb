@@ -41,7 +41,6 @@ module ApplicationHelper
       form << hidden_field_tag(:seat, nil, id: 'seat_hidden_field')
       form << hidden_field_tag(:random_seed, nil, :id => 'random_seed_hidden_field')
       form << hidden_field_tag(:opponent_names, nil, :id => 'opponent_names_hidden_field')
-      form << hidden_field_tag(:millisecond_response_timeout, nil, :id => 'millisecond_response_timeout_hidden_field')
 
       form << submit_tag('Hidden', :id => 'match_home_hidden_button', style: 'visibility: hidden')
     end

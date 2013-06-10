@@ -1,19 +1,12 @@
 root = exports ? this
 
 root.BotSelection =
-  selectedGameDef: ->
-    $('#match_game_definition_key :selected')
-  filterOptions: (gameDefSelector, opponentSelector, bots)->
-    gameDef = @selectedGameDef().text()
-    # console.log("#{gameDef}")
-    filtered = $(bots).filter("optgroup[label='#{gameDef}']")
-    # console.log("#{filtered.html()}")
-    options = filtered.html()
-    # console.log(options)
-    if options
-      opponentSelector.html(options).parent().show()
-    else
-      opponentSelector.empty().parent().hide()
+  GAME_DEF_SELECTOR: '#match_game_definition_key'
+  OPPONENT_SELECTOR: '.match_opponent_names'
+  OPPONENT_SELECTOR_OBJ: -> $(@OPPONENT_SELECTOR).not('.copy')
+  selectedGameDef: -> DynamicSelector.selected(@GAME_DEF_SELECTOR)
+  filterOptions: (bots)->
+    DynamicSelector.filterOptions(@GAME_DEF_SELECTOR, @OPPONENT_SELECTOR, bots)
   fillSeatSelector: (numPlayers, seatSelector)->
     # @todo This feels a little hacky; I don't like manipulating
     #   the DOM like this, but it should be all right for now.
@@ -21,27 +14,26 @@ root.BotSelection =
     for i in [1..numPlayers] by 1
       options += "<option value='#{i}'>#{i}</option>"
     seatSelector.html(options).parent().show()
-  copyOpponentSelectors: (numPlayers, opponentSelector)->
+  copyOpponentSelectors: (numPlayers)->
     numExtraOpponents = numPlayers - 2
     copiedSelectors = ''
-    copyOpponentSelector = opponentSelector.clone().addClass('copy')[0].outerHTML
+    copyOpponentSelector = @OPPONENT_SELECTOR_OBJ().clone().addClass('copy')[0].outerHTML
     for i in [1..numExtraOpponents] by 1
       copiedSelectors += copyOpponentSelector
-    opponentSelector.after(copiedSelectors) unless copiedSelectors == ''
-  showProperNumOfOpponents: (gameDefSelector, opponentSelector, seatSelector)->
+    @OPPONENT_SELECTOR_OBJ().after(copiedSelectors) unless copiedSelectors == ''
+  showProperNumOfOpponents: (seatSelector)->
     numPlayers = parseInt(@selectedGameDef().data('num_players'))
     @fillSeatSelector(numPlayers, seatSelector)
-    @copyOpponentSelectors(numPlayers, opponentSelector)
+    @copyOpponentSelectors(numPlayers)
   makeDynamicAccordingToGameDef: ->
-    opponentSelector = $('.match_opponent_names').not('.copy')
-    bots = opponentSelector.html()
+    bots = @OPPONENT_SELECTOR_OBJ().html()
     seatSelector = $('select#match_seat')
-    $('#match_game_definition_key').change =>
+    $(@GAME_DEF_SELECTOR).change =>
       # Clear old selectors
-      $('.match_opponent_names.copy').remove()
+      $("#{@OPPONENT_SELECTOR}.copy").remove()
       # Filter the options of the original selector
-      @filterOptions(this, opponentSelector, bots)
+      @filterOptions(bots)
       # Copy the filtered original selector the proper number of times
-      @showProperNumOfOpponents(this, opponentSelector, seatSelector)
+      @showProperNumOfOpponents(seatSelector)
   selectDefaultGameDef: ->
-    $('#match_game_definition_key').trigger('change')
+    DynamicSelector.selectDefault(@GAME_DEF_SELECTOR)

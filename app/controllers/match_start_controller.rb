@@ -93,6 +93,10 @@ class MatchStartController < ApplicationController
     end
   end
 
+  def join
+    # match_name = params[:match_name].strip
+  end
+
   def rejoin
     match_name = params[:match_name].strip
 

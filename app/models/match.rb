@@ -134,7 +134,7 @@ class Match
     raise unless port_numbers.length == player_names.length ||
       opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
 
-    opponent_ports.zip(
+    bot_opponent_ports.zip(
       ApplicationDefs.bots(game_definition_key, opponent_names)
     ).each do |port_num, bot|
       # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
@@ -155,6 +155,19 @@ class Match
     local_port_numbers = port_numbers.dup
     users_port = local_port_numbers.delete_at(seat - 1)
     local_port_numbers
+  end
+  def human_opponent_seats
+    player_names.each_index.select{ |i| player_names[i] == ApplicationDefs::HUMAN_PLAYER_NAME }
+  end
+  def human_opponent_ports
+    human_opponent_seats.map { |human_opp_seat| opponent_ports[human_opp_seat] }
+  end
+  def bot_opponent_ports
+    local_opponent_ports = opponent_ports
+    human_opponent_ports.each do |port|
+      local_opponent_ports.delete_at port
+    end
+    local_opponent_ports
   end
 end
 

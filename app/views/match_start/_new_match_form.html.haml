@@ -16,6 +16,7 @@
       = f.label 'Opponents', for: :opponent_names, required: true, as: :select
       .controls
         = f.select :opponent_names, grouped_options_for_select(bot_options_for_grouped_select), {include_blank: false}, {class: 'match_opponent_names', name: 'match[opponent_names][]'}
+        %p.help-block Opponents will be assigned seats from left to right from 1 to the number of players skipping the your seat
     = f.input :number_of_hands, as: :integer
     = f.input :seat, collection: {'Random' => nil, '1' => 1, '2' => 2, '3' => 3}, value_method: :last, label_method: :first, include_blank: false, required: true
     = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed'

@@ -1,5 +1,5 @@
 
-# @todo Try moving to config/initializers to remove inane unless const_defined? checks that only serve to quiet warning messages.
+# @todo Try moving to config/initializers to remove inane const_defined? checks that only serve to quiet warning messages.
 
 # require each bot runner class
 Dir.glob("#{File.expand_path('../../', __FILE__)}/lib/bots/run_*_bot.rb").each do |runner_class|
@@ -20,32 +20,40 @@ module ApplicationDefs
 
   MATCH_STATE_RETRIEVAL_TIMEOUT = 120 unless const_defined? :MATCH_STATE_RETRIEVAL_TIMEOUT
 
-  GAME_DEFINITIONS = {
-    two_player_nolimit: {
-      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
-      text: '2-player no-limit',
-      bots: {'tester' => RunTestingBot},
-      num_players: 2
-    },
-    two_player_limit: {
-      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],
-      text: '2-player limit',
-      bots: {'tester' => RunTestingBot},
-      num_players: 2
-    },
-    three_player_nolimit: {
-      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
-      text: '3-player no-limit',
-      bots: {'tester' => RunTestingBot, 'NOTtester' => RunTestingBot},
-      num_players: 3
-    },
-    three_player_limit: {
-      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:limit],
-      text: '3-player limit',
-      bots: {'tester' => RunTestingBot},
-      num_players: 3
+  HUMAN_PLAYER_NAME = 'Human' unless const_defined? :HUMAN_PLAYER_NAME
+
+  GAME_DEFINITIONS = -> do
+    initial_hash = {
+      two_player_nolimit: {
+        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
+        text: '2-player no-limit',
+        bots: {'tester' => RunTestingBot},
+        num_players: 2
+      },
+      two_player_limit: {
+        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],
+        text: '2-player limit',
+        bots: {'tester' => RunTestingBot},
+        num_players: 2
+      },
+      three_player_nolimit: {
+        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
+        text: '3-player no-limit',
+        bots: {'tester' => RunTestingBot, 'NOTtester' => RunTestingBot},
+        num_players: 3
+      },
+      three_player_limit: {
+        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:limit],
+        text: '3-player limit',
+        bots: {'tester' => RunTestingBot},
+        num_players: 3
+      }
     }
-  } unless const_defined? :GAME_DEFINITIONS
+    initial_hash.each do |type, prop|
+      prop[:bots].merge! HUMAN_PLAYER_NAME => nil
+    end
+    initial_hash
+  end.call unless const_defined? :GAME_DEFINITIONS
 
   LOG_DIRECTORY = File.expand_path('../../log', __FILE__) unless const_defined? :LOG_DIRECTORY
 

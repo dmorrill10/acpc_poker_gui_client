@@ -8,8 +8,8 @@ module ApplicationHelper
   ADMINISTRATOR_EMAIL = 'morrill@ualberta.ca' unless const_defined? :ADMINISTRATOR_EMAIL
 
   NEW_MATCH_PARTIAL = 'match_start/index' unless const_defined? :NEW_MATCH_PARTIAL
+  FOOTER = 'match_start/footer' unless const_defined? :FOOTER
   REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
-  SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS = 'shared_javascripts/send_parameters_to_connect_to_dealer' unless const_defined? :SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
 
   # Renders a shared +JavaScript+ template that replaces the old contents
   # of the current page with new contents.  In essence, it acts like a
@@ -20,30 +20,6 @@ module ApplicationHelper
     @alert_message = alert_message
     @replacement_partial = replacement_partial
     render REPLACE_CONTENTS_JS, formats: [:js]
-  end
-
-  # Renders a shared +JavaScript+ template that sends parameters to
-  # +PlayerActionsController+ so that it can connect to an
-  # ACPC dealer instance.
-  def send_parameters_to_connect_to_dealer
-    render SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
-  end
-
-  # Places a hidden form in a view, within which game parameters may be placed that can be
-  # submitted to the +PlayerActionsController+.
-  def hidden_game_parameter_form
-    form_tag match_home_url, :remote => true do
-      form = hidden_field_tag(:match_id, nil, :id => 'match_id_hidden_field')
-      form << hidden_field_tag(:port_number, nil, :id => 'port_number_hidden_field')
-      form << hidden_field_tag(:match_name, nil, :id => 'match_name_hidden_field')
-      form << hidden_field_tag(:game_definition_file_name, nil, :id => 'game_definition_file_name_hidden_field')
-      form << hidden_field_tag(:number_of_hands, nil, :id => 'number_of_hands_hidden_field')
-      form << hidden_field_tag(:seat, nil, id: 'seat_hidden_field')
-      form << hidden_field_tag(:random_seed, nil, :id => 'random_seed_hidden_field')
-      form << hidden_field_tag(:opponent_names, nil, :id => 'opponent_names_hidden_field')
-
-      form << submit_tag('Hidden', :id => 'match_home_hidden_button', style: 'visibility: hidden')
-    end
   end
 
   def reset_to_match_entry_view(error_message=nil)

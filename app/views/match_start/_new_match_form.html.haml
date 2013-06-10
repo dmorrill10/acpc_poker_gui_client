@@ -22,7 +22,6 @@
     .form-actions
       - start_match_label = "Start match"
       = f.button :submit, class: 'btn-primary', data: { disable_with: start_match_label }, id: 'start_match', value: start_match_label
-  .hidden= hidden_game_parameter_form
 
 :javascript
   BotSelection.makeDynamicAccordingToGameDef();

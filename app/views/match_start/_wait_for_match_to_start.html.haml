@@ -1,0 +1,15 @@
+= render partial: "layouts/navbar", locals: { partial: nil }
+.hero-unit
+  .header-info Please wait for players to connect to the dealer...
+.hidden= hidden_game_parameter_form
+
+= render partial: ApplicationHelper::FOOTER
+
+:javascript
+  $("##{hidden_match_id}").val("#{@match.id}");
+  $("##{hidden_match_name}").val("#{@match.match_name}");
+  $("##{hidden_game_def_file_name}").val("#{@match.game_definition_file_name}");
+  $("##{hidden_num_hands}").val("#{@match.number_of_hands}");
+  $("##{hidden_seat}").val("#{@match.seat}");
+  $("##{hidden_rand_seed}").val("#{@match.random_seed}");
+  $("##{hidden_submit}").submit();

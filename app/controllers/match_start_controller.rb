@@ -13,12 +13,13 @@ require 'match'
 class MatchStartController < ApplicationController
   include ApplicationDefs
   include ApplicationHelper
+  include MatchStartHelper
 
   # Presents the main 'start a new game' view.
   def index
     @match = Match.new
     respond_to do |format|
-      format.html {}
+      format.html {} # Render the default partial
       format.js do
         replace_page_contents NEW_MATCH_PARTIAL
       end
@@ -84,7 +85,12 @@ class MatchStartController < ApplicationController
       Stalker.start_background_job 'Opponent.start', opponent_arguments
     end
 
-    send_parameters_to_connect_to_dealer
+    respond_to do |format|
+      format.html { render partial: 'wait_for_match_to_start' }
+      format.js do
+        replace_page_contents 'wait_for_match_to_start'
+      end
+    end
   end
 
   def rejoin

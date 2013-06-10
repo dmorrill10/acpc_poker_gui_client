@@ -1,0 +1,9 @@
+#join_match_form
+  = form_tag join_match_url, remote: true, class: 'form-horizontal' do
+    .control-labels
+      %label.control-label.required= '<abbr title="required">*</abbr> Match name'.html_safe
+    .controls
+      / = text_field_tag 'match_name', '', required: true
+    .form-actions
+      - join_match_label = 'Join match'
+      = submit_tag join_match_label, class: 'btn btn-primary', data: { disable_with: join_match_label }, id: 'join_match'

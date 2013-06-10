@@ -20,15 +20,14 @@ class PlayerActionsController < ApplicationController
   include PlayerActionsHelper
 
   def index
+    # @todo Remove this unnecessary hash
     @match_params = {
       match_id: params[:match_id],
-      port_number: params[:port_number],
       match_name: params[:match_name],
       game_definition_file_name: params[:game_definition_file_name],
       number_of_hands: params[:number_of_hands],
       seat: params[:seat],
-      random_seed: params[:random_seed],
-      opponent_names: params[:opponent_names]
+      random_seed: params[:random_seed]
     }
 
     @match_id = params[:match_id]
@@ -43,12 +42,12 @@ class PlayerActionsController < ApplicationController
       # Do nothing
     else # A new match is being started so the user's proxy needs to be started
       player_proxy_arguments = {
-        match_id: @match_params[:match_id],
+        match_id: params[:match_id],
         host_name: 'localhost', port_number: @match_view.match.users_port,
-        game_definition_file_name: @match_params[:game_definition_file_name],
+        game_definition_file_name: params[:game_definition_file_name],
         player_names: @match_view.match.player_names.join(' '),
-        number_of_hands: @match_params[:number_of_hands],
-        users_seat: (@match_params[:seat].to_i - 1)
+        number_of_hands: params[:number_of_hands],
+        users_seat: (params[:seat].to_i - 1)
       }
 
       Stalker.start_background_job 'PlayerProxy.start', player_proxy_arguments

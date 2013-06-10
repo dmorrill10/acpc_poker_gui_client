@@ -125,7 +125,7 @@ class Match
 
     self
   end
-  def player_names(users_name='user')
+  def player_names(users_name = ApplicationDefs::USER_NAME)
     opponent_names.dup.insert seat-1, users_name
   end
   def every_bot(dealer_host)
@@ -157,7 +157,7 @@ class Match
     local_port_numbers
   end
   def human_opponent_seats
-    player_names.each_index.select{ |i| player_names[i] == ApplicationDefs::HUMAN_PLAYER_NAME }
+    player_names.each_index.select{ |i| player_names[i] == ApplicationDefs::HUMAN_OPPONENT_NAME }
   end
   def human_opponent_ports
     human_opponent_seats.map { |human_opp_seat| opponent_ports[human_opp_seat] }

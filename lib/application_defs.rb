@@ -20,7 +20,9 @@ module ApplicationDefs
 
   MATCH_STATE_RETRIEVAL_TIMEOUT = 120 unless const_defined? :MATCH_STATE_RETRIEVAL_TIMEOUT
 
-  HUMAN_PLAYER_NAME = 'Human' unless const_defined? :HUMAN_PLAYER_NAME
+  HUMAN_OPPONENT_NAME = 'Human' unless const_defined? :HUMAN_OPPONENT_NAME
+
+  USER_NAME = 'user' unless const_defined? :USER_NAME
 
   GAME_DEFINITIONS = -> do
     initial_hash = {
@@ -50,7 +52,7 @@ module ApplicationDefs
       }
     }
     initial_hash.each do |type, prop|
-      prop[:bots].merge! HUMAN_PLAYER_NAME => nil
+      prop[:bots].merge! HUMAN_OPPONENT_NAME => nil
     end
     initial_hash
   end.call unless const_defined? :GAME_DEFINITIONS

@@ -86,15 +86,37 @@ class MatchStartController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { render partial: 'wait_for_match_to_start' }
+      format.html { render partial: wait_for_match_to_start_partial }
       format.js do
-        replace_page_contents 'wait_for_match_to_start'
+        replace_page_contents wait_for_match_to_start_partial
       end
     end
   end
 
   def join
-    # match_name = params[:match_name].strip
+    match_name = params[:match_name].strip
+    seat = params[:seat].to_i
+
+    begin
+      @match = Match.where(match_name: match_name).first
+      raise unless @match
+
+      # Swap seat
+      @match.opponent_names.insert(@match.seat - 1, HUMAN_OPPONENT_NAME)
+      @match.opponent_names.delete_at(seat - 1)
+      @match.seat = seat
+
+      respond_to do |format|
+        format.html { render partial: wait_for_match_to_start_partial }
+        format.js do
+          replace_page_contents wait_for_match_to_start_partial
+        end
+      end
+    rescue => e
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
+      reset_to_match_entry_view "Sorry, unable to join match \"#{match_name}\" in seat #{seat}."
+      return
+    end
   end
 
   def rejoin
@@ -104,8 +126,12 @@ class MatchStartController < ApplicationController
       @match = Match.where(match_name: match_name).first
       raise unless @match
 
-      @port_number = @match.port_numbers[@match.seat-1]
-      send_parameters_to_connect_to_dealer
+      respond_to do |format|
+        format.html { render partial: wait_for_match_to_start_partial }
+        format.js do
+          replace_page_contents wait_for_match_to_start_partial
+        end
+      end
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\"."

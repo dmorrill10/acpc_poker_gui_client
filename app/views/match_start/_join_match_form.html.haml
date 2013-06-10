@@ -1,6 +1,6 @@
 #join_match_form
   = form_tag join_match_url, remote: true, class: 'form-horizontal' do
-    - matches_to_join = Match.all.select { |m| m.opponent_names.include?(ApplicationDefs::HUMAN_PLAYER_NAME) }
+    - matches_to_join = Match.all.select { |m| m.opponent_names.include?(ApplicationDefs::HUMAN_PLAYER_NAME) && m.slices.empty? }
     - match_names = matches_to_join.map { |m| m.match_name }
     .control-labels
       %label.control-label.required= '<abbr title="required">*</abbr> Match name'.html_safe

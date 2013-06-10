@@ -129,10 +129,10 @@ class Match
     opponent_names.dup.insert seat-1, users_name
   end
   def every_bot(dealer_host)
-    ap "port_numbers.length: #{port_numbers.length}, player_names: #{player_names}, opponent_ports: #{opponent_ports}, ApplicationDefs.bots(game_definition_key, opponent_names).length: #{ApplicationDefs.bots(game_definition_key, opponent_names).length}"
+    ap "port_numbers.length: #{port_numbers.length}, player_names: #{player_names}, bot_opponent_ports: #{bot_opponent_ports}, ApplicationDefs.bots(game_definition_key, opponent_names).length: #{ApplicationDefs.bots(game_definition_key, opponent_names).length}"
 
     raise unless port_numbers.length == player_names.length ||
-      opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
+      bot_opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
 
     bot_opponent_ports.zip(
       ApplicationDefs.bots(game_definition_key, opponent_names)
@@ -165,7 +165,7 @@ class Match
   def bot_opponent_ports
     local_opponent_ports = opponent_ports
     human_opponent_ports.each do |port|
-      local_opponent_ports.delete_at port
+      local_opponent_ports.delete port
     end
     local_opponent_ports
   end

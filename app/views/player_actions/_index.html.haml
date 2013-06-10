@@ -4,7 +4,8 @@
       (function() { $('#hidden-check_next_state').submit() }),
       100
     );
-
+  .hidden
+    = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 
 .chip_balances
@@ -46,8 +47,6 @@
   - next_hand_button_should_be_visible = @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
 
   .action_dashboard{ class: if @match_view.no_limit? then 'nolimit' else 'limit' end}
-    .hidden
-      = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
     - if @match_view.slice.match_ended?
       .meta_action
         - leave_match_class= 'leave-btn'

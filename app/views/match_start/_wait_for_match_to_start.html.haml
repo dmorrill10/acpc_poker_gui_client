@@ -1,3 +1,12 @@
+/ @todo Check periodically if the other players have connected!!!
+/ :javascript
+/   setTimeout(
+/     (function() { $('#hidden-check_next_state').submit() }),
+/     100
+/   );
+/ .hidden
+/     = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
+
 = render partial: "layouts/navbar", locals: { partial: nil }
 .hero-unit
   .header-info Please wait for players to connect to the dealer...
@@ -12,4 +21,5 @@
   $("##{hidden_num_hands}").val("#{@match.number_of_hands}");
   $("##{hidden_seat}").val("#{@match.seat}");
   $("##{hidden_rand_seed}").val("#{@match.random_seed}");
+  // @todo Don't submit if everything has been started and we're just waiting for other players to connect!!!
   $("##{hidden_submit}").submit();

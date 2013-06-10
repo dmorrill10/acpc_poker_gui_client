@@ -89,7 +89,8 @@ module ApplicationDefs
         sleep 0.001 + Math.log(attempts)
       end
       yield if block_given?
-      raise if time_limit_reached?(time_beginning_to_wait)
+      # @todo How should the potential of an endless loop be dealt with here? Or maybe checking for an exception in the match instance will be enough.
+      # raise if time_limit_reached?(time_beginning_to_wait)
       attempts += 1
     end
   end

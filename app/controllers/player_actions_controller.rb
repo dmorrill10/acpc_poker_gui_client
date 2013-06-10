@@ -20,16 +20,6 @@ class PlayerActionsController < ApplicationController
   include PlayerActionsHelper
 
   def index
-    # @todo Remove this unnecessary hash
-    @match_params = {
-      match_id: params[:match_id],
-      match_name: params[:match_name],
-      game_definition_file_name: params[:game_definition_file_name],
-      number_of_hands: params[:number_of_hands],
-      seat: params[:seat],
-      random_seed: params[:random_seed]
-    }
-
     @match_id = params[:match_id]
     begin
       @match_view ||= MatchView.new @match_id
@@ -39,6 +29,9 @@ class PlayerActionsController < ApplicationController
       return
     end
     if @match_view.match && !@match_view.match.slices.empty? # Match is being resumed
+
+      # @todo Doesn't work when a match is being joined!!!
+
       # Do nothing
     else # A new match is being started so the user's proxy needs to be started
       player_proxy_arguments = {
@@ -54,7 +47,7 @@ class PlayerActionsController < ApplicationController
 
       # Wait for the player to start and catch errors
       begin
-        update_match!
+        update_match! # @todo Don't do this since it locks the server!!!
       rescue => e
         Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
         reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."

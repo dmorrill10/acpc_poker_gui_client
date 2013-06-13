@@ -1,11 +1,18 @@
-- unless @match_view.slice.hand_ended? || @match_view.slice.match_ended? || @match_view.slice.users_turn_to_act?
-  :javascript
-    setTimeout(
-      (function() { $('#hidden-check_next_state').submit() }),
-      100
-    );
-  .hidden
-    = check_update_state_form @match_id, "Hidden check for new state", class: 'hidden', id: 'hidden-check_next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
+/ :javascript
+/   ws.onmessage = function(e) {
+/     switch (e.data) {
+/     case 'play':
+/       break;
+/     default:
+/       // @todo Handle this better
+/       console.log('Unidentified reply: ' + e.data)
+/     }
+/   };
+/   ws.send("#{@request_to_table_manager.to_json}");
+
+.hidden
+  / @todo Unify this with next hand form
+  = update_state_form @match_id, '', class: 'hidden', id: 'hidden-update_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 
 .chip_balances
@@ -118,3 +125,6 @@
     if (Modernizr.inputtypes.number)
       $('.wager_amount-num_field > input#modifier').focus();
 - Match.delete_match!(@match_id) if @match_view.slice.match_ended?
+
+:javascript
+  ws.send('Hello!');

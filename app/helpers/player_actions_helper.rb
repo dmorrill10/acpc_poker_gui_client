@@ -15,22 +15,6 @@ module PlayerActionsHelper
   def poker_action_submission_options(label, disabled_when, classes=[], ids=[], link=nil)
     {class: classes, id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
   end
-  def update_state_form(submit_button_label='', button_options={})
-    button_options[:id] = 'update_match_state' unless button_options[:id]
-    form_tag update_match_state_url, :remote => true do
-      form = hidden_match_fields
-      form << button_tag(submit_button_label, button_options)
-      form << yield(form) if block_given?
-      form
-    end
-  end
-  def check_update_state_form(match_id, submit_button_label='', button_options={})
-    button_options[:id] = 'check update_match_state' unless button_options[:id]
-    form_tag check_update_match_state_url, :remote => true do
-      form = hidden_match_fields match_id
-      form << submit_tag(submit_button_label, button_options)
-    end
-  end
   def poker_action_form(action, label, disabled_when, classes=[], ids=[])
     form_tag(take_action_url, poker_action_submission_options(label, disabled_when, classes, ids).merge({remote: true})) do
       form = hidden_match_fields

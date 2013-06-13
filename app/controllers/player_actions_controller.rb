@@ -34,7 +34,8 @@ class PlayerActionsController < ApplicationController
 
       # Do nothing
     else # A new match is being started so the user's proxy needs to be started
-      player_proxy_arguments = {
+      @request_to_table_manager = {
+        request: 'proxy',
         match_id: params[:match_id],
         host_name: 'localhost', port_number: @match_view.match.users_port,
         game_definition_file_name: params[:game_definition_file_name],
@@ -42,25 +43,13 @@ class PlayerActionsController < ApplicationController
         number_of_hands: params[:number_of_hands],
         users_seat: (params[:seat].to_i - 1)
       }
-
-      Stalker.start_background_job 'PlayerProxy.start', player_proxy_arguments
-
-      # Wait for the player to start and catch errors
-      begin
-        update_match! # @todo Don't do this since it locks the server!!!
-      rescue => e
-        Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-        reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."
-        return
-      end
     end
-    begin
-      replace_page_contents_with_updated_game_view
-      return
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
-      return
+
+    respond_to do |format|
+      format.html { render partial: wait_for_match_to_start_partial }
+      format.js do
+        replace_page_contents wait_for_match_to_start_partial
+      end
     end
   end
 
@@ -69,23 +58,28 @@ class PlayerActionsController < ApplicationController
 
     @match_id ||= params[:match_id]
 
-    Stalker.start_background_job(
-      'PlayerProxy.play',
+    @request_to_table_manager = {
+      request: 'play',
       match_id: @match_id,
       action: params[:poker_action],
       modifier: params[:modifier]
-    )
+    }
 
     update_match_state
   end
 
   def update_match_state
     @match_id ||= params['match_id']
+
+    last_slice = nil
     begin
       # Delete the last slice since it's no longer needed
       @match_view ||= MatchView.new @match_id
-      last_slice = @match_view.match.slices.first
-      last_slice.delete
+
+      unless @match_view.match.slices.empty?
+        last_slice = @match_view.match.slices.first
+        last_slice.delete
+      end
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice before taking action #{params[:user_poker_action]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
@@ -100,8 +94,10 @@ class PlayerActionsController < ApplicationController
       # Save the last match state again so that it can
       # be resumed
       begin
-        @match_view.match.slices << last_slice if @match_view.match.slices.empty?
-        @match_view.match.save!
+        if last_slice && @match_view.match.slices.empty?
+          @match_view.match.slices << last_slice
+          @match_view.match.save!
+        end
       rescue
         # If the match can't be retrieved or saved then
         # it can't be resumed anyway, so nothing
@@ -109,25 +105,6 @@ class PlayerActionsController < ApplicationController
         ap "Unable to restore match slice in match #{@match_id}"
       end
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
-      return
-    end
-  end
-
-  def check_update_match_state
-    @match_id ||= params['match_id']
-    begin
-      @match_view ||= MatchView.new @match_id
-      if @match_view.match.slices.length > 1
-        ap "Updating match state..."
-        update_match_state
-        return
-      else
-        replace_page_contents_with_updated_game_view
-        return
-      end
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem checking for a new match state, please report this incident to #{ADMINISTRATOR_EMAIL}."
       return
     end
   end

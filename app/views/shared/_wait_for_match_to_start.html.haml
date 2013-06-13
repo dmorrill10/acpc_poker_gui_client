@@ -1,0 +1,49 @@
+- if @match
+  - match_id = @match.id
+  - match_name = @match.match_name
+  - match_game_definition_file_name = @match.game_definition_file_name
+  - match_number_of_hands = @match.number_of_hands
+  - match_seat = @match.seat
+  - match_random_seed = @match.random_seed
+- else
+  - match_id = ''
+  - match_name = ''
+  - match_game_definition_file_name = ''
+  - match_number_of_hands = ''
+  - match_seat = ''
+  - match_random_seed = ''
+
+:javascript
+  ws.onmessage = function(e) {
+    switch (e.data) {
+    case 'dealer':
+      $("##{hidden_start_opponents}").submit();
+      break;
+    case 'opponents':
+      $("##{hidden_match_id}").val("#{match_id}");
+      $("##{hidden_match_name}").val("#{match_name}");
+      $("##{hidden_game_def_file_name}").val("#{match_game_definition_file_name}");
+      $("##{hidden_num_hands}").val("#{match_number_of_hands}");
+      $("##{hidden_seat}").val("#{match_seat}");
+      $("##{hidden_rand_seed}").val("#{match_random_seed}");
+      $("##{hidden_submit}").submit();
+      break;
+    case 'proxy':
+      $('#hidden-update_state').submit();
+      break;
+    default:
+      // @todo Handle this better
+      console.log('Unidentified reply: ' + e.data);
+      break;
+    };
+  };
+  ws.send("#{escape_javascript(@request_to_table_manager.to_json)}");
+
+= render partial: "layouts/navbar", locals: { partial: nil }
+.hero-unit
+  .header-info Please wait for players to connect to the dealer...
+.hidden= hidden_game_parameter_form
+.hidden= hidden_start_opponents_form match_id
+.hidden= update_state_form match_id, class: 'hidden', id: 'hidden-update_state'
+
+= render partial: ApplicationHelper::FOOTER

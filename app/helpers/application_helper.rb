@@ -9,7 +9,9 @@ module ApplicationHelper
 
   NEW_MATCH_PARTIAL = 'match_start/index' unless const_defined? :NEW_MATCH_PARTIAL
   FOOTER = 'match_start/footer' unless const_defined? :FOOTER
-  REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
+  REPLACE_CONTENTS_JS = 'shared/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
+
+  def wait_for_match_to_start_partial() 'shared/wait_for_match_to_start' end
 
   # Renders a shared +JavaScript+ template that replaces the old contents
   # of the current page with new contents.  In essence, it acts like a
@@ -25,5 +27,15 @@ module ApplicationHelper
   def reset_to_match_entry_view(error_message=nil)
     @match = Match.new
     replace_page_contents NEW_MATCH_PARTIAL, error_message
+  end
+
+  def update_state_form(submit_button_label='', button_options={})
+    button_options[:id] = 'update_match_state' unless button_options[:id]
+    form_tag update_match_state_url, :remote => true do
+      form = hidden_match_fields
+      form << button_tag(submit_button_label, button_options)
+      form << yield(form) if block_given?
+      form
+    end
   end
 end

@@ -6,8 +6,7 @@ module MatchStartHelper
   def hidden_seat() 'hidden_seat' end
   def hidden_rand_seed() 'hidden_rand_seed' end
   def hidden_submit() 'hidden_submit' end
-
-  def wait_for_match_to_start_partial() 'wait_for_match_to_start' end
+  def hidden_start_opponents() 'hidden_start_opponents' end
 
   # Renders a +JavaScript+ template that sends parameters to
   # +PlayerActionsController+ so that it can connect to an
@@ -28,6 +27,14 @@ module MatchStartHelper
       form << hidden_field_tag(:random_seed, nil, :id => hidden_rand_seed)
 
       form << submit_tag('', :id => hidden_submit, style: 'visibility: hidden')
+    end
+  end
+
+  def hidden_start_opponents_form(match_id)
+    form_tag start_opponents_url, :remote => true do
+      form = hidden_field_tag(:match_id, match_id, :id => hidden_match_id)
+
+      form << submit_tag('', :id => hidden_start_opponents, style: 'visibility: hidden')
     end
   end
 end

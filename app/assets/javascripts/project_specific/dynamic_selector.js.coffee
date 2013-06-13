@@ -5,11 +5,11 @@ root.DynamicSelector =
     $("#{element} :selected")
   filterOptions: (parentSelector, childSelector, allOptions)->
     parentSelection = @selected(parentSelector).text()
-    console.log("parentSelection: #{parentSelection}")
+    # console.log("parentSelection: #{parentSelection}")
     filtered = $(allOptions).filter("optgroup[label='#{parentSelection}']")
-    console.log("filtered: #{filtered.html()}")
+    # console.log("filtered: #{filtered.html()}")
     options = filtered.html()
-    console.log("options: #{options}")
+    # console.log("options: #{options}")
     if options
       $(childSelector).html(options).parent().show()
     else

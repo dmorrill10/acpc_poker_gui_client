@@ -1,19 +1,7 @@
-
+require 'logger'
 require 'awesome_print'
 
 module WorkerHelpers
-
-  # @param [#to_s] message The message to log.
-  def log_message(message)
-    puts message.to_s
-  end
-
-  def log(method, variables={})
-    message_to_log = "#{self.class}: #{method}"
-    message_to_log << variables.awesome_inspect unless variables.empty?
-    log_message message_to_log
-  end
-
   def delete_state!(match_id)
     @match_id_to_background_processes.delete match_id
     begin
@@ -27,7 +15,7 @@ module WorkerHelpers
   # @param [String] match_id The ID of the match in which the exception occurred.
   # @param [String] message The exception message to log.
   def handle_exception(match_id, message)
-    log_message "In match #{match_id}, #{message}"
+    log __method__, "In match #{match_id}, #{message}", Logger::Severity::ERROR
     delete_state! match_id
   end
 

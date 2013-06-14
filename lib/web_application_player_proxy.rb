@@ -1,28 +1,22 @@
-
-require 'awesome_print'
-require 'logger'
 require 'acpc_poker_player_proxy'
 
 require_relative 'database_config'
 require_relative '../app/models/match'
 require_relative '../app/models/match_slice'
 
+require_relative 'application_defs'
+
+require_relative 'simple_logging'
+using SimpleLogging::MessageFormatting
+
 require 'contextual_exceptions'
 using ContextualExceptions::ClassRefinement
 
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
-  # @todo Use contextual exceptions
-  exceptions :unable_to_create_match_slice
+  include SimpleLogging
 
-  class << self
-    def logger=(logger)
-      @logger = logger
-    end
-    def logger
-      @logger ||= Logger.new(STDERR)
-    end
-  end
+  exceptions :unable_to_create_match_slice
 
   # @todo Reduce the # of params
   #
@@ -39,9 +33,9 @@ class WebApplicationPlayerProxy
     player_names='user p2',
     number_of_hands=1
   )
+    @logger = Logger.from_file_name(File.join(ApplicationDefs::LOG_DIRECTORY, 'proxy_logs', "#{match_id}.#{users_seat}.log")).with_metadata!
 
     log __method__, {
-      match_id: match_id,
       dealer_information: dealer_information,
       users_seat: users_seat,
       game_definition: game_definition,
@@ -69,7 +63,7 @@ class WebApplicationPlayerProxy
   # Player action interface
   # @see PlayerProxy#play!
   def play!(action)
-    log __method__, {action: action}
+    log __method__, action: action
 
     @player_proxy.play! action do |players_at_the_table|
       update_database! players_at_the_table
@@ -82,7 +76,7 @@ class WebApplicationPlayerProxy
   def match_ended?
     match_has_ended = @player_proxy.players_at_the_table.match_ended?
 
-    log __method__, {match_has_ended: match_has_ended}
+    log __method__, match_has_ended: match_has_ended
 
     match_has_ended
   end
@@ -132,9 +126,5 @@ class WebApplicationPlayerProxy
     end
 
     self
-  end
-
-  def log(method, variables)
-    WebApplicationPlayerProxy.logger.info "#{self.class}: #{method}: #{variables.awesome_inspect}"
   end
 end

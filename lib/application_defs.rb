@@ -61,6 +61,8 @@ module ApplicationDefs
 
   MATCH_LOG_DIRECTORY = File.join(LOG_DIRECTORY, 'match_logs') unless const_defined? :MATCH_LOG_DIRECTORY
 
+  WEBSOCKET_PORT = 9999 # Arbitrary port
+
   # @return [Array<Class>] Returns only the names that correspond to bot runner
   #   classes as those classes.
   def self.bots(game_def_key, player_names)

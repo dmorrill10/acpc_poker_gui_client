@@ -17,14 +17,14 @@
   WEB_SOCKET_SWF_LOCATION = "assets/javascripts/web-socket-js/WebSocketMain.swf";
 
   // Write your code in the same way as for native WebSocket:
-  var ws = new WebSocket("ws://localhost:8080/");
+  var ws = new WebSocket("ws://localhost:#{ApplicationDefs::WEBSOCKET_PORT}/");
   ws.onopen = function() {
-    console.log("opened websocket");
+    console.log("websocket: onopen");
   };
   ws.onmessage = function(e) {
     // Receives a message.
-    console.log(e.data);
+    console.log("websocket: onmessage: data: " + e.data);
   };
   ws.onclose = function() {
-    console.log("closed websocket");
+    console.log("websocket: onclose");
   };

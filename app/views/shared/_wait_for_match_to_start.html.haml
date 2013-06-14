@@ -1,4 +1,9 @@
+- if @match_view && !@match
+  - @match = @match_view.match
 - if @match
+  - unless @match.slices.empty?
+    :javascript
+      $('#hidden-update_state').submit();
   - match_id = @match.id
   - match_name = @match.match_name
   - match_game_definition_file_name = @match.game_definition_file_name
@@ -12,7 +17,7 @@
   - match_number_of_hands = ''
   - match_seat = ''
   - match_random_seed = ''
-
+- @request_to_table_manager ||= ''
 :javascript
   ws.onmessage = function(e) {
     switch (e.data) {
@@ -37,13 +42,22 @@
       break;
     };
   };
-  ws.send("#{escape_javascript(@request_to_table_manager.to_json)}");
+  function isBlank(str) {
+    return (!str || /^[\"\'\s]*$/.test(str));
+  }
+  var request = "#{escape_javascript(@request_to_table_manager.to_json)}";
+  if (!isBlank(request)) {
+    alert("Sending: " + request);
+    ws.send(request);
+  }
 
 = render partial: "layouts/navbar", locals: { partial: nil }
 .hero-unit
   .header-info Please wait for players to connect to the dealer...
 .hidden= hidden_game_parameter_form
 .hidden= hidden_start_opponents_form match_id
-.hidden= update_state_form match_id, class: 'hidden', id: 'hidden-update_state'
+.hidden
+  / @todo Unify this with next hand form
+  = update_state_form match_id, '', class: 'hidden', id: 'hidden-update_state'
 
 = render partial: ApplicationHelper::FOOTER

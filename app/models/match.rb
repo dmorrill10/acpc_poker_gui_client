@@ -170,9 +170,3 @@ class Match
     local_opponent_ports
   end
 end
-
-module Stalker
-  def self.start_background_job(job_name, arguments, options={ttr: ApplicationDefs::MATCH_STATE_RETRIEVAL_TIMEOUT})
-    enqueue job_name, arguments, options
-  end
-end

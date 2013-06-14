@@ -26,13 +26,9 @@ module PlayerActionsHelper
     end
   end
 
-  def hidden_match_fields(match_id = @match_id)
-    hidden_field_tag(:match_id, match_id, id: 'match_id_hidden_field')
-  end
-
   # Replaces the page contents with an updated game view
-  def replace_page_contents_with_updated_game_view
-    @match_view ||= MatchView.new(@match_id)
+  def replace_page_contents_with_updated_game_view(match_id)
+    @match_view = MatchView.new(match_id)
     replace_page_contents 'player_actions/index'
   end
 
@@ -65,24 +61,5 @@ module PlayerActionsHelper
 
   def leave_match_label
     "Leave Match"
-  end
-
-  # Updates the current match state.
-  def update_match!
-    @match_id ||= params[:match_id]
-    assert_new_match_state
-
-    self
-  end
-  def new_match_state?(match)
-    puts "   NUM SLICES: #{match.slices.length}"
-    match.slices.length > 0
-  end
-  def assert_new_match_state
-    looping_condition = ->(proc_match) { !new_match_state?(proc_match) }
-    @match_view = MatchView.failsafe_while_for_match @match_id, looping_condition do
-      # @todo Log here
-      # @todo Maybe use a processing spinner
-    end
   end
 end

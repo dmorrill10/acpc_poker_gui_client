@@ -29,10 +29,14 @@ module ApplicationHelper
     replace_page_contents NEW_MATCH_PARTIAL, error_message
   end
 
-  def update_state_form(submit_button_label='', button_options={})
+  def hidden_match_fields(match_id = @match_view.match.id)
+    hidden_field_tag(:match_id, match_id, id: 'match_id_hidden_field')
+  end
+
+  def update_state_form(match_id, submit_button_label='', button_options={})
     button_options[:id] = 'update_match_state' unless button_options[:id]
     form_tag update_match_state_url, :remote => true do
-      form = hidden_match_fields
+      form = hidden_match_fields(match_id)
       form << button_tag(submit_button_label, button_options)
       form << yield(form) if block_given?
       form

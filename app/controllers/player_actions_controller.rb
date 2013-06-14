@@ -1,6 +1,4 @@
-
-# Gems
-require 'stalker'
+# @todo Why are some param keys symbols and some strings?
 
 # Local modules
 require 'application_defs'
@@ -20,9 +18,8 @@ class PlayerActionsController < ApplicationController
   include PlayerActionsHelper
 
   def index
-    @match_id = params[:match_id]
     begin
-      @match_view ||= MatchView.new @match_id
+      @match_view = MatchView.new params[:match_id]
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
@@ -56,38 +53,42 @@ class PlayerActionsController < ApplicationController
   def take_action
     puts "   ACTION: #{params[:poker_action].awesome_inspect}"
 
-    @match_id ||= params[:match_id]
-
     @request_to_table_manager = {
       request: 'play',
-      match_id: @match_id,
+      match_id: params[:match_id],
       action: params[:poker_action],
       modifier: params[:modifier]
     }
 
-    update_match_state
+    @match_view = MatchView.new params[:match_id]
+
+    begin
+      replace_page_contents_with_updated_game_view params[:match_id]
+      return
+    rescue => e
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
+      reset_to_match_entry_view "Sorry, there was a problem continuing the match after taking your action, please report this incident to #{ADMINISTRATOR_EMAIL}."
+    end
   end
 
   def update_match_state
-    @match_id ||= params['match_id']
-
     last_slice = nil
     begin
-      # Delete the last slice since it's no longer needed
-      @match_view ||= MatchView.new @match_id
+      @match_view = MatchView.new params[:match_id]
 
-      unless @match_view.match.slices.empty?
+      # @todo Need to change how this is done
+      while @match_view.match.slices.length > 1 && !(@match_view.slice.match_ended? || @match_view.slice.hand_ended?) do
+        # Delete the last slice since it's no longer needed
         last_slice = @match_view.match.slices.first
         last_slice.delete
       end
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice before taking action #{params[:user_poker_action]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      reset_to_match_entry_view "Sorry, there was a problem cleaning up previous match slices, please report this incident to #{ADMINISTRATOR_EMAIL}."
       return
     end
     begin
-      update_match!
-      replace_page_contents_with_updated_game_view
+      replace_page_contents_with_updated_game_view params[:match_id]
       return
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
@@ -102,7 +103,7 @@ class PlayerActionsController < ApplicationController
         # If the match can't be retrieved or saved then
         # it can't be resumed anyway, so nothing
         # special to do here.
-        ap "Unable to restore match slice in match #{@match_id}"
+        ap "Unable to restore match slice in match #{params[:match_id]}"
       end
       reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
       return

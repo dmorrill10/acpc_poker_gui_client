@@ -64,6 +64,7 @@ class TableManager
         case params[ApplicationDefs::REQUEST_KEY]
         when ApplicationDefs::START_MATCH_REQUEST_CODE
 
+          # @todo Use the information from the match to start opponents and the proxy by organizing the data into params first
           start_dealer!(params).start_opponents!(params, @match).start_proxy!(params, @match)
           ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
         when ApplicationDefs::START_PROXY_REQUEST_CODE

@@ -39,18 +39,11 @@ class MatchStartController < ApplicationController
       Match.new(params[:match]).finish_starting!
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
+      reset_to_match_entry_view 'Sorry, unable to finish creating a match instance, please try again or rejoin a match already in progress.'
       return
     end
 
-    @options = [
-      '-a', # Append logs with the same name rather than overwrite
-      "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
-      '--t_hand -1',
-      '--t_per_hand -1'
-    ].join ' '
-
-    @request_to_table_manager = {
+    @request_to_start_match = {
       request: 'dealer',
       match_id: @match.id,
       match_name: @match.match_name,
@@ -58,42 +51,27 @@ class MatchStartController < ApplicationController
       number_of_hands: @match.number_of_hands.to_s,
       random_seed: @match.random_seed.to_s,
       player_names: @match.player_names.join(' '),
-      options: @options,
+      options: [
+        '-a', # Append logs with the same name rather than overwrite
+        "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
+        '--t_hand -1',
+        '--t_per_hand -1'
+      ].join(' '),
       log_directory: MATCH_LOG_DIRECTORY
     }
 
+    @request_to_start_opponents = {request: 'opponents', opponents: []}
+    @match.every_bot(Socket.gethostname) do |bot_command|
+      @request_to_start_opponents[:opponents].push(
+        match_id: @match.id,
+        bot_start_command: bot_command
+      )
+    end
+
     respond_to do |format|
-      format.html { render partial: wait_for_match_to_start_partial }
       format.js do
         replace_page_contents wait_for_match_to_start_partial
       end
-    end
-  end
-
-  def start_opponents
-    begin
-      @match = Match.find(params[:match_id])
-      raise unless @match
-
-      @request_to_table_manager = {request: 'opponents', opponents: []}
-      @match.every_bot(Socket.gethostname) do |bot_command|
-        @request_to_table_manager[:opponents].push(
-          match_id: @match.id,
-          bot_start_command: bot_command
-        )
-        ap @request_to_table_manager[:opponents].last
-      end
-
-      respond_to do |format|
-        format.html { render partial: wait_for_match_to_start_partial }
-        format.js do
-          replace_page_contents wait_for_match_to_start_partial
-        end
-      end
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem starting opponents, please try again or rejoin a match already in progress."
-      return
     end
   end
 

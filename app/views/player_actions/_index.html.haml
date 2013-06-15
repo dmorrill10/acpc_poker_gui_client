@@ -3,7 +3,7 @@
   ws.onmessage = function(e) {
     switch (e.data) {
     case 'play':
-      $('#hidden-update_match_state').submit();
+      $('#hidden-update').submit();
       break;
     default:
       // @todo Handle this better
@@ -20,7 +20,7 @@
     ws.send(request);
   }
 
--# @todo Unify this condition with that in update_match_state
+-# @todo Unify this condition with that in update
 - unless @match_view.slice.users_turn_to_act? || @match_view.slice.match_ended? || @match_view.slice.hand_ended?
   :javascript
     $('#hidden-update_state').submit();

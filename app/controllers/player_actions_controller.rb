@@ -31,15 +31,7 @@ class PlayerActionsController < ApplicationController
 
       # Do nothing
     else # A new match is being started so the user's proxy needs to be started
-      @request_to_table_manager = {
-        request: 'proxy',
-        match_id: params[:match_id],
-        host_name: 'localhost', port_number: @match_view.match.users_port,
-        game_definition_file_name: params[:game_definition_file_name],
-        player_names: @match_view.match.player_names.join(' '),
-        number_of_hands: params[:number_of_hands],
-        users_seat: (params[:seat].to_i - 1)
-      }
+
     end
 
     respond_to do |format|
@@ -71,7 +63,7 @@ class PlayerActionsController < ApplicationController
     end
   end
 
-  def update_match_state
+  def update
     last_slice = nil
     begin
       @match_view = MatchView.new params[:match_id]

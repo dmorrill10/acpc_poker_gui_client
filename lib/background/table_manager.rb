@@ -34,12 +34,6 @@ class TableManager
   include AcpcPokerTypes
   include SimpleLogging
 
-  START_DEALER_REQUEST_CODE = 'dealer'
-  START_OPPONENTS_REQUEST_CODE = 'opponents'
-  START_PROXY_REQUEST_CODE = 'proxy'
-  PLAY_ACTION_REQUEST_CODE = 'play'
-  REQUEST_KEY = 'request'
-
   def self.listen_to_gui(authorized_client_origin)
     new(authorized_client_origin).listen_to_gui
   end
@@ -67,21 +61,19 @@ class TableManager
 
         log "#{__method__}: onmessage", params: params
 
-        case params[REQUEST_KEY]
-        when START_DEALER_REQUEST_CODE
-          start_dealer params
-          ws.send START_DEALER_REQUEST_CODE
-        when START_OPPONENTS_REQUEST_CODE
-          start_opponents params[START_OPPONENTS_REQUEST_CODE]
-          ws.send START_OPPONENTS_REQUEST_CODE
-        when START_PROXY_REQUEST_CODE
-          start_proxy params
-          ws.send START_PROXY_REQUEST_CODE
-        when PLAY_ACTION_REQUEST_CODE
-          play params
-          ws.send PLAY_ACTION_REQUEST_CODE
+        case params[ApplicationDefs::REQUEST_KEY]
+        when ApplicationDefs::START_MATCH_REQUEST_CODE
+
+          start_dealer!(params).start_opponents!(params, @match).start_proxy!(params, @match)
+          ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+        when ApplicationDefs::START_PROXY_REQUEST_CODE
+          start_proxy! params
+          ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+        when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+          play! params
+          ws.send ApplicationDefs::PLAY_ACTION_REQUEST_CODE
         else
-          raise "Unrecognized request: #{params[REQUEST_KEY]}"
+          raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
         end
       end
       ws.onerror do |e|
@@ -95,7 +87,7 @@ class TableManager
     end
   end
 
-  def start_dealer(params)
+  def start_dealer!(params, match=nil)
     log __method__, params: params
 
     # Clean up data from dead matches
@@ -106,7 +98,11 @@ class TableManager
       end
     end
 
-    match_id = params.retrieve_match_id_or_raise_exception
+    match_id = if match
+      match.id
+    else
+      params.retrieve_match_id_or_raise_exception
+    end
     dealer_arguments = {
       match_name: params.retrieve_parameter_or_raise_exception('match_name'),
       game_def_file_name: params.retrieve_parameter_or_raise_exception('game_def_file_name'),
@@ -127,7 +123,7 @@ class TableManager
       num_match_id_to_background_processes: @match_id_to_background_processes.length
     }
 
-    return if background_processes[:dealer]
+    return self if background_processes[:dealer]
 
     # Start the dealer
     begin
@@ -146,26 +142,33 @@ class TableManager
       port_numbers = @match_id_to_background_processes[match_id][:dealer][:port_numbers]
 
       # Store the port numbers in the database so the web app. can access them
-      match = match_instance match_id
+      match = match_instance match_id unless match
       match.port_numbers = port_numbers
 
-      puts "Saving port numbers: #{match.port_numbers}"
-
       save_match_instance match
+      @match = match
     rescue => unable_to_retrieve_port_numbers_from_dealer_exception
       handle_exception match_id, "unable to retrieve player port numbers from the dealer: #{unable_to_retrieve_port_numbers_from_dealer_exception.message}"
       raise unable_to_retrieve_port_numbers_from_dealer_exception
     end
+
+    self
   end
 
-  def start_opponents(params)
+  def start_opponents!(params, match = nil)
     params.each do |opp_params|
-      start_opponent opp_params
+      start_opponent! opp_params, match
     end
+
+    self
   end
 
-  def start_opponent(params)
-    match_id = params.retrieve_match_id_or_raise_exception
+  def start_opponent!(params, match = nil)
+    match_id = if match
+      match.id
+    else
+      params.retrieve_match_id_or_raise_exception
+    end
 
     background_processes = @match_id_to_background_processes[match_id] || {}
 
@@ -183,10 +186,16 @@ class TableManager
       handle_exception match_id, "unable to start bot with command \"#{bot_start_command}\": #{unable_to_start_bot_exception.message}"
       raise unable_to_start_bot_exception
     end
+
+    self
   end
 
-  def start_proxy(params)
-    match_id = params.retrieve_match_id_or_raise_exception
+  def start_proxy!(params, match = nil)
+    match_id = if match
+      match.id
+    else
+      params.retrieve_match_id_or_raise_exception
+    end
 
     background_processes = @match_id_to_background_processes[match_id] || {}
 
@@ -196,9 +205,9 @@ class TableManager
       num_match_id_to_background_processes: @match_id_to_background_processes.length
     }
 
-    match = match_instance match_id
+    match = match_instance match_id unless match
 
-    return if background_processes[:player_proxy][match.seat]
+    return self if background_processes[:player_proxy][match.seat]
 
     host_name = params.retrieve_parameter_or_raise_exception 'host_name'
     port_number = params.retrieve_parameter_or_raise_exception 'port_number'
@@ -218,6 +227,7 @@ class TableManager
       match.min_wagers = game_definition.min_wagers
       match.blinds = game_definition.blinds
       save_match_instance match
+      @match = match
 
       background_processes[:player_proxy][match.seat] = WebApplicationPlayerProxy.new(
         match_id,
@@ -233,19 +243,23 @@ class TableManager
     end
 
     @match_id_to_background_processes[match_id] = background_processes
+
+    self
   end
 
-  def play(params)
+  def play!(params)
     match_id = params.retrieve_match_id_or_raise_exception
 
     unless @match_id_to_background_processes[match_id]
-      return log(__method__, msg: "Ignoring request to play in match #{match_id} that doesn't exist.")
+      log(__method__, msg: "Ignoring request to play in match #{match_id} that doesn't exist.")
+      return self
     end
 
     proxy = @match_id_to_background_processes[match_id][:player_proxy][match.seat]
 
     unless proxy
-      return log(__method__, msg: "Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists.")
+      log(__method__, msg: "Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists.")
+      return self
     end
 
     action = PokerAction.new(
@@ -269,6 +283,8 @@ class TableManager
       log __method__, msg: "Deleting background processes with match ID #{match_id}"
       @match_id_to_background_processes.delete match_id
     end
+
+    self
   end
 end
 end

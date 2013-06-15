@@ -17,24 +17,12 @@
   - match_number_of_hands = ''
   - match_seat = ''
   - match_random_seed = ''
-- @request_to_table_manager ||= ''
 :javascript
   ws.onmessage = function(e) {
     switch (e.data) {
-    case 'dealer':
-      $("##{hidden_start_opponents}").submit();
-      break;
-    case 'opponents':
-      $("##{hidden_match_id}").val("#{match_id}");
-      $("##{hidden_match_name}").val("#{match_name}");
-      $("##{hidden_game_def_file_name}").val("#{match_game_definition_file_name}");
-      $("##{hidden_num_hands}").val("#{match_number_of_hands}");
-      $("##{hidden_seat}").val("#{match_seat}");
-      $("##{hidden_rand_seed}").val("#{match_random_seed}");
-      $("##{hidden_submit}").submit();
-      break;
-    case 'proxy':
-      $('#hidden-update_state').submit();
+    case "#{ApplicationDefs::START_MATCH_REQUEST_CODE}":
+    case "#{ApplicationDefs::START_PROXY_REQUEST_CODE}":
+      $('#hidden-show_table').submit();
       break;
     default:
       // @todo Handle this better
@@ -45,10 +33,10 @@
   function isBlank(str) {
     return (!str || /^[\"\'\s]*$/.test(str));
   }
-  var request = "#{escape_javascript(@request_to_table_manager.to_json)}";
-  if (!isBlank(request)) {
-    alert("Sending: " + request);
-    ws.send(request);
+  var request_to_start_match = "#{@request_to_start_match.to_json.dump}";
+  if (!isBlank(request_to_start_match)) {
+    alert("Sending: " + request_to_start_match);
+    ws.send(request_to_start_match);
   }
 
 = render partial: "layouts/navbar", locals: { partial: nil }

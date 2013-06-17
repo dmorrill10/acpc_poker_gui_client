@@ -11,7 +11,7 @@ module ApplicationHelper
   FOOTER = 'match_start/footer' unless const_defined? :FOOTER
   REPLACE_CONTENTS_JS = 'shared/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
 
-  def wait_for_match_to_start_partial() 'shared/wait_for_match_to_start' end
+  def wait_for_match_to_start_partial() 'match_start/wait_for_match_to_start' end
 
   # Renders a shared +JavaScript+ template that replaces the old contents
   # of the current page with new contents.  In essence, it acts like a

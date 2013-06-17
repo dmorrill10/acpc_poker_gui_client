@@ -98,7 +98,6 @@
       .actions
         .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::FOLD, 'Fold', fold_is_disabled_when, ['fold'])
         .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::CALL, pass_action_button_label, !@match_view.slice.users_turn_to_act?, ['pass'])
-        / # @todo Should be disabled when opponent is all-in
         - wager_disabled_when = !@match_view.slice.users_turn_to_act? || !(@match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) || @match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::BET))
         .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::RAISE, make_wager_button_label, wager_disabled_when, ['wager'])
 - if @match_view.no_limit?

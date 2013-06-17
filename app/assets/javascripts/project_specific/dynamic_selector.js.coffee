@@ -13,7 +13,7 @@ root.DynamicSelector =
     if options
       $(childSelector).html(options).parent().show()
     else
-      $(childSelector).empty().parent().hide()
+      $(childSelector).empty().attr('disabled', true)
   makeDynamic: (parentSelector, childSelector)->
     allOptions = $(childSelector).html()
     $(parentSelector).change =>

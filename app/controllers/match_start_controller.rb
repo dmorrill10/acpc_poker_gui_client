@@ -60,14 +60,6 @@ class MatchStartController < ApplicationController
       log_directory: MATCH_LOG_DIRECTORY
     }
 
-    @request_to_start_opponents = {request: 'opponents', opponents: []}
-    @match.every_bot(Socket.gethostname) do |bot_command|
-      @request_to_start_opponents[:opponents].push(
-        match_id: @match.id,
-        bot_start_command: bot_command
-      )
-    end
-
     respond_to do |format|
       format.js do
         replace_page_contents wait_for_match_to_start_partial

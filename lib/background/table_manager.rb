@@ -1,3 +1,5 @@
+require 'socket'
+
 # Websocket server library
 require 'em-websocket'
 
@@ -63,9 +65,15 @@ class TableManager
 
         case params[ApplicationDefs::REQUEST_KEY]
         when ApplicationDefs::START_MATCH_REQUEST_CODE
+          start_dealer!(params)
 
-          # @todo Use the information from the match to start opponents and the proxy by organizing the data into params first
-          start_dealer!(params).start_opponents!(params, @match).start_proxy!(params, @match)
+          opponents = []
+          @dealer_host = Socket.gethostname
+          @match.every_bot(@dealer_host) do |bot_command|
+            opponents << bot_command
+          end
+
+          start_opponents!(opponents, @match.id).start_proxy!(params, @match)
           ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
         when ApplicationDefs::START_PROXY_REQUEST_CODE
           start_proxy! params
@@ -156,19 +164,19 @@ class TableManager
     self
   end
 
-  def start_opponents!(params, match = nil)
+  def start_opponents!(params, match_id = nil)
     params.each do |opp_params|
-      start_opponent! opp_params, match
+      start_opponent! opp_params, match_id
     end
 
     self
   end
 
-  def start_opponent!(params, match = nil)
+  def start_opponent!(bot_start_command, match_id = nil)
     match_id = if match
       match.id
     else
-      params.retrieve_match_id_or_raise_exception
+      match_id
     end
 
     background_processes = @match_id_to_background_processes[match_id] || {}
@@ -178,8 +186,6 @@ class TableManager
       num_background_processes: background_processes.length,
       num_match_id_to_background_processes: @match_id_to_background_processes.length
     }
-
-    bot_start_command = params.retrieve_parameter_or_raise_exception 'bot_start_command'
 
     begin
       ProcessRunner.go bot_start_command
@@ -210,12 +216,15 @@ class TableManager
 
     return self if background_processes[:player_proxy][match.seat]
 
-    host_name = params.retrieve_parameter_or_raise_exception 'host_name'
-    port_number = params.retrieve_parameter_or_raise_exception 'port_number'
-    player_names = params.retrieve_parameter_or_raise_exception 'player_names'
-    number_of_hands = params.retrieve_parameter_or_raise_exception('number_of_hands').to_i
-    game_definition_file_name = params.retrieve_parameter_or_raise_exception 'game_definition_file_name'
-    users_seat = params.retrieve_parameter_or_raise_exception('users_seat').to_i
+    host_name = if @dealer_host
+      @dealer_host
+    else
+      params.retrieve_parameter_or_raise_exception 'host_name'
+    end
+    port_number = match.port_numbers[match.seat - 1]
+    player_names = match.player_names
+    number_of_hands = match.number_of_hands
+    game_definition_file_name = match.game_definition_file_name
 
     dealer_information = AcpcDealer::ConnectionInformation.new port_number, host_name
 
@@ -230,10 +239,10 @@ class TableManager
       save_match_instance match
       @match = match
 
-      background_processes[:player_proxy][match.seat] = WebApplicationPlayerProxy.new(
+      background_processes[:player_proxy][match.seat - 1] = WebApplicationPlayerProxy.new(
         match_id,
         dealer_information,
-        users_seat,
+        match.seat - 1,
         game_definition,
         player_names,
         number_of_hands

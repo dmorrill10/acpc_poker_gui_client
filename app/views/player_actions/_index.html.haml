@@ -1,9 +1,27 @@
-- @request_to_table_manager ||= ''
+- if @match_view.no_limit?
+  :javascript
+    ActionDashboard.adjustWagerOnSubmission(
+      parseInt("#{@match_view.minimum_wager_to.to_i}"),
+      parseInt("#{@match_view.user_contributions_in_previous_rounds.to_i}"),
+      parseInt("#{@match_view.all_in.to_i}")
+    );
+    ActionDashboard.fixEnterWagerSubmission();
+
+    var sliderValues;
+    sliderValues = [
+      parseInt("#{@match_view.minimum_wager_to.to_i}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(1 / 2.to_f)).to_i}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(3 / 4.to_f)).to_i}"),
+      parseInt("#{@match_view.pot_fraction_wager_to.to_i}"),
+      parseInt("#{(@match_view.pot_fraction_wager_to(2)).to_i}"),
+      parseInt("#{@match_view.all_in.to_i}")
+    ];
+    WagerAmountSlider.initialize(sliderValues);
 :javascript
   ws.onmessage = function(e) {
     switch (e.data) {
-    case 'play':
-      $('#hidden-update').submit();
+    case "#{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}":
+      $('hidden-update_state').submit();
       break;
     default:
       // @todo Handle this better
@@ -11,17 +29,46 @@
       break;
     };
   };
-  function isBlank(str) {
-    return (!str || /^[\"\'\s]*$/.test(str));
-  }
-  var request = "#{escape_javascript(@request_to_table_manager.to_json)}";
-  if (!isBlank(request)) {
-    alert("Sending: " + request);
-    ws.send(request);
-  }
+  var match_id = "#{@match_view.match.id}";
+  var request = "#{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}";
+  $('.fold').click(function() {
+    sendAndLog(ws,
+      JSON.stringify(
+        {
+          request: request,
+          match_id: match_id,
+          action: "#{AcpcPokerTypes::PokerAction::FOLD}"
+        }
+      )
+    );
+  });
+  $('.pass').click(function() {
+    sendAndLog(ws,
+      JSON.stringify(
+        {
+          request: request,
+          match_id: match_id,
+          action: "#{AcpcPokerTypes::PokerAction::CALL}"
+        }
+      )
+    );
+  });
+  $('.wager').click(function() {
+    sendAndLog(ws,
+      JSON.stringify(
+        {
+          request: request,
+          match_id: match_id,
+          action: "#{AcpcPokerTypes::PokerAction::RAISE}" + $('form.wager > input#modifier').val()
+        }
+      )
+    );
+  });
+  // @todo The disable action needs to be done after sending the websocket message, not sure if it does now.
+  ActionDashboard.disableButtonsOnClick();
 
 -# @todo Unify this condition with that in update
-- unless @match_view.slice.users_turn_to_act? || @match_view.slice.match_ended? || @match_view.slice.hand_ended?
+- unless (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended? || @match_view.slice.hand_ended?) && @match_view.match.slices.length == 1
   :javascript
     $('#hidden-update_state').submit();
 
@@ -96,31 +143,21 @@
               .ui_slider
           .wager_amount-num_field= number_field_tag :modifier, @match_view.minimum_wager_to.to_i, min: @match_view.minimum_wager_to.to_i, max: @match_view.all_in.to_i, step: @match_view.match.min_wagers[@match_view.state.round].to_i
       .actions
-        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::FOLD, 'Fold', fold_is_disabled_when, ['fold'])
-        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::CALL, pass_action_button_label, !@match_view.slice.users_turn_to_act?, ['pass'])
-        - wager_disabled_when = !@match_view.slice.users_turn_to_act? || !(@match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) || @match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::BET))
-        .poker_actn_btn= poker_action_form(AcpcPokerTypes::PokerAction::RAISE, make_wager_button_label, wager_disabled_when, ['wager'])
-- if @match_view.no_limit?
-  :javascript
-    ActionDashboard.adjustWagerOnSubmission(
-      parseInt("#{@match_view.minimum_wager_to.to_i}"),
-      parseInt("#{@match_view.user_contributions_in_previous_rounds.to_i}"),
-      parseInt("#{@match_view.all_in.to_i}")
-    );
-    ActionDashboard.fixEnterWagerSubmission();
-
-    var sliderValues;
-    sliderValues = [
-      parseInt("#{@match_view.minimum_wager_to.to_i}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(1 / 2.to_f)).to_i}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(3 / 4.to_f)).to_i}"),
-      parseInt("#{@match_view.pot_fraction_wager_to.to_i}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(2)).to_i}"),
-      parseInt("#{@match_view.all_in.to_i}")
-    ];
-    WagerAmountSlider.initialize(sliderValues);
+        .poker_actn_btn
+          - fold_label = 'Fold'
+          - fold_attributes = { type: 'submit', data: { disable_with: fold_label }}
+          - fold_attributes[:disabled] = 'disabled' if fold_is_disabled_when
+          %button.fold{fold_attributes}= fold_label
+        .poker_actn_btn
+          - pass_attributes = { type: 'submit', data: { disable_with: pass_action_button_label }}
+          - pass_attributes[:disabled] = 'disabled' if !@match_view.slice.users_turn_to_act?
+          %button.pass{pass_attributes}= pass_action_button_label
+        .poker_actn_btn
+          - wager_disabled_when = !@match_view.slice.users_turn_to_act? || !(@match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) || @match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::BET))
+          - wager_attributes = { type: 'submit', data: { disable_with: make_wager_button_label }}
+          - wager_attributes[:disabled] = 'disabled' if wager_disabled_when
+          %button.wager{wager_attributes}= make_wager_button_label
 :javascript
-  ActionDashboard.disableButtonsOnClick();
   ChipStackMutator.adjustAmountFontSizeOfAllStacks();
   // Must come before change in focus code and as late into loading the page as possible
   // to make sure the window fits exactly as expected.

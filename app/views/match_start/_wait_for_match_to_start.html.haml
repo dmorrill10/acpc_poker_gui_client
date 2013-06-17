@@ -3,6 +3,7 @@
     switch (e.data) {
     case "#{ApplicationDefs::START_MATCH_REQUEST_CODE}":
     case "#{ApplicationDefs::START_PROXY_REQUEST_CODE}":
+      console.log("Starting match");
       $("##{hidden_begin_match}").submit();
       break;
     default:
@@ -11,13 +12,9 @@
       break;
     };
   };
-  function isBlank(str) {
-    return (!str || /^[\"\'\s]*$/.test(str));
-  }
-  var request_to_start_match = "#{@request_to_start_match.to_json.dump}";
+  var request_to_start_match = "#{escape_javascript(@request_to_start_match.to_json)}";
   if (!isBlank(request_to_start_match)) {
-    alert("Sending: " + request_to_start_match);
-    ws.send(request_to_start_match);
+    sendAndLog(ws, request_to_start_match);
   }
 
 = render partial: "layouts/navbar", locals: { partial: nil }

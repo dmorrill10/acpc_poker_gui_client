@@ -83,4 +83,8 @@ watch('mongod') do |w|
   w.start = "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
 end
 
+watch('worker') do |w|
+  w.start = "#{GOD_RAILS_ROOT}/lib/background/worker.rb"
+end
+
 keep_match_database_tidy

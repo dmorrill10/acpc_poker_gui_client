@@ -6,7 +6,6 @@ root.ActionDashboard =
       return if this.id is 'leave'
 
       $('button').attr("disabled", true)
-      $(this).attr("disabled", false)
     )
   illogicalWagerSize: (wager_to_amount_over_round)->
     !wager_to_amount_over_round or isNaN(wager_to_amount_over_round)

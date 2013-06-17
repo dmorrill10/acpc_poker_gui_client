@@ -16,7 +16,7 @@ module PlayerActionsHelper
     {class: classes, id: ids, name: ids, disabled: disabled_when, data: { disable_with: label }}
   end
   def poker_action_form(action, label, disabled_when, classes=[], ids=[])
-    form_tag(take_action_url, poker_action_submission_options(label, disabled_when, classes, ids).merge({remote: true})) do
+    form_tag(match_home_url, poker_action_submission_options(label, disabled_when, classes, ids).merge({remote: true})) do
       form = hidden_match_fields
       form << hidden_field_tag(:poker_action, action)
       form << hidden_field_tag(:modifier)
@@ -28,7 +28,7 @@ module PlayerActionsHelper
 
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view(match_id)
-    @match_view = MatchView.new(match_id)
+    @match_view ||= MatchView.new(match_id)
     replace_page_contents 'player_actions/index'
   end
 

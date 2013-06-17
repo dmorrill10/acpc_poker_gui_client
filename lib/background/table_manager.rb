@@ -36,12 +36,14 @@ class TableManager
   include AcpcPokerTypes
   include SimpleLogging
 
+  DEALER_HOST = Socket.gethostname
+
   def self.listen_to_gui(authorized_client_origin)
     new(authorized_client_origin).listen_to_gui
   end
 
   def initialize(authorized_client_origin)
-    @match_id_to_background_processes = {}
+    @table_information = {}
     @authorized_client_origin = authorized_client_origin
     @logger = Logger.from_file_name(File.join(ApplicationDefs::LOG_DIRECTORY, 'table_manager.log')).with_metadata!
   end
@@ -68,12 +70,11 @@ class TableManager
           start_dealer!(params)
 
           opponents = []
-          @dealer_host = Socket.gethostname
-          @match.every_bot(@dealer_host) do |bot_command|
+          @match.every_bot(DEALER_HOST) do |bot_command|
             opponents << bot_command
           end
 
-          start_opponents!(opponents, @match.id).start_proxy!(params, @match)
+          start_opponents!(opponents).start_proxy!(params, @match)
           ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
         when ApplicationDefs::START_PROXY_REQUEST_CODE
           start_proxy! params
@@ -100,10 +101,10 @@ class TableManager
     log __method__, params: params
 
     # Clean up data from dead matches
-    @match_id_to_background_processes.each do |match_id, match_processes|
-      unless match_processes[:dealer][:pid].process_exists?
+    @table_information.each do |match_id, match_processes|
+      unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
         log __method__, msg: "Deleting background processes with match ID #{match_id}"
-        @match_id_to_background_processes.delete(match_id)
+        @table_information.delete(match_id)
       end
     end
 
@@ -122,25 +123,27 @@ class TableManager
     }
     log_directory = params['log_directory']
 
-    background_processes = @match_id_to_background_processes[match_id] || {}
+    match_processes = @table_information[match_id] || {}
 
     log __method__, {
       match_id: match_id,
       dealer_arguments: dealer_arguments,
       log_directory: log_directory,
-      num_background_processes: background_processes.length,
-      num_match_id_to_background_processes: @match_id_to_background_processes.length
+      num_tables: @table_information.length
     }
 
-    return self if background_processes[:dealer]
+    dealer_information = match_processes[:dealer] || {}
+
+    return self if dealer_information[:pid] && dealer_information[:pid].process_exists? # The dealer is already started
 
     # Start the dealer
     begin
-      background_processes[:dealer] = AcpcDealer::DealerRunner.start(
+      dealer_information = AcpcDealer::DealerRunner.start(
         dealer_arguments,
         log_directory
       )
-      @match_id_to_background_processes[match_id] = background_processes
+      match_processes[:dealer] = dealer_information
+      @table_information[match_id] = match_processes
     rescue => unable_to_start_dealer_exception
       handle_exception match_id, "unable to start dealer: #{unable_to_start_dealer_exception.message}"
       raise unable_to_start_dealer_exception
@@ -148,9 +151,9 @@ class TableManager
 
     # Get the player port numbers
     begin
-      port_numbers = @match_id_to_background_processes[match_id][:dealer][:port_numbers]
+      port_numbers = dealer_information[:port_numbers]
 
-      # Store the port numbers in the database so the web app. can access them
+      # Store the port numbers in the database so the web app can access them
       match = match_instance match_id unless match
       match.port_numbers = port_numbers
 
@@ -164,28 +167,16 @@ class TableManager
     self
   end
 
-  def start_opponents!(params, match_id = nil)
-    params.each do |opp_params|
-      start_opponent! opp_params, match_id
+  def start_opponents!(bot_start_commands)
+    bot_start_commands.each do |bot_start_command|
+      start_opponent! bot_start_command
     end
 
     self
   end
 
-  def start_opponent!(bot_start_command, match_id = nil)
-    match_id = if match
-      match.id
-    else
-      match_id
-    end
-
-    background_processes = @match_id_to_background_processes[match_id] || {}
-
-    log __method__, {
-      match_id: match_id,
-      num_background_processes: background_processes.length,
-      num_match_id_to_background_processes: @match_id_to_background_processes.length
-    }
+  def start_opponent!(bot_start_command)
+    log __method__, bot_start_command: bot_start_command
 
     begin
       ProcessRunner.go bot_start_command
@@ -204,32 +195,22 @@ class TableManager
       params.retrieve_match_id_or_raise_exception
     end
 
-    background_processes = @match_id_to_background_processes[match_id] || {}
+    match_processes = @table_information[match_id] || {}
+    proxies = match_processes[:player_proxy] || []
 
     log __method__, {
       match_id: match_id,
-      num_background_processes: background_processes.length,
-      num_match_id_to_background_processes: @match_id_to_background_processes.length
+      num_tables: @table_information.length,
+      num_match_processes: match_processes.length,
+      num_proxies: proxies.length
     }
 
     match = match_instance match_id unless match
 
-    return self if background_processes[:player_proxy][match.seat]
-
-    host_name = if @dealer_host
-      @dealer_host
-    else
-      params.retrieve_parameter_or_raise_exception 'host_name'
-    end
-    port_number = match.port_numbers[match.seat - 1]
-    player_names = match.player_names
-    number_of_hands = match.number_of_hands
-    game_definition_file_name = match.game_definition_file_name
-
-    dealer_information = AcpcDealer::ConnectionInformation.new port_number, host_name
+    return self if proxies[match.seat - 1]
 
     begin
-      game_definition = GameDefinition.parse_file(game_definition_file_name)
+      game_definition = GameDefinition.parse_file(match.game_definition_file_name)
       # Store some necessary game definition properties in the database so the web app can access
       # them without parsing the game definition itself
       match.betting_type = game_definition.betting_type
@@ -239,20 +220,24 @@ class TableManager
       save_match_instance match
       @match = match
 
-      background_processes[:player_proxy][match.seat - 1] = WebApplicationPlayerProxy.new(
+      proxies[match.seat - 1] = WebApplicationPlayerProxy.new(
         match_id,
-        dealer_information,
+        AcpcDealer::ConnectionInformation.new(
+          match.port_numbers[match.seat - 1],
+          DEALER_HOST
+        ),
         match.seat - 1,
         game_definition,
-        player_names,
-        number_of_hands
+        match.player_names.join(' '),
+        match.number_of_hands
       )
     rescue => e
       handle_exception match_id, "unable to start the user's proxy: #{e.message}"
       raise e
     end
 
-    @match_id_to_background_processes[match_id] = background_processes
+    match_processes[:player_proxy] = proxies
+    @table_information[match_id] = match_processes
 
     self
   end
@@ -260,12 +245,14 @@ class TableManager
   def play!(params)
     match_id = params.retrieve_match_id_or_raise_exception
 
-    unless @match_id_to_background_processes[match_id]
+    unless @table_information[match_id]
       log(__method__, msg: "Ignoring request to play in match #{match_id} that doesn't exist.")
       return self
     end
 
-    proxy = @match_id_to_background_processes[match_id][:player_proxy][match.seat]
+    match = match_instance match_id
+
+    proxy = @table_information[match_id][:player_proxy][match.seat - 1]
 
     unless proxy
       log(__method__, msg: "Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists.")
@@ -273,13 +260,13 @@ class TableManager
     end
 
     action = PokerAction.new(
-      params.retrieve_parameter_or_raise_exception('action').to_sym,
+      params.retrieve_parameter_or_raise_exception('action'),
       {modifier: params['modifier']}
     )
 
     log __method__, {
       match_id: match_id,
-      num_match_id_to_background_processes: @match_id_to_background_processes.length
+      num_tables: @table_information.length
     }
 
     begin
@@ -291,7 +278,7 @@ class TableManager
 
     if proxy.match_ended?
       log __method__, msg: "Deleting background processes with match ID #{match_id}"
-      @match_id_to_background_processes.delete match_id
+      @table_information.delete match_id
     end
 
     self

@@ -65,25 +65,30 @@ class TableManager
 
         log "#{__method__}: onmessage", params: params
 
-        case params[ApplicationDefs::REQUEST_KEY]
-        when ApplicationDefs::START_MATCH_REQUEST_CODE
-          start_dealer!(params)
+        ->(&block) { block.call match_instance(params.retrieve_match_id_or_raise_exception) }.call do |match|
+          case params[ApplicationDefs::REQUEST_KEY]
+          when ApplicationDefs::START_MATCH_REQUEST_CODE
+            start_dealer!(params, match)
 
-          opponents = []
-          @match.every_bot(DEALER_HOST) do |bot_command|
-            opponents << bot_command
+            opponents = []
+            match.every_bot(DEALER_HOST) do |bot_command|
+              opponents << bot_command
+            end
+
+            start_opponents!(opponents).start_proxy!(params, match)
+
+            ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+          when ApplicationDefs::START_PROXY_REQUEST_CODE
+            start_proxy! params, match
+
+            ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+          when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+            play! params, match
+
+            ws.send ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+          else
+            raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
           end
-
-          start_opponents!(opponents).start_proxy!(params, @match)
-          ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
-        when ApplicationDefs::START_PROXY_REQUEST_CODE
-          start_proxy! params
-          ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
-        when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
-          play! params
-          ws.send ApplicationDefs::PLAY_ACTION_REQUEST_CODE
-        else
-          raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
         end
       end
       ws.onerror do |e|
@@ -97,7 +102,7 @@ class TableManager
     end
   end
 
-  def start_dealer!(params, match=nil)
+  def start_dealer!(params, match)
     log __method__, params: params
 
     # Clean up data from dead matches
@@ -108,11 +113,6 @@ class TableManager
       end
     end
 
-    match_id = if match
-      match.id
-    else
-      params.retrieve_match_id_or_raise_exception
-    end
     dealer_arguments = {
       match_name: params.retrieve_parameter_or_raise_exception('match_name'),
       game_def_file_name: params.retrieve_parameter_or_raise_exception('game_def_file_name'),
@@ -123,10 +123,10 @@ class TableManager
     }
     log_directory = params['log_directory']
 
-    match_processes = @table_information[match_id] || {}
+    match_processes = @table_information[match.id] || {}
 
     log __method__, {
-      match_id: match_id,
+      match_id: match.id,
       dealer_arguments: dealer_arguments,
       log_directory: log_directory,
       num_tables: @table_information.length
@@ -143,9 +143,9 @@ class TableManager
         log_directory
       )
       match_processes[:dealer] = dealer_information
-      @table_information[match_id] = match_processes
+      @table_information[match.id] = match_processes
     rescue => unable_to_start_dealer_exception
-      handle_exception match_id, "unable to start dealer: #{unable_to_start_dealer_exception.message}"
+      handle_exception match.id, "unable to start dealer: #{unable_to_start_dealer_exception.message}"
       raise unable_to_start_dealer_exception
     end
 
@@ -154,13 +154,11 @@ class TableManager
       port_numbers = dealer_information[:port_numbers]
 
       # Store the port numbers in the database so the web app can access them
-      match = match_instance match_id unless match
       match.port_numbers = port_numbers
 
       save_match_instance match
-      @match = match
     rescue => unable_to_retrieve_port_numbers_from_dealer_exception
-      handle_exception match_id, "unable to retrieve player port numbers from the dealer: #{unable_to_retrieve_port_numbers_from_dealer_exception.message}"
+      handle_exception match.id, "unable to retrieve player port numbers from the dealer: #{unable_to_retrieve_port_numbers_from_dealer_exception.message}"
       raise unable_to_retrieve_port_numbers_from_dealer_exception
     end
 
@@ -188,24 +186,16 @@ class TableManager
     self
   end
 
-  def start_proxy!(params, match = nil)
-    match_id = if match
-      match.id
-    else
-      params.retrieve_match_id_or_raise_exception
-    end
-
-    match_processes = @table_information[match_id] || {}
+  def start_proxy!(params, match)
+    match_processes = @table_information[match.id] || {}
     proxies = match_processes[:player_proxy] || []
 
     log __method__, {
-      match_id: match_id,
+      match_id: match.id,
       num_tables: @table_information.length,
       num_match_processes: match_processes.length,
       num_proxies: proxies.length
     }
-
-    match = match_instance match_id unless match
 
     return self if proxies[match.seat - 1]
 
@@ -221,7 +211,7 @@ class TableManager
       @match = match
 
       proxies[match.seat - 1] = WebApplicationPlayerProxy.new(
-        match_id,
+        match.id,
         AcpcDealer::ConnectionInformation.new(
           match.port_numbers[match.seat - 1],
           DEALER_HOST
@@ -232,30 +222,26 @@ class TableManager
         match.number_of_hands
       )
     rescue => e
-      handle_exception match_id, "unable to start the user's proxy: #{e.message}"
+      handle_exception match.id, "unable to start the user's proxy: #{e.message}"
       raise e
     end
 
     match_processes[:player_proxy] = proxies
-    @table_information[match_id] = match_processes
+    @table_information[match.id] = match_processes
 
     self
   end
 
-  def play!(params)
-    match_id = params.retrieve_match_id_or_raise_exception
-
-    unless @table_information[match_id]
-      log(__method__, msg: "Ignoring request to play in match #{match_id} that doesn't exist.")
+  def play!(params, match)
+    unless @table_information[match.id]
+      log(__method__, msg: "Ignoring request to play in match #{match.id} that doesn't exist.")
       return self
     end
 
-    match = match_instance match_id
-
-    proxy = @table_information[match_id][:player_proxy][match.seat - 1]
+    proxy = @table_information[match.id][:player_proxy][match.seat - 1]
 
     unless proxy
-      log(__method__, msg: "Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists.")
+      log(__method__, msg: "Ignoring request to play in match #{match.id} in seat #{match.seat} when no such proxy exists.")
       return self
     end
 
@@ -265,20 +251,20 @@ class TableManager
     )
 
     log __method__, {
-      match_id: match_id,
+      match_id: match.id,
       num_tables: @table_information.length
     }
 
     begin
       proxy.play! action
     rescue => e
-      handle_exception match_id, "unable to take action #{action.to_acpc}: #{e.message}"
+      handle_exception match.id, "unable to take action #{action.to_acpc}: #{e.message}"
       raise e
     end
 
     if proxy.match_ended?
-      log __method__, msg: "Deleting background processes with match ID #{match_id}"
-      @table_information.delete match_id
+      log __method__, msg: "Deleting background processes with match ID #{match.id}"
+      @table_information.delete match.id
     end
 
     self

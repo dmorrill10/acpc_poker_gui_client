@@ -21,7 +21,8 @@
   ws.onmessage = function(e) {
     switch (e.data) {
     case "#{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}":
-      $('hidden-update_state').submit();
+      console.log("Recieved #{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}");
+      $('#hidden-update_state').submit();
       break;
     default:
       // @todo Handle this better
@@ -59,22 +60,25 @@
         {
           request: request,
           match_id: match_id,
-          action: "#{AcpcPokerTypes::PokerAction::RAISE}" + $('form.wager > input#modifier').val()
+          action: "#{AcpcPokerTypes::PokerAction::RAISE}" + $('.wager_amount-num_field > input#modifier').val()
         }
       )
     );
   });
-  // @todo The disable action needs to be done after sending the websocket message, not sure if it does now.
+  $(".#{next_hand_id}").click(function() {
+    $('#hidden-update_state').submit();
+  });
+  // Must be done after initializing the websocket message sending click handlers
   ActionDashboard.disableButtonsOnClick();
 
 -# @todo Unify this condition with that in update
-- unless (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended? || @match_view.slice.hand_ended?) && @match_view.match.slices.length == 1
+- unless (@match_view.slice.users_turn_to_act? && @match_view.match.slices.length == 1) || @match_view.slice.match_ended? || @match_view.slice.hand_ended?
   :javascript
     $('#hidden-update_state').submit();
 
 .hidden
-  / @todo Unify this with next hand form
-  = update_state_form @match_view.match.id, '', class: 'hidden', id: 'hidden-update_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
+  / @todo Simplify this form
+  = update_state_form @match_view.match.id, '', class: 'hidden', id: 'hidden-update_state'
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 
 .chip_balances
@@ -123,7 +127,7 @@
     - elsif next_hand_button_should_be_visible
       .meta_action
         - next_hand_label = "Next Hand"
-        = update_state_form @match_view.match.id, next_hand_label, id: next_hand_id, disabled: @match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?, data: { disable_with: next_hand_label }
+        %button{ class: next_hand_id, data: { disable_with: next_hand_label } }= next_hand_label
     - else
       - fold_is_disabled_when = !(@match_view.slice.users_turn_to_act? && @match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD))
       - pass_action_button_label = if (@match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::CALL) && @match_view.user['amount_to_call'] > 0) then (if @match_view.no_limit? then "Call (#{@match_view.user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end

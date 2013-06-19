@@ -1,13 +1,8 @@
-Hotkey =
-  bind: (element, key) ->
-    $(document).bind('keypress', key, (evt)->
-      elementOnPage = $(element)
-      elementOnPage.click() unless elementOnPage.is(':disabled')
-    )
+root = exports ? this
 
-# @todo Make these proper constants
-Hotkey.bind('.fold', 'a')
-Hotkey.bind('.pass', 's')
-Hotkey.bind('.wager', 'd')
-Hotkey.bind('#leave', 'q')
-Hotkey.bind('.next_state', 'f')
+root.Hotkey =
+  bind: (element, key) ->
+    eventName = "keypress.action-#{element}-#{key}"
+    $(document).off("#{eventName}").on("#{eventName}", null, key, (evt)->
+      $(element).click() unless $(element).is(':disabled')
+    )

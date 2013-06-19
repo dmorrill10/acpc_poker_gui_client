@@ -1,6 +1,6 @@
 %ul.nav
   %li
-    = link_to leave_match_label, leave_match_url, {remote: true, id: 'leave', data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+    = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
   %li.dropdown
     %a.dropdown-toggle{:data => {:toggle => "dropdown"}, role: 'button', :href => "#"}= 'Hotkeys <b class="caret"></b>'.html_safe
     %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}

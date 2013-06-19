@@ -3,10 +3,7 @@ root = exports ? this
 root.ActionDashboard =
   disableButtonsOnClick: ->
     $('button').click(->
-      return if this.id is 'leave'
-
-      $('button').attr("disabled", true)
-      $('button#hidden-update_state').attr('disabled', false)
+      $('button').not('.leave-btn').attr("disabled", true)
     )
   illogicalWagerSize: (wager_to_amount_over_round)->
     !wager_to_amount_over_round or isNaN(wager_to_amount_over_round)

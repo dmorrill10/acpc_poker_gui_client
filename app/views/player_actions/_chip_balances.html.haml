@@ -1,0 +1,13 @@
+.chip_balances
+  %h4= "#{match_view.match.match_name} <span class=\"right\">#{match_view.slice.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
+  %table.table.table-striped
+    %thead
+      %tr
+        %th Player
+        %th Balance
+    %tbody
+      - match_view.slice.players.each do |player|
+        %tr
+          %td= "#{player['name']}"
+          - chip_balance = player['chip_balance'] + (if !match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)
+          %td= "#{chip_balance}"

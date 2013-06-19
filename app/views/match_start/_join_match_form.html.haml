@@ -4,12 +4,12 @@
     - match_names = matches_to_join.map { |m| m.match_name }
     .control-group
       .control-labels
-        %label.control-label.required= '<abbr title="required">*</abbr> Match name'.html_safe
+        %label.control-label.required= label_for_required 'Match name'
       .controls
         = select_tag :match_name, options_for_select(match_names), required: true, disabled: matches_to_join.empty?
     .control-group
       .control-labels
-        %label.control-label.required= '<abbr title="required">*</abbr> Seat'.html_safe
+        %label.control-label.required= label_for_required 'Seat'
       .controls
         - human_seat_options = matches_to_join.inject({}) do |hash, match|
           - hash[match.match_name] = match.human_opponent_seats.map { |s| s + 1 }

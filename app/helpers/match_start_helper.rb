@@ -25,4 +25,8 @@ module MatchStartHelper
       form << submit_tag('', :id => hidden_begin_match, style: 'visibility: hidden')
     end
   end
+
+  def label_for_required(label)
+    "<abbr title='required'>*</abbr> #{label}".html_safe
+  end
 end

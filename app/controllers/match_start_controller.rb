@@ -95,9 +95,10 @@ class MatchStartController < ApplicationController
 
   def rejoin
     match_name = params[:match_name].strip
+    seat = params[:seat].to_i
 
     begin
-      @match = Match.where(match_name: match_name).first
+      @match = Match.where(match_name: match_name, seat: seat).first
       raise unless @match
 
       respond_to do |format|
@@ -108,7 +109,7 @@ class MatchStartController < ApplicationController
       end
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\"."
+      reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\" in seat #{seat}."
       return
     end
   end

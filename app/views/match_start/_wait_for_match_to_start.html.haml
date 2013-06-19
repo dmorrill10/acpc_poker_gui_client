@@ -1,21 +1,28 @@
 :javascript
+  function startMatch() {
+    return $("##{hidden_begin_match}").submit();
+  };
   ws.onmessage = function(e) {
     switch (e.data) {
     case "#{ApplicationDefs::START_MATCH_REQUEST_CODE}":
     case "#{ApplicationDefs::START_PROXY_REQUEST_CODE}":
       console.log("Starting match");
-      $("##{hidden_begin_match}").submit();
+      startMatch();
       break;
     default:
-      // @todo Handle this better
       console.log('Unidentified reply: ' + e.data);
       break;
     };
   };
-  var request_to_start_match = "#{escape_javascript(@request_to_start_match.to_json)}";
-  if (!isBlank(request_to_start_match)) {
-    sendAndLog(ws, request_to_start_match);
-  }
+- unless @match.slices.empty?
+  :javascript
+    startMatch();
+- if @request_to_start_match
+  :javascript
+    var request_to_start_match = "#{escape_javascript(@request_to_start_match.to_json)}";
+    if (!isBlank(request_to_start_match)) {
+      sendAndLog(ws, request_to_start_match);
+    }
 
 = render partial: "layouts/navbar", locals: { partial: nil }
 .hero-unit

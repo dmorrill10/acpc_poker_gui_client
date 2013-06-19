@@ -1,0 +1,21 @@
+:javascript
+  $(".#{fold_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}"); });
+  $(".#{pass_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::CALL}"); });
+  $(".#{wager_html_class}").click(function() {
+    return submitAction(
+      (
+        "#{AcpcPokerTypes::PokerAction::RAISE}" +
+        wagerAmountField().val()
+      )
+    );
+  });
+  $(".#{next_hand_id}").click(function() { return updateState(); });
+
+  Hotkey.bind(".#{fold_html_class}", 'a');
+  Hotkey.bind(".#{pass_html_class}", 's');
+  Hotkey.bind(".#{wager_html_class}", 'd');
+  Hotkey.bind(".#{nav_leave_html_class}", 'q');
+  Hotkey.bind(".#{next_hand_id}", 'f');
+
+  // Must be done after initializing the websocket message sending click handlers
+  ActionDashboard.disableButtonsOnClick();

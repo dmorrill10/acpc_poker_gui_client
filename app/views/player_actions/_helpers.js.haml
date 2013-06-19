@@ -1,0 +1,19 @@
+:javascript
+  function updateState() {
+    return $(".#{update_id}").submit();
+  };
+  function wagerAmountField() {
+    return $('.wager_amount-num_field > input#modifier');
+  };
+  function submitAction(action) {
+    return sendAndLog(
+      ws,
+      JSON.stringify(
+        {
+          request: "#{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}",
+          match_id: "#{@match_view.match.id}",
+          action: action
+        }
+      )
+    );
+  };

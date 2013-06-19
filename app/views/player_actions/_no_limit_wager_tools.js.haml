@@ -1,0 +1,18 @@
+:javascript
+  ActionDashboard.adjustWagerOnSubmission(
+    parseInt("#{match_view.minimum_wager_to.to_i}"),
+    parseInt("#{match_view.user_contributions_in_previous_rounds.to_i}"),
+    parseInt("#{match_view.all_in.to_i}")
+  );
+  ActionDashboard.fixEnterWagerSubmission();
+
+  var sliderValues;
+  sliderValues = [
+    parseInt("#{match_view.minimum_wager_to.to_i}"),
+    parseInt("#{(match_view.pot_fraction_wager_to(1 / 2.to_f)).to_i}"),
+    parseInt("#{(match_view.pot_fraction_wager_to(3 / 4.to_f)).to_i}"),
+    parseInt("#{match_view.pot_fraction_wager_to.to_i}"),
+    parseInt("#{(match_view.pot_fraction_wager_to(2)).to_i}"),
+    parseInt("#{match_view.all_in.to_i}")
+  ];
+  WagerAmountSlider.initialize(sliderValues);

@@ -1,0 +1,12 @@
+:javascript
+  ws.onmessage = function(e) {
+    switch (e.data) {
+    case "#{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}":
+      console.log("Recieved #{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}");
+      updateState();
+      break;
+    default:
+      console.log('Unidentified reply: ' + e.data);
+      break;
+    };
+  };

@@ -1,18 +1,20 @@
 root = exports ? this
 
 root.GameInterface =
+  adjustPositionAfterScaling: (scaledElement, scaling, topOffset, containingElement)->
+    scaledHeight = scaledElement.height() * scaling
+    scaledElement.css({top: -(Math.floor((scaledElement.height() - scaledHeight) / 2.0) - topOffset), left: Math.floor((containingElement.width() - scaledElement.width()) / 2.0)})
   adjustScaleOnce: ->
     elementToScale = $('.game_interface')
-    widthRatio = $(window).width() / elementToScale.width()
-    heightRatio = ($(window).height() - $('.navbar').height()) / elementToScale.height()
+    windowBuffer = 1
+    widthRatio = ($(window).width() - windowBuffer) / elementToScale.width()
+    heightRatio = ($(window).height() - windowBuffer - $('.navbar').height()) / elementToScale.height()
 
     smallestRatio = Math.min(heightRatio, widthRatio)
 
     elementToScale.css('transform', 'scale(' + smallestRatio.toString() + ')')
 
-    scaledHeight = elementToScale.height() * smallestRatio
-
-    elementToScale.css({top: -(Math.ceil((elementToScale.height() - scaledHeight) / 2.0) - $('.navbar').height()), left: Math.ceil(($(window).width() - elementToScale.width()) / 2.0)})
+    @adjustPositionAfterScaling(elementToScale, smallestRatio, $('.navbar').height(), $(window))
 
     # Inversely scale slider and adjust width manually
     slider = $('.slider')
@@ -21,9 +23,8 @@ root.GameInterface =
 
     originalSliderWidth = 604 # Hardcoded slider width separate from that set in CSS, not sure how to get around this
     slider.width(originalSliderWidth * smallestRatio)
-    slider.css({left: -(Math.ceil((slider.width() - originalSliderWidth) / 2.0))})
+    slider.css({left: -(Math.floor((slider.width() - originalSliderWidth) / 2.0))})
   adjustScale: ->
-    jQuery(window).resize(->
-      GameInterface.adjustScaleOnce()
-    )
+    $(window).resize(=> @adjustScaleOnce())
     @adjustScaleOnce()
+    @adjustScaleOnce() # Ensures that the table fits properly into the window

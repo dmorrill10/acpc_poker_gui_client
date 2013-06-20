@@ -3,9 +3,6 @@ require 'mongoid'
 
 require_relative '../../lib/application_defs'
 
-# @todo Use this for DB recovery
-Mongoid.logger = nil
-
 require_relative 'match_slice'
 
 class Match
@@ -17,7 +14,9 @@ class Match
   scope :expired, ->(lifespan) do
     where(:updated_at.lt => (Time.new - lifespan))
   end
-
+  def self.finished
+    all.select { |match| match.finished? }
+  end
   def self.include_name
     field :name
     validates_presence_of :name
@@ -46,7 +45,7 @@ class Match
   def self.include_seat
     field :seat, type: Integer
   end
-  def self.delete_matches_older_than(lifespan)
+  def self.delete_matches_older_than!(lifespan)
     expired(lifespan).delete_all
   end
   def self.delete_match!(match_id)
@@ -92,18 +91,8 @@ class Match
   field :min_wagers, type: Array
   field :blinds, type: Array
 
-  def delete_previous_slices!(current_index)
-    if current_index > 0
-      slices.where(
-        :_id.in => (
-          slices[0..current_index-1].map do |slice|
-            slice.id
-          end
-        )
-      ).delete_all
-    else
-      0
-    end
+  def finished?
+    !slices.empty? && slices.last.match_ended?
   end
   def finish_starting!
     local_name = name_from_user.strip

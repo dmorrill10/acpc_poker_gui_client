@@ -49,13 +49,13 @@ def watch(name)
   end
 end
 
-def delete_matches_older_than(lifespan)
+def delete_matches_older_than!(lifespan)
   # These are needed to monitor the Match database and they must be done after
   #  ensuring that the database (mongod in this case) is running
   require "#{GOD_RAILS_ROOT}/lib/database_config"
   require "#{GOD_RAILS_ROOT}/app/models/match"
 
-  Match.delete_matches_older_than lifespan
+  Match.delete_matches_older_than! lifespan
 end
 
 def keep_match_database_tidy
@@ -72,7 +72,7 @@ def keep_match_database_tidy
     #  ignore it and try again tomorrow.
     w.start = lambda do
       begin
-        delete_matches_older_than(1.month)
+        delete_matches_older_than!(match_lifespan)
       rescue
       end
     end

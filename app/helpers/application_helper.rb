@@ -11,6 +11,8 @@ module ApplicationHelper
   FOOTER = 'match_start/footer' unless const_defined? :FOOTER
   REPLACE_CONTENTS_JS = 'shared/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
 
+  def match_lifespan() 1.month end
+
   def wait_for_match_to_start_partial() 'match_start/wait_for_match_to_start' end
 
   # Renders a shared +JavaScript+ template that replaces the old contents
@@ -21,7 +23,11 @@ module ApplicationHelper
   def replace_page_contents(replacement_partial, alert_message=nil)
     @alert_message = alert_message
     @replacement_partial = replacement_partial
-    render REPLACE_CONTENTS_JS, formats: [:js]
+    respond_to do |format|
+      format.js do
+        render REPLACE_CONTENTS_JS, formats: [:js]
+      end
+    end
   end
 
   def reset_to_match_entry_view(error_message=nil)

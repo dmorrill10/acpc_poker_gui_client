@@ -2,12 +2,12 @@
   $(".#{fold_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}"); });
   $(".#{pass_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::CALL}"); });
   $(".#{wager_html_class}").click(function() {
-    return submitAction(
-      (
-        "#{AcpcPokerTypes::PokerAction::RAISE}" +
-        wagerAmountField().val()
-      )
-    );
+    var wagerAmount = wagerAmountField().val();
+    var action = "#{AcpcPokerTypes::PokerAction::RAISE}"
+    if (!isBlank(wagerAmount)) {
+      action += wagerAmount;
+    }
+    return submitAction(action);
   });
   $(".#{next_hand_id}").click(function() { return nextHand(); });
 

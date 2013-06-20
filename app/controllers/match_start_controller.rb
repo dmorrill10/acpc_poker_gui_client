@@ -17,6 +17,8 @@ class MatchStartController < ApplicationController
 
   # Presents the main 'start a new game' view.
   def index
+    Match.finished.each { |m| m.delete }
+    Match.delete_matches_older_than! match_lifespan
     @match = Match.new
     respond_to do |format|
       format.html {} # Render the default partial

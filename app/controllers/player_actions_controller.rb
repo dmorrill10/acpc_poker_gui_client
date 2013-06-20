@@ -17,11 +17,7 @@ class PlayerActionsController < ApplicationController
 
   def index
     begin
-      respond_to do |format|
-        format.js do
-          replace_page_contents_with_updated_game_view params[:match_id]
-        end
-      end
+      replace_page_contents_with_updated_game_view params[:match_id]
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
@@ -36,9 +32,9 @@ class PlayerActionsController < ApplicationController
       return update unless @match_view.slice.hand_ended?
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem retrieving match #{params[:match_id]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
-      return
+      return reset_to_match_entry_view("Sorry, there was a problem retrieving match #{params[:match_id]}, please report this incident to #{ADMINISTRATOR_EMAIL}.")
     end
+    render nothing: true
   end
 
   def update
@@ -48,8 +44,7 @@ class PlayerActionsController < ApplicationController
 
       # Abort if there is only one slice in the match view
       if @match_view.match.slices.length < 2
-        replace_page_contents_with_updated_game_view params[:match_id]
-        return
+        return render(nothing: true)
       end
 
       # Delete the last slice since it's no longer needed

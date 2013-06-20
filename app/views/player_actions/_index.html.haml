@@ -6,9 +6,14 @@
 = render partial: 'adjust_sizes'
 = render partial: 'initial_focus'
 
+:javascript
+  var timerId;
+  if (timerId) {
+    clearInterval(timerId);
+  }
 - unless user_must_act?
   :javascript
-    updateState();
+    timerId = setInterval(updateState, 1500);
 .hidden
   = form_tag update_url, :remote => true do
     = hidden_field_tag :match_id, @match_view.match.id
@@ -19,5 +24,3 @@
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 = render partial: 'chip_balances'
 = render partial: 'game_interface'
-
-- Match.delete_match!(@match_view.match.id) if @match_view.slice.match_ended?

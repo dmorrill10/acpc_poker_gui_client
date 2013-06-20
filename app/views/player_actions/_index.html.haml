@@ -13,6 +13,9 @@
   = form_tag update_url, :remote => true do
     = hidden_field_tag :match_id, @match_view.match.id
     = submit_tag nil, class: update_id
+  = form_tag update_state_url, :remote => true do
+    = hidden_field_tag :match_id, @match_view.match.id
+    = submit_tag nil, class: update_state_html_class
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 = render partial: 'chip_balances'
 = render partial: 'game_interface'

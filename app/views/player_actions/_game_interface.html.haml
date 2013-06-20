@@ -23,7 +23,6 @@
   .action_dashboard{ class: if match_view.no_limit? then 'nolimit' else 'limit' end}
     - if match_view.slice.match_ended?
       .meta_action
-        -
         = button_tag leave_match_label, data: { disable_with: leave_match_label }, class: leave_match_button_html_class
     - elsif next_hand_button_visible?
       .meta_action

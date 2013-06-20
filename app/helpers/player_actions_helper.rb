@@ -35,6 +35,7 @@ module PlayerActionsHelper
   def wager_html_class() 'wager' end
   def next_hand_id() 'next_state' end
   def update_id() 'update' end
+  def update_state_html_class() 'update_state' end
   def leave_match_button_html_class() 'leave-btn' end
   def nav_leave_html_class() 'leave' end
   def leave_match_confirmation_message

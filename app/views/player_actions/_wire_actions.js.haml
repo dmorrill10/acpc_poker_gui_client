@@ -9,7 +9,7 @@
       )
     );
   });
-  $(".#{next_hand_id}").click(function() { return updateState(); });
+  $(".#{next_hand_id}").click(function() { return nextHand(); });
 
   Hotkey.bind(".#{fold_html_class}", 'a');
   Hotkey.bind(".#{pass_html_class}", 's');

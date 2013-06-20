@@ -29,6 +29,18 @@ class PlayerActionsController < ApplicationController
     end
   end
 
+  def update_state
+    begin
+      @match_view ||= MatchView.new params[:match_id]
+
+      return update unless @match_view.slice.hand_ended?
+    rescue => e
+      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
+      reset_to_match_entry_view "Sorry, there was a problem retrieving match #{params[:match_id]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return
+    end
+  end
+
   def update
     last_slice = nil
     begin
@@ -45,7 +57,7 @@ class PlayerActionsController < ApplicationController
       last_slice.delete
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice before taking action #{params[:user_poker_action]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
       return
     end
     begin

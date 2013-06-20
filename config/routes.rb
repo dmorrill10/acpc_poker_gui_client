@@ -7,6 +7,7 @@ AcpcPokerGuiClient::Application.routes.draw do
   # Routes for PlayerActions
   match 'match_home' => 'player_actions#index', :as => :match_home
   match 'update' => 'player_actions#update', as: :update
+  match 'update_state' => 'player_actions#update_state', as: :update_state
   match 'leave_match' => 'player_actions#leave_match', :as => :leave_match
 
   # Root of the site

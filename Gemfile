@@ -25,10 +25,6 @@ gem "haml", '~> 3.1'
 # For deployment. Phusion Passenger integrates the rails app. with Apache.
 gem 'passenger', '~>4.0'
 
-# Beanstalkd wrapper
-gem 'beanstalk-client'
-gem 'stalker', '~> 0.9'
-
 # To manage background processes
 gem 'god'
 

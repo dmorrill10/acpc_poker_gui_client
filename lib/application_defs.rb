@@ -76,11 +76,6 @@ module ApplicationDefs
   def self.random_seat(num_players)
     rand(num_players) + 1
   end
-  def self.users_seat_index(game_def_key, player_names)
-    player_names.index do |name|
-      GAME_DEFINITIONS[game_def_key][:bots][name].nil?
-    end
-  end
   def self.random_seed
     random_float = rand
     random_int = (random_float * 10**random_float.to_s.length).to_i

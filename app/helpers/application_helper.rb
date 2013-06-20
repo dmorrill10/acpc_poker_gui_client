@@ -1,5 +1,3 @@
-
-require 'stalker'
 require 'acpc_poker_types'
 
 # General controller/view helpers for this application.

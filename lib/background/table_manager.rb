@@ -182,9 +182,6 @@ class TableManager
     self
   end
 
-# @todo Should not be a list of proxies per match ID now
-#  something still isn't working for the second player not
-#  to start.
   def start_proxy!(match, connection_to_browser)
     match_processes = @table_information[match.id] || {}
     proxy = match_processes[:proxy]

@@ -18,34 +18,34 @@ module ApplicationDefs
 
   DEALER_MILLISECOND_TIMEOUT = 7 * 24 * 3600000 unless const_defined? :DEALER_MILLISECOND_TIMEOUT
 
-  HUMAN_OPPONENT_NAME = 'Human' unless const_defined? :HUMAN_OPPONENT_NAME
+  HUMAN_OPPONENT_NAME = 'OppositionUser' unless const_defined? :HUMAN_OPPONENT_NAME
 
-  USER_NAME = 'user' unless const_defined? :USER_NAME
+  USER_NAME = 'User' unless const_defined? :USER_NAME
 
   GAME_DEFINITIONS = -> do
     initial_hash = {
       two_player_nolimit: {
         file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
         text: '2-player no-limit',
-        bots: {'tester' => RunTestingBot},
+        bots: {'Tester' => RunTestingBot},
         num_players: 2
       },
       two_player_limit: {
         file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],
         text: '2-player limit',
-        bots: {'tester' => RunTestingBot},
+        bots: {'Tester' => RunTestingBot},
         num_players: 2
       },
       three_player_nolimit: {
         file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
         text: '3-player no-limit',
-        bots: {'tester' => RunTestingBot, 'NOTtester' => RunTestingBot},
+        bots: {'Tester' => RunTestingBot, 'Tester2' => RunTestingBot},
         num_players: 3
       },
       three_player_limit: {
         file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:limit],
         text: '3-player limit',
-        bots: {'tester' => RunTestingBot},
+        bots: {'Tester' => RunTestingBot},
         num_players: 3
       }
     }

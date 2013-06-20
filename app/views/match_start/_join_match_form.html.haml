@@ -12,12 +12,16 @@
         %label.control-label.required= label_for_required 'Seat'
       .controls
         - human_seat_options = matches_to_join.inject({}) do |hash, match|
-          - hash[match.name_from_user] = match.human_opponent_seats.map { |s| s }
+          / Removed seats already taken by players who have already joined this match
+          - hash[match.name_from_user] = match.human_opponent_seats.map { |s| s } - Match.where(name: match.name).map { |m| m.seat }
           - hash
         = select_tag :seat, grouped_options_for_select(human_seat_options)
     .form-actions
       - join_match_label = 'Join match'
-      = submit_tag join_match_label, class: 'btn btn-primary', data: { disable_with: join_match_label }, disabled: matches_to_join.empty?, id: 'join_match'
+      - options = { class: 'btn btn-primary', id: 'join_match' }
+      / Needed to work properly in Firefox 21
+      - options.merge(disabled: matches_to_join.empty?, data: { disable_with: join_match_label }) if matches_to_join.empty?
+      = submit_tag join_match_label, options
 :javascript
   DynamicSelector.makeDynamic('#match_name', '#seat')
   DynamicSelector.selectDefault('#match_name')

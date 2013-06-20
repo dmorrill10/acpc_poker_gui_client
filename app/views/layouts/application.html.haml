@@ -12,17 +12,11 @@
       = yield
 
 :javascript
-  // Let the library know where WebSocketMain.swf is:
-  // @todo Not sure if this location is correct...
-  WEB_SOCKET_SWF_LOCATION = "assets/javascripts/web-socket-js/WebSocketMain.swf";
-
-  // Write your code in the same way as for native WebSocket:
   var ws = new WebSocket("ws://localhost:#{ApplicationDefs::WEBSOCKET_PORT}/");
   ws.onopen = function() {
     console.log("websocket: onopen");
   };
   ws.onmessage = function(e) {
-    // Receives a message.
     console.log("websocket: onmessage: data: " + e.data);
   };
   ws.onclose = function() {

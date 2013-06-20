@@ -44,7 +44,10 @@ class PlayerActionsController < ApplicationController
 
       # Abort if there is only one slice in the match view
       if @match_view.match.slices.length < 2
-        return render(nothing: true)
+        # Although I think that nothing could be rendered here,
+        # that seems to have problems in production, but I'm
+        # not sure why.
+        return replace_page_contents_with_updated_game_view(params[:match_id])
       end
 
       # Delete the last slice since it's no longer needed
@@ -56,8 +59,7 @@ class PlayerActionsController < ApplicationController
       return
     end
     begin
-      replace_page_contents_with_updated_game_view params[:match_id]
-      return
+      return replace_page_contents_with_updated_game_view(params[:match_id])
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       # Save the last match state again so that it can

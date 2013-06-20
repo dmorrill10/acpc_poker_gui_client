@@ -1,12 +1,16 @@
 :javascript
   ws.onmessage = function(e) {
-    switch (e.data) {
+    var replyMsg = $.parseJSON(e.data);
+    switch (replyMsg.reply) {
+    case "#{ApplicationDefs::START_PROXY_REQUEST_CODE}":
     case "#{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}":
-      console.log("Recieved #{ApplicationDefs::PLAY_ACTION_REQUEST_CODE}");
-      updateState();
+      if (replyMsg.match_id === "#{match_view.match.id}") {
+        console.log("Updating state of match " + replyMsg.match_id);
+        updateState();
+      }
       break;
     default:
-      console.log('Unidentified reply: ' + e.data);
+      console.log('Unidentified reply: ' + replyMsg.reply);
       break;
     };
   };

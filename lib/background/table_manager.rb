@@ -49,17 +49,17 @@ class TableManager
   end
 
   def listen_to_gui
-    EventMachine::WebSocket.start(:host => "0.0.0.0", :port => ApplicationDefs::WEBSOCKET_PORT) do |ws|
-      ws.onopen do |handshake|
+    EventMachine::WebSocket.start(:host => "0.0.0.0", :port => ApplicationDefs::WEBSOCKET_PORT) do |connection_to_browser|
+      connection_to_browser.onopen do |handshake|
         log "#{__method__}: onopen", origin: handshake.origin
 
-        ws.close unless handshake.origin == @authorized_client_origin
+        connection_to_browser.close unless handshake.origin == @authorized_client_origin
       end
-      ws.onclose do |handshake|
+      connection_to_browser.onclose do |handshake|
         log "#{__method__}: onclose", handshake: handshake
       end
-      ws.onmessage do |msg|
-        Thread.new
+      connection_to_browser.onmessage do |msg|
+        Thread.new do
           log "#{__method__}: onmessage", msg: msg
 
           params = JSON.parse(msg)
@@ -76,26 +76,21 @@ class TableManager
                 opponents << bot_command
               end
 
-              start_opponents!(opponents)
-
-              start_proxy! match
-              ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+              start_opponents!(opponents).start_proxy!(match, connection_to_browser)
             when ApplicationDefs::START_PROXY_REQUEST_CODE
-              start_proxy! match
-              ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+              start_proxy! match, connection_to_browser
             when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
-              play! params, match
-              ws.send ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+              play! params, match, connection_to_browser
             else
               raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
             end
           end
         end
       end
-      ws.onerror do |e|
+      connection_to_browser.onerror do |e|
         error = {error: {message: e.message, backtrace: e.backtrace}}
         log "#{__method__}: onerror", error, Logger::Severity::ERROR
-        ws.send error.to_json unless e.kind_of?(EM::WebSocket::WebSocketError) # Notify the GUI
+        connection_to_browser.send error.to_json unless e.kind_of?(EM::WebSocket::WebSocketError) # Notify the GUI
         Rusen.notify e # Send an email notification
       end
 
@@ -190,18 +185,18 @@ class TableManager
 # @todo Should not be a list of proxies per match ID now
 #  something still isn't working for the second player not
 #  to start.
-  def start_proxy!(match)
+  def start_proxy!(match, connection_to_browser)
     match_processes = @table_information[match.id] || {}
-    proxies = match_processes[:player_proxy] || []
+    proxy = match_processes[:proxy]
 
     log __method__, {
       match_id: match.id,
       num_tables: @table_information.length,
       num_match_processes: match_processes.length,
-      num_proxies: proxies.length
+      proxy_present: !proxy.nil?
     }
 
-    return self if proxies[match.seat - 1]
+    return self if proxy
 
     begin
       game_definition = GameDefinition.parse_file(match.game_definition_file_name)
@@ -212,9 +207,8 @@ class TableManager
       match.min_wagers = game_definition.min_wagers
       match.blinds = game_definition.blinds
       save_match_instance match
-      @match = match
 
-      proxies[match.seat - 1] = WebApplicationPlayerProxy.new(
+      proxy = WebApplicationPlayerProxy.new(
         match.id,
         AcpcDealer::ConnectionInformation.new(
           match.port_numbers[match.seat - 1],
@@ -224,25 +218,40 @@ class TableManager
         game_definition,
         match.player_names.join(' '),
         match.number_of_hands
-      )
+      ) do |players_at_the_table|
+
+        log "#{__method__}: Initializing proxy", {
+          match_id: match.id,
+          at_least_one_state: !players_at_the_table.transition.next_state.nil?
+        }
+        connection_to_browser.send({
+          reply: ApplicationDefs::START_PROXY_REQUEST_CODE,
+          match_id: match.id
+        }.to_json)
+      end
     rescue => e
       handle_exception match.id, "unable to start the user's proxy: #{e.message}"
       raise e
     end
 
-    match_processes[:player_proxy] = proxies
+    log "#{__method__}: After starting proxy", {
+      match_id: match.id,
+      proxy_present: !proxy.nil?
+    }
+
+    match_processes[:proxy] = proxy
     @table_information[match.id] = match_processes
 
     self
   end
 
-  def play!(params, match)
+  def play!(params, match, connection_to_browser)
     unless @table_information[match.id]
       log(__method__, msg: "Ignoring request to play in match #{match.id} that doesn't exist.")
       return self
     end
 
-    proxy = @table_information[match.id][:player_proxy][match.seat - 1]
+    proxy = @table_information[match.id][:proxy]
 
     unless proxy
       log(__method__, msg: "Ignoring request to play in match #{match.id} in seat #{match.seat} when no such proxy exists.")
@@ -260,7 +269,12 @@ class TableManager
     }
 
     begin
-      proxy.play! action
+      proxy.play! action do |players_at_the_table|
+        connection_to_browser.send({
+          reply: ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
+          match_id: match.id
+        }.to_json)
+      end
     rescue => e
       handle_exception match.id, "unable to take action #{action.to_acpc}: #{e.message}"
       raise e

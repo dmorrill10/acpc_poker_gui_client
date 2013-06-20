@@ -3,13 +3,16 @@
     return $("##{hidden_begin_match}").submit();
   };
   ws.onmessage = function(e) {
-    switch (e.data) {
+    var replyMsg = $.parseJSON(e.data);
+    switch (replyMsg.reply) {
     case "#{ApplicationDefs::START_PROXY_REQUEST_CODE}":
-      console.log("Starting match");
-      startMatch();
+      if (replyMsg.match_id === "#{@match.id}") {
+        console.log("Starting match " + replyMsg.match_id);
+        startMatch();
+      }
       break;
     default:
-      console.log('Unidentified reply: ' + e.data);
+      console.log('Unidentified reply: ' + replyMsg.reply);
       break;
     };
   };

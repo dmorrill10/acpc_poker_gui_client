@@ -68,6 +68,7 @@ class MatchView
     opp
   end
   def next_player_to_act
+    ap _ID: @match.id, _SLICES: @match.slices if slice.nil?
     if slice.seat_next_to_act
       players[slice.seat_next_to_act]
     end

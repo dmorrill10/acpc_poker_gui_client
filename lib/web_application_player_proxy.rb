@@ -54,6 +54,8 @@ class WebApplicationPlayerProxy
 
       if players_at_the_table.transition.next_state
         update_database! players_at_the_table
+
+        yield players_at_the_table if block_given?
       else
         log __method__, {before_first_match_state: true}
       end
@@ -67,6 +69,8 @@ class WebApplicationPlayerProxy
 
     @player_proxy.play! action do |players_at_the_table|
       update_database! players_at_the_table
+
+      yield players_at_the_table if block_given?
     end
 
     self

@@ -32,8 +32,15 @@ class PlayerActionsController < ApplicationController
   def update
     last_slice = nil
     begin
-      # Delete the last slice since it's no longer needed
       @match_view ||= MatchView.new params[:match_id]
+
+      # Abort if there is only one slice in the match view
+      if @match_view.match.slices.length < 2
+        replace_page_contents_with_updated_game_view params[:match_id]
+        return
+      end
+
+      # Delete the last slice since it's no longer needed
       last_slice = @match_view.match.slices.first
       last_slice.delete
     rescue => e

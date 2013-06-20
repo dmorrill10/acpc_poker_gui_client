@@ -12,7 +12,7 @@
       = yield
 
 :javascript
-  var ws = new WebSocket("ws://localhost:#{ApplicationDefs::WEBSOCKET_PORT}/");
+  var ws = new WebSocket("ws://#{ApplicationDefs::WEBSOCKET_HOST}:#{ApplicationDefs::WEBSOCKET_PORT}/");
   ws.onopen = function() {
     console.log("websocket: onopen");
   };

@@ -9,6 +9,7 @@ Dir.glob("#{File.expand_path('../../', __FILE__)}/lib/bots/run_*_bot.rb").each d
   end
 end
 
+require 'socket'
 require 'acpc_dealer'
 
 # Assortment of constant definitions.
@@ -59,7 +60,8 @@ module ApplicationDefs
 
   MATCH_LOG_DIRECTORY = File.join(LOG_DIRECTORY, 'match_logs') unless const_defined? :MATCH_LOG_DIRECTORY
 
-  WEBSOCKET_PORT = 9999 unless const_defined? :WEBSOCKET_PORT # Arbitrary port
+  WEBSOCKET_HOST = Socket.gethostname unless const_defined? :WEBSOCKET_HOST
+  WEBSOCKET_PORT = 19999 unless const_defined? :WEBSOCKET_PORT # Arbitrary port
 
   START_MATCH_REQUEST_CODE = 'dealer' unless const_defined? :START_MATCH_REQUEST_CODE
   START_PROXY_REQUEST_CODE = 'proxy' unless const_defined? :START_PROXY_REQUEST_CODE

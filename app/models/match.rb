@@ -18,10 +18,16 @@ class Match
     where(:updated_at.lt => (Time.new - lifespan))
   end
 
-  def self.include_match_name
-    field :match_name
-    validates_presence_of :match_name
-    validates_uniqueness_of :match_name
+  def self.include_name
+    field :name
+    validates_presence_of :name
+    validates_format_of :name, without: /^\s*$/
+  end
+  def self.include_name_from_user
+    field :name_from_user
+    validates_presence_of :name_from_user
+    validates_format_of :name_from_user, without: /^\s*$/
+    validates_uniqueness_of :name_from_user
   end
   def self.include_game_definition
     field :game_definition_key, type: Symbol
@@ -39,12 +45,10 @@ class Match
   end
   def self.include_seat
     field :seat, type: Integer
-    # Can't validate since I want to allow nil and don't know how to
   end
   def self.delete_matches_older_than(lifespan)
     expired(lifespan).delete_all
   end
-
   def self.delete_match!(match_id)
     begin
       match = find match_id
@@ -53,7 +57,6 @@ class Match
       match.delete
     end
   end
-
   def self.start_match(
     name,
     game_definition_key,
@@ -63,10 +66,10 @@ class Match
     random_seed=nil
   )
     new(
-      "match_name" => name,
+      "name_from_user" => name,
       "game_definition_key" => game_definition_key,
-      "opponent_names"=>opponent_names,
-      'seat'=>seat,
+      "opponent_names" => opponent_names,
+      'seat'=> seat,
       "number_of_hands" => number_of_hands,
       "random_seed" => random_seed
     ).finish_starting!
@@ -76,7 +79,8 @@ class Match
   field :port_numbers, type: Array
   field :random_seed, type: Integer
 
-  include_match_name
+  include_name
+  include_name_from_user
   include_game_definition
   include_number_of_hands
   include_opponent_names
@@ -102,8 +106,9 @@ class Match
     end
   end
   def finish_starting!
-    local_match_name = match_name.strip
-    self.match_name = local_match_name
+    local_name = name_from_user.strip
+    self.name = local_name
+    self.name_from_user = local_name
 
     game_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key]
 
@@ -157,10 +162,10 @@ class Match
     local_port_numbers
   end
   def human_opponent_seats
-    player_names.each_index.select{ |i| player_names[i] == ApplicationDefs::HUMAN_OPPONENT_NAME }
+    player_names.each_index.select{ |i| player_names[i] == ApplicationDefs::HUMAN_OPPONENT_NAME }.map { |s| s + 1 }
   end
   def human_opponent_ports
-    human_opponent_seats.map { |human_opp_seat| opponent_ports[human_opp_seat] }
+    human_opponent_seats.map { |human_opp_seat| port_numbers[human_opp_seat - 1] }
   end
   def bot_opponent_ports
     local_opponent_ports = opponent_ports

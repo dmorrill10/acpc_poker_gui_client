@@ -28,15 +28,6 @@ class MatchView
   def self.chip_contribution_after_calling(player)
     player['chip_contributions'].inject(:+) + player['amount_to_call']
   end
-  def self.failsafe_while_for_match(match_id, method_for_condition)
-    match_view = new match_id
-    ApplicationDefs::failsafe_while(
-      ->{ method_for_condition.call(match_view.match) }
-    ) do
-      match_view = new match_id
-    end
-    match_view
-  end
   def user_contributions_in_previous_rounds(
     round = user['chip_contributions'].length - 1
   )

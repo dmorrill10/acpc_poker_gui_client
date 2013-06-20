@@ -43,14 +43,9 @@ class MatchStartController < ApplicationController
       return
     end
 
-    @request_to_start_match = {
-      request: 'dealer',
+    @request_to_start_match_or_proxy = {
+      request: ApplicationDefs::START_MATCH_REQUEST_CODE,
       match_id: @match.id,
-      match_name: @match.match_name,
-      game_def_file_name: @match.game_definition_file_name,
-      number_of_hands: @match.number_of_hands.to_s,
-      random_seed: @match.random_seed.to_s,
-      player_names: @match.player_names.join(' '),
       options: [
         '-a', # Append logs with the same name rather than overwrite
         "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
@@ -72,16 +67,32 @@ class MatchStartController < ApplicationController
     seat = params[:seat].to_i
 
     begin
-      @match = Match.where(match_name: match_name).first
-      raise unless @match
+      opponent_users_match = Match.where(name_from_user: match_name).first
+      raise unless opponent_users_match
+
+      # Copy match information
+      @match = opponent_users_match.dup
+      underscore = '_'
+      @match.name_from_user = underscore
+      while !@match.save do
+        @match.name_from_user << underscore
+      end
 
       # Swap seat
-      @match.opponent_names.insert(@match.seat - 1, HUMAN_OPPONENT_NAME)
-      @match.opponent_names.delete_at(seat - 1)
       @match.seat = seat
+      @match.opponent_names.insert(
+        opponent_users_match.seat - 1,
+        HUMAN_OPPONENT_NAME
+      )
+      @match.opponent_names.delete_at(seat - 1)
+      @match.save!(validate: false)
+
+      @request_to_start_match_or_proxy = {
+        request: ApplicationDefs::START_PROXY_REQUEST_CODE,
+        match_id: @match.id
+      }
 
       respond_to do |format|
-        format.html { render partial: wait_for_match_to_start_partial }
         format.js do
           replace_page_contents wait_for_match_to_start_partial
         end
@@ -98,11 +109,10 @@ class MatchStartController < ApplicationController
     seat = params[:seat].to_i
 
     begin
-      @match = Match.where(match_name: match_name, seat: seat).first
+      @match = Match.where(name: match_name, seat: seat).first
       raise unless @match
 
       respond_to do |format|
-        format.html { render partial: wait_for_match_to_start_partial }
         format.js do
           replace_page_contents wait_for_match_to_start_partial
         end

@@ -59,35 +59,36 @@ class TableManager
         log "#{__method__}: onclose", handshake: handshake
       end
       ws.onmessage do |msg|
-        log "#{__method__}: onmessage", msg: msg
+        Thread.new
+          log "#{__method__}: onmessage", msg: msg
 
-        params = JSON.parse(msg)
+          params = JSON.parse(msg)
 
-        log "#{__method__}: onmessage", params: params
+          log "#{__method__}: onmessage", params: params
 
-        ->(&block) { block.call match_instance(params.retrieve_match_id_or_raise_exception) }.call do |match|
-          case params[ApplicationDefs::REQUEST_KEY]
-          when ApplicationDefs::START_MATCH_REQUEST_CODE
-            start_dealer!(params, match)
+          ->(&block) { block.call match_instance(params.retrieve_match_id_or_raise_exception) }.call do |match|
+            case params[ApplicationDefs::REQUEST_KEY]
+            when ApplicationDefs::START_MATCH_REQUEST_CODE
+              start_dealer!(params, match)
 
-            opponents = []
-            match.every_bot(DEALER_HOST) do |bot_command|
-              opponents << bot_command
+              opponents = []
+              match.every_bot(DEALER_HOST) do |bot_command|
+                opponents << bot_command
+              end
+
+              start_opponents!(opponents)
+
+              start_proxy! match
+              ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+            when ApplicationDefs::START_PROXY_REQUEST_CODE
+              start_proxy! match
+              ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
+            when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+              play! params, match
+              ws.send ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+            else
+              raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
             end
-
-            start_opponents!(opponents).start_proxy!(params, match)
-
-            ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
-          when ApplicationDefs::START_PROXY_REQUEST_CODE
-            start_proxy! params, match
-
-            ws.send ApplicationDefs::START_PROXY_REQUEST_CODE
-          when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
-            play! params, match
-
-            ws.send ApplicationDefs::PLAY_ACTION_REQUEST_CODE
-          else
-            raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
           end
         end
       end
@@ -114,11 +115,11 @@ class TableManager
     end
 
     dealer_arguments = {
-      match_name: params.retrieve_parameter_or_raise_exception('match_name'),
-      game_def_file_name: params.retrieve_parameter_or_raise_exception('game_def_file_name'),
-      hands: params.retrieve_parameter_or_raise_exception('number_of_hands'),
-      random_seed: params.retrieve_parameter_or_raise_exception('random_seed'),
-      player_names: params.retrieve_parameter_or_raise_exception('player_names'),
+      match_name: match.name,
+      game_def_file_name: match.game_definition_file_name,
+      hands: match.number_of_hands,
+      random_seed: match.random_seed.to_s,
+      player_names: match.player_names.join(' '),
       options: (params['options'] || {})
     }
     log_directory = params['log_directory']
@@ -186,7 +187,10 @@ class TableManager
     self
   end
 
-  def start_proxy!(params, match)
+# @todo Should not be a list of proxies per match ID now
+#  something still isn't working for the second player not
+#  to start.
+  def start_proxy!(match)
     match_processes = @table_information[match.id] || {}
     proxies = match_processes[:player_proxy] || []
 

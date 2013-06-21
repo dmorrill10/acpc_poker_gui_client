@@ -20,7 +20,7 @@
       - join_match_label = 'Join match'
       - options = { class: 'btn btn-primary', id: 'join_match' }
       / Needed to work properly in Firefox 21
-      - options.merge(disabled: matches_to_join.empty?, data: { disable_with: join_match_label }) if matches_to_join.empty?
+      - options.merge!(disabled: 'disabled', data: { disable_with: join_match_label }) if matches_to_join.empty?
       = submit_tag join_match_label, options
 :javascript
   DynamicSelector.makeDynamic('#match_name', '#seat')

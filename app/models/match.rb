@@ -91,6 +91,14 @@ class Match
   field :min_wagers, type: Array
   field :blinds, type: Array
 
+  # User preferences
+
+  # Must have fields defining:
+  #   +element_to_click+, string representing the HTML element to click,
+  #   +action_label+, human readable label for the action this hotkey activates
+  #   +key+, the key in JQuery.hotkeys format.
+  field :hotkeys, type: Hash
+
   def finished?
     !slices.empty? && slices.last.match_ended?
   end

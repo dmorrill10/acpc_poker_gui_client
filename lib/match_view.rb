@@ -81,7 +81,7 @@ class MatchView
       next_player_to_act['amount_to_call'] +
       next_player_to_act['chip_contributions'].last,
       all_in
-    ].min
+    ].min.round
   end
   def pot
     players.inject(0) { |sum, player| sum += player['chip_contributions'].inject(:+) }
@@ -106,7 +106,7 @@ class MatchView
         minimum_wager_to
       ].max,
       all_in
-    ].min
+    ].min.round
   end
   # Over round
   def all_in
@@ -114,7 +114,7 @@ class MatchView
     (
       next_player_to_act['chip_stack'] +
       next_player_to_act['chip_contributions'].last
-    )
+    ).round
   end
   # Over round
   def betting_sequence

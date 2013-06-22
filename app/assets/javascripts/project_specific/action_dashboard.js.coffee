@@ -24,18 +24,18 @@ root.ActionDashboard =
     else
       wager_to_amount_over_round
   adjustWagerOnSubmission: (minimum_wager_to, user_contributions_in_previous_rounds, all_in_to)->
-    $('.wager').click((e)=>
-      if $('.wager_amount-num_field > input#modifier').length == 0
+    wagerSubmission().click((e)=>
+      if wagerAmountField().length == 0
         return
-      wager_to_amount_over_round = parseInt($('.wager_amount-num_field > input#modifier').val())
+      wager_to_amount_over_round = parseInt(wagerAmountField().val())
       wager_to_amount_over_round = @adjustSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to)
       wager_to_amount_over_round = @adjustLargeWager(wager_to_amount_over_round, all_in_to)
       wager_to_amount_over_hand = wager_to_amount_over_round + user_contributions_in_previous_rounds
 
-      $('.wager_amount-num_field > input#modifier').val(wager_to_amount_over_hand.toString())
+      wagerAmountField().val(wager_to_amount_over_hand.toString())
     )
   fixEnterWagerSubmission: ->
-    $('.wager_amount-num_field > input#modifier').keypress((evt)->
+    wagerAmountField().keypress((evt)->
       if evt.keyCode == 13 && !$('.wager').attr('disabled')
         evt.preventDefault()
         $('.wager').click()

@@ -10,12 +10,18 @@
     return submitAction(action);
   });
   $(".#{next_hand_id}").click(function() { return nextHand(); });
-
-  Hotkey.bind(".#{fold_html_class}", 'a');
-  Hotkey.bind(".#{pass_html_class}", 's');
-  Hotkey.bind(".#{wager_html_class}", 'd');
-  Hotkey.bind(".#{nav_leave_html_class}", 'q');
-  Hotkey.bind(".#{next_hand_id}", 'f');
-
+- match_view.match.hotkeys.each do |hotkey|
+  :javascript
+    Hotkey.bind("#{hotkey['element_to_click']}", "#{hotkey['key']}");
+- match_view.match.wager_hotkeys.each do |hotkey|
+  - wager_amount = if hotkey['pot_fraction'] < 0
+    - match_view.all_in
+  - elsif hotkey['pot_fraction'] > 0
+    - match_view.pot_fraction_wager_to(hotkey['pot_fraction'])
+  - else
+    - match_view.minimum_wager_to
+  :javascript
+    Hotkey.bindWager("#{hotkey['pot_fraction'].to_s}", "#{wager_amount}", "#{hotkey['key']}");
+:javascript
   // Must be done after initializing the websocket message sending click handlers
   ActionDashboard.disableButtonsOnClick();

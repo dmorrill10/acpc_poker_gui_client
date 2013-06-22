@@ -205,7 +205,7 @@ describe MatchView do
       @patient.pot_fraction_wager_to.should ==(
         contribution_in_first_round * 2 + amount_to_call +
         contribution_in_first_round + amount_to_call
-      )
+      ).round
     end
     it 'works for different fractions' do
       [1/2.to_f, 3/4.to_f, 1, 2].each do |fraction|
@@ -226,7 +226,7 @@ describe MatchView do
           fraction *
           (contribution_in_first_round * 2 + amount_to_call) +
           contribution_in_first_round + amount_to_call
-        )
+        ).round
       end
     end
   end

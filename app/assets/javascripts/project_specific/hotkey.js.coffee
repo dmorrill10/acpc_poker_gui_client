@@ -2,15 +2,22 @@ root = exports ? this
 
 root.wagerAmountField = ->
   $('.wager_amount-num_field > input#modifier')
+root.wagerSubmission = ->
+  $('.wager')
 
 root.Hotkey =
   bind: (elementToClick, key) ->
     eventName = "keypress.action-#{elementToClick}"
-    @bindToDocumentAndWagerAmountField(elementToClick, key, eventName)
-  bindToDocumentAndWagerAmountField: (elementToClick, key, eventName)->
-    @bindTo(elementToClick, key, eventName, document)
-    @bindTo(elementToClick, key, eventName, wagerAmountField())
-  bindTo: (elementToClick, key, eventName, elementToWhichToBind)->
-    $(elementToWhichToBind).off("#{eventName}").on("#{eventName}", null, key, (evt)->
+    @bindToDocumentAndWagerAmountField(key, eventName, (evt)->
       $(elementToClick).click() unless $(elementToClick).is(':disabled')
+    )
+  bindToDocumentAndWagerAmountField: (key, eventName, callback)->
+    @bindTo(key, eventName, document, callback)
+    @bindTo(key, eventName, wagerAmountField(), callback)
+  bindTo: (key, eventName, elementToWhichToBind, callback)->
+    $(elementToWhichToBind).off("#{eventName}").on("#{eventName}", null, key, callback)
+  bindWager: (fraction, amountToWager, key) ->
+    @bindToDocumentAndWagerAmountField(key, "keypress.action-#{fraction}", (evt)->
+      wagerAmountField().val(amountToWager)
+      wagerSubmission().click() unless wagerSubmission().is(':disabled')
     )

@@ -93,11 +93,16 @@ class Match
 
   # User preferences
 
-  # Must have fields defining:
-  #   +element_to_click+, string representing the HTML element to click,
-  #   +action_label+, human readable label for the action this hotkey activates
-  #   +key+, the key in JQuery.hotkeys format.
-  field :hotkeys, type: Hash
+  # Each element must be a Hash defining:
+  #   +'element_to_click'+, string representing the HTML element to click,
+  #   +'action_label'+, human readable label for the action this hotkey activates, and
+  #   +'key'+, the key in JQuery.hotkeys format.
+  field :hotkeys, type: Array
+  # Each element must be a Hash defining:
+  #   +'pot_fraction'+, Float fraction of the pot to wager,
+  #   +'action_label'+, human readable label for the action this hotkey activates, and
+  #   +'key'+, the key in JQuery.hotkeys format.
+  field :wager_hotkeys, type: Array
 
   def finished?
     !slices.empty? && slices.last.match_ended?
@@ -122,6 +127,68 @@ class Match
     self.opponent_names ||= (game_info[:num_players] - 1).times.map { |i| "tester" }
 
     self.number_of_hands ||= 1
+
+    # @todo I'm using literal strings when they should be constants, but I'm not sure where these should live yet
+    self.hotkeys = [
+      {
+        'element_to_click' => ".fold",
+        'key' => 'A',
+        'action_label' => 'Fold'
+      },
+      {
+        'element_to_click' => ".pass",
+        'key' => 'S',
+        'action_label' => 'Check / Call'
+      },
+      {
+        'element_to_click' => ".wager",
+        'key' => 'D',
+        'action_label' => 'Bet / Raise'
+      },
+      {
+        'element_to_click' => ".next_state",
+        'key' => 'F',
+        'action_label' => 'Next Hand'
+      },
+      {
+        'element_to_click' => ".leave",
+        'key' => 'Q',
+        'action_label' => 'Leave Match'
+      }
+    ]
+
+    self.wager_hotkeys = [
+      {
+        'pot_fraction' => 0, # Code for min
+        'key' => 'Z',
+        'action_label' => 'Min'
+      },
+      {
+        'pot_fraction' => 1/2.to_f,
+        'key' => 'X',
+        'action_label' => 'Half Pot'
+      },
+      {
+        'pot_fraction' => 3/4.to_f,
+        'key' => 'C',
+        'action_label' => 'Three-quarters Pot'
+      },
+      {
+        'pot_fraction' => 1,
+        'key' => 'V',
+        'action_label' => 'Pot'
+      },
+      {
+        'pot_fraction' => 2,
+        'key' => 'B',
+        'action_label' => 'Two Pot'
+      },
+      {
+        'pot_fraction' => -1, # Code for all-in
+        'key' => 'N',
+        'action_label' => 'All-in'
+      }
+    ]
 
     save!
 

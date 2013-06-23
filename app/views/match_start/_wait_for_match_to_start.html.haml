@@ -27,8 +27,9 @@
     }
 
 = render partial: "layouts/navbar", locals: { partial: nil }
-.hero-unit
-  .header-info Please wait for players to connect to the dealer...
-.hidden= hidden_begin_match_form(@match.id)
+.loading
+  .hero-unit
+    .header-info Please wait for players to connect to the dealer...
+  .hidden= hidden_begin_match_form(@match.id)
 
-= render partial: ApplicationHelper::FOOTER
+  = render partial: ApplicationHelper::FOOTER

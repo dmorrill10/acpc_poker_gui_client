@@ -32,4 +32,12 @@ module ApplicationHelper
     @match = Match.new
     replace_page_contents NEW_MATCH_PARTIAL, error_message
   end
+
+  def link_with_glyph(link_text, link_target, glyph, options={})
+    link_to link_target, options do
+      inserted_html = "#{content_tag(:i, nil, class: 'icon-' << glyph)} #{link_text}".html_safe
+      inserted_html << yield if block_given?
+      inserted_html
+    end
+  end
 end

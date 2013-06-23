@@ -4,6 +4,7 @@
 
 html
   font-size: rem($base-fontSize)
+  height: 100%
 
 body
   background-color: $base-background-color
@@ -12,12 +13,20 @@ body
   font-family: $base-fontFamily
   font-size: 100%
   line-height: $base-lineHeight
+  height: 100%
+
+.container
+  height: 100%
 
 footer
   text-align: center
 
 .navbar
   margin: 0
+
+.loading
+  cursor: wait
+  height: 100%
 
 .hidden
   @extend %noSize
@@ -49,8 +58,9 @@ p
 a
   color: $base-link-color
   text-decoration: none
-  &:hover,
-  &:focus
-    text-decoration: underline
+  text-shadow: 0 1px 0 white
+  &:hover, &:focus
+    color: #212121
+    text-decoration: none
   img
     border: none

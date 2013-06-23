@@ -1,8 +1,10 @@
+/ :javascript
+/   $('#customize_hotkeys').modal();
 %ul.nav
   %li
     = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
   %li.dropdown
-    %a.dropdown-toggle{:data => {:toggle => "dropdown"}, role: 'button', :href => "#"}= 'Hotkeys <b class="caret"></b>'.html_safe
+    %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
     %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}
       %thead
         %tr
@@ -16,9 +18,37 @@
       - if match_view.no_limit?
         %thead
           %tr
-            %th Wagers
+            %th{colspan: 2} Wagers
         %tbody
           - match_view.match.wager_hotkeys.each do |hotkey|
             %tr
               %td= hotkey['action_label']
               %td= hotkey['key'].capitalize
+        %thead
+          %tr
+            %th{colspan: 2}= link_with_glyph 'Customize', '#customize_hotkeys', 'edit', data: { toggle: 'modal' }
+- customize_hotkeys_dialog_label = 'Customize Hotkeys'
+#customize_hotkeys.modal.hide.fade{ tabindex: -1, role: "dialog", aria: { labelledby: customize_hotkeys_dialog_label, hidden: "true" } }
+  .modal-header
+    %h3= customize_hotkeys_dialog_label
+  %table.modal-body.table.table-striped
+    %thead
+      %tr
+        %th Action
+        %th Key
+    %tbody
+      - match_view.match.hotkeys.each do |hotkey|
+        %tr
+          %td= hotkey['action_label']
+          %td= hotkey['key'].capitalize
+    - if match_view.no_limit?
+      %thead
+        %tr
+          %th{colspan: 2} Wagers
+      %tbody
+        - match_view.match.wager_hotkeys.each do |hotkey|
+          %tr
+            %td= hotkey['action_label']
+            %td= hotkey['key'].capitalize
+  .modal-footer
+    %button

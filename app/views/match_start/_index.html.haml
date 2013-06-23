@@ -1,13 +1,14 @@
 = render partial: 'layouts/navbar', locals: { partial: nil }
-#match_entry_tabs
-  %ul
-    %li= link_to 'New match', '#new_match_form'
-    %li= link_to 'Join match', '#join_match_form'
-    %li= link_to 'Rejoin match', '#rejoin_match_form'
-  = render partial: 'match_start/new_match_form'
-  = render partial: 'match_start/join_match_form'
-  = render partial: 'match_start/rejoin_match_form'
+.match_start
+  %ul.match_start_tabs.nav.nav-tabs
+    %li= link_to('New match', '#new_match_form', data: { toggle: 'tab' })
+    %li= link_to('Join match', '#join_match_form', data: { toggle: 'tab' })
+    %li= link_to('Rejoin match', '#rejoin_match_form', data: { toggle: 'tab' })
+  .match_start_tabs-content.tab-content
+    = render(partial: 'match_start/new_match_form')
+    = render(partial: 'match_start/join_match_form')
+    = render(partial: 'match_start/rejoin_match_form')
 = render partial: ApplicationHelper::FOOTER
 
 :javascript
-  $('#match_entry_tabs').tabs();
+  $('.match_start_tabs a:first').tab('show')

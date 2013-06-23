@@ -1,4 +1,4 @@
-#join_match_form
+#join_match_form.tab-pane
   = form_tag join_match_url, remote: true, class: 'form-horizontal' do
     - matches_to_join = Match.all.select { |m| m.opponent_names && m.opponent_names.include?(ApplicationDefs::HUMAN_OPPONENT_NAME) && m.slices.empty? && !m.name_from_user.match(/^_+$/) }
     - match_names = matches_to_join.map { |m| m.name_from_user }

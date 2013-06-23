@@ -1,5 +1,3 @@
-/ :javascript
-/   $('#customize_hotkeys').modal();
 %ul.nav
   %li
     = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
@@ -20,10 +18,20 @@
           %tr
             %th{colspan: 2} Wagers
         %tbody
+          %tr
+            %td= match_view.match.min_wager_hotkey['action_label']
+            %td= match_view.match.min_wager_hotkey['key']
           - match_view.match.wager_hotkeys.each do |hotkey|
             %tr
-              %td= hotkey['action_label']
+              - pot_fraction_label = if hotkey['pot_fraction'] == 1
+                - 'Pot'
+              - else
+                - "#{hotkey['pot_fraction']}xPot"
+              %td= pot_fraction_label
               %td= hotkey['key'].capitalize
+          %tr
+            %td= match_view.match.all_in_hotkey['action_label']
+            %td= match_view.match.all_in_hotkey['key']
         %thead
           %tr
             %th{colspan: 2}= link_with_glyph 'Customize', '#customize_hotkeys', 'edit', data: { toggle: 'modal' }
@@ -46,9 +54,19 @@
         %tr
           %th{colspan: 2} Wagers
       %tbody
+        %tr
+          %td= match_view.match.min_wager_hotkey['action_label']
+          %td= match_view.match.min_wager_hotkey['key']
         - match_view.match.wager_hotkeys.each do |hotkey|
           %tr
-            %td= hotkey['action_label']
+            - pot_fraction_label = if hotkey['pot_fraction'] == 1
+              - 'Pot'
+            - else
+              - "#{hotkey['pot_fraction']}xPot"
+            %td= pot_fraction_label
             %td= hotkey['key'].capitalize
+        %tr
+          %td= match_view.match.all_in_hotkey['action_label']
+          %td= match_view.match.all_in_hotkey['key']
   .modal-footer
     %button

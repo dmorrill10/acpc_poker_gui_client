@@ -98,6 +98,10 @@ class Match
   #   +'action_label'+, human readable label for the action this hotkey activates, and
   #   +'key'+, the key in JQuery.hotkeys format.
   field :hotkeys, type: Array
+
+  field :min_wager_hotkey, type: Hash
+  field :all_in_hotkey, type: Hash
+
   # Each element must be a Hash defining:
   #   +'pot_fraction'+, Float fraction of the pot to wager,
   #   +'action_label'+, human readable label for the action this hotkey activates, and
@@ -156,37 +160,30 @@ class Match
         'action_label' => 'Leave Match'
       }
     ]
-
+    self.min_wager_hotkey = {
+      'key' => 'Z',
+      'action_label' => 'Min'
+    }
+    self.all_in_hotkey = {
+      'key' => 'N',
+      'action_label' => 'All-in'
+    }
     self.wager_hotkeys = [
       {
-        'pot_fraction' => 0, # Code for min
-        'key' => 'Z',
-        'action_label' => 'Min'
-      },
-      {
         'pot_fraction' => 1/2.to_f,
-        'key' => 'X',
-        'action_label' => 'Half Pot'
+        'key' => 'X'
       },
       {
         'pot_fraction' => 3/4.to_f,
-        'key' => 'C',
-        'action_label' => 'Three-quarters Pot'
+        'key' => 'C'
       },
       {
         'pot_fraction' => 1,
-        'key' => 'V',
-        'action_label' => 'Pot'
+        'key' => 'V'
       },
       {
         'pot_fraction' => 2,
-        'key' => 'B',
-        'action_label' => 'Two Pot'
-      },
-      {
-        'pot_fraction' => -1, # Code for all-in
-        'key' => 'N',
-        'action_label' => 'All-in'
+        'key' => 'B'
       }
     ]
 

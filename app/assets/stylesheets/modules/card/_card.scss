@@ -18,7 +18,7 @@
 .card {
    @include zen-grid-container;
 
-   $blank_card_color: #eddf94;
+   $blank_card_color: $triad-color-3;
    @include set_card_color($blank_card_color);
 
    height: $card_height;

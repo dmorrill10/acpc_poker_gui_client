@@ -6,11 +6,10 @@
 
 .poker_table
   @include zen-grid-container
-  @include soft_edges(#8B4513, 100%, 500px 500px 500px 500px)
+  @include soft_edges($triad-color-2-dark, 100%, 500px 500px 500px 500px)
+  +contrasted($l-poker_table-background-color)
 
-  background: image-url('nick_morrill/small_felt.jpg')
-
-  color: #ff8
+  background-image: image-url('nick_morrill/small_felt.jpg')
 
   height: 447px
 
@@ -60,7 +59,7 @@
       @include parent_grid($l-community_information-column-count)
       @include zen-grid-item(2, 8)
       .chip_stack
-        @include chip_stack(#550155)
+        @include chip_stack($l-poker_table-pot-color)
         @extend %centerHorizontally
     .summary_information
       @include parent_grid($l-community_information-column-count)

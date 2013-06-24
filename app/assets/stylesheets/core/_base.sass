@@ -20,6 +20,10 @@ body
 
 footer
   text-align: center
+  a
+    color: $triad-color-1-dark
+    &:hover, &:focus
+      color: darken($triad-color-1-dark, $base-color-spread)
 
 .navbar
   margin: 0
@@ -47,6 +51,10 @@ footer
   font-size: rem($base-fontSize * 3)
   line-height: 1
   font-weight: 900
+.btn-primary
+  +buttonBackground($triad-color-1-light, $triad-color-1-dark)
+.btn-info
+  +buttonBackground(lighten($triad-color-3, 10%), darken($triad-color-3, 10%))
 
 // ----- Block Content ----- //
 

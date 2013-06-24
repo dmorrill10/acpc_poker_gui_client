@@ -2,13 +2,14 @@
 @import '../poker_table/poker_table-defs'
 
 .action_dashboard
-  @include parent_grid($l-poker_table-column-count)
-  @include zen-grid-item($l-poker_table-column-count, 1)
-  @include zen-nested-container
+  +parent_grid($l-poker_table-column-count)
+  +zen-grid-item($l-poker_table-column-count, 1)
+  +zen-nested-container
 
-  $dark_background_color: darken($c-action_dashboard-background-color, 30%)
-  @include soft_edges($dark_background_color)
-  @include background-image(linear-gradient(top, $c-action_dashboard-background-color, $dark_background_color))
+  $light_background_color: lighten($c-action_dashboard-background-color, $base-color-spread)
+  +soft_edges($light_background_color)
+  +background-image(linear-gradient(top, $c-action_dashboard-background-color, $light_background_color))
+  color: white
 
   $l-action_dashboard-height: 150px
   height: $l-action_dashboard-height
@@ -17,8 +18,8 @@
     margin: 0
   $l-poker_actn_btn-height: 90px
   .meta_action
-    @include parent_grid($l-action_dashboard-column-count)
-    @include zen-grid-item(1, 2)
+    +parent_grid($l-action_dashboard-column-count)
+    +zen-grid-item(1, 2)
     %a_button
       @extend .btn
       @extend .btn-info
@@ -32,35 +33,35 @@
     a
       @extend %a_button
   .wager_amount-num_field
-    @include parent_grid($l-action_dashboard-column-count)
-    @include zen-grid-item(1, 3)
+    +parent_grid($l-action_dashboard-column-count)
+    +zen-grid-item(1, 3)
     input
       float: right
       margin-bottom: 0
       margin-top: 10px
   .actions
-    @include parent_grid($l-action_dashboard-column-count)
-    @include zen-grid-item($l-action_dashboard-column-count, 1)
-    @include zen-nested-container
-    @include zen-clear
+    +parent_grid($l-action_dashboard-column-count)
+    +zen-grid-item($l-action_dashboard-column-count, 1)
+    +zen-nested-container
+    +zen-clear
 
     $num_actions: 3
     .poker_actn_btn
-      @include parent_grid($num_actions)
+      +parent_grid($num_actions)
 
     @for $n from 1 through $num_actions
       .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
-        @include zen-grid-item(1, $n)
+        +zen-grid-item(1, $n)
 
     .poker_actn_btn
       $l-poker_actn_btn-column-count: 1
-      @include zen-nested-container
+      +zen-nested-container
 
       button
         @extend .btn
         @extend .btn-primary
-        @include parent_grid($l-poker_actn_btn-column-count)
-        @include zen-grid-item($l-poker_actn_btn-column-count, 1)
+        +parent_grid($l-poker_actn_btn-column-count)
+        +zen-grid-item($l-poker_actn_btn-column-count, 1)
 
         height: $l-poker_actn_btn-height - 2 * $default_border_width
 

@@ -2,6 +2,7 @@
 
 @import ../abstract/chip_stack-defs
 @import ../abstract/cards-defs
+@import ../poker_table/poker_table-defs
 
 $l-player-column-count: 3
 
@@ -28,7 +29,7 @@ $l-player-column-count: 3
       +zen-grid-item($l-held_player_information-column-count, 1)
 
       font-size: ($base-fontSize - 4)*1.3
-      color: #fff
+      color: contrast-color($l-poker_table-background-color)
     .hole_cards
       +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
       +zen-grid-item(3, 1)
@@ -38,10 +39,10 @@ $l-player-column-count: 3
       +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
       +zen-grid-item(2, 4)
       .chip_stack
-        +chip_stack(#ff9900)
+        +chip_stack($triad-color-2-dark)
   &.acting_player
     .held_player_information
-      +soft_edges(#ff0)
+      +soft_edges(lighten($triad-color-2-light, $base-color-spread))
   .outer_player_information
     +parent_grid($l-player-column-count)
     +zen-grid-item($l-player-column-count, 1)
@@ -65,22 +66,21 @@ $l-player-column-count: 3
       +align_text_center_horizontally_and_vertically($dealer_button_diameter-without-border, $dealer_button_font_size)
       +align_center_vertically($dealer_button_diameter-without-border, $chip_stack_diameter-without_border)
 
+      +contrasted(#fff)
+
       font-size: $dealer_button_font_size
-      color: #000
       font-weight: bold
       padding: 0
 
       width: $dealer_button_diameter-without-border
-
-      background-color: #fff
     %stack_associated_with_pot
       +parent_grid($l-outer_player_information-column-count)
       +zen-grid-item(2, 2)
     .stack_added_to_pot
       @extend %stack_associated_with_pot
       .chip_stack
-        +chip_stack(#aa0142)
+        +chip_stack(mix($triad-color-2-dark, $l-poker_table-pot-color, 30%))
     .stack_taken_from_pot
       @extend %stack_associated_with_pot
       .chip_stack
-        +chip_stack(#001eb7)
+        +chip_stack(mix($triad-color-2-dark, $l-poker_table-pot-color, 70%))

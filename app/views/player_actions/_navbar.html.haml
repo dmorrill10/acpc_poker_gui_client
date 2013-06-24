@@ -1,3 +1,12 @@
+- customize_hotkeys = escape_javascript(render partial: 'customize_hotkeys')
+:javascript
+  $('.modal-backdrop').remove();
+  $('.customize').click(function() {
+    $('.nav').after("#{customize_hotkeys}");
+    $("##{customize_hotkeys_html_id}").on('hidden', function() {
+      $("##{customize_hotkeys_html_id}").remove();
+    });
+  });
 %ul.nav
   %li
     = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
@@ -23,50 +32,11 @@
             %td= match_view.match.min_wager_hotkey['key']
           - match_view.match.wager_hotkeys.each do |hotkey|
             %tr
-              - pot_fraction_label = if hotkey['pot_fraction'] == 1
-                - 'Pot'
-              - else
-                - "#{hotkey['pot_fraction']}xPot"
-              %td= pot_fraction_label
+              %td= pot_fraction_label(hotkey['pot_fraction'])
               %td= hotkey['key'].capitalize
           %tr
             %td= match_view.match.all_in_hotkey['action_label']
             %td= match_view.match.all_in_hotkey['key']
         %thead
           %tr
-            %th{colspan: 2}= link_with_glyph 'Customize', '#customize_hotkeys', 'edit', data: { toggle: 'modal' }
-- customize_hotkeys_dialog_label = 'Customize Hotkeys'
-#customize_hotkeys.modal.hide.fade{ tabindex: -1, role: "dialog", aria: { labelledby: customize_hotkeys_dialog_label, hidden: "true" } }
-  .modal-header
-    %h3= customize_hotkeys_dialog_label
-  %table.modal-body.table.table-striped
-    %thead
-      %tr
-        %th Action
-        %th Key
-    %tbody
-      - match_view.match.hotkeys.each do |hotkey|
-        %tr
-          %td= hotkey['action_label']
-          %td= hotkey['key'].capitalize
-    - if match_view.no_limit?
-      %thead
-        %tr
-          %th{colspan: 2} Wagers
-      %tbody
-        %tr
-          %td= match_view.match.min_wager_hotkey['action_label']
-          %td= match_view.match.min_wager_hotkey['key']
-        - match_view.match.wager_hotkeys.each do |hotkey|
-          %tr
-            - pot_fraction_label = if hotkey['pot_fraction'] == 1
-              - 'Pot'
-            - else
-              - "#{hotkey['pot_fraction']}xPot"
-            %td= pot_fraction_label
-            %td= hotkey['key'].capitalize
-        %tr
-          %td= match_view.match.all_in_hotkey['action_label']
-          %td= match_view.match.all_in_hotkey['key']
-  .modal-footer
-    %button
+            %th{colspan: 2}= link_with_glyph 'Customize', "##{customize_hotkeys_html_id}", 'edit', class: 'customize', data: { toggle: 'modal' }

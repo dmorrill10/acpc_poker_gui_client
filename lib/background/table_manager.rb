@@ -173,7 +173,7 @@ class TableManager
     log __method__, bot_start_command: bot_start_command
 
     begin
-      ProcessRunner.go bot_start_command
+      log __method__, pid: ProcessRunner.go(bot_start_command)
     rescue => unable_to_start_bot_exception
       handle_exception match_id, "unable to start bot with command \"#{bot_start_command}\": #{unable_to_start_bot_exception.message}"
       raise unable_to_start_bot_exception

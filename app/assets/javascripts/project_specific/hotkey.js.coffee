@@ -15,6 +15,7 @@ root.Hotkey =
     @bindTo(key, eventName, document, callback)
     @bindTo(key, eventName, wagerAmountField(), callback)
   bindTo: (key, eventName, elementToWhichToBind, callback)->
+    return if isBlank(key) or isBlank(eventName) or isBlank(elementToWhichToBind)
     $(elementToWhichToBind).off("#{eventName}").on("#{eventName}", null, key, callback)
   bindWager: (fraction, amountToWager, key) ->
     @bindToDocumentAndWagerAmountField(key, "keypress.action-#{fraction}", (evt)->

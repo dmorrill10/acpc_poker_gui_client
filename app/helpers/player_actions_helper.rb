@@ -36,6 +36,7 @@ module PlayerActionsHelper
   def next_hand_id() 'next_state' end
   def update_id() 'update' end
   def update_state_html_class() 'update_state' end
+  def update_hotkeys_html_class() 'update_hotkeys' end
   def leave_match_button_html_class() 'leave-btn' end
   def nav_leave_html_class() 'leave' end
   def leave_match_confirmation_message
@@ -56,4 +57,23 @@ module PlayerActionsHelper
     @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
   end
   def match_view() @match_view end
+  def pot_fraction_label(pot_fraction)
+    if pot_fraction == 1
+      'Pot'
+    else
+      "#{pot_fraction}xPot"
+    end
+  end
+  def hotkey_field_tag(name, initial_value='', options={})
+    text_field_tag name, initial_value, options.merge(maxlength: 1, size: 1)
+  end
+  def min_wager_hotkey
+    match_view.match.min_wager_hotkey
+  end
+  def all_in_hotkey
+    match_view.match.all_in_hotkey
+  end
+  def customize_hotkeys_html_id
+    'customize_hotkeys'
+  end
 end

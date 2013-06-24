@@ -38,39 +38,6 @@ end
 desc 'Complete MongoDB set up. Requires that the '
 task :setup_mongodb => [MONGODB_DATA_DIRECTORY, MONGOD_EXECUTABLE]
 
-BEANSTALKD_NAME = 'beanstalkd'
-BEANSTALKD_EXECUTABLE = "#{VENDOR_DIRECTORY}/#{BEANSTALKD_NAME}"
-task :reinstall_beanstalkd do
-  FileUtils.rm_f BEANSTALKD_EXECUTABLE
-  FileUtils.cd VENDOR_DIRECTORY do
-    print "Cloning #{BEANSTALKD_NAME} from GitHub..."
-    sh %{ git clone git://github.com/kr/beanstalkd.git }
-    puts 'Done'
-
-    print "Building #{BEANSTALKD_NAME}..."
-    temp_name = 'beanstalkd_executable'
-    FileUtils.cd BEANSTALKD_NAME do
-      sh %{ make }
-      puts 'Done'
-
-      print 'Cleaning up...'
-      FileUtils.cp BEANSTALKD_NAME, "../#{temp_name}"
-    end
-
-    FileUtils.rm_rf BEANSTALKD_NAME
-    FileUtils.mv temp_name, BEANSTALKD_NAME
-    puts 'Done'
-  end
-end
-file BEANSTALKD_EXECUTABLE => VENDOR_DIRECTORY do
-  unless File.exists?(BEANSTALKD_EXECUTABLE)
-    Rake::Task[:reinstall_beanstalkd].invoke
-  end
-end
-
-desc 'Installs Beanstalkd background process server'
-task :install_beanstalkd => BEANSTALKD_EXECUTABLE
-
 desc 'Installs gem dependencies'
 task :install_gems do
   print "Running 'bundle install'..."
@@ -79,11 +46,11 @@ task :install_gems do
 end
 
 desc 'Installs gems and Beanstalkd, compiles the ACPC Dealer, and sets up MongoDB'
-task :install => [:install_gems, :compile_dealer, :setup_mongodb, :install_beanstalkd]
+task :install => [:install_gems, :compile_dealer, :setup_mongodb]
 
 desc 'Start god process manager'
 task :god do
-  sh %{ bundle exec god -c config/god.rb }
+  sh %{ bundle exec god -c config/god.rb -l log/god.log}
 end
 
 desc 'Stop god process manager'
@@ -92,7 +59,7 @@ task :kill_god do
 end
 
 desc 'Starts a development server'
-task :start_dev_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY, BEANSTALKD_EXECUTABLE] do
+task :start_dev_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY] do
   print "Starting god..."
   Rake::Task[:god].invoke
 
@@ -108,13 +75,13 @@ end
 
 desc 'Update code and gem dependencies'
 task :update do
-  sh %{ git pull }
+  sh %{ git fetch && git merge }
   Rake::Task[:install_gems].invoke
   Rake::Task[:precompile_assets].invoke
 end
 
 desc 'Start production server'
-task :start_prod_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY, BEANSTALKD_EXECUTABLE] do
+task :start_prod_server => [MONGOD_EXECUTABLE, MONGODB_DATA_DIRECTORY] do
   Rake::Task[:god].invoke
   # Start production server here
 end
@@ -122,7 +89,7 @@ end
 desc 'Kill production server'
 task :kill_prod_server do
   Rake::Task[:kill_god].invoke
-  begin; sh %{ killall stalk }; rescue; end
+  begin; sh %{ killall dealer }; rescue; end
   # Stop production server here
 end
 
@@ -135,5 +102,5 @@ end
 desc 'Kill the background process and database servers'
 task :kill_background do
   begin; sh %{ killall mongod }; rescue; end
-  begin; sh %{ killall beanstalkd }; rescue; end
+  begin; sh %{ killall dealer }; rescue; end
 end

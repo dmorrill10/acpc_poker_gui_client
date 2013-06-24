@@ -2,7 +2,7 @@ ACPC Poker Gui Client
 ======================
 The [Annual Computer Poker Competition][ACPC homepage] Poker Gui Client provides a graphical user interface with which people may play poker games against automated agents. It is still under development, but currently supports two-player limit and no-limit Texas Hold'em, and has the potential to support three-player as well.
 
-This application is built on Ruby and Rails.
+This application is built with *Ruby and Rails*.
 
 More details
 ----------------
@@ -34,6 +34,7 @@ Once Ruby is installed, installing Bundler should only be a matter of running
         gem install bundler
 
 * A non-LLVM version of GCC - This may require some extra steps on OSX as some versions of XCode no longer include such compilers. There are many [discussions on solutions for this on stack overflow](http://stackoverflow.com/questions/8032824/cant-install-ruby-under-lion-with-rvm-gcc-issues).
+* For using the app, a modern non-*Internet Explorer* browser (*Google Chrome* or *Chromium* tend to work best and is most thoroughly tested with). Must support *JavaScript* and *websockets*, and both must be enabled. In theory, Internet Explorer should work properly but it (at least in this application) has a problem with the rails `remote: true` option for injecting *AJAX* into forms, and I'm not sure why or how to fix it.
 
 Installation
 ---------------
@@ -46,43 +47,57 @@ Next, download a [<em>MongoDB</em>][MongoDB downloads] version compatible with y
 then, in the project's root directory, run
 
     bundle install
-    rake install
+    bundle exec rake install
 
-This should install most of the application's dependencies, except [<em>Apache</em>][Apache homepage], including gems and [<em>Beanstalkd</em>][Beanstalkd homepage], and will complete the MongoDB setup.
+This should install most of the application's dependencies, except [<em>Apache</em>][Apache homepage], including gems, and will complete the MongoDB setup.
 
 
 Non-gem dependencies
 ---------------------------
-The [<em>Beanstalkd background process server</em>][Beanstalkd homepage] is used to host background processes. Background processes are required so that game state can persist beyond a single HTTP request.
-
 [<em>MongoDB</em>][MongoDB homepage] is used as the database back-end.
 
 Web server
 --------------
 ### Development mode
-A Thin server installed via gem serves the application locally in development mode.
+A `WEBrick` server packaged with `rails` serves the application locally in development mode.
 
 ### Production mode
 An [<em>Apache server</em>][Apache homepage] hosts the application proper in production mode. This is currently done with Apache-Rails integration through [<em>Phusion Passenger</em>][Phusion Passenger homepage]. As [Apache][Apache homepage] is only used in production, it is not required to deploy this application on a local development server.
 
 Deployment
 ------------
-### Development mode
-Deploying the application in development mode on a Thin server is simply a matter of running
 
-    rake start_dev_server
+### Simple start
+For convenience, there are two `rake` tasks that combine the two operations described below that are needed to start the app for different environments.
+
+#### Development mode
+Deploying the application in development mode on a `WEBrick` server is simply a matter of running
+
+    bundle exec rake start_dev_server
 in the project's root directory.
 
-### Production mode
+#### Production mode
 Similarly, to deploy in production mode (given that [<em>Apache</em>][Apache homepage] and [<em>Phusion Passenger</em>][Phusion Passenger homepage] are properly configured), run:
 
-    rake start_prod_server
+    bundle exec rake start_prod_server
+
+### More details
+For the app to be deployed properly, three servers must be started:
+1. The *MongoDB* database server `mongod`
+2. The custom `em-websocket` server `lib/background/worker.rb`. This is a fairly simple Ruby script that listens for websocket connections from the app (all other foreign connection attempts are closed upon connection) and manages background processes necessary to play matches, such as `dealer`, opponent agent, and user proxy (which is an agent that connects to the dealer on the user's behalf and takes actions according to the user's directions from the app) instances.
+3. A web server for Rails (see **Web server**).
+
+The `god` script `config/god.rb` will start both `mongod` and `lib/background/worker.rb`. To run this, use the command (the `-l <log file>` logging option is optional but recommended)
+        
+    bundle exec god -c config/god.rb` -l log/god.log
+
+After `god` is running, all that's left is to run a web server.
 
 Updates
 ---------
 Updating this application can be done by running
 
-    rake update
+    bundle exec rake update
 in the project's root directory, which will pull the newest down code from the [repository][ACPC Poker GUI Client GitHub] and install any missing gems.
 
 These tasks can be done separately too (as can all rake tasks, see Rakefile for more details), with [Git][Git homepage] and [Bundler][Bundler homepage] commands.
@@ -104,11 +119,17 @@ For execution details, run
 
 For more information, see this [tutorial][Rails generators tutorial] on [_Rails_][Rails] generators.
 
-## Contributing
+Contributing
+----------------------
 
+### Issues
 See the [issue tracker](https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open) for currently known issues, or to log new ones.
 
-1. Fork it
+### Tests
+Run `rspec` in the project's root directory to run its tests. When making changes to the code that you'd like to have pulled into this project, please be sure to add tests as best you can. 
+
+### To contribute code
+1. Fork this repo
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -116,13 +137,11 @@ See the [issue tracker](https://github.com/dmorrill10/acpc_poker_gui_client/issu
 
 Copyright
 ---------
-Copyright &copy; 2013 by the Computer Poker Research Group, University of Alberta. See [LICENSE](LICENSE.md) for details.
-
+Copyright &copy; 2011-2013 by the Computer Poker Research Group, University of Alberta. See [LICENSE](LICENSE.md) for details.
 
 Further resources
 ------------------
 * [Annual Computer Poker Competition][ACPC homepage]
-* [Beanstalkd][Beanstalkd homepage] - The background process server used by this project.
 * [Coffescript][Coffeescript homepage] - JavaScript in a candy coating. Used by default as of [Rails][Rails] 3.1 and used in this project's views.
 * [Gem Bundler][Bundler homepage] - Gem dependency management tool used by this project.
 * [GitHub][GitHub homepage] - Host for this project's code.
@@ -140,7 +159,6 @@ Further resources
 * [Ruby on Rails][Rails] - Web application framework used by this project.
 * [RubyDoc.info][RubyDoc.info] - Documentation hosting site used by this project.
 * [SASS][SASS] - Styling language extension of CSS used by default as of [Rails][Rails] 3.1 and is used in this project.
-* [Stalker][Stalker homepage] - Ruby [_Beanstalkd_][Beanstalkd homepage] interface.
 * [The Apache Project][Apache homepage] - The production web server used by this project.
 * [The Computer Poker Research Group][CPRG homepage]
 * [The Ruby Programming Language][Ruby] - The foundational language of this project.
@@ -158,7 +176,6 @@ Further resources
 [ACPC competition server]: http://www.computerpokercompetition.org/index.php?option=com_rokdownloads&view=folder&Itemid=59
 [ACPC homepage]: http://www.computerpokercompetition.org
 [Apache homepage]: http://www.apache.org/
-[Beanstalkd homepage]: http://kr.github.com/beanstalkd/
 [Bundler homepage]: http://gembundler.com/
 [CPRG homepage]: http://poker.cs.ualberta.ca/
 [Coffeescript homepage]: http://coffeescript.org/
@@ -182,7 +199,6 @@ Further resources
 [Ruby downloads]: http://www.ruby-lang.org/en/downloads/
 [RubyDoc.info]: http://rubydoc.info/
 [SASS]: http://sass-lang.com/
-[Stalker homepage]: https://github.com/han/stalker#readme
 [UAlberta homepage]: http://www.ualberta.ca/
 [YARD]: http://yardoc.org/
 

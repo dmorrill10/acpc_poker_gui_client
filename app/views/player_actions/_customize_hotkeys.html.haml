@@ -1,0 +1,35 @@
+- customize_hotkeys_dialog_label = 'Customize Hotkeys'
+.modal.hide.fade( tabindex='-1' role="dialog" aria-labelledby=customize_hotkeys_dialog_label aria-hidden="true" id=customize_hotkeys_html_id )
+  .modal-header
+    %button( type="button" class="close" data-dismiss="modal" aria-hidden="true" ) &times;
+    %h3= customize_hotkeys_dialog_label
+  = form_tag update_hotkeys_url, remote: true, class: 'modal-body' do
+    = hidden_field_tag :match_id, @match_view.match.id
+    %table.table.table-striped
+      %thead
+        %tr
+          %th Action
+          %th Key
+      %tbody
+        - match_view.match.hotkeys.each do |hotkey|
+          %tr
+            %td= hotkey['action_label']
+            %td= hotkey_field_tag hotkey['action_label'], hotkey['key'].capitalize
+      - if match_view.no_limit?
+        %thead
+          %tr
+            %th{colspan: 2} Wagers
+        %tbody
+          %tr
+            %td= match_view.match.min_wager_hotkey['action_label']
+            %td= hotkey_field_tag match_view.match.min_wager_hotkey['action_label'], match_view.match.min_wager_hotkey['key'].capitalize
+          - match_view.match.wager_hotkeys.each do |hotkey|
+            %tr
+              %td= pot_fraction_label(hotkey['pot_fraction'])
+              %td= hotkey_field_tag hotkey['pot_fraction'].to_s, hotkey['key'].capitalize
+          %tr
+            %td= match_view.match.all_in_hotkey['action_label']
+            %td= hotkey_field_tag match_view.match.all_in_hotkey['action_label'], match_view.match.all_in_hotkey['key'].capitalize
+    .modal-footer
+      = link_to 'Cancel', '#', { class: 'btn cancel', data: { dismiss: "modal" } }
+      = submit_tag 'Save', { class: 'btn btn-primary save-hotkeys' }

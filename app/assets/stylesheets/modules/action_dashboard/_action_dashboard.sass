@@ -8,8 +8,7 @@
 
   $light_background_color: lighten($c-action_dashboard-background-color, $base-color-spread)
   +soft_edges($light_background_color)
-  +background-image(linear-gradient(top, $c-action_dashboard-background-color, $light_background_color))
-  color: white
+  +contrasted($c-action_dashboard-background-color)
 
   $l-action_dashboard-height: 150px
   height: $l-action_dashboard-height

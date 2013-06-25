@@ -21,10 +21,11 @@ $chip_stack_diameter-without_border: $chip_stack_diameter - 2 * $l-raisedBorder-
   @extend %raisedBorder
   @extend %circularBorderRadius
 
-  $color_variation: 5%
-  +contrasted(darken($outer_ring_color, $color_variation))
+  $outer_ring_color: saturate(darken($outer_ring_color, 2%), 100%)
+  background-color: $outer_ring_color
+  color: complement($outer_ring_color)
 
-  $ring_color: $outer_ring_color
+  $ring_color: lighten($outer_ring_color, 5%)
   border-color: $ring_color
 
   $stack_amount_font_size: $base-fontSize

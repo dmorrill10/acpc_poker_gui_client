@@ -42,7 +42,7 @@ $l-player-column-count: 3
         +chip_stack($triad-color-2-dark)
   &.acting_player
     .held_player_information
-      +soft_edges(lighten($triad-color-2-light, $base-color-spread))
+      +soft_edges(saturate(lighten($triad-color-2-dark, $base-color-spread), 100%))
   .outer_player_information
     +parent_grid($l-player-column-count)
     +zen-grid-item($l-player-column-count, 1)

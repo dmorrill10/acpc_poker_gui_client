@@ -1,4 +1,5 @@
 .navbar
   .navbar-inner
-    = link_to ApplicationHelper::APP_NAME, root_url, class: 'brand'
-    = render partial: partial if partial
+    .container-narrow
+      = link_to ApplicationHelper::APP_NAME, root_url, class: 'brand'
+      = render partial: partial if partial

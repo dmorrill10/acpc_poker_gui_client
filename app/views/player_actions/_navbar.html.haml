@@ -1,15 +1,13 @@
 - customize_hotkeys = escape_javascript(render partial: 'customize_hotkeys')
-  :javascript
-    $('.modal-backdrop').remove();
-    $('.customize').click(function() {
-      $('.nav').after("#{customize_hotkeys}");
-      $("##{customize_hotkeys_html_id}").on('hidden', function() {
-        $("##{customize_hotkeys_html_id}").remove();
-      });
+:javascript
+  $('.modal-backdrop').remove();
+  $('.customize').click(function() {
+    $('.nav').after("#{customize_hotkeys}");
+    $("##{customize_hotkeys_html_id}").on('hidden', function() {
+      $("##{customize_hotkeys_html_id}").remove();
     });
+  });
 %ul.nav
-  %li
-    = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
   %li.dropdown
     %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
     %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}
@@ -40,3 +38,5 @@
         %thead
           %tr
             %th{colspan: 2}= link_with_glyph 'Customize', "##{customize_hotkeys_html_id}", 'edit', class: 'customize', data: { toggle: 'modal' }
+  %li
+    = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}

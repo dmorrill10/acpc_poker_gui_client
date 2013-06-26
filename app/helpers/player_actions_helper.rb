@@ -49,7 +49,6 @@ module PlayerActionsHelper
         @match_view.slice.users_turn_to_act? &&
         @match_view.match.slices.length == 1
       ) ||
-      @match_view.slice.match_ended? ||
       @match_view.slice.hand_ended?
     )
   end

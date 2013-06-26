@@ -13,7 +13,7 @@
   }
 - unless user_must_act?
   :javascript
-    timerId = setInterval(updateState, 1000);
+    timerId = setInterval(updateState, 500);
 .hidden
   = form_tag update_url, :remote => true do
     = hidden_field_tag :match_id, @match_view.match.id

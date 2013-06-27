@@ -10,33 +10,6 @@
 %ul.nav
   %li.dropdown
     %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
-    %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}
-      %thead
-        %tr
-          %th Action
-          %th Key
-      %tbody
-        - match_view.match.hotkeys.each do |hotkey|
-          %tr
-            %td= hotkey['action_label']
-            %td= hotkey['key'].capitalize
-      - if match_view.no_limit?
-        %thead
-          %tr
-            %th{colspan: 2} Wagers
-        %tbody
-          %tr
-            %td= match_view.match.min_wager_hotkey['action_label']
-            %td= match_view.match.min_wager_hotkey['key']
-          - match_view.match.wager_hotkeys.each do |hotkey|
-            %tr
-              %td= pot_fraction_label(hotkey['pot_fraction'])
-              %td= hotkey['key'].capitalize
-          %tr
-            %td= match_view.match.all_in_hotkey['action_label']
-            %td= match_view.match.all_in_hotkey['key']
-        %thead
-          %tr
-            %th{colspan: 2}= link_with_glyph 'Customize', "##{customize_hotkeys_html_id}", 'edit', class: 'customize', data: { toggle: 'modal' }
+    = render partial: 'hotkey_table', locals: { classes: ['dropdown-menu', 'dropdown_table'], right_column: ->(label, key) { key }, footer_partial: 'hotkey_dropdown_footer' }
   %li
     = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}

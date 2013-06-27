@@ -74,6 +74,69 @@ class Match
     ).finish_starting!
   end
 
+  # @todo Move to User
+  # User preferences
+
+  # @return [Hash<String, Hash<String, String>] Hotkey labels to hotkey parameters mapping,
+  #   where the parameters must at least include +'key'+, the key in JQuery.hotkeys format,
+  #   and may include +'element_to_click'+,
+  #   which should represent an HTML element to click upon activating the hotkey.
+  field :hotkeys, type: Hash
+
+  MIN_WAGER_LABEL = 'Min'
+  ALL_IN_WAGER_LABEL = 'All-in'
+  def self.wager_hotkey_label(pot_fraction)
+    "#{pot_fraction}xPot"
+  end
+  # @return [Numeric] The pot fraction corresponding to this hotkey label,
+  #   or zero if the hotkey doesn't correspond to a pot fraction wager.
+  def self.hotkey_pot_fraction(label)
+    label.to_f
+  end
+  def self.wager_hotkey?(label)
+    hotkey_pot_fraction(label) > 0.0 || label == MIN_WAGER_LABEL || label == ALL_IN_WAGER_LABEL
+  end
+  DEFAULT_HOTKEYS = {
+    'Fold' => {
+      'element_to_click' => ".fold",
+      'key' => 'A'
+    },
+    'Check / Call' => {
+      'element_to_click' => ".pass",
+      'key' => 'S'
+    },
+    'Bet / Raise' => {
+      'element_to_click' => ".wager",
+      'key' => 'D'
+    },
+    'Next Hand' => {
+      'element_to_click' => ".next_state",
+      'key' => 'F'
+    },
+    'Leave Match' => {
+      'element_to_click' => ".leave",
+      'key' => 'Q'
+    },
+    MIN_WAGER_LABEL => {
+      'key' => 'Z'
+    },
+    ALL_IN_WAGER_LABEL => {
+      'key' => 'N'
+    },
+    wager_hotkey_label(1/2.to_f) => {
+      'key' => 'X'
+    },
+    wager_hotkey_label(3/4.to_f) => {
+      'key' => 'C'
+    },
+    wager_hotkey_label(1) => {
+      'key' => 'V'
+    },
+    wager_hotkey_label(2) => {
+      'key' => 'B'
+    }
+  }
+
   # Table parameters
   field :port_numbers, type: Array
   field :random_seed, type: Integer
@@ -90,23 +153,6 @@ class Match
   field :number_of_hole_cards, type: Integer
   field :min_wagers, type: Array
   field :blinds, type: Array
-
-  # User preferences
-
-  # Each element must be a Hash defining:
-  #   +'element_to_click'+, string representing the HTML element to click,
-  #   +'action_label'+, human readable label for the action this hotkey activates, and
-  #   +'key'+, the key in JQuery.hotkeys format.
-  field :hotkeys, type: Array
-
-  field :min_wager_hotkey, type: Hash
-  field :all_in_hotkey, type: Hash
-
-  # Each element must be a Hash defining:
-  #   +'pot_fraction'+, Float fraction of the pot to wager,
-  #   +'action_label'+, human readable label for the action this hotkey activates, and
-  #   +'key'+, the key in JQuery.hotkeys format.
-  field :wager_hotkeys, type: Array
 
   def finished?
     !slices.empty? && slices.last.match_ended?
@@ -132,60 +178,7 @@ class Match
 
     self.number_of_hands ||= 1
 
-    # @todo I'm using literal strings when they should be constants, but I'm not sure where these should live yet
-    self.hotkeys = [
-      {
-        'element_to_click' => ".fold",
-        'key' => 'A',
-        'action_label' => 'Fold'
-      },
-      {
-        'element_to_click' => ".pass",
-        'key' => 'S',
-        'action_label' => 'Check / Call'
-      },
-      {
-        'element_to_click' => ".wager",
-        'key' => 'D',
-        'action_label' => 'Bet / Raise'
-      },
-      {
-        'element_to_click' => ".next_state",
-        'key' => 'F',
-        'action_label' => 'Next Hand'
-      },
-      {
-        'element_to_click' => ".leave",
-        'key' => 'Q',
-        'action_label' => 'Leave Match'
-      }
-    ]
-    self.min_wager_hotkey = {
-      'key' => 'Z',
-      'action_label' => 'Min'
-    }
-    self.all_in_hotkey = {
-      'key' => 'N',
-      'action_label' => 'All-in'
-    }
-    self.wager_hotkeys = [
-      {
-        'pot_fraction' => 1/2.to_f,
-        'key' => 'X'
-      },
-      {
-        'pot_fraction' => 3/4.to_f,
-        'key' => 'C'
-      },
-      {
-        'pot_fraction' => 1,
-        'key' => 'V'
-      },
-      {
-        'pot_fraction' => 2,
-        'key' => 'B'
-      }
-    ]
+    self.hotkeys = self.class::DEFAULT_HOTKEYS
 
     save!
 

@@ -10,16 +10,19 @@
     return submitAction(action);
   });
   $(".#{next_hand_id}").click(function() { return nextHand(); });
-- match_view.match.hotkeys.each do |hotkey|
-  :javascript
-    Hotkey.bind("#{hotkey['element_to_click']}", "#{hotkey['key']}");
-:javascript
-  Hotkey.bindWager("0", "#{match_view.minimum_wager_to}", "#{match_view.match.min_wager_hotkey['key']}");
-  Hotkey.bindWager("-1", "#{match_view.all_in}", "#{match_view.match.all_in_hotkey['key']}");
-- match_view.match.wager_hotkeys.each do |hotkey|
-  - wager_amount = match_view.pot_fraction_wager_to(hotkey['pot_fraction'])
-  :javascript
-    Hotkey.bindWager("#{hotkey['pot_fraction'].to_s}", "#{wager_amount}", "#{hotkey['key']}");
+- match_view.match.hotkeys.each do |label, hotkey|
+  - if hotkey['element_to_click']
+    :javascript
+      Hotkey.bind("#{hotkey['element_to_click']}", "#{hotkey['key']}");
+  - else
+    - wager_amount = if label == Match::MIN_WAGER_LABEL
+      - match_view.minimum_wager_to
+    - elsif label == Match::ALL_IN_WAGER_LABEL
+      - match_view.all_in
+    - else
+      - match_view.pot_fraction_wager_to(Match.hotkey_pot_fraction(label))
+    :javascript
+      Hotkey.bindWager("#{label}", "#{wager_amount}", "#{hotkey['key']}");
 :javascript
   // Must be done after initializing the websocket message sending click handlers
   ActionDashboard.disableButtonsOnClick();

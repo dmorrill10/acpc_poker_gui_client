@@ -1,3 +1,5 @@
+:javascript
+  $('.modal-backdrop').remove();
 = render partial: 'layouts/navbar', locals: { partial: nil }
 .match_start
   %ul.match_start_tabs.nav.nav-tabs
@@ -9,6 +11,5 @@
     = render(partial: 'match_start/join_match_form')
     = render(partial: 'match_start/rejoin_match_form')
 = render partial: ApplicationHelper::FOOTER
-
 :javascript
   $('.match_start_tabs a:first').tab('show')

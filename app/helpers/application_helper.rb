@@ -19,7 +19,7 @@ module ApplicationHelper
   # @param [String] replacement_partial The partial with which the page should be replaced.
   # @param [String] alert_message An alert message to be displayed.
   def replace_page_contents(replacement_partial, alert_message=nil)
-    @alert_message = alert_message
+    @alert_message ||= alert_message
     @replacement_partial = replacement_partial
     respond_to do |format|
       format.js do

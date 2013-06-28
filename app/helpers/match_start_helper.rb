@@ -29,4 +29,30 @@ module MatchStartHelper
   def label_for_required(label)
     "<abbr title='required'>*</abbr> #{label}".html_safe
   end
+
+  def num_players(game_def_key)
+    ApplicationDefs::GAME_DEFINITIONS[game_def_key][:num_players]
+  end
+
+  def truncate_opponent_names_if_necessary(match_params)
+    while (
+      match_params[:opponent_names].length >
+      num_players(match_params[:game_definition_key].to_sym) - 1
+    )
+      match_params[:opponent_names].pop
+    end
+    match_params[:opponent_names]
+  end
+
+  def match
+    @match ||= Match.new
+  end
+
+  def wait_for_match_to_start
+    respond_to do |format|
+      format.js do
+        replace_page_contents wait_for_match_to_start_partial
+      end
+    end
+  end
 end

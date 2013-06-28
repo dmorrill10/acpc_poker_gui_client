@@ -17,9 +17,13 @@ class MatchStartController < ApplicationController
 
   # Presents the main 'start a new game' view.
   def index
-    Match.finished.each { |m| m.delete }
-    Match.delete_matches_older_than! match_lifespan
-    @match = Match.new
+    Match.delete_irrelevant_matches!
+    unless user.hotkeys
+      error?("Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}") do
+        user.reset_hotkeys!
+      end
+    end
+
     respond_to do |format|
       format.html {} # Render the default partial
       format.js do
@@ -29,20 +33,17 @@ class MatchStartController < ApplicationController
   end
 
   def new
-    while (
-      params[:match][:opponent_names].length >
-      GAME_DEFINITIONS[
-        params[:match][:game_definition_key].to_sym
-      ][:num_players] - 1
+    params[:match][:opponent_names] = truncate_opponent_names_if_necessary(
+      params[:match]
     )
-      params[:match][:opponent_names].pop
-    end
-    @match = begin
-      Match.new(params[:match]).finish_starting!
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view 'Sorry, unable to finish creating a match instance, please try again or rejoin a match already in progress.'
-      return
+    if (
+      error?(
+        'Sorry, unable to finish creating a match instance, please try again or rejoin a match already in progress.'
+      ) do
+        @match = Match.new(params[:match]).finish_starting!
+      end
+    )
+      return reset_to_match_entry_view
     end
 
     @request_to_start_match_or_proxy = {
@@ -57,6 +58,43 @@ class MatchStartController < ApplicationController
       log_directory: MATCH_LOG_DIRECTORY
     }
 
+    wait_for_match_to_start
+  end
+
+  def join
+    match_name = params[:match_name].strip
+    seat = params[:seat].to_i
+
+    if (
+      error?("Sorry, unable to join match \"#{match_name}\" in seat #{seat}.") do
+        opponent_users_match = Match.where(name_from_user: match_name).first
+        raise unless opponent_users_match
+
+        # Copy match information
+        @match = opponent_users_match.dup
+        underscore = '_'
+        @match.name_from_user = underscore
+        while !@match.save do
+          @match.name_from_user << underscore
+        end
+
+        # Swap seat
+        @match.seat = seat
+        @match.opponent_names.insert(
+          opponent_users_match.seat - 1,
+          HUMAN_OPPONENT_NAME
+        )
+        @match.opponent_names.delete_at(seat - 1)
+        @match.save!(validate: false)
+
+        @request_to_start_match_or_proxy = {
+          request: ApplicationDefs::START_PROXY_REQUEST_CODE,
+          match_id: @match.id
+        }
+      end
+    )
+      return reset_to_match_entry_view
+    end
     respond_to do |format|
       format.js do
         replace_page_contents wait_for_match_to_start_partial
@@ -64,65 +102,23 @@ class MatchStartController < ApplicationController
     end
   end
 
-  def join
-    match_name = params[:match_name].strip
-    seat = params[:seat].to_i
-
-    begin
-      opponent_users_match = Match.where(name_from_user: match_name).first
-      raise unless opponent_users_match
-
-      # Copy match information
-      @match = opponent_users_match.dup
-      underscore = '_'
-      @match.name_from_user = underscore
-      while !@match.save do
-        @match.name_from_user << underscore
-      end
-
-      # Swap seat
-      @match.seat = seat
-      @match.opponent_names.insert(
-        opponent_users_match.seat - 1,
-        HUMAN_OPPONENT_NAME
-      )
-      @match.opponent_names.delete_at(seat - 1)
-      @match.save!(validate: false)
-
-      @request_to_start_match_or_proxy = {
-        request: ApplicationDefs::START_PROXY_REQUEST_CODE,
-        match_id: @match.id
-      }
-
-      respond_to do |format|
-        format.js do
-          replace_page_contents wait_for_match_to_start_partial
-        end
-      end
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, unable to join match \"#{match_name}\" in seat #{seat}."
-      return
-    end
-  end
-
   def rejoin
     match_name = params[:match_name].strip
     seat = params[:seat].to_i
 
-    begin
-      @match = Match.where(name: match_name, seat: seat).first
-      raise unless @match
-
-      respond_to do |format|
-        format.js do
-          replace_page_contents wait_for_match_to_start_partial
-        end
+    if (
+      error?("Sorry, unable to find match \"#{match_name}\" in seat #{seat}.") do
+        @match = Match.where(name: match_name, seat: seat).first
+        raise unless @match
       end
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\" in seat #{seat}."
-      return
+    )
+      return reset_to_match_entry_view
+    end
+
+    respond_to do |format|
+      format.js do
+        replace_page_contents wait_for_match_to_start_partial
+      end
     end
   end
 end

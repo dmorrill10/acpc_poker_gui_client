@@ -6,7 +6,7 @@
     var replyMsg = $.parseJSON(e.data);
     switch (replyMsg.reply) {
     case "#{ApplicationDefs::START_PROXY_REQUEST_CODE}":
-      if (replyMsg.match_id === "#{@match.id}") {
+      if (replyMsg.match_id === "#{match.id}") {
         console.log("Starting match " + replyMsg.match_id);
         startMatch();
       }
@@ -16,7 +16,7 @@
       break;
     };
   };
-- unless @match.slices.empty?
+- unless match.slices.empty?
   :javascript
     startMatch();
 - if @request_to_start_match_or_proxy
@@ -30,6 +30,6 @@
 .loading
   .hero-unit
     .header-info Please wait for players to connect to the dealer...
-  .hidden= hidden_begin_match_form(@match.id)
+  .hidden= hidden_begin_match_form(match.id)
 
   = render partial: ApplicationHelper::FOOTER

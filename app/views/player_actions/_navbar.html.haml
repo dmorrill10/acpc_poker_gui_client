@@ -7,9 +7,8 @@
       $("##{customize_hotkeys_html_id}").remove();
     });
   });
-%ul.nav
-  %li.dropdown
-    %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
-    = render partial: 'hotkey_table', locals: { classes: ['dropdown-menu', 'dropdown_table'], right_column: ->(label, key) { key }, footer_partial: 'hotkey_dropdown_footer' }
-  %li
-    = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
+%li.dropdown
+  %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
+  = render partial: 'hotkey_table', locals: { classes: ['dropdown-menu', 'dropdown_table'], right_column: ->(label, key) { key }, footer_partial: 'hotkey_dropdown_footer' }
+%li
+  = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}

@@ -47,6 +47,8 @@ class Match
   end
   def self.delete_matches_older_than!(lifespan)
     expired(lifespan).delete_all
+
+    self
   end
   def self.delete_match!(match_id)
     begin
@@ -55,6 +57,13 @@ class Match
     else
       match.delete
     end
+
+    self
+  end
+  def self.match_lifespan() 1.month end
+  def self.delete_irrelevant_matches!
+    finished.each { |m| m.delete }
+    delete_matches_older_than! match_lifespan
   end
   def self.start_match(
     name,

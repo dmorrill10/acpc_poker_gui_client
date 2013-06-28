@@ -20,7 +20,7 @@ class PlayerActionsController < ApplicationController
       replace_page_contents_with_updated_game_view params[:match_id]
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      reset_to_match_entry_view "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
       return
     end
   end
@@ -32,7 +32,7 @@ class PlayerActionsController < ApplicationController
       return update unless @match_view.slice.hand_ended?
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      return reset_to_match_entry_view("Sorry, there was a problem retrieving match #{params[:match_id]}, please report this incident to #{ADMINISTRATOR_EMAIL}.")
+      return reset_to_match_entry_view("Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}.")
     end
     render nothing: true
   end
@@ -52,7 +52,7 @@ class PlayerActionsController < ApplicationController
       last_slice.delete
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
       return
     end
     begin
@@ -70,7 +70,7 @@ class PlayerActionsController < ApplicationController
         # special to do here.
         ap "Unable to restore match slice in match #{params[:match_id]}"
       end
-      return reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
+      return reset_to_match_entry_view "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
     end
     # Execution should never get here but just in case
     render nothing: true
@@ -110,7 +110,7 @@ class PlayerActionsController < ApplicationController
     rescue => e
       Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
       return reset_to_match_entry_view(
-        "Sorry, there was a problem saving hotkeys, please report this incident to #{ADMINISTRATOR_EMAIL}."
+        "Sorry, there was a problem saving hotkeys, #{self.class.report_error_request_message}."
       )
     end
     render nothing: true

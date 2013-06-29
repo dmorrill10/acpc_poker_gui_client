@@ -106,6 +106,12 @@ class PlayerActionsController < ApplicationController
     render nothing: true
   end
 
+  def reset_hotkeys
+    Rails.logger.ap "Resetting!"
+    user.reset_hotkeys!
+    return replace_page_contents_with_updated_game_view(params[:match_id])
+  end
+
   def leave_match
     redirect_to root_path, remote: true
   end

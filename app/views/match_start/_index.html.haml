@@ -9,9 +9,9 @@
   .match_start_tabs-content.tab-content
     = render partial: 'match_start/new_match_form'
     #join_match_form.tab-pane
-      = render partial: 'take_seat_form', locals: { form_target: join_match_path, matches: matches_to_join, btn_label: 'Join match', seats: seats_to_join }
+      = render partial: 'match_start/take_seat_form', locals: { form_target: join_match_path, matches: matches_to_join, btn_label: 'Join match', seats: seats_to_join }
     #rejoin_match_form.tab-pane
-      = render partial: 'take_seat_form', locals: { form_target: rejoin_match_path, matches: matches_to_rejoin, btn_label: 'Rejoin match', seats: seats_to_rejoin }
+      = render partial: 'match_start/take_seat_form', locals: { form_target: rejoin_match_path, matches: matches_to_rejoin, btn_label: 'Rejoin match', seats: seats_to_rejoin }
 = render partial: ApplicationHelper::FOOTER
 :javascript
   $('.match_start_tabs a:first').tab('show')

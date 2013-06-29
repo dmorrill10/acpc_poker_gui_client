@@ -44,7 +44,7 @@ class User
   # @return [Numeric] The pot fraction corresponding to this hotkey label,
   #   or zero if the hotkey doesn't correspond to a pot fraction wager.
   def self.hotkey_pot_fraction(label)
-    if POT_LABEL then 1.to_f else label.to_f end
+    (if POT_LABEL == label then 1 else label end).to_f
   end
   def self.wager_hotkey?(label)
     hotkey_pot_fraction(label) > 0.0 || label == MIN_WAGER_LABEL || label == ALL_IN_WAGER_LABEL
@@ -71,7 +71,7 @@ class User
   }
 
   def reset_hotkeys!
-    self.hotkeys = self.class.DEFAULT_HOTKEYS
+    self.hotkeys = self.class::DEFAULT_HOTKEYS
     save!
 
     self

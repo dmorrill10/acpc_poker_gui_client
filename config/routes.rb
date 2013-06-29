@@ -9,6 +9,7 @@ AcpcPokerGuiClient::Application.routes.draw do
   match 'update' => 'player_actions#update', as: :update
   match 'update_state' => 'player_actions#update_state', as: :update_state
   match 'update_hotkeys' => 'player_actions#update_hotkeys', :as => :update_hotkeys
+  match 'reset_hotkeys' => 'player_actions#reset_hotkeys', as: :reset_hotkeys
   match 'leave_match' => 'player_actions#leave_match', :as => :leave_match
 
   # Root of the site

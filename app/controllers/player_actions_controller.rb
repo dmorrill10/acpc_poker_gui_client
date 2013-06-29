@@ -84,13 +84,13 @@ class PlayerActionsController < ApplicationController
           new_key = new_key.strip.capitalize
           next if no_change?(action_label, new_key)
 
-          conflicted_label = user.hotkeys.select { |label, parameters| parameters['key'] == new_key }.keys.first
+          conflicted_label = user.hotkeys.select { |label, key| key == new_key }.keys.first
           if conflicted_label
             conflicting_hotkeys << { key: new_key, current_label: conflicted_label, new_label: action_label }
             next
           end
 
-          user.hotkeys[action_label]['key'] = new_key
+          user.hotkeys[action_label] = new_key
         end
         user.save!
 

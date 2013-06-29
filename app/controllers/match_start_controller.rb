@@ -18,10 +18,9 @@ class MatchStartController < ApplicationController
   # Presents the main 'start a new game' view.
   def index
     Match.delete_irrelevant_matches!
-    unless user.hotkeys
-      error?("Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}") do
-        user.reset_hotkeys!
-      end
+
+    unless user_initialized?
+      @alert_message = "Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}"
     end
 
     respond_to do |format|

@@ -40,15 +40,8 @@ module PlayerActionsHelper
     @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
   end
   def match_view() @match_view end
-  def match() match_view.match end
   def hotkey_field_tag(name, initial_value='', options={})
     text_field_tag name, initial_value, options.merge(maxlength: 1, size: 1, name: "#{hotkeys_param_key}[#{name}]")
-  end
-  def min_wager_hotkey
-    match_view.match.hotkeys[Match::MIN_WAGER_LABEL]
-  end
-  def all_in_hotkey
-    match_view.match.hotkeys[Match::ALL_IN_WAGER_LABEL]
   end
 
   # @todo Do not require state, remove from this module
@@ -68,13 +61,6 @@ module PlayerActionsHelper
   def html_character(suit_symbol)
     Suit::DOMAIN[suit_symbol][:html_character]
   end
-  def pot_fraction_label(pot_fraction)
-    if pot_fraction == 1
-      'Pot'
-    else
-      "#{pot_fraction}xPot"
-    end
-  end
   def hotkeys_param_key
     'hotkeys'
   end
@@ -82,11 +68,6 @@ module PlayerActionsHelper
     'customize_hotkeys'
   end
   def no_change?(action_label, new_key)
-    match.hotkeys[action_label]['key'] == new_key
+    user.hotkeys[action_label] == new_key
   end
-  # @todo Remove
-  # Thanks to http://stackoverflow.com/questions/5490952/merge-array-of-hashes-to-get-hash-of-arrays-of-values for this
-  # def collect_values(hashes)
-  #   {}.tap{ |r| hashes.each{ |h| h.each{ |k,v| r[k] = v } } }
-  # end
 end

@@ -7,14 +7,14 @@
       %th Key
   %tbody
     - wager_label_printed = false
-    - user.hotkeys.each do |label, parameters|
+    - user.hotkeys.each do |label, key|
       - if match_view.no_limit? && User.wager_hotkey?(label) && !wager_label_printed
         - wager_label_printed = true
         %tr
           %th{colspan: 2} Wagers
       %tr
         %td= label
-        %td= right_column.call(label, parameters['key'].to_s.capitalize)
+        %td= right_column.call(label, key.to_s.capitalize)
   - if footer_partial
     %tfoot
       = render partial: footer_partial

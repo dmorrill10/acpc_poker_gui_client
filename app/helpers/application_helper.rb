@@ -58,19 +58,53 @@ module ApplicationHelper
     end
   end
 
+  def user_initialized?
+    begin
+      user
+      true
+    rescue Mongoid::Errors
+      false
+    end
+  end
+
   def user
-    @user ||= User.find_or_create_by name: user_name
+    return @user if @user
+    users = User.where name: user_name
+    @user = if users.empty?
+      u = User.new name: user_name, hotkeys: User::DEFAULT_HOTKEYS
+      u.save!
+      u
+    else
+      users.shift
+    end
   end
   # @return [String] The currently signed in user name. Defaults to +User.default_user_name+
   def user_name
     name = begin
       ActionController::HttpAuthentication::Basic::user_name_and_password(request).first
     rescue NoMethodError # Occurs when no authentication has been done
-      User.default_user_name
+      User::DEFAULT_NAME
     end
   end
   def help_link
-    # The `target: blank` option ensures that this link will be opened in a new tab
-    link_with_glyph '', 'http://rubydoc.info/github/dmorrill10/acpc_poker_gui_client/master/file/doc/Help.md', 'question-sign', class: ApplicationController.help_link_html_class, target: 'blank', title: 'Help', data: { toggle: 'tooltip' }
+    link_with_glyph(
+      '',
+      'http://rubydoc.info/github/dmorrill10/acpc_poker_gui_client/master/file/doc/Help.md',
+      'question-sign',
+      {
+        class: ApplicationController.help_link_html_class,
+        # `target: blank` option ensures that this link will be opened in a new tab
+        target: 'blank',
+        title: 'Help',
+        data: { toggle: 'tooltip' }
+      }
+    )
+  end
+  def match
+    if @match_view
+      @match_view.match
+    else
+      @match ||= Match.new
+    end
   end
 end

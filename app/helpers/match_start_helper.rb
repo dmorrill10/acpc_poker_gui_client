@@ -43,11 +43,6 @@ module MatchStartHelper
     end
     match_params[:opponent_names]
   end
-
-  def match
-    @match ||= Match.new
-  end
-
   def wait_for_match_to_start
     respond_to do |format|
       format.js do

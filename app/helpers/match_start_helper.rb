@@ -55,4 +55,42 @@ module MatchStartHelper
       end
     end
   end
+
+  def matches_to_join
+    @matches_to_join ||= Match.all.select do |m|
+      m.user_name == user_name &&
+      m.opponent_names &&
+      m.opponent_names.any? do |name|
+        name.match(ApplicationDefs::HUMAN_OPPONENT_NAME)
+      end &&
+      m.slices.empty? &&
+      !m.name_from_user.match(/^_+$/)
+    end
+  end
+  def seats_to_join
+    matches_to_join.inject({}) do |hash, lcl_match|
+      # Remove seats already taken by players who have already joined this match
+      hash[lcl_match.name_from_user] = (
+        lcl_match.human_opponent_seats -
+        Match.where(name: lcl_match.name).map { |m| m.seat }
+      )
+      hash
+    end
+  end
+
+  def matches_to_rejoin
+    @matches_to_rejoin ||= Match.all.select do |m|
+      m.user_name == user_name &&
+      !m.name_from_user.match(/^_+$/) &&
+      !m.finished? &&
+      !m.slices.empty?
+    end
+  end
+  def seats_to_rejoin
+    matches_to_rejoin.inject({}) do |hash, lcl_match|
+      hash[lcl_match.name_from_user] = lcl_match.human_opponent_seats
+      hash[lcl_match.name_from_user] << lcl_match.seat
+      hash
+    end
+  end
 end

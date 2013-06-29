@@ -1,0 +1,17 @@
+= form_tag form_target, remote: true, class: 'form-horizontal'do
+  - match_names = matches.map { |m| m.name_from_user }
+  .control-group
+    .control-labels
+      %label.control-label.required= label_for_required 'Match name'
+    .controls
+      = select_tag :match_name, options_for_select(match_names), required: true, disabled: matches.empty?
+  .control-group
+    .control-labels
+      %label.control-label.required= label_for_required 'Seat'
+    .controls
+      = select_tag :seat, grouped_options_for_select(seats)
+  .form-actions
+    - options = { class: 'btn btn-primary', id: 'join_match' }
+    / Needed to work properly in Firefox 21
+    - options.merge!(disabled: 'disabled', data: { disable_with: btn_label }) if seats.empty?
+    = submit_tag btn_label, options

@@ -1,8 +1,6 @@
 
 require 'mongoid'
 
-require_relative '../../lib/application_defs'
-
 class User
   include Mongoid::Document
 
@@ -12,6 +10,7 @@ class User
     field :name
     validates_presence_of :name
     validates_format_of :name, without: /^\s*$/
+    validates_uniqueness_of :name
   end
 
   include_name
@@ -24,8 +23,16 @@ class User
 
   MIN_WAGER_LABEL = 'Min'
   ALL_IN_WAGER_LABEL = 'All-in'
+  FOLD_LABEL = 'Fold'
+  PASS_LABEL = 'Check / Call'
+  WAGER_LABEL = 'Bet / Raise'
+  NEXT_HAND_LABEL = 'Next Hand'
+  LEAVE_MATCH_LABEL = 'Leave Match'
+
+  # Round to avoid unreasonably large strings
+  MAX_POT_FRACTION_PRECISION = 4
   def self.wager_hotkey_label(pot_fraction)
-    "#{pot_fraction}xPot"
+    "#{pot_fraction.round(MAX_POT_FRACTION_PRECISION)}xPot"
   end
   # @return [Numeric] The pot fraction corresponding to this hotkey label,
   #   or zero if the hotkey doesn't correspond to a pot fraction wager.
@@ -35,49 +42,31 @@ class User
   def self.wager_hotkey?(label)
     hotkey_pot_fraction(label) > 0.0 || label == MIN_WAGER_LABEL || label == ALL_IN_WAGER_LABEL
   end
-  DEFAULT_HOTKEYS = {
-    'Fold' => {
-      'element_to_click' => ".fold",
-      'key' => 'A'
-    },
-    'Check / Call' => {
-      'element_to_click' => ".pass",
-      'key' => 'S'
-    },
-    'Bet / Raise' => {
-      'element_to_click' => ".wager",
-      'key' => 'D'
-    },
-    'Next Hand' => {
-      'element_to_click' => ".next_state",
-      'key' => 'F'
-    },
-    'Leave Match' => {
-      'element_to_click' => ".leave",
-      'key' => 'Q'
-    },
-    MIN_WAGER_LABEL => {
-      'key' => 'Z'
-    },
-    ALL_IN_WAGER_LABEL => {
-      'key' => 'N'
-    },
-    wager_hotkey_label(1/2.to_f) => {
-      'key' => 'X'
-    },
-    wager_hotkey_label(3/4.to_f) => {
-      'key' => 'C'
-    },
-    wager_hotkey_label(1) => {
-      'key' => 'V'
-    },
-    wager_hotkey_label(2) => {
-      'key' => 'B'
-    }
+  HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK = {
+    FOLD_LABEL => ".fold",
+    PASS_LABEL => ".pass",
+    WAGER_LABEL => ".wager",
+    NEXT_HAND_LABEL => ".next_state",
+    LEAVE_MATCH_LABEL => ".leave"
   }
+  def self.default_hotkeys
+    {
+      FOLD_LABEL => 'A',
+      PASS_LABEL => 'S',
+      WAGER_LABEL => 'D',
+      NEXT_HAND_LABEL => 'F',
+      LEAVE_MATCH_LABEL => 'Q',
+      MIN_WAGER_LABEL => 'Z',
+      ALL_IN_WAGER_LABEL => 'N',
+      wager_hotkey_label(1/2.to_f) => 'X',
+      wager_hotkey_label(3/4.to_f) => 'C',
+      wager_hotkey_label(1) => 'V',
+      wager_hotkey_label(2) => 'B'
+    }
+  end
 
   def reset_hotkeys!
-    self.hotkeys = DEFAULT_HOTKEYS
+    self.hotkeys = self.class.default_hotkeys
     save!
 
     self

@@ -10,17 +10,17 @@
     return submitAction(action);
   });
   $(".#{next_hand_id}").click(function() { return nextHand(); });
-- match_view.match.hotkeys.each do |label, hotkey|
+- user.hotkeys.each do |label, hotkey|
   - if hotkey['element_to_click']
     :javascript
       Hotkey.bind("#{hotkey['element_to_click']}", "#{hotkey['key']}");
   - else
-    - wager_amount = if label == Match::MIN_WAGER_LABEL
+    - wager_amount = if label == User::MIN_WAGER_LABEL
       - match_view.minimum_wager_to
-    - elsif label == Match::ALL_IN_WAGER_LABEL
+    - elsif label == User::ALL_IN_WAGER_LABEL
       - match_view.all_in
     - else
-      - match_view.pot_fraction_wager_to(Match.hotkey_pot_fraction(label))
+      - match_view.pot_fraction_wager_to(User.hotkey_pot_fraction(label))
     :javascript
       Hotkey.bindWager("#{label}", "#{wager_amount}", "#{hotkey['key']}");
 :javascript

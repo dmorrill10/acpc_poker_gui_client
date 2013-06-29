@@ -36,15 +36,13 @@ class MatchStartController < ApplicationController
     params[:match][:opponent_names] = truncate_opponent_names_if_necessary(
       params[:match]
     )
-    if (
+    return reset_to_match_entry_view if (
       error?(
         'Sorry, unable to finish creating a match instance, please try again or rejoin a match already in progress.'
       ) do
-        @match = Match.new(params[:match]).finish_starting!
+        @match = Match.new(params[:match].merge(user_name: user_name)).finish_starting!
       end
     )
-      return reset_to_match_entry_view
-    end
 
     @request_to_start_match_or_proxy = {
       request: ApplicationDefs::START_MATCH_REQUEST_CODE,
@@ -65,7 +63,7 @@ class MatchStartController < ApplicationController
     match_name = params[:match_name].strip
     seat = params[:seat].to_i
 
-    if (
+    return reset_to_match_entry_view if (
       error?("Sorry, unable to join match \"#{match_name}\" in seat #{seat}.") do
         opponent_users_match = Match.where(name_from_user: match_name).first
         raise unless opponent_users_match
@@ -93,32 +91,21 @@ class MatchStartController < ApplicationController
         }
       end
     )
-      return reset_to_match_entry_view
-    end
-    respond_to do |format|
-      format.js do
-        replace_page_contents wait_for_match_to_start_partial
-      end
-    end
+
+    wait_for_match_to_start
   end
 
   def rejoin
     match_name = params[:match_name].strip
     seat = params[:seat].to_i
 
-    if (
+    return reset_to_match_entry_view if (
       error?("Sorry, unable to find match \"#{match_name}\" in seat #{seat}.") do
         @match = Match.where(name: match_name, seat: seat).first
         raise unless @match
       end
     )
-      return reset_to_match_entry_view
-    end
 
-    respond_to do |format|
-      format.js do
-        replace_page_contents wait_for_match_to_start_partial
-      end
-    end
+    wait_for_match_to_start
   end
 end

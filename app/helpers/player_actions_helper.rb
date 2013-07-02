@@ -29,11 +29,13 @@ module PlayerActionsHelper
   end
   def user_must_act?
     (
-      (
-        @match_view.slice.users_turn_to_act? &&
-        @match_view.match.slices.length == 1
-      ) ||
-      @match_view.slice.hand_ended?
+      !waiting_for_response && (
+        (
+          @match_view.slice.users_turn_to_act? &&
+          @match_view.match.slices.length == 1
+        ) ||
+        @match_view.slice.hand_ended?
+      )
     )
   end
   def next_hand_button_visible?
@@ -69,5 +71,8 @@ module PlayerActionsHelper
   end
   def no_change?(action_label, new_key)
     user.hotkeys[action_label] == new_key
+  end
+  def waiting_for_response
+    session[:waiting_for_response]
   end
 end

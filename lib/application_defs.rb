@@ -60,13 +60,9 @@ module ApplicationDefs
 
   MATCH_LOG_DIRECTORY = File.join(LOG_DIRECTORY, 'match_logs') unless const_defined? :MATCH_LOG_DIRECTORY
 
-  WEBSOCKET_HOST = Socket.gethostname unless const_defined? :WEBSOCKET_HOST
-  WEBSOCKET_PORT = 19999 unless const_defined? :WEBSOCKET_PORT # Arbitrary port
-
   START_MATCH_REQUEST_CODE = 'dealer' unless const_defined? :START_MATCH_REQUEST_CODE
   START_PROXY_REQUEST_CODE = 'proxy' unless const_defined? :START_PROXY_REQUEST_CODE
   PLAY_ACTION_REQUEST_CODE = 'play' unless const_defined? :PLAY_ACTION_REQUEST_CODE
-  REQUEST_KEY = 'request' unless const_defined? :REQUEST_KEY
 
   # @return [Array<Class>] Returns only the names that correspond to bot runner
   #   classes as those classes.

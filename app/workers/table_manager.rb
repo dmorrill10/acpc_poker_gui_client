@@ -1,100 +1,69 @@
 require 'socket'
 
-# Websocket server library
-require 'em-websocket'
-
-# JSON parsing
-require 'json'
-
 # Load the database configuration
-require_relative '../database_config'
+require_relative '../../lib/database_config'
 
-require_relative '../../app/models/match'
+require_relative '../models/match'
 
 # Proxy to connect to the dealer
-require_relative '../web_application_player_proxy'
+require_relative '../../lib/web_application_player_proxy'
 require 'acpc_poker_types'
 require 'acpc_dealer'
 
 # For an opponent bot
 require 'process_runner'
 
-require_relative 'worker_helpers'
+require_relative '../../lib/background/worker_helpers'
 
 # Email on error
-require_relative 'setup_rusen'
+require_relative '../../lib/background/setup_rusen'
 
 # Easier logging
-require_relative '../simple_logging'
+require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
-require_relative '../application_defs'
+require_relative '../../lib/application_defs'
 
-module AcpcPokerGuiClient
 class TableManager
   include WorkerHelpers
   include AcpcPokerTypes
   include SimpleLogging
+  include Sidekiq::Worker
+
+  sidekiq_options retry: false, backtrace: true
 
   DEALER_HOST = Socket.gethostname
 
-  def self.listen_to_gui(authorized_client_origin)
-    new(authorized_client_origin).listen_to_gui
-  end
+  @@table_information ||= {}
+  @@logger ||= Logger.from_file_name(File.join(ApplicationDefs::LOG_DIRECTORY, 'table_manager.log')).with_metadata!
 
-  def initialize(authorized_client_origin)
-    @table_information = {}
-    @authorized_client_origin = authorized_client_origin
-    @logger = Logger.from_file_name(File.join(ApplicationDefs::LOG_DIRECTORY, 'table_manager.log')).with_metadata!
-  end
+  def perform(request, match_id, params=nil)
+    log __method__, table_information_length: @@table_information.length, request: request, match_id: match_id, params: params
 
-  def listen_to_gui
-    EventMachine::WebSocket.start(:host => "0.0.0.0", :port => ApplicationDefs::WEBSOCKET_PORT) do |connection_to_browser|
-      connection_to_browser.onopen do |handshake|
-        log "#{__method__}: onopen", origin: handshake.origin
+    begin
+      ->(&block) { block.call match_instance(match_id) }.call do |match|
+        case request
+        when ApplicationDefs::START_MATCH_REQUEST_CODE
+          start_dealer!(params, match)
 
-        connection_to_browser.close unless handshake.origin == @authorized_client_origin
-      end
-      connection_to_browser.onclose do |handshake|
-        log "#{__method__}: onclose", handshake: handshake
-      end
-      connection_to_browser.onmessage do |msg|
-        Thread.new do
-          log "#{__method__}: onmessage", msg: msg
-
-          params = JSON.parse(msg)
-
-          log "#{__method__}: onmessage", params: params
-
-          ->(&block) { block.call match_instance(params.retrieve_match_id_or_raise_exception) }.call do |match|
-            case params[ApplicationDefs::REQUEST_KEY]
-            when ApplicationDefs::START_MATCH_REQUEST_CODE
-              start_dealer!(params, match)
-
-              opponents = []
-              match.every_bot(DEALER_HOST) do |bot_command|
-                opponents << bot_command
-              end
-
-              start_opponents!(opponents).start_proxy!(match, connection_to_browser)
-            when ApplicationDefs::START_PROXY_REQUEST_CODE
-              start_proxy! match, connection_to_browser
-            when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
-              play! params, match, connection_to_browser
-            else
-              raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
-            end
+          opponents = []
+          match.every_bot(DEALER_HOST) do |bot_command|
+            opponents << bot_command
           end
+
+          start_opponents!(opponents).start_proxy!(match)
+        when ApplicationDefs::START_PROXY_REQUEST_CODE
+          start_proxy! match
+        when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+          play! params, match
+        else
+          raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
         end
       end
-      connection_to_browser.onerror do |e|
-        error = {error: {message: e.message, backtrace: e.backtrace}}
-        log "#{__method__}: onerror", error, Logger::Severity::ERROR
-        connection_to_browser.send error.to_json unless e.kind_of?(EM::WebSocket::WebSocketError) # Notify the GUI
-        Rusen.notify e # Send an email notification
-      end
-
-      yield if block_given?
+    rescue => e
+      error = {error: {message: e.message, backtrace: e.backtrace}}
+      log "#{__method__}: rescued", error, Logger::Severity::ERROR
+      Rusen.notify e # Send an email notification
     end
   end
 
@@ -102,10 +71,10 @@ class TableManager
     log __method__, params: params
 
     # Clean up data from dead matches
-    @table_information.each do |match_id, match_processes|
+    @@table_information.each do |match_id, match_processes|
       unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
         log __method__, msg: "Deleting background processes with match ID #{match_id}"
-        @table_information.delete(match_id)
+        @@table_information.delete(match_id)
       end
     end
 
@@ -119,13 +88,13 @@ class TableManager
     }
     log_directory = params['log_directory']
 
-    match_processes = @table_information[match.id] || {}
+    match_processes = @@table_information[match.id] || {}
 
     log __method__, {
       match_id: match.id,
       dealer_arguments: dealer_arguments,
       log_directory: log_directory,
-      num_tables: @table_information.length
+      num_tables: @@table_information.length
     }
 
     dealer_information = match_processes[:dealer] || {}
@@ -139,7 +108,7 @@ class TableManager
         log_directory
       )
       match_processes[:dealer] = dealer_information
-      @table_information[match.id] = match_processes
+      @@table_information[match.id] = match_processes
     rescue => unable_to_start_dealer_exception
       handle_exception match.id, "unable to start dealer: #{unable_to_start_dealer_exception.message}"
       raise unable_to_start_dealer_exception
@@ -182,13 +151,13 @@ class TableManager
     self
   end
 
-  def start_proxy!(match, connection_to_browser)
-    match_processes = @table_information[match.id] || {}
+  def start_proxy!(match)
+    match_processes = @@table_information[match.id] || {}
     proxy = match_processes[:proxy]
 
     log __method__, {
       match_id: match.id,
-      num_tables: @table_information.length,
+      num_tables: @@table_information.length,
       num_match_processes: match_processes.length,
       proxy_present: !proxy.nil?
     }
@@ -216,15 +185,10 @@ class TableManager
         match.player_names.join(' '),
         match.number_of_hands
       ) do |players_at_the_table|
-
         log "#{__method__}: Initializing proxy", {
           match_id: match.id,
           at_least_one_state: !players_at_the_table.transition.next_state.nil?
         }
-        connection_to_browser.send({
-          reply: ApplicationDefs::START_PROXY_REQUEST_CODE,
-          match_id: match.id
-        }.to_json)
       end
     rescue => e
       handle_exception match.id, "unable to start the user's proxy: #{e.message}"
@@ -237,18 +201,18 @@ class TableManager
     }
 
     match_processes[:proxy] = proxy
-    @table_information[match.id] = match_processes
+    @@table_information[match.id] = match_processes
 
     self
   end
 
-  def play!(params, match, connection_to_browser)
-    unless @table_information[match.id]
+  def play!(params, match)
+    unless @@table_information[match.id]
       log(__method__, msg: "Ignoring request to play in match #{match.id} that doesn't exist.")
       return self
     end
 
-    proxy = @table_information[match.id][:proxy]
+    proxy = @@table_information[match.id][:proxy]
 
     unless proxy
       log(__method__, msg: "Ignoring request to play in match #{match.id} in seat #{match.seat} when no such proxy exists.")
@@ -256,22 +220,16 @@ class TableManager
     end
 
     action = PokerAction.new(
-      params.retrieve_parameter_or_raise_exception('action'),
-      {modifier: params['modifier']}
+      params.retrieve_parameter_or_raise_exception('action')
     )
 
     log __method__, {
       match_id: match.id,
-      num_tables: @table_information.length
+      num_tables: @@table_information.length
     }
 
     begin
-      proxy.play! action do |players_at_the_table|
-        connection_to_browser.send({
-          reply: ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
-          match_id: match.id
-        }.to_json)
-      end
+      proxy.play!(action) {}
     rescue => e
       handle_exception match.id, "unable to take action #{action.to_acpc}: #{e.message}"
       raise e
@@ -279,10 +237,9 @@ class TableManager
 
     if proxy.match_ended?
       log __method__, msg: "Deleting background processes with match ID #{match.id}"
-      @table_information.delete match.id
+      @@table_information.delete match.id
     end
 
     self
   end
-end
 end

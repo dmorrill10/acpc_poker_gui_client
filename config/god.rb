@@ -9,7 +9,7 @@ MONGODB_ROOT = "#{GOD_RAILS_ROOT}/vendor/mongoDB/"
 
 def watch(name)
   God.watch do |w|
-    w.dir = "#{GOD_RAILS_ROOT}/log"
+    w.dir = "#{GOD_RAILS_ROOT}"
     w.log = "#{GOD_RAILS_ROOT}/log/#{name}.log"
     w.interval = 30.seconds
     w.env = {"RAILS_ROOT" => GOD_RAILS_ROOT, "RAILS_ENV" => "production"}
@@ -83,8 +83,12 @@ watch('mongod') do |w|
   w.start = "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
 end
 
+watch('redis') do |w|
+  w.start = "#{GOD_RAILS_ROOT}/vendor/redis-stable/src/redis-server"
+end
+
 watch('worker') do |w|
-  w.start = "#{GOD_RAILS_ROOT}/lib/background/worker.rb"
+  w.start = "bundle exec sidekiq -r #{GOD_RAILS_ROOT}"
 end
 
 keep_match_database_tidy

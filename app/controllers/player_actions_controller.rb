@@ -23,6 +23,22 @@ class PlayerActionsController < ApplicationController
     )
   end
 
+  def take_action
+    return reset_to_match_entry_view if (
+      error?(
+        "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
+      ) do
+        TableManager.perform_async(
+          ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
+          params[:match_id],
+          action: params[:poker_action]
+        )
+        session[:waiting_for_response] = true
+        replace_page_contents_with_updated_game_view(params[:match_id])
+      end
+    )
+  end
+
   def update_state
     return reset_to_match_entry_view if (
       error?(
@@ -58,7 +74,10 @@ class PlayerActionsController < ApplicationController
     if (
       error?(
         "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
-      ) { replace_page_contents_with_updated_game_view(params[:match_id]) }
+      ) do
+        session[:waiting_for_response] = false
+        replace_page_contents_with_updated_game_view(params[:match_id])
+      end
     )
       begin
         @match_view.match.slices << last_slice if @match_view.match.slices.empty?

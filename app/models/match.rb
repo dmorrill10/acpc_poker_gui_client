@@ -71,11 +71,10 @@ class Match
     delete_matches_older_than! match_lifespan
   end
 
-  DEFAULT_USER_NAME = 'noname'
   def self.start_match(
     name,
     game_definition_key,
-    user_name = DEFAULT_USER_NAME,
+    user_name = 'noname',
     opponent_names = nil,
     seat = nil,
     number_of_hands = nil,

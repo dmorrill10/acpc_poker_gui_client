@@ -1,10 +1,10 @@
 - if match_view.no_limit?
   = render partial: 'no_limit_wager_tools'
 = render partial: 'helpers'
-= render partial: 'update_after_action'
 = render partial: 'wire_actions'
 = render partial: 'adjust_sizes'
 = render partial: 'initial_focus'
+
 
 :javascript
   var timerId;
@@ -13,8 +13,12 @@
   }
 - unless user_must_act?
   :javascript
-    timerId = setInterval(updateState, 500);
+    timerId = setInterval(updateState, 100);
 .hidden
+  = form_tag take_action_url, :remote => true do
+    = hidden_field_tag :match_id, match.id
+    = hidden_field_tag :poker_action
+    = submit_tag nil, class: 'take_action'
   = form_tag update_url, :remote => true do
     = hidden_field_tag :match_id, match.id
     = submit_tag nil, class: update_id

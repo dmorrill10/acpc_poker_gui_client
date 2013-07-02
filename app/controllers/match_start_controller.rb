@@ -43,9 +43,9 @@ class MatchStartController < ApplicationController
       end
     )
 
-    @request_to_start_match_or_proxy = {
-      request: ApplicationDefs::START_MATCH_REQUEST_CODE,
-      match_id: @match.id,
+    TableManager.perform_async(
+      ApplicationDefs::START_MATCH_REQUEST_CODE,
+      @match.id.to_s,
       options: [
         '-a', # Append logs with the same name rather than overwrite
         "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
@@ -53,7 +53,7 @@ class MatchStartController < ApplicationController
         '--t_per_hand -1'
       ].join(' '),
       log_directory: MATCH_LOG_DIRECTORY
-    }
+    )
 
     wait_for_match_to_start
   end
@@ -84,10 +84,10 @@ class MatchStartController < ApplicationController
         @match.opponent_names.delete_at(seat - 1)
         @match.save!(validate: false)
 
-        @request_to_start_match_or_proxy = {
-          request: ApplicationDefs::START_PROXY_REQUEST_CODE,
-          match_id: @match.id
-        }
+        TableManager.perform_async(
+          ApplicationDefs::START_PROXY_REQUEST_CODE,
+          @match.id.to_s
+        )
       end
     )
 
@@ -105,6 +105,11 @@ class MatchStartController < ApplicationController
       end
     )
 
+    wait_for_match_to_start
+  end
+
+  def poll
+    @match = Match.find params[:match_id]
     wait_for_match_to_start
   end
 end

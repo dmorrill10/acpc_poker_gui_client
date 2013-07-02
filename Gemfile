@@ -55,8 +55,8 @@ gem 'contextual_exceptions'
 # To run background process
 gem 'process_runner'
 
-# For quick and simple websocket Rails-background process communication
-gem 'em-websocket'
+# For background process communication
+gem 'sidekiq'
 
 # Gems used only for assets and not required
 # in production environments by default.

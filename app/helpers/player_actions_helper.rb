@@ -14,7 +14,13 @@ module PlayerActionsHelper
 
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view(match_id)
-    @match_view ||= MatchView.new(match_id)
+    # Yes, this will reload @match_view from the database
+    # which will often be unnecessary, but it will ensure
+    # that the app being viewed by the user is always up to
+    # date. There are times in a multi-process server
+    # environment when not reloading the view can cause
+    # the app to lock in an unusable position.
+    @match_view = MatchView.new(match_id)
     replace_page_contents 'player_actions/index'
   end
   def acting_player_id(player_seat)

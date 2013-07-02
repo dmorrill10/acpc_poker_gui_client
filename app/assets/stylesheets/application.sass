@@ -1,0 +1,34 @@
+// Sprocket directives
+//= require jquery.ui.slider
+// To use a different JQueryUi theme, use: "//=require jquery-ui-whatever_theme/jquery-ui"
+
+// ---- Compass ------- //
+@import "compass"
+
+// ---- Zen Grids ------- //
+@import 'zen'
+
+// ---- Twitter Bootstrap ------- //
+@import 'twitter/bootstrap'
+@import 'twitter/bootstrap/reset'
+
+// ---- Core ------- //
+// Must be included first
+@import 'core/settings'
+// Must be included second
+@import 'core/helpers'
+@import 'core/base'
+@import 'core/content'
+
+
+// ---- Modules ------ //
+@import 'modules/container'
+@import 'modules/action_dashboard/action_dashboard'
+@import 'modules/client_side_validations'
+@import 'modules/show_grid'
+@import 'modules/wager_amount-slider'
+@import 'modules/poker_table/poker_table'
+@import 'modules/game_interface'
+@import 'modules/card/card'
+@import 'modules/match_start'
+@import 'modules/customize_hotkeys'

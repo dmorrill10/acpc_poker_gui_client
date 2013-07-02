@@ -13,12 +13,18 @@ require 'match'
 class MatchStartController < ApplicationController
   include ApplicationDefs
   include ApplicationHelper
+  include MatchStartHelper
 
   # Presents the main 'start a new game' view.
   def index
-    @match = Match.new
+    Match.delete_irrelevant_matches!
+
+    unless user_initialized?
+      @alert_message = "Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}"
+    end
+
     respond_to do |format|
-      format.html {}
+      format.html {} # Render the default partial
       format.js do
         replace_page_contents NEW_MATCH_PARTIAL
       end
@@ -26,92 +32,79 @@ class MatchStartController < ApplicationController
   end
 
   def new
-    while (
-      params[:match][:opponent_names].length >
-      ApplicationDefs::GAME_DEFINITIONS[
-        params[:match][:game_definition_key].to_sym
-      ][:num_players] - 1
+    params[:match][:opponent_names] = truncate_opponent_names_if_necessary(
+      params[:match]
     )
-      params[:match][:opponent_names].pop
-    end
-    @match = begin
-      Match.new(params[:match]).finish_starting!
-    rescue => e
-      ap "MatchStartController#index: "
-      p e.message
-      ap 'Backtrace:'
-      e.backtrace.each do |line|
-        ap line
+    return reset_to_match_entry_view if (
+      error?(
+        'Sorry, unable to finish creating a match instance, please try again or rejoin a match already in progress.'
+      ) do
+        @match = Match.new(params[:match].merge(user_name: user_name)).finish_starting!
       end
-      reset_to_match_entry_view 'Sorry, unable to start the match, please try again or rejoin a match already in progress.'
-      return
-    end
-
-    options = [
-      '--t_response -1',
-      '--t_hand -1',
-      '--t_per_hand -1'
-    ].join ' '
-
-    Stalker.start_background_job(
-      'Dealer.start',
-      {
-        match_id: @match.id,
-        match_name: @match.match_name,
-        game_def_file_name: @match.game_definition_file_name,
-        number_of_hands: @match.number_of_hands.to_s,
-        random_seed: @match.random_seed.to_s,
-        player_names: @match.player_names.join(' '),
-        options: options,
-        log_directory: MATCH_LOG_DIRECTORY
-      }
     )
 
-    # @todo Easy place to try events instead of polling when the chance arises
-    continue_looping_condition = lambda { |match| match.port_numbers.nil? }
-    begin
-      temp_match_view = MatchView.failsafe_while_for_match(@match.id, continue_looping_condition)
-    rescue => e
-      ap "MatchStartController#index: "
-      p e.message
-      ap 'Backtrace:'
-      e.backtrace.each do |line|
-        ap line
+    @request_to_start_match_or_proxy = {
+      request: ApplicationDefs::START_MATCH_REQUEST_CODE,
+      match_id: @match.id,
+      options: [
+        '-a', # Append logs with the same name rather than overwrite
+        "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
+        '--t_hand -1',
+        '--t_per_hand -1'
+      ].join(' '),
+      log_directory: MATCH_LOG_DIRECTORY
+    }
+
+    wait_for_match_to_start
+  end
+
+  def join
+    match_name = params[:match_name].strip
+    seat = params[:seat].to_i
+
+    return reset_to_match_entry_view if (
+      error?("Sorry, unable to join match \"#{match_name}\" in seat #{seat}.") do
+        opponent_users_match = Match.where(name_from_user: match_name).first
+        raise unless opponent_users_match
+
+        # Copy match information
+        @match = opponent_users_match.dup
+        underscore = '_'
+        @match.name_from_user = underscore
+        while !@match.save do
+          @match.name_from_user << underscore
+        end
+
+        # Swap seat
+        @match.seat = seat
+        @match.opponent_names.insert(
+          opponent_users_match.seat - 1,
+          HUMAN_OPPONENT_NAME
+        )
+        @match.opponent_names.delete_at(seat - 1)
+        @match.save!(validate: false)
+
+        @request_to_start_match_or_proxy = {
+          request: ApplicationDefs::START_PROXY_REQUEST_CODE,
+          match_id: @match.id
+        }
       end
-      temp_match_view.match.delete
-      reset_to_match_entry_view 'Sorry, unable to start a dealer, please try again or rejoin a match already in progress.'
-      return
-    end
-    @match = temp_match_view.match
+    )
 
-    @match.every_bot(Socket.gethostname) do |bot_command|
-      opponent_arguments = {
-        match_id: @match.id,
-        bot_start_command: bot_command
-      }
-      Stalker.start_background_job 'Opponent.start', opponent_arguments
-    end
-
-    send_parameters_to_connect_to_dealer
+    wait_for_match_to_start
   end
 
   def rejoin
     match_name = params[:match_name].strip
+    seat = params[:seat].to_i
 
-    begin
-      @match = Match.where(match_name: match_name).first
-      raise unless @match
-
-      @port_number = @match.port_numbers[@match.seat-1]
-      send_parameters_to_connect_to_dealer
-    rescue => e
-      ap "MatchStartController#index: "
-      p e.message
-      ap 'Backtrace:'
-      e.backtrace.each do |line|
-        ap line
+    return reset_to_match_entry_view if (
+      error?("Sorry, unable to find match \"#{match_name}\" in seat #{seat}.") do
+        @match = Match.where(name: match_name, seat: seat).first
+        raise unless @match
       end
-      reset_to_match_entry_view "Sorry, unable to find match \"#{match_name}\"."
-    end
+    )
+
+    wait_for_match_to_start
   end
 end

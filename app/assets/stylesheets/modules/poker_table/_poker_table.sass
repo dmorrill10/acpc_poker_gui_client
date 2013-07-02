@@ -1,0 +1,73 @@
+@import 'poker_table-defs'
+@import '../player/player-defs'
+@import '../abstract/chip_stack-defs'
+@import '../abstract/cards-defs'
+@import '../card/card-defs'
+
+.poker_table
+  @include zen-grid-container
+  @include soft_edges($triad-color-2-dark, 100%, 500px 500px 500px 500px)
+  +contrasted($l-poker_table-background-color)
+
+  background-image: image-url('nick_morrill/small_felt.jpg')
+
+  height: 447px
+
+  *
+    white-space: normal
+  .user
+    @include parent_grid($l-poker_table-column-count)
+    @include player($l-poker_table-column-count/2)
+    @include zen-clear
+
+    .held_player_information
+      @include zen-clear
+  .opponent
+    .outer_player_information
+      @include zen-clear
+  .opponent.opponent_1_of_1
+    @include parent_grid($l-poker_table-column-count)
+    @include player($l-poker_table-column-count/2)
+  // Two player
+  .opponent.opponent_1_of_2
+    @include parent_grid($l-poker_table-column-count)
+    @include player($l-poker_table-column-count/2 - 1)
+  .opponent.opponent_2_of_2
+    @include parent_grid($l-poker_table-column-count)
+    @include player($l-poker_table-column-count/2 + 1)
+  .community_information
+    @include parent_grid($l-poker_table-column-count)
+    @include zen-grid-item($l-poker_table-column-count, 1)
+    @include zen-nested-container
+    @include zen-clear
+
+    margin-top: $original-zen-gutter-width
+    margin-bottom: $original-zen-gutter-width
+
+    height: $card_height
+
+    $l-community_information-column-count: 14
+    .board_cards
+      @include parent_grid($l-community_information-column-count)
+      @include zen-grid-item(7, 1)
+      @include cards(5)
+
+      .card_set
+        float: right
+        height: $card_height
+    .pot
+      @include parent_grid($l-community_information-column-count)
+      @include zen-grid-item(2, 8)
+      .chip_stack
+        @include chip_stack($l-poker_table-pot-color)
+        @extend %centerHorizontally
+    .summary_information
+      @include parent_grid($l-community_information-column-count)
+      @include zen-grid-item(5, 10)
+
+      $c-summary_information-font-size: ($base-fontSize - 4) * 2
+      $c-summary_information-line-height: 1.5
+      @include align_center_vertically($c-summary_information-font-size * $c-summary_information-line-height, $card_height)
+
+      line-height: $c-summary_information-line-height
+      font-size: $c-summary_information-font-size

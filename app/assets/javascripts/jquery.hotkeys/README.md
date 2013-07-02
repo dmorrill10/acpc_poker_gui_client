@@ -1,7 +1,7 @@
 #About
 **jQuery Hotkeys** is a plug-in that lets you easily add and remove handlers for keyboard events anywhere in your code supporting almost any key combination.  
 
-This plugin is based off of the plugin by Tzury Bar Yochay: [jQuery.hotkeys](http://github.com/tzuryby/hotkeys)
+This plugin is based off of the plugin by Tzury Bar Yochay: [jQuery.hotkeys](https://github.com/tzuryby/jquery.hotkeys)
 
 The syntax is as follows:
 
@@ -14,9 +14,21 @@ The syntax is as follows:
     $('input.foo').bind('keyup', '$', function(){
       this.value = this.value.replace('$', 'EUR');
     });
+    
+Syntax when wanting to use jQuery's `on()`/`off` methods:
+
+    $(expression).on(types, null, keys, handler);
+    $(expression).off(types, handler);
+    
+    $(document).on('keydown', null, 'ctrl+a', fn);
+    
+    // e.g. replace '$' sign with 'EUR'
+    $('input.foo').on('keyup', null, '$', function(){
+      this.value = this.value.replace('$', 'EUR');
+    });     
 
 ## Types
-Supported types are `'keydown'`, `'keyup'` and `'keypress'`
+Supported types are `'keydown'`, `'keyup'` and `'keypress'`   
 
 ## Notes
 

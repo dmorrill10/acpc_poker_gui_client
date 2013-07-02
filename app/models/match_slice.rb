@@ -1,18 +1,12 @@
-
 require 'mongoid'
 
 require_relative '../../lib/mongoid_ext/player'
 require_relative '../../lib/mongoid_ext/chip_stack'
-# require_relative '../../lib/mongoid_ext/card'
 
 class MatchSlice
   include Mongoid::Document
 
   embedded_in :match, inverse_of: :slices
-
-  # @return [Array<Integer>] The distribution of this match's pot of chips to each player at the table.
-  # @todo Shouldn't be needed now
-  # field :pot_distribution, type: Array
 
   # Non-accumulating state
   field :hand_has_ended, type: Boolean
@@ -31,10 +25,6 @@ class MatchSlice
   # @return [String] The current betting sequence.
   field :betting_sequence, type: String
 
-  # @return [Array<Integer>] The pot values at the beginning of the current round.
-  # # @todo Not necessary
-  # field :pot_values_at_start_of_round, type: Array
-
   # @return [Array<String>] The legal actions of the currently acting player (in ACPC format).
   field :legal_actions, type: Array
 
@@ -42,9 +32,6 @@ class MatchSlice
 
   # @return [Array<Hash<String,Object>] The hash forms of the players in this match.
   field :players, type: Array
-
-  # @return [Array<Integer>] The amounts required for each player to call arranged by seat.
-  # field :amounts_to_call, type: Array
 
   # @return [String] The sequence of seats of acting players.
   field :player_acting_sequence, type: String

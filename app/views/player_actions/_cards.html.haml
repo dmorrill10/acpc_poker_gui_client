@@ -1,9 +1,10 @@
-- cards.each do |card|
-  - if card.respond_to?(:suit) && card.respond_to?(:rank)
-    .card.span-2{ :id => card.suit.to_s }
-      .top_left_rank.span-1= card.rank.to_s.html_safe
-      .suit.span-1.last= card.suit.to_html.html_safe
-      .bottom_right_rank.span-2= card.rank.to_s.html_safe
-  - else
-    .card.span-2{ :id => '' }
-      .logo.span-2.prepend-top.last
+.card_set
+  - cards.each do |card|
+    - if card.respond_to?(:suit) && card.respond_to?(:rank)
+      .card{ :id => card.suit.to_s }
+        .top_left_rank= card.rank.to_s.html_safe
+        .suit= card.suit.to_html.html_safe
+        .bottom_right_rank= card.rank.to_s.html_safe
+    - else
+      .card{ :id => '' }
+        .logo

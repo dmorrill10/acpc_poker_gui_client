@@ -1,0 +1,24 @@
+- classes ||= []
+- footer_partial ||= nil
+%table.table.table-striped{ class: classes, role: 'menu'}
+  %thead
+    %tr
+      %th Action
+      %th Key
+  %tbody
+    - user.hotkeys.each do |label, key|
+      - next if User.wager_hotkey?(label)
+      %tr
+        %td= label
+        %td= right_column.call(label, key.to_s.capitalize)
+    - if match_view.no_limit?
+      %tr
+        %th{colspan: 2} Wagers
+      - user.hotkeys.each do |label, key|
+        - next unless User.wager_hotkey?(label)
+        %tr
+          %td= label
+          %td= right_column.call(label, key.to_s.capitalize)
+  - if footer_partial
+    %tfoot
+      = render partial: footer_partial

@@ -1,12 +1,11 @@
 # run with: god -c config/god.rb
 
-require_relative '../lib/application_defs'
+require_relative '../app/models/match'
 
 GOD_RAILS_ROOT = File.expand_path("../..", __FILE__)
 God.pid_file_directory = "#{GOD_RAILS_ROOT}/tmp/pids"
 
 MONGODB_ROOT = "#{GOD_RAILS_ROOT}/vendor/mongoDB/"
-BEANSTALKD_PATH = "#{GOD_RAILS_ROOT}/vendor/beanstalkd"
 
 def watch(name)
   God.watch do |w|
@@ -50,13 +49,13 @@ def watch(name)
   end
 end
 
-def delete_matches_older_than(lifespan)
+def delete_matches_older_than!(lifespan)
   # These are needed to monitor the Match database and they must be done after
   #  ensuring that the database (mongod in this case) is running
   require "#{GOD_RAILS_ROOT}/lib/database_config"
   require "#{GOD_RAILS_ROOT}/app/models/match"
 
-  Match.delete_matches_older_than lifespan
+  Match.delete_matches_older_than! lifespan
 end
 
 def keep_match_database_tidy
@@ -73,7 +72,7 @@ def keep_match_database_tidy
     #  ignore it and try again tomorrow.
     w.start = lambda do
       begin
-        delete_matches_older_than(1.month)
+        delete_matches_older_than!(match_lifespan)
       rescue
       end
     end
@@ -84,12 +83,8 @@ watch('mongod') do |w|
   w.start = "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
 end
 
-watch('beanstalkd') do |w|
-  w.start = BEANSTALKD_PATH
-end
-
 watch('worker') do |w|
-  w.start = "bundle exec stalk #{GOD_RAILS_ROOT}/lib/background/worker.rb"
+  w.start = "#{GOD_RAILS_ROOT}/lib/background/worker.rb"
 end
 
 keep_match_database_tidy

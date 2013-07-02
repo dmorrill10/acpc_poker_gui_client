@@ -1,4 +1,8 @@
 .navbar
   .navbar-inner
     = link_to ApplicationHelper::APP_NAME, root_url, class: 'brand'
-    = render partial: partial if partial
+    %ul.nav
+      = render partial: partial if partial
+      %li= help_link
+      %li.user
+        %a= "<i class='icon-user'></i> #{user.name}".html_safe

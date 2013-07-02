@@ -1,0 +1,139 @@
+$background_color: #000
+
+$default_radius: 5px
+$default_border_radius: $default_radius $default_radius $default_radius $default_radius
+$default_border_width: 2px
+
+$original-zen-gutter-width: $zen-gutter-width
+$original-zen-column-count: $zen-column-count
+
+// ----- Functions ----- //
+
+// em()
+// -- Sizes a pixel value to appropriate ems
+
+@function em($target, $context: $base-fontSize)
+  @if ($target == 0)
+    @return 0
+  @else
+    @return #{$target / $context}em
+
+// rem()
+// -- Sizes a pixel value to appropriate rems
+
+@function rem($size)
+  @return #{$size / $base-fontSize}rem
+
+// circular_border_radius()
+// -- Returns the radius that specifies a circle
+@function circular_border_radius()
+  @return 50px 50px 50px 50px
+
+// ----- Mixins ----- //
+
+// +respond-to()
+// -- Generates a specified media query, which
+//    defaults to 'min-width' and 'screen'
+
+=respond-to($val, $query: min-width, $media: screen)
+  @media #{$media} and ($query: $val)
+    @content
+
+=soft_edges($border_color: transparent, $border_width: $default_border_width, $border_radius: $default_border_radius, $border_style: solid)
+  border-color: $border_color
+  border-width: $border_width
+  border-style: $border_style
+  border-radius: $border_radius
+
+=parent_grid($num_columns: $original-zen-column-count, $gutter_width: $original-zen-gutter-width)
+  $zen-column-count: $num_columns
+  $zen-gutter-width: $gutter_width
+
+=align_center($width_of_item_to_center, $width_of_item_in_which_to_center)
+  position: absolute
+  left: ($width_of_item_in_which_to_center - $width_of_item_to_center)/2
+
+=align_center_vertically($height_of_item_to_center, $height_of_item_in_which_to_center)
+  position: relative
+  top: ($height_of_item_in_which_to_center - $height_of_item_to_center)/2
+  height: $height_of_item_to_center
+
+=align_text_center_horizontally_and_vertically($block_height, $font_size)
+  line-height: $block_height
+  text-align: center
+
+// ----- Extends ----- //
+
+// @extend %debug
+// -- Utility for debugging layout issues
+
+%debug
+  background-color: pink !important
+
+// @extend %ellipsis
+// -- CSS text truncation
+
+%ellipsis
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+
+// @extend %group
+// -- Clearfix
+
+%group:after
+  clear: both
+  content: ''
+  display: table
+
+// @extend %ir
+// -- Image replacement
+
+%ir
+  background-color: transparent
+  border: 0
+  overflow: hidden
+  &:before
+    content: ''
+    display: block
+    width: 0
+    height: 150%
+
+%noSize
+  padding: 0
+  margin: 0
+  height: 0
+  width: 0
+  overflow: hidden
+  display: none
+
+%circularBorderRadius
+  border-radius: circular_border_radius()
+
+%raisedBorder
+  border-style: outset
+  border-width: $l-raisedBorder-border-width
+
+%autoAdjustedHorizontalMargins
+  margin-left: auto
+  margin-right: auto
+
+%autoAdjustedVerticalMargins
+  margin-top: auto
+  margin-bottom: auto
+
+%noBorder
+  border-width: 0
+  border-style: none
+
+%centerHorizontally
+  @extend %autoAdjustedHorizontalMargins
+  position: relative
+  display: block
+
+%centerVertically
+  @extend %autoAdjustedVerticalMargins
+  position: relative
+  display: block
+
+// ----- Animations ----- //

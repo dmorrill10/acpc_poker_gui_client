@@ -9,3 +9,22 @@
   %body
     .container
       = yield
+
+:javascript
+  var ws = new WebSocket("ws://#{ApplicationDefs::WEBSOCKET_HOST}:#{ApplicationDefs::WEBSOCKET_PORT}/");
+  ws.onopen = function() {
+    console.log("websocket: onopen");
+  };
+  ws.onmessage = function(e) {
+    console.log("websocket: onmessage: data: " + e.data);
+  };
+  ws.onclose = function() {
+    console.log("websocket: onclose");
+  };
+  function isBlank(str) {
+    return (!str || /^[\"\'\s]*$/.test(str));
+  }
+  function sendAndLog(wsock, msg) {
+    console.log("Sending: " + msg);
+    return wsock.send(msg);
+  }

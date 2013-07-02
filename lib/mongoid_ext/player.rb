@@ -5,7 +5,7 @@ module AcpcPokerTypes
     def to_h
       {
         'name' => @name,
-        'seat' => @seat,
+        'seat' => @seat.to_i,
         'chip_stack' => @chip_stack.to_f,
         'chip_contributions' => @chip_contributions.map { |cc| cc.to_f },
         'chip_balance' => @chip_balance.to_f,

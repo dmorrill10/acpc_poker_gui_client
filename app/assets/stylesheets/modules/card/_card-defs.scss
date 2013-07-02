@@ -1,0 +1,10 @@
+$card_height_width_ratio: 2.6/2;
+$card_width: 50px;
+$card_height: ceil($card_height_width_ratio * $card_width);
+
+$card_color_variation_amount: 12%;
+
+$card_bare_image_height: $card_height;
+$card_bare_image_width: $card_width;
+
+$l-card-margin: 6px;

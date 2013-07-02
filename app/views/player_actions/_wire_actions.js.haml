@@ -1,0 +1,28 @@
+:javascript
+  $(".#{fold_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}"); });
+  $(".#{pass_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::CALL}"); });
+  $(".#{wager_html_class}").click(function() {
+    var wagerAmount = wagerAmountField().val();
+    var action = "#{AcpcPokerTypes::PokerAction::RAISE}"
+    if (!isBlank(wagerAmount)) {
+      action += wagerAmount;
+    }
+    return submitAction(action);
+  });
+  $(".#{next_hand_id}").click(function() { return nextHand(); });
+- user.hotkeys.each do |label, key|
+  - if User::HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK[label]
+    :javascript
+      Hotkey.bind("#{User::HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK[label]}", "#{key}");
+  - else
+    - wager_amount = if label == User::MIN_WAGER_LABEL
+      - match_view.minimum_wager_to
+    - elsif label == User::ALL_IN_WAGER_LABEL
+      - match_view.all_in
+    - else
+      - match_view.pot_fraction_wager_to(User.hotkey_pot_fraction(label))
+    :javascript
+      Hotkey.bindWager("#{label}", "#{wager_amount}", "#{key}");
+:javascript
+  // Must be done after initializing the websocket message sending click handlers
+  ActionDashboard.disableButtonsOnClick();

@@ -1,0 +1,56 @@
+@import 'action_dashboard/action_dashboard-defs'
+
+.wager_amount-slider
+  @include parent_grid($l-action_dashboard-column-count)
+  @include zen-grid-item(2, 1)
+  @include zen-nested-container
+
+  margin-bottom: $zen-gutter-width
+
+  $l-wager_amount-slider-column-count: 1
+
+  .slider_labels
+    @include parent_grid($l-wager_amount-slider-column-count)
+    @include zen-grid-item($l-wager_amount-slider-column-count, 1)
+    @include zen-nested-container
+
+    $num_labels: 6
+
+    .slider_label
+      @include parent_grid($num_labels)
+    @for $n from 1 through $num_labels
+      .slider_label:nth-child(#{$num_labels}n+#{$n})
+        @include zen-grid-item(1, $n)
+    .slider_label
+      text-align: left
+      &.half_pot
+        padding-left: 3%
+      &.three_quarters_pot
+        padding-left: 5%
+      &.one_pot
+        padding-left: 7%
+      &.two_pot
+        text-align: right
+    .slider_label:last-child
+      text-align: right
+  .slider
+    @include parent_grid($l-wager_amount-slider-column-count)
+    @include zen-grid-item($l-wager_amount-slider-column-count, 1)
+    @include zen-grid-container
+    @include zen-clear
+
+    position: relative
+
+    $l-slider-column-count: 1
+
+    .ui_slider
+      @include parent_grid($l-slider-column-count)
+      @include zen-grid-item($l-slider-column-count, 1)
+
+      $ui_slider_second_color: $triad-color-1-light
+      .ui-slider-handle
+        background-image: none
+        background-color: $ui_slider_second_color
+      .ui-slider-range
+        background-image: none
+        background-color: $ui_slider_second_color

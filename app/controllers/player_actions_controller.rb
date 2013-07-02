@@ -1,16 +1,13 @@
-
-# Gems
-require 'stalker'
-
 # Local modules
 require 'application_defs'
 require 'application_helper'
 
 # Local classes
 require 'match'
-require 'user_poker_action'
 
 require 'ap'
+
+require 'acpc_poker_types/seat'
 
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
@@ -19,105 +16,100 @@ class PlayerActionsController < ApplicationController
   include PlayerActionsHelper
 
   def index
-    @match_params = {
-      match_id: params[:match_id],
-      port_number: params[:port_number],
-      match_name: params[:match_name],
-      game_definition_file_name: params[:game_definition_file_name],
-      number_of_hands: params[:number_of_hands],
-      seat: params[:seat],
-      random_seed: params[:random_seed],
-      opponent_names: params[:opponent_names],
-      millisecond_response_timeout: params[:millisecond_response_timeout]
-    }
-
-    @match_id = params[:match_id]
-    begin
-      @match_view ||= MatchView.new @match_id
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
-      return
-    end
-    if @match_view.match && !@match_view.match.slices.empty? # Match is being resumed
-      # Do nothing
-    else # A new match is being started so the user's proxy needs to be started
-      player_proxy_arguments = {
-        match_id: @match_params[:match_id],
-        host_name: 'localhost', port_number: @match_view.match.users_port,
-        game_definition_file_name: @match_params[:game_definition_file_name],
-        player_names: @match_view.match.player_names.join(' '),
-        number_of_hands: @match_params[:number_of_hands],
-        millisecond_response_timeout: @match_params[:millisecond_response_timeout],
-        users_seat: (@match_params[:seat].to_i - 1)
-      }
-
-      Stalker.start_background_job 'PlayerProxy.start', player_proxy_arguments
-
-      # Wait for the player to start and catch errors
-      # @todo Important place to try events instead of polling when the chance arises
-      begin
-        update_match!
-      rescue => e
-        Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-        reset_to_match_entry_view "Sorry, there was a problem starting your proxy with the dealer, please report this incident to #{ADMINISTRATOR_EMAIL}."
-        return
-      end
-    end
-    begin
-      replace_page_contents_with_updated_game_view
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem starting the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
-      return
-    end
+    return reset_to_match_entry_view if (
+      error?(
+        "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
+      ) { replace_page_contents_with_updated_game_view params[:match_id] }
+    )
   end
 
-  def take_action
-    user_poker_action = UserPokerAction.new params[:user_poker_action]
-    @match_id ||= user_poker_action.match_id
+  def update_state
+    return reset_to_match_entry_view if (
+      error?(
+        "Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}."
+      ) do
+        @match_view ||= MatchView.new params[:match_id]
+        return update unless @match_view.slice.hand_ended?
+      end
+    )
+    render nothing: true
+  end
 
-    Stalker.start_background_job(
-      'PlayerProxy.play',
-      match_id: user_poker_action.match_id,
-      action: user_poker_action.poker_action,
-      modifier: user_poker_action.modifier
+  def update
+    last_slice = nil
+
+    return reset_to_match_entry_view if (
+      error?(
+        "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
+      ) do
+        @match_view ||= MatchView.new params[:match_id]
+
+        # Abort if there is only one slice in the match view
+        if @match_view.match.slices.length < 2
+          return render(nothing: true)
+        end
+
+        # Delete the last slice since it's no longer needed
+        last_slice = @match_view.match.slices.first
+        last_slice.delete
+      end
     )
 
-    update_match_state
-  end
-
-  def update_match_state
-    @match_id ||= params['match_id']
-    begin
-      # Delete the last slice since it's no longer needed
-      @match_view ||= MatchView.new @match_id
-      last_slice = @match_view.match.slices.first
-      last_slice.delete
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      reset_to_match_entry_view "Sorry, there was a problem cleaning up the previous match slice before taking action #{params[:user_poker_action]}, please report this incident to #{ADMINISTRATOR_EMAIL}."
-      return
-    end
-    begin
-      update_match!
-      replace_page_contents_with_updated_game_view
-    rescue => e
-      Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
-      # Save the last match state again so that it can
-      # be resumed
+    if (
+      error?(
+        "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
+      ) { replace_page_contents_with_updated_game_view(params[:match_id]) }
+    )
       begin
         @match_view.match.slices << last_slice if @match_view.match.slices.empty?
         @match_view.match.save!
-      rescue
+      rescue => e
         # If the match can't be retrieved or saved then
         # it can't be resumed anyway, so nothing
         # special to do here.
-        ap "Unable to restore match slice in match #{@match_id}"
+        log_error e
       end
-      reset_to_match_entry_view "Sorry, there was a problem continuing the match, please report this incident to #{ADMINISTRATOR_EMAIL}."
-      return
+      return reset_to_match_entry_view
     end
+  end
+
+  def update_hotkeys
+    return reset_to_match_entry_view if (
+      error?(
+        "Sorry, there was a problem saving hotkeys, #{self.class.report_error_request_message}."
+      ) do
+        conflicting_hotkeys = []
+        params[hotkeys_param_key].each do |action_label, new_key|
+          next if action_label.blank? || new_key.blank?
+          new_key = new_key.strip.capitalize
+          next if no_change?(action_label, new_key)
+
+          conflicted_label = user.hotkeys.select { |label, key| key == new_key }.keys.first
+          if conflicted_label
+            conflicting_hotkeys << { key: new_key, current_label: conflicted_label, new_label: action_label }
+            next
+          end
+
+          user.hotkeys[action_label] = new_key
+        end
+        user.save!
+
+        unless conflicting_hotkeys.empty?
+          @alert_message = "Sorry, the following hotkeys conflicted and were not saved: \n" <<
+            conflicting_hotkeys.map do |conflict|
+              "    - You tried to set '#{conflict[:new_label]}' to '#{conflict[:key]}' when it was already mapped to '#{conflict[:current_label]}'\n"
+            end.join
+        end
+        return replace_page_contents_with_updated_game_view(params[:match_id])
+      end
+    )
+    render nothing: true
+  end
+
+  def reset_hotkeys
+    Rails.logger.ap "Resetting!"
+    user.reset_hotkeys!
+    return replace_page_contents_with_updated_game_view(params[:match_id])
   end
 
   def leave_match

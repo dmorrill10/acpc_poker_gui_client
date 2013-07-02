@@ -1,0 +1,86 @@
+@import compass/css3
+
+@import ../abstract/chip_stack-defs
+@import ../abstract/cards-defs
+@import ../poker_table/poker_table-defs
+
+$l-player-column-count: 3
+
+@mixin player($position: 1)
+  +zen-grid-item(2, $position)
+  +zen-grid-container
+
+  .held_player_information
+    +parent_grid($l-player-column-count)
+    +zen-grid-item($l-player-column-count, 1)
+    +zen-nested-container
+
+    +soft_edges(transparent)
+
+    $l-held-player_information-height: 100px
+
+    height: $l-held-player_information-height
+
+    $l-held_player_information-column-count: 5
+    $l-held_player_information-gutter-width: $original-zen-gutter-width/2
+
+    .name
+      +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
+      +zen-grid-item($l-held_player_information-column-count, 1)
+
+      font-size: ($base-fontSize - 4)*1.3
+      color: contrast-color($l-poker_table-background-color)
+    .hole_cards
+      +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
+      +zen-grid-item(3, 1)
+      +zen-clear
+      +cards
+    .player_stack
+      +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
+      +zen-grid-item(2, 4)
+      .chip_stack
+        +chip_stack($triad-color-2-dark)
+  &.acting_player
+    .held_player_information
+      +soft_edges(saturate(lighten($triad-color-2-dark, $base-color-spread), 100%))
+  .outer_player_information
+    +parent_grid($l-player-column-count)
+    +zen-grid-item($l-player-column-count, 1)
+    +zen-nested-container
+
+    height: $chip_stack_diameter + 2 * $l-raisedBorder-border-width
+
+    $l-outer_player_information-column-count: 3
+
+    .dealer_button
+      @extend %raisedBorder
+      @extend %circularBorderRadius
+      +parent_grid($l-outer_player_information-column-count)
+      +zen-grid-item(1, 1)
+
+      +box-sizing(content-box)
+
+      $dealer_button_font_size: rem($base-fontSize - 7)
+      $dealer_button_diameter: ceil($chip_stack_diameter/1.5)
+      $dealer_button_diameter-without-border: $dealer_button_diameter - 2 * $l-raisedBorder-border-width
+      +align_text_center_horizontally_and_vertically($dealer_button_diameter-without-border, $dealer_button_font_size)
+      +align_center_vertically($dealer_button_diameter-without-border, $chip_stack_diameter-without_border)
+
+      +contrasted(#fff)
+
+      font-size: $dealer_button_font_size
+      font-weight: bold
+      padding: 0
+
+      width: $dealer_button_diameter-without-border
+    %stack_associated_with_pot
+      +parent_grid($l-outer_player_information-column-count)
+      +zen-grid-item(2, 2)
+    .stack_added_to_pot
+      @extend %stack_associated_with_pot
+      .chip_stack
+        +chip_stack(mix($triad-color-2-dark, $l-poker_table-pot-color, 30%))
+    .stack_taken_from_pot
+      @extend %stack_associated_with_pot
+      .chip_stack
+        +chip_stack(mix($triad-color-2-dark, $l-poker_table-pot-color, 70%))

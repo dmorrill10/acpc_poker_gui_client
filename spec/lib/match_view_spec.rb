@@ -118,7 +118,7 @@ describe MatchView do
   it '#acting_player works' do
     slice = mock('MatchSlice')
     @x_match.stubs(:slices).returns([slice])
-    slice.stubs(:seat_next_to_act).returns(3)
+    slice.stubs(:seat_next_to_act).returns(2)
     x_player_next_to_act = {'name' => 'opponent2'}
     players = [
       {'name' => 'opponent1'},
@@ -132,15 +132,30 @@ describe MatchView do
   it '#minimum_wager_to works' do
     slice = mock('MatchSlice')
     @x_match.stubs(:slices).returns([slice])
-    slice.stubs(:seat_next_to_act).returns(3)
+    slice.stubs(:seat_next_to_act).returns(2)
     minimum_wager = 5
     slice.expects(:minimum_wager).returns(minimum_wager)
     contribution_in_first_round = 10
     amount_to_call = 15
     players = [
-      {'name' => 'opponent1', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2]},
-      {'name' => 'user', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2]},
-      {'name' => 'opponent2', 'amount_to_call' => amount_to_call, 'chip_contributions' => [contribution_in_first_round]}
+      {
+        'name' => 'opponent1',
+        'amount_to_call' => 0,
+        'chip_contributions' => [contribution_in_first_round/2],
+        'chip_stack' => 2000
+      },
+      {
+        'name' => 'user',
+        'amount_to_call' => 0,
+        'chip_contributions' => [contribution_in_first_round/2],
+        'chip_stack' => 2000
+      },
+      {
+        'name' => 'opponent2',
+        'amount_to_call' => amount_to_call,
+        'chip_contributions' => [contribution_in_first_round],
+        'chip_stack' => 2000
+      }
     ]
     slice.stubs(:players).returns(players)
     @patient.minimum_wager_to.should == minimum_wager + amount_to_call + contribution_in_first_round
@@ -148,7 +163,7 @@ describe MatchView do
   it '#pot works' do
     slice = mock('MatchSlice')
     @x_match.stubs(:slices).returns([slice])
-    slice.stubs(:seat_next_to_act).returns(3)
+    slice.stubs(:seat_next_to_act).returns(2)
     contribution_in_first_round = 10
     players = [
       {'name' => 'opponent1', 'chip_contributions' => [contribution_in_first_round/2]},
@@ -161,7 +176,7 @@ describe MatchView do
   it '#pot_after_call works' do
     slice = mock('MatchSlice')
     @x_match.stubs(:slices).returns([slice])
-    slice.stubs(:seat_next_to_act).returns(3)
+    slice.stubs(:seat_next_to_act).returns(2)
     contribution_in_first_round = 10
     amount_to_call = 15
     players = [
@@ -178,19 +193,19 @@ describe MatchView do
       minimum_wager = 5
       slice.expects(:minimum_wager).returns(minimum_wager)
       @x_match.stubs(:slices).returns([slice])
-      slice.stubs(:seat_next_to_act).returns(3)
+      slice.stubs(:seat_next_to_act).returns(2)
       contribution_in_first_round = 10
       amount_to_call = 15
       players = [
-        {'name' => 'opponent1', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2]},
-        {'name' => 'user', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2]},
-        {'name' => 'opponent2', 'amount_to_call' => amount_to_call, 'chip_contributions' => [contribution_in_first_round]}
+        {'name' => 'opponent1', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2], 'chip_stack' => 2000},
+        {'name' => 'user', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2], 'chip_stack' => 2000},
+        {'name' => 'opponent2', 'amount_to_call' => amount_to_call, 'chip_contributions' => [contribution_in_first_round], 'chip_stack' => 2000}
       ]
       slice.stubs(:players).returns(players)
       @patient.pot_fraction_wager_to.should ==(
         contribution_in_first_round * 2 + amount_to_call +
         contribution_in_first_round + amount_to_call
-      )
+      ).round
     end
     it 'works for different fractions' do
       [1/2.to_f, 3/4.to_f, 1, 2].each do |fraction|
@@ -198,50 +213,49 @@ describe MatchView do
         minimum_wager = 5
         slice.expects(:minimum_wager).returns(minimum_wager)
         @x_match.stubs(:slices).returns([slice])
-        slice.stubs(:seat_next_to_act).returns(3)
+        slice.stubs(:seat_next_to_act).returns(2)
         contribution_in_first_round = 10
         amount_to_call = 15
         players = [
-          {'name' => 'opponent1', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2]},
-          {'name' => 'user', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2]},
-          {'name' => 'opponent2', 'amount_to_call' => amount_to_call, 'chip_contributions' => [contribution_in_first_round]}
+          {'name' => 'opponent1', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2], 'chip_stack' => 2000},
+          {'name' => 'user', 'amount_to_call' => 0, 'chip_contributions' => [contribution_in_first_round/2], 'chip_stack' => 2000},
+          {'name' => 'opponent2', 'amount_to_call' => amount_to_call, 'chip_contributions' => [contribution_in_first_round], 'chip_stack' => 2000}
         ]
         slice.stubs(:players).returns(players)
         @patient.pot_fraction_wager_to(fraction).should ==(
           fraction *
           (contribution_in_first_round * 2 + amount_to_call) +
           contribution_in_first_round + amount_to_call
-        )
+        ).round
       end
     end
   end
   it '#all_in works' do
     slice = mock('MatchSlice')
     @x_match.stubs(:slices).returns([slice])
-    slice.stubs(:seat_next_to_act).returns(3)
+    slice.stubs(:seat_next_to_act).returns(2)
     contribution_in_first_round = 10
-    amount_to_call = 15
     chip_stack = 2000
     players = [
       {
         'name' => 'opponent1',
         'amount_to_call' => 0,
-        'chip_contributions' => [contribution_in_first_round/2]
-      },
-      {
-        'name' => 'user',
-        'amount_to_call' => 0,
-        'chip_contributions' => [contribution_in_first_round/2]
+        'chip_contributions' => [contribution_in_first_round]
       },
       {
         'name' => 'opponent2',
-        'amount_to_call' => amount_to_call,
-        'chip_contributions' => [contribution_in_first_round],
-        'chip_stack' => chip_stack
+        'amount_to_call' => 0,
+        'chip_contributions' => [contribution_in_first_round]
+      },
+      {
+        'name' => 'user',
+        'amount_to_call' => contribution_in_first_round/2,
+        'chip_contributions' => [contribution_in_first_round/2],
+        'chip_stack' => chip_stack - contribution_in_first_round/2
       }
     ]
     slice.stubs(:players).returns(players)
-    @patient.all_in.should == chip_stack + contribution_in_first_round + amount_to_call
+    @patient.all_in.should == chip_stack
   end
   it '#betting_sequence works' do
     slice = mock('MatchSlice')

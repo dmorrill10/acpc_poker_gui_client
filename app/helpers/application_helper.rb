@@ -1,54 +1,110 @@
-
-require 'stalker'
 require 'acpc_poker_types'
 
 # General controller/view helpers for this application.
 module ApplicationHelper
   APP_NAME = 'ACPC Poker GUI Client' unless const_defined? :APP_NAME
-  ADMINISTRATOR_EMAIL = 'morrill@ualberta.ca' unless const_defined? :ADMINISTRATOR_EMAIL
 
   NEW_MATCH_PARTIAL = 'match_start/index' unless const_defined? :NEW_MATCH_PARTIAL
-  REPLACE_CONTENTS_JS = 'shared_javascripts/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
-  SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS = 'shared_javascripts/send_parameters_to_connect_to_dealer' unless const_defined? :SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
+  FOOTER = 'match_start/footer' unless const_defined? :FOOTER
+  REPLACE_CONTENTS_JS = 'shared/replace_contents' unless const_defined? :REPLACE_CONTENTS_JS
+
+  def wait_for_match_to_start_partial() 'match_start/wait_for_match_to_start' end
 
   # Renders a shared +JavaScript+ template that replaces the old contents
-  # of the current page with new contents.  In essence, it acts like a
+  # of the current page with new contents. In essence, it acts like a
   # page refresh.
   # @param [String] replacement_partial The partial with which the page should be replaced.
   # @param [String] alert_message An alert message to be displayed.
-  def replace_page_contents(replacement_partial, alert_message=nil)
+  def replace_page_contents(replacement_partial, alert_message=@alert_message)
     @alert_message = alert_message
     @replacement_partial = replacement_partial
-    render REPLACE_CONTENTS_JS
-  end
-
-  # Renders a shared +JavaScript+ template that sends parameters to
-  # +PlayerActionsController+ so that it can connect to an
-  # ACPC dealer instance.
-  def send_parameters_to_connect_to_dealer
-    render SEND_PARAMETERS_TO_CONNECT_TO_DEALER_JS
-  end
-
-  # Places a hidden form in a view, within which game parameters may be placed that can be
-  # submitted to the +PlayerActionsController+.
-  def hidden_game_parameter_form
-    form_tag match_home_url, :remote => true do
-      form = hidden_field_tag(:match_id, nil, :id => 'match_id_hidden_field')
-      form << hidden_field_tag(:port_number, nil, :id => 'port_number_hidden_field')
-      form << hidden_field_tag(:match_name, nil, :id => 'match_name_hidden_field')
-      form << hidden_field_tag(:game_definition_file_name, nil, :id => 'game_definition_file_name_hidden_field')
-      form << hidden_field_tag(:number_of_hands, nil, :id => 'number_of_hands_hidden_field')
-      form << hidden_field_tag(:seat, nil, id: 'seat_hidden_field')
-      form << hidden_field_tag(:random_seed, nil, :id => 'random_seed_hidden_field')
-      form << hidden_field_tag(:opponent_names, nil, :id => 'opponent_names_hidden_field')
-      form << hidden_field_tag(:millisecond_response_timeout, nil, :id => 'millisecond_response_timeout_hidden_field')
-
-      form << submit_tag('Hidden', :id => 'match_home_hidden_button', style: 'visibility: hidden')
+    if (
+      error?("Unable to update the page, #{self.class.report_error_request_message}") do
+        respond_to do |format|
+          format.js do
+            render REPLACE_CONTENTS_JS, formats: [:js]
+          end
+        end
+      end
+    )
+      redirect_to root_path, remote: true
     end
   end
 
-  def reset_to_match_entry_view(error_message=nil)
-    @match = Match.new
+  def reset_to_match_entry_view(error_message=@alert_message)
     replace_page_contents NEW_MATCH_PARTIAL, error_message
+  end
+
+  def link_with_glyph(link_text, link_target, glyph, options={})
+    link_to link_target, options do
+      inserted_html = "#{content_tag(:i, nil, class: 'icon-' << glyph)} #{link_text}".html_safe
+      inserted_html << yield if block_given?
+      inserted_html
+    end
+  end
+
+  def log_error(e)
+    Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
+  end
+
+  def error?(message)
+    begin
+      yield if block_given?
+      false
+    rescue => e
+      log_error e
+      @alert_message = message
+      true
+    end
+  end
+
+  def user_initialized?
+    begin
+      user
+      true
+    rescue Mongoid::Errors
+      false
+    end
+  end
+
+  def user
+    return @user if @user
+    users = User.where name: user_name
+    @user = if users.empty?
+      u = User.new name: user_name, hotkeys: User::DEFAULT_HOTKEYS
+      u.save!
+      u
+    else
+      users.shift
+    end
+  end
+  # @return [String] The currently signed in user name. Defaults to +User.default_user_name+
+  def user_name
+    name = begin
+      ActionController::HttpAuthentication::Basic::user_name_and_password(request).first
+    rescue NoMethodError # Occurs when no authentication has been done
+      User::DEFAULT_NAME
+    end
+  end
+  def help_link
+    link_with_glyph(
+      '',
+      'http://rubydoc.info/github/dmorrill10/acpc_poker_gui_client/master/file/doc/Help.md',
+      'question-sign',
+      {
+        class: ApplicationController.help_link_html_class,
+        # `target: blank` option ensures that this link will be opened in a new tab
+        target: 'blank',
+        title: 'Help',
+        data: { toggle: 'tooltip' }
+      }
+    )
+  end
+  def match
+    if @match_view
+      @match_view.match
+    else
+      @match ||= Match.new
+    end
   end
 end

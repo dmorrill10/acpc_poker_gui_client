@@ -1,0 +1,78 @@
+//-------------------------------------
+//  Base
+//-------------------------------------
+
+html
+  font-size: rem($base-fontSize)
+  height: 100%
+
+body
+  background-color: $base-background-color
+  background-image: $base-background-image
+  color: $base-color
+  font-family: $base-fontFamily
+  font-size: 100%
+  line-height: $base-lineHeight
+  height: 100%
+
+.container
+  height: 100%
+
+footer
+  text-align: center
+  a
+    color: $triad-color-1-dark
+    &:hover, &:focus
+      color: darken($triad-color-1-dark, $base-color-spread)
+
+.navbar
+  margin: 0
+
+.loading
+  cursor: wait
+  height: 100%
+
+.hidden
+  @extend %noSize
+
+.help-inline
+  font-weight: 900
+  font-size: rem($base-fontSize * 0.9)
+.help-block
+  font-size: rem($base-fontSize * 0.75)
+  color: $base-deemphasized-text-color
+.license
+  font-size: rem($base-fontSize * 0.75)
+.form-horizontal
+  select
+    font-size: rem($base-fontSize * 0.9)
+.header-info
+  @extend .text-info
+  font-size: rem($base-fontSize * 3)
+  line-height: 1
+  font-weight: 900
+  color: $triad-color-3
+.btn-primary
+  +buttonBackground($triad-color-1-light, $triad-color-1-dark)
+.btn-info
+  +buttonBackground(lighten($triad-color-3, 10%), darken($triad-color-3, 10%))
+.navbar
+  .nav
+    float: right
+
+// ----- Block Content ----- //
+
+p
+  font-size: rem($base-fontSize)
+
+// ----- Inline Content ----- //
+
+a
+  color: $base-link-color
+  text-decoration: none
+  text-shadow: 0 1px 0 white
+  &:hover, &:focus
+    color: #212121
+    text-decoration: none
+  img
+    border: none

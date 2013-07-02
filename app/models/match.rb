@@ -3,9 +3,6 @@ require 'mongoid'
 
 require_relative '../../lib/application_defs'
 
-# @todo Use this for DB recovery
-Mongoid.logger = nil
-
 require_relative 'match_slice'
 
 class Match
@@ -17,11 +14,19 @@ class Match
   scope :expired, ->(lifespan) do
     where(:updated_at.lt => (Time.new - lifespan))
   end
-
-  def self.include_match_name
-    field :match_name
-    validates_presence_of :match_name
-    validates_uniqueness_of :match_name
+  def self.finished
+    all.select { |match| match.finished? }
+  end
+  def self.include_name
+    field :name
+    validates_presence_of :name
+    validates_format_of :name, without: /^\s*$/
+  end
+  def self.include_name_from_user
+    field :name_from_user
+    validates_presence_of :name_from_user
+    validates_format_of :name_from_user, without: /^\s*$/
+    validates_uniqueness_of :name_from_user
   end
   def self.include_game_definition
     field :game_definition_key, type: Symbol
@@ -39,12 +44,17 @@ class Match
   end
   def self.include_seat
     field :seat, type: Integer
-    # Can't validate since I want to allow nil and don't know how to
   end
-  def self.delete_matches_older_than(lifespan)
+  def self.include_user_name
+    field :user_name
+    validates_presence_of :user_name
+    validates_format_of :user_name, without: /^\s*$/
+  end
+  def self.delete_matches_older_than!(lifespan)
     expired(lifespan).delete_all
-  end
 
+    self
+  end
   def self.delete_match!(match_id)
     begin
       match = find match_id
@@ -52,21 +62,31 @@ class Match
     else
       match.delete
     end
+
+    self
+  end
+  def self.match_lifespan() 1.month end
+  def self.delete_irrelevant_matches!
+    finished.each { |m| m.delete }
+    delete_matches_older_than! match_lifespan
   end
 
+  DEFAULT_USER_NAME = 'noname'
   def self.start_match(
     name,
     game_definition_key,
-    opponent_names=nil,
-    seat=nil,
-    number_of_hands=nil,
-    random_seed=nil
+    user_name = DEFAULT_USER_NAME,
+    opponent_names = nil,
+    seat = nil,
+    number_of_hands = nil,
+    random_seed = nil
   )
     new(
-      "match_name" => name,
+      "name_from_user" => name,
       "game_definition_key" => game_definition_key,
-      "opponent_names"=>opponent_names,
-      'seat'=>seat,
+      'user_name' => user_name,
+      "opponent_names" => opponent_names,
+      'seat'=> seat,
       "number_of_hands" => number_of_hands,
       "random_seed" => random_seed
     ).finish_starting!
@@ -74,10 +94,11 @@ class Match
 
   # Table parameters
   field :port_numbers, type: Array
-  field :millisecond_response_timeout, type: Integer
   field :random_seed, type: Integer
 
-  include_match_name
+  include_name
+  include_name_from_user
+  include_user_name
   include_game_definition
   include_number_of_hands
   include_opponent_names
@@ -86,23 +107,16 @@ class Match
   # Game definition information
   field :betting_type, type: String
   field :number_of_hole_cards, type: Integer
+  field :min_wagers, type: Array
+  field :blinds, type: Array
 
-  def delete_previous_slices!(current_index)
-    if current_index > 0
-      slices.where(
-        :_id.in => (
-          slices[0..current_index-1].map do |slice|
-            slice.id
-          end
-        )
-      ).delete_all
-    else
-      0
-    end
+  def finished?
+    !slices.empty? && slices.last.match_ended?
   end
   def finish_starting!
-    local_match_name = match_name.strip
-    self.match_name = local_match_name
+    local_name = name_from_user.strip
+    self.name = local_name
+    self.name_from_user = local_name
 
     game_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key]
 
@@ -119,29 +133,27 @@ class Match
     self.opponent_names ||= (game_info[:num_players] - 1).times.map { |i| "tester" }
 
     self.number_of_hands ||= 1
-    self.millisecond_response_timeout ||= ApplicationDefs::DEALER_MILLISECOND_TIMEOUT
 
     save!
 
     self
   end
-  def player_names(users_name='user')
+  def player_names(users_name = ApplicationDefs::USER_NAME)
     opponent_names.dup.insert seat-1, users_name
   end
   def every_bot(dealer_host)
-    ap "port_numbers.length: #{port_numbers.length}, player_names: #{player_names}, opponent_ports: #{opponent_ports}, ApplicationDefs.bots(game_definition_key, opponent_names).length: #{ApplicationDefs.bots(game_definition_key, opponent_names).length}"
+    ap "port_numbers.length: #{port_numbers.length}, player_names: #{player_names}, bot_opponent_ports: #{bot_opponent_ports}, ApplicationDefs.bots(game_definition_key, opponent_names).length: #{ApplicationDefs.bots(game_definition_key, opponent_names).length}"
 
     raise unless port_numbers.length == player_names.length ||
-      opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
+      bot_opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
 
-    opponent_ports.zip(
+    bot_opponent_ports.zip(
       ApplicationDefs.bots(game_definition_key, opponent_names)
     ).each do |port_num, bot|
       # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
       # ARGUMENT HASH.
       bot_argument_hash = {
         port_number: port_num,
-        millisecond_response_timeout: millisecond_response_timeout,
         server: dealer_host,
         game_def: game_definition_file_name
       }
@@ -157,10 +169,17 @@ class Match
     users_port = local_port_numbers.delete_at(seat - 1)
     local_port_numbers
   end
-end
-
-module Stalker
-  def self.start_background_job(job_name, arguments, options={ttr: ApplicationDefs::MATCH_STATE_RETRIEVAL_TIMEOUT})
-    enqueue job_name, arguments, options
+  def human_opponent_seats
+    player_names.each_index.select{ |i| player_names[i].match(ApplicationDefs::HUMAN_OPPONENT_NAME) }.map { |s| s + 1 }
+  end
+  def human_opponent_ports
+    human_opponent_seats.map { |human_opp_seat| port_numbers[human_opp_seat - 1] }
+  end
+  def bot_opponent_ports
+    local_opponent_ports = opponent_ports
+    human_opponent_ports.each do |port|
+      local_opponent_ports.delete port
+    end
+    local_opponent_ports
   end
 end

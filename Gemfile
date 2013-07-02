@@ -25,16 +25,12 @@ gem "haml", '~> 3.1'
 # For deployment. Phusion Passenger integrates the rails app. with Apache.
 gem 'passenger', '~>4.0'
 
-# Beanstalkd wrapper
-gem 'beanstalk-client'
-gem 'stalker', '~> 0.9'
-
 # To manage background processes
 gem 'god'
 
 # Poker logic
-gem 'acpc_dealer', '~> 1.0'
-gem 'acpc_poker_player_proxy', '~> 1.0'
+gem 'acpc_dealer', '~> 2.0'
+gem 'acpc_poker_player_proxy', '~> 1.1'
 
 # Improved forms
 gem 'simple_form'
@@ -59,8 +55,8 @@ gem 'contextual_exceptions'
 # To run background process
 gem 'process_runner'
 
-# For new match slice alerts
-gem 'rubame'
+# For quick and simple websocket Rails-background process communication
+gem 'em-websocket'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -72,6 +68,7 @@ group :assets do
   gem 'coffee-rails'
   gem 'uglifier'
   gem "bootstrap-sass-rails"
+  gem 'zen-grids'
 
   # compass uses this for sprites
   gem 'chunky_png'

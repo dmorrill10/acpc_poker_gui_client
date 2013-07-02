@@ -1,130 +1,26 @@
-- unless @match_view.slice.hand_ended? || @match_view.slice.match_ended? || @match_view.slice.users_turn_to_act?
-  :javascript
-    if (typeof updateNotifierInstance === "undefined" || updateNotifierInstance === null) {
-      updateNotifierInstance = UpdateNotifier.connect('ws://0.0.0.0:25252');
-    }
+- if match_view.no_limit?
+  = render partial: 'no_limit_wager_tools'
+= render partial: 'helpers'
+= render partial: 'update_after_action'
+= render partial: 'wire_actions'
+= render partial: 'adjust_sizes'
+= render partial: 'initial_focus'
 
-= render partial: 'layouts/navbar', locals: {partial: 'navbar'}
-
-.chip_balances.hero-unit
-  %h4= "#{@match_view.match.match_name} <span class=\"right\">#{@match_view.slice.hand_number+1} / #{@match_view.match.number_of_hands}</span>".html_safe
-  %table.table.table-striped
-    %thead
-      %tr
-        %th Player
-        %th Balance
-    %tbody
-      - @match_view.slice.players.each do |player|
-        %tr
-          %td= "#{player['name']}"
-          %td= "#{player['chip_balance'] + (if !@match_view.slice.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)}"
-- game_interface_id = if @match_view.no_limit?
-  - 'no_limit'
-- else
-  - 'limit'
-.game_interface.span-24{ id: game_interface_id}
-  .poker_table.span-24
-    - opponent = @match_view.opponents[0]
-    .information_about_an_opponent{ :id => acting_player_id(opponent['seat']) }
-      = render partial: 'held_player_information', locals: {player: opponent, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
-    .community_information
-      %ul.board_cards
-        = render partial: 'cards', locals: {cards: @match_view.state.board_cards.flatten}
-      %ul.pot
-        / @todo Assumes Doyle's game in multi-player
-        - pot = if @match_view.slice.hand_ended? then 0 else @match_view.pot_at_start_of_round end
-        - if pot > 0
-          = render partial: 'player_actions/chip_stack', locals: { amount: pot }
-      %ul.summary_information
-        %li
-          %p= "Actions: #{@match_view.betting_sequence}"
-        - if @match_view.slice.match_ended?
-          %li
-            %p The match has ended, thanks for playing!
-    .users_information{ :id => acting_player_id(@match_view.user['seat']) }
-      = render partial: 'held_player_information', locals: {player: @match_view.user, hand_ended: @match_view.slice.hand_ended?, seat_with_dealer_button: @match_view.slice.seat_with_dealer_button, round: @match_view.state.round}
-
-  - next_hand_button_should_be_visible = @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
-  - action_dashboard_id = if @match_view.no_limit?
-    - 'no_limit'
-  - else
-    - 'limit'
-
-  - action_dashboard_grid_class = if @match_view.slice.match_ended? || next_hand_button_should_be_visible
-    - 'span-8 prepend-8 append-8'
-  - else
-    - 'span-24'
-  .action_dashboard{ id: action_dashboard_id, class:  action_dashboard_grid_class }
-    .hidden
-      = update_state_form @match_id, "Hidden update state", class: 'hidden', id: 'hidden-next_state', disabled: (@match_view.slice.users_turn_to_act? || @match_view.slice.match_ended?) && !@match_view.slice.hand_ended?
-    - if @match_view.slice.match_ended?
-      .meta_action
-        = link_to leave_match_label, leave_match_url, {remote: true, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
-    - elsif next_hand_button_should_be_visible
-      .meta_action
-        - next_hand_label = "Next Hand"
-        = button_tag next_hand_label, id: next_hand_id, class: ['btn', 'btn-info', 'btn-block', 'poker_action_button'], disabled: !@match_view.slice.hand_ended? || @match_view.slice.match_ended?, data: { disable_with: next_hand_label }
-    - else
-      - fold_label = 'Fold'
-      - fold_is_disabled_when = !(@match_view.slice.users_turn_to_act? && @match_view.slice.legal_actions.include?('f'))
-      - pass_action_button_label = if (@match_view.slice.legal_actions.include?('c') && @match_view.user['amount_to_call'] > 0) then (if @match_view.no_limit? then "Call (#{@match_view.user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end
-      - make_wager_button_label = if @match_view.slice.legal_actions.include?('b') then 'Bet' else 'Raise' end
-      - make_wager_button_label += ' to' if @match_view.no_limit?
-      - wager_classes = if @match_view.no_limit? then ['with_modifier'] else [] end
-      .action_modification_tools
-        - if @match_view.no_limit?
-          .wager_amount_slider.span-12.prepend-6
-            .slider_label.span-2#min Min
-            .slider_label.span-2#half_pot 50%
-            .slider_label.span-2#three_quarters_pot 75%
-            .slider_label.span-2#one_pot Pot
-            .slider_label.span-2#two_times_pot 2xPot
-            .slider_label.span-2.last#all_in All-in
-            .ui_slider.span-12
-        .hidden_action_forms.span-6.last
-          = poker_action_form 'f', fold_label, fold_is_disabled_when, [], ['hidden-fold']
-          = poker_action_form 'c', pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['hidden-pass']
-          = poker_action_form 'r', make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['hidden-wager'] do |f|
-            - if @match_view.no_limit?
-              - f.number_field :modifier, class: 'span-6 last'
-      .actions.btn-group.span-24
-        .span-8= button_tag fold_label, poker_action_submission_options(fold_label, fold_is_disabled_when, [], ['fold'])
-        .span-8= button_tag pass_action_button_label, poker_action_submission_options(pass_action_button_label, !@match_view.slice.users_turn_to_act?, [], ['pass'])
-        .span-8.last= button_tag make_wager_button_label, poker_action_submission_options(make_wager_button_label, !@match_view.slice.users_turn_to_act?, wager_classes, ['wager'])
 :javascript
-  ChipStackMutator.adjustAmountFontSizeOfAllStacks();
-
-  GameInterface.adjustScale();
-  ActionDashboard.disableButtonsOnClick();
-  ActionDashboard.registerHiddenAction('fold');
-  ActionDashboard.registerHiddenAction('pass');
-  ActionDashboard.registerHiddenAction('wager');
-  ActionDashboard.registerHiddenAction("#{next_hand_id}");
-  ActionDashboard.adjustWagerOnSubmission(
-    parseInt("#{@match_view.minimum_wager_to}"),
-    parseInt("#{@match_view.user_contributions_in_previous_rounds}")
-  );
-  ActionDashboard.fixEnterWagerSubmission();
-
-- if @match_view.no_limit?
+  var timerId;
+  if (timerId) {
+    clearInterval(timerId);
+  }
+- unless user_must_act?
   :javascript
-    var sliderValues;
-    sliderValues = [
-      parseInt("#{@match_view.minimum_wager_to}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(1 / 2.to_f))}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(3 / 4.to_f))}"),
-      parseInt("#{@match_view.pot_fraction_wager_to}"),
-      parseInt("#{(@match_view.pot_fraction_wager_to(2))}"),
-      parseInt("#{@match_view.all_in}")
-    ];
-    WagerAmountSlider.initialize(sliderValues);
-    if (!$.browser.mozilla) {
-      $('#user_poker_action_modifier').focus();
-    }
-- if next_hand_button_should_be_visible
-  :javascript
-    $("##{next_hand_id}").focus();
-- if @match_view.slice.match_ended?
-  :javascript
-    $("##{leave_match_id}").focus();
-- Match.delete_match!(@match_id) if @match_view.slice.match_ended?
+    timerId = setInterval(updateState, 500);
+.hidden
+  = form_tag update_url, :remote => true do
+    = hidden_field_tag :match_id, match.id
+    = submit_tag nil, class: update_id
+  = form_tag update_state_url, :remote => true do
+    = hidden_field_tag :match_id, match.id
+    = submit_tag nil, class: update_state_html_class
+= render partial: 'layouts/navbar', locals: {partial: 'navbar'}
+= render partial: 'chip_balances'
+= render partial: 'game_interface'

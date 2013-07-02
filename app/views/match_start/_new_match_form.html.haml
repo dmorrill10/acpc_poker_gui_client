@@ -1,26 +1,28 @@
-- game_defs_collection = ApplicationDefs::GAME_DEFINITIONS.inject({}) do |hash, game_def_key_to_properties|
-  - (game_def_key, properties) = game_def_key_to_properties
-  - hash[{game_def_key => properties[:text]}] = properties[:bots].keys
-  - hash
-- bots_collection = game_defs_collection.map { |game_def, bots| [game_def.map { |key, value| value }.first, bots]}
-
-#new_match_form
-  = simple_form_for @match, url: new_match_url, remote: true, validate: true, html: {class: 'form-horizontal'} do |f|
-    = f.input :match_name, hint: "Matches can be rejoined with this name for #{(((ApplicationDefs::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600)/24).to_i} days after the last action was taken."
-    = f.input :game_definition_key, label: 'Game definition ', collection: game_defs_collection.map { |key, value| key.first }, value_method: :first, label_method: :last, include_blank: false
+- bot_options_for_grouped_select = {}
+- game_def_options = []
+- ApplicationDefs::GAME_DEFINITIONS.each do |game_def_key, properties|
+  - bot_options_for_grouped_select[properties[:text]] = properties[:bots].keys
+  - game_def_options << (
+  -   [properties[:text], game_def_key, {"data-num_players" => properties[:num_players]}]
+  - )
+#new_match_form.tab-pane
+  = simple_form_for match, url: new_match_url, remote: true, validate: true, html: {class: 'form-horizontal'} do |f|
+    = f.input :name_from_user, label: 'Match name', required: true, hint: "Matches can be rejoined with this name for #{(((ApplicationDefs::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600)/24).to_i} days after the last action was taken"
+    .control-group.select.required
+      = f.label 'Game definition', for: :game_definition_key, required: true, as: :select
+      .controls
+        = f.select :game_definition_key, options_for_select(game_def_options), {include_blank: false}
     .control-group.select.required
       = f.label 'Opponents', for: :opponent_names, required: true, as: :select
       .controls
-        = f.grouped_collection_select :opponent_names, bots_collection, :last, :first, :to_s, :to_s, {include_blank: false}, {class: 'match_opponent_names', name: 'match[opponent_names][]'}
-      .controls
-        = f.grouped_collection_select :opponent_names, bots_collection, :last, :first, :to_s, :to_s, {include_blank: false}, {class: 'match_opponent_names', name: 'match[opponent_names][]'}
-    = f.input :number_of_hands, as: :integer
+        = f.select :opponent_names, grouped_options_for_select(bot_options_for_grouped_select), {include_blank: false}, {class: 'match_opponent_names', name: 'match[opponent_names][]'}
+        %p.help-block Opponents will be assigned seats from left to right from 1 to the number of players skipping the your seat
+    = f.input :number_of_hands, as: :integer, input_html: {min: 1, value: 1}
     = f.input :seat, collection: {'Random' => nil, '1' => 1, '2' => 2, '3' => 3}, value_method: :last, label_method: :first, include_blank: false, required: true
     = f.input :random_seed, as: :integer, hint: 'Leave blank to use a random seed'
     .form-actions
       - start_match_label = "Start match"
       = f.button :submit, class: 'btn-primary', data: { disable_with: start_match_label }, id: 'start_match', value: start_match_label
-  .hidden= hidden_game_parameter_form
 
 :javascript
   BotSelection.makeDynamicAccordingToGameDef();

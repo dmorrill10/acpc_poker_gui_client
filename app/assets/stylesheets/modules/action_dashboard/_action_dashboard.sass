@@ -1,0 +1,72 @@
+@import 'action_dashboard-defs'
+@import '../poker_table/poker_table-defs'
+
+.action_dashboard
+  +parent_grid($l-poker_table-column-count)
+  +zen-grid-item($l-poker_table-column-count, 1)
+  +zen-nested-container
+
+  $light_background_color: lighten($c-action_dashboard-background-color, $base-color-spread)
+  +soft_edges($light_background_color)
+  +contrasted($c-action_dashboard-background-color)
+
+  $l-action_dashboard-height: 150px
+  height: $l-action_dashboard-height
+
+  form
+    margin: 0
+  $l-poker_actn_btn-height: 90px
+  .meta_action
+    +parent_grid($l-action_dashboard-column-count)
+    +zen-grid-item(1, 2)
+    %a_button
+      @extend .btn
+      @extend .btn-info
+
+      width: 100%
+      height: $l-action_dashboard-height - 2 * $default_border_width
+
+      font-size: ($base-fontSize - 4) * 2.5
+    button
+      @extend %a_button
+    a
+      @extend %a_button
+  .wager_amount-num_field
+    +parent_grid($l-action_dashboard-column-count)
+    +zen-grid-item(1, 3)
+    input
+      float: right
+      margin-bottom: 0
+      margin-top: 10px
+  .actions
+    +parent_grid($l-action_dashboard-column-count)
+    +zen-grid-item($l-action_dashboard-column-count, 1)
+    +zen-nested-container
+    +zen-clear
+
+    $num_actions: 3
+    .poker_actn_btn
+      +parent_grid($num_actions)
+
+    @for $n from 1 through $num_actions
+      .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
+        +zen-grid-item(1, $n)
+
+    .poker_actn_btn
+      $l-poker_actn_btn-column-count: 1
+      +zen-nested-container
+
+      button
+        @extend .btn
+        @extend .btn-primary
+        +parent_grid($l-poker_actn_btn-column-count)
+        +zen-grid-item($l-poker_actn_btn-column-count, 1)
+
+        height: $l-poker_actn_btn-height - 2 * $default_border_width
+
+        font-size: ($base-fontSize - 4) * 2
+  &.limit
+    height: $l-poker_actn_btn-height
+    .meta_action
+      button
+        height: $l-poker_actn_btn-height - 2 * $default_border_width

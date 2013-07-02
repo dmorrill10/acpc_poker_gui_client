@@ -1,12 +1,14 @@
-
-require 'awesome_print'
-require 'logger'
 require 'acpc_poker_player_proxy'
 require 'rubame'
 
 require_relative 'database_config'
 require_relative '../app/models/match'
 require_relative '../app/models/match_slice'
+
+require_relative 'application_defs'
+
+require_relative 'simple_logging'
+using SimpleLogging::MessageFormatting
 
 require 'contextual_exceptions'
 using ContextualExceptions::ClassRefinement
@@ -41,17 +43,9 @@ using SimpleRubame
 
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
-  # @todo Use contextual exceptions
-  exceptions :unable_to_create_match_slice
+  include SimpleLogging
 
-  class << self
-    def logger=(logger)
-      @logger = logger
-    end
-    def logger
-      @logger ||= Logger.new(STDERR)
-    end
-  end
+  exceptions :unable_to_create_match_slice
 
   # @todo Reduce the # of params
   #
@@ -68,8 +62,9 @@ class WebApplicationPlayerProxy
     player_names='user p2',
     number_of_hands=1
   )
+    @logger = Logger.from_file_name(File.join(ApplicationDefs::LOG_DIRECTORY, 'proxy_logs', "#{match_id}.#{users_seat}.log")).with_metadata!
+
     log __method__, {
-      match_id: match_id,
       dealer_information: dealer_information,
       users_seat: users_seat,
       game_definition: game_definition,
@@ -88,6 +83,8 @@ class WebApplicationPlayerProxy
 
       if players_at_the_table.transition.next_state
         update_database! players_at_the_table
+
+        yield players_at_the_table if block_given?
       else
         log __method__, {before_first_match_state: true}
       end
@@ -97,10 +94,12 @@ class WebApplicationPlayerProxy
   # Player action interface
   # @see PlayerProxy#play!
   def play!(action)
-    log __method__, {action: action}
+    log __method__, action: action
 
     @player_proxy.play! action do |players_at_the_table|
       update_database! players_at_the_table
+
+      yield players_at_the_table if block_given?
     end
 
     self
@@ -110,7 +109,7 @@ class WebApplicationPlayerProxy
   def match_ended?
     match_has_ended = @player_proxy.players_at_the_table.match_ended?
 
-    log __method__, {match_has_ended: match_has_ended}
+    log __method__, match_has_ended: match_has_ended
 
     match_has_ended
   end
@@ -120,25 +119,17 @@ class WebApplicationPlayerProxy
   def update_database!(players_at_the_table)
     match = Match.find(@match_id)
 
-    # @todo Move to PATT
-    large_blind = players_at_the_table.player_blind_relation.values.max
-    player_who_submitted_big_blind = players_at_the_table.player_blind_relation.key large_blind
-    small_blind = players_at_the_table.player_blind_relation.reject do |player, blind|
-      blind == large_blind
-    end.values.max
-    player_who_submitted_small_blind = players_at_the_table.player_blind_relation.key small_blind
-
     slice_attributes = {
       hand_has_ended: players_at_the_table.hand_ended?,
       match_has_ended: players_at_the_table.match_ended?,
       users_turn_to_act: players_at_the_table.users_turn_to_act?,
       hand_number: players_at_the_table.transition.next_state.hand_number,
       minimum_wager: players_at_the_table.min_wager,
-      seat_with_small_blind: player_who_submitted_small_blind.seat,
-      seat_with_big_blind: player_who_submitted_big_blind.seat,
-      seat_with_dealer_button: players_at_the_table.player_with_dealer_button.seat,
+      seat_with_small_blind: players_at_the_table.small_blind_payer.seat.to_i,
+      seat_with_big_blind: players_at_the_table.big_blind_payer.seat.to_i,
+      seat_with_dealer_button: players_at_the_table.player_with_dealer_button.seat.to_i,
       seat_next_to_act: if players_at_the_table.next_player_to_act
-        players_at_the_table.next_player_to_act.seat
+        players_at_the_table.next_player_to_act.seat.to_i
       end,
       state_string: players_at_the_table.transition.next_state.to_s,
       betting_sequence: players_at_the_table.betting_sequence_string,
@@ -146,7 +137,7 @@ class WebApplicationPlayerProxy
         action.to_s
       end,
       players: players_at_the_table.players.sort_by do |player|
-        player.seat
+        player.seat.to_i
       end.map do |player|
         player.to_h.merge(
           { amount_to_call: players_at_the_table.amount_to_call(player).to_f }
@@ -182,9 +173,5 @@ class WebApplicationPlayerProxy
     end
 
     self
-  end
-
-  def log(method, variables)
-    WebApplicationPlayerProxy.logger.info "#{self.class}: #{method}: #{variables.awesome_inspect}"
   end
 end

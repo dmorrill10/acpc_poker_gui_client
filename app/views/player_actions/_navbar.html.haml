@@ -1,26 +1,14 @@
-%ul.nav
-  %li
-    = link_to leave_match_label, leave_match_url, {remote: true, id: 'leave', data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}
-  %li.dropdown
-    %a.dropdown-toggle{:data => {:toggle => "dropdown"}, role: 'button', :href => "#"}= 'Hotkeys <b class="caret"></b>'.html_safe
-    %table.table.table-striped.dropdown-menu.dropdown_table{role: 'menu'}
-      %thead
-        %tr
-          %th Action
-          %th Key
-      %tbody
-        %tr
-          %td Fold
-          %td A
-        %tr
-          %td Check / Call
-          %td S
-        %tr
-          %td Bet / Raise
-          %td D
-        %tr
-          %td Next Hand
-          %td F
-        %tr
-          %td Leave Match
-          %td Q
+- customize_hotkeys = escape_javascript(render partial: 'customize_hotkeys')
+:javascript
+  $('.modal-backdrop').remove();
+  $('.customize').click(function() {
+    $('.nav').after("#{customize_hotkeys}");
+    $("##{customize_hotkeys_html_id}").on('hidden', function() {
+      $("##{customize_hotkeys_html_id}").remove();
+    });
+  });
+%li.dropdown
+  %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
+  = render partial: 'hotkey_table', locals: { classes: ['dropdown-menu', 'dropdown_table'], right_column: ->(label, key) { key }, footer_partial: 'hotkey_dropdown_footer' }
+%li
+  = link_to leave_match_label, leave_match_url, {remote: true, class: nav_leave_html_class, data: { confirm:  leave_match_confirmation_message, disable_with: leave_match_label }}

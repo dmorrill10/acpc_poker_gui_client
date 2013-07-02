@@ -45,6 +45,9 @@ class PlayerActionsController < ApplicationController
         "Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}."
       ) do
         @match_view ||= MatchView.new params[:match_id]
+
+        Rails.logger.ap @match_view.slice.hand_ended?
+
         return update unless @match_view.slice.hand_ended?
       end
     )

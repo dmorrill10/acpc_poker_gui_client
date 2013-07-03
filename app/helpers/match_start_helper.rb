@@ -62,9 +62,9 @@ module MatchStartHelper
 
   def matches_to_join
     @matches_to_join ||= Match.all.select do |m|
-      m.user_name == user_name &&
       m.opponent_names &&
       m.opponent_names.any? do |name|
+        # @todo Should be: name.match(user_name)
         name.match(ApplicationDefs::HUMAN_OPPONENT_NAME)
       end &&
       m.slices.empty? &&
@@ -75,6 +75,7 @@ module MatchStartHelper
     matches_to_join.inject({}) do |hash, lcl_match|
       # Remove seats already taken by players who have already joined this match
       hash[lcl_match.name_from_user] = (
+        # @todo This is what it should be: lcl_match.human_opponent_seats(user_name) -
         lcl_match.human_opponent_seats -
         Match.where(name: lcl_match.name).map { |m| m.seat }
       )

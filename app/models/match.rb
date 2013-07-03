@@ -168,6 +168,8 @@ class Match
     users_port = local_port_numbers.delete_at(seat - 1)
     local_port_numbers
   end
+
+  # @todo Change these to say that a bot name is any one that returns non-nil from the list of bot names
   def human_opponent_seats
     player_names.each_index.select{ |i| player_names[i].match(ApplicationDefs::HUMAN_OPPONENT_NAME) }.map { |s| s + 1 }
   end

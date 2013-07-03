@@ -23,6 +23,7 @@ module ApplicationDefs
 
   USER_NAME = 'User' unless const_defined? :USER_NAME
 
+  # @todo Change :bots to opponents
   GAME_DEFINITIONS = -> do
     initial_hash = {
       two_player_nolimit: {
@@ -51,6 +52,7 @@ module ApplicationDefs
       }
     }
     initial_hash.each do |type, prop|
+      # @todo Change to any potential user
       prop[:bots].merge! HUMAN_OPPONENT_NAME => nil
     end
     initial_hash

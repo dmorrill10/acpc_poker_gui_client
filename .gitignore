@@ -4,3 +4,4 @@ vendor
 db
 dump.rdb
 .yardoc
+doc

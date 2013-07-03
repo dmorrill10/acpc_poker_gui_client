@@ -89,7 +89,7 @@ module ApplicationHelper
   def help_link
     link_with_glyph(
       '',
-      'http://rubydoc.info/github/dmorrill10/acpc_poker_gui_client/master/file/doc/Help.md',
+      'http://rubydoc.info/github/dmorrill10/acpc_poker_gui_client/master/file/Help.md',
       'question-sign',
       {
         class: ApplicationController.help_link_html_class,

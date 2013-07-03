@@ -20,6 +20,9 @@
 .loading
   .hero-unit
     .header-info Please wait for players to connect to the dealer...
+    .header-info This could take a minute or two...
+    .header-info Please do not reload the page.
+    %h5 If the table does not appear in ten minutes (after all human players have connected), please log an issue <a href='#{ApplicationController.issue_tracker}' target='#'>here</a> detailing your exact situation (date and time, system and browser, match setup, and your observations).
   .hidden= hidden_begin_match_form(match.id)
   .hidden= hidden_match_start_poll_form(match.id)
 

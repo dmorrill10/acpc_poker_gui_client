@@ -7,29 +7,35 @@ root.ActionDashboard =
     )
   illogicalWagerSize: (wager_to_amount_over_round)->
     !wager_to_amount_over_round or isNaN(wager_to_amount_over_round)
-  adjustSmallOrIllogicalWager: (wager_to_amount_over_round, minimum_wager_to)->
+  tooSmallOrIllogicalWager: (wager_to_amount_over_round, minimum_wager_to)->
     if (
       @illogicalWagerSize(wager_to_amount_over_round) or
       wager_to_amount_over_round < minimum_wager_to
     )
-      if wager_to_amount_over_round < minimum_wager_to
-        alert "Wager of #{wager_to_amount_over_round} is too small. Making a minimum wager of #{minimum_wager_to} instead."
-      minimum_wager_to
+      if @illogicalWagerSize(wager_to_amount_over_round)
+        alert "Illegal wager of #{wager_to_amount_over_round}. Please submit a proper wager amount."
+      else
+        if wager_to_amount_over_round < minimum_wager_to
+          alert "Wager of #{wager_to_amount_over_round} is too small. Consider making a minimum wager of #{minimum_wager_to} instead."
+      wagerAmountField().val(minimum_wager_to.toString())
+      true
     else
-      wager_to_amount_over_round
-  adjustLargeWager: (wager_to_amount_over_round, all_in_to)->
+      false
+  tooLargeWager: (wager_to_amount_over_round, all_in_to)->
     if wager_to_amount_over_round > all_in_to
-      alert "Wager of #{wager_to_amount_over_round} is too large for your stack size, going all-in instead."
-      all_in_to
+      alert "Wager of #{wager_to_amount_over_round} is too large for your stack size. Please consider an all-in wager of #{all_in_to} instead."
+      wagerAmountField().val(all_in_to.toString())
+      true
     else
-      wager_to_amount_over_round
+      false
   adjustWagerOnSubmission: (minimum_wager_to, user_contributions_in_previous_rounds, all_in_to)->
     wagerSubmission().click((e)=>
       if wagerAmountField().length == 0
         return
       wager_to_amount_over_round = parseInt(wagerAmountField().val())
-      wager_to_amount_over_round = @adjustSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to)
-      wager_to_amount_over_round = @adjustLargeWager(wager_to_amount_over_round, all_in_to)
+
+      if @tooSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to) or @tooLargeWager(wager_to_amount_over_round, all_in_to)
+        return e.stopImmediatePropagation()
       wager_to_amount_over_hand = wager_to_amount_over_round + user_contributions_in_previous_rounds
 
       wagerAmountField().val(wager_to_amount_over_hand.toString())

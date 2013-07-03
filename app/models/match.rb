@@ -4,6 +4,7 @@ require 'mongoid'
 require_relative '../../lib/application_defs'
 
 require_relative 'match_slice'
+require_relative 'user'
 
 class Match
   include Mongoid::Document
@@ -74,7 +75,7 @@ class Match
   def self.start_match(
     name,
     game_definition_key,
-    user_name = 'noname',
+    user_name = User.DEFAULT_NAME,
     opponent_names = nil,
     seat = nil,
     number_of_hands = nil,
@@ -117,7 +118,7 @@ class Match
     self.name = local_name
     self.name_from_user = local_name
 
-    game_info = ApplicationDefs::GAME_DEFINITIONS[game_definition_key]
+    game_info = ApplicationDefs.game_definitions[game_definition_key]
 
     # Adjust or initialize seat
     self.seat ||= ApplicationDefs.random_seat(game_info[:num_players])
@@ -137,8 +138,8 @@ class Match
 
     self
   end
-  def player_names(users_name = ApplicationDefs::USER_NAME)
-    opponent_names.dup.insert seat-1, users_name
+  def player_names
+    opponent_names.dup.insert seat-1, self.user_name
   end
   def every_bot(dealer_host)
     ap "port_numbers.length: #{port_numbers.length}, player_names: #{player_names}, bot_opponent_ports: #{bot_opponent_ports}, ApplicationDefs.bots(game_definition_key, opponent_names).length: #{ApplicationDefs.bots(game_definition_key, opponent_names).length}"
@@ -168,10 +169,14 @@ class Match
     users_port = local_port_numbers.delete_at(seat - 1)
     local_port_numbers
   end
-
-  # @todo Change these to say that a bot name is any one that returns non-nil from the list of bot names
-  def human_opponent_seats
-    player_names.each_index.select{ |i| player_names[i].match(ApplicationDefs::HUMAN_OPPONENT_NAME) }.map { |s| s + 1 }
+  def human_opponent_seats(opponent_user_name = nil)
+    player_names.each_index.select do |i|
+      if opponent_user_name
+        player_names[i] == opponent_user_name
+      else
+        User.where(name: player_names[i]).exists?
+      end
+    end.map { |s| s + 1 }
   end
   def human_opponent_ports
     human_opponent_seats.map { |human_opp_seat| port_numbers[human_opp_seat - 1] }

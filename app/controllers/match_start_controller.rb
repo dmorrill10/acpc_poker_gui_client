@@ -74,12 +74,13 @@ class MatchStartController < ApplicationController
         while !@match.save do
           @match.name_from_user << underscore
         end
+        @match.user_name = user.name
 
         # Swap seat
         @match.seat = seat
         @match.opponent_names.insert(
           opponent_users_match.seat - 1,
-          HUMAN_OPPONENT_NAME
+          opponent_users_match.user_name
         )
         @match.opponent_names.delete_at(seat - 1)
         @match.save!(validate: false)

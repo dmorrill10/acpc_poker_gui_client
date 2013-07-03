@@ -1,7 +1,7 @@
 - bot_options_for_grouped_select = {}
 - game_def_options = []
-- ApplicationDefs::GAME_DEFINITIONS.each do |game_def_key, properties|
-  - bot_options_for_grouped_select[properties[:text]] = properties[:bots].keys
+- ApplicationDefs.game_definitions.each do |game_def_key, properties|
+  - bot_options_for_grouped_select[properties[:text]] = properties[:opponents].keys
   - game_def_options << (
   -   [properties[:text], game_def_key, {"data-num_players" => properties[:num_players]}]
   - )

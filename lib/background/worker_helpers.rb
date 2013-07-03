@@ -8,7 +8,7 @@ module WorkerHelpers
       match = Match.find(match_id)
     rescue
     else
-      match.delete
+      match.delete if match
     end
   end
 

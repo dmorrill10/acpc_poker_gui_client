@@ -11,6 +11,7 @@ end
 
 require 'socket'
 require 'acpc_dealer'
+require_relative '../app/models/user'
 
 # Assortment of constant definitions.
 module ApplicationDefs
@@ -19,44 +20,44 @@ module ApplicationDefs
 
   DEALER_MILLISECOND_TIMEOUT = 7 * 24 * 3600000 unless const_defined? :DEALER_MILLISECOND_TIMEOUT
 
-  HUMAN_OPPONENT_NAME = 'OppositionUser' unless const_defined? :HUMAN_OPPONENT_NAME
+  DEFAULT_BOT_NAME = 'Tester' unless const_defined? :DEFAULT_BOT_NAME
 
-  USER_NAME = 'User' unless const_defined? :USER_NAME
-
-  # @todo Change :bots to opponents
-  GAME_DEFINITIONS = -> do
-    initial_hash = {
-      two_player_nolimit: {
-        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
-        text: '2-player no-limit',
-        bots: {'Tester' => RunTestingBot},
-        num_players: 2
-      },
-      two_player_limit: {
-        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],
-        text: '2-player limit',
-        bots: {'Tester' => RunTestingBot},
-        num_players: 2
-      },
-      three_player_nolimit: {
-        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
-        text: '3-player no-limit',
-        bots: {'Tester' => RunTestingBot, 'Tester2' => RunTestingBot},
-        num_players: 3
-      },
-      three_player_limit: {
-        file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:limit],
-        text: '3-player limit',
-        bots: {'Tester' => RunTestingBot},
-        num_players: 3
-      }
+  STATIC_GAME_DEFINITIONS = {
+    two_player_nolimit: {
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
+      text: '2-player no-limit',
+      opponents: {DEFAULT_BOT_NAME => RunTestingBot},
+      num_players: 2
+    },
+    two_player_limit: {
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:limit],
+      text: '2-player limit',
+      opponents: {DEFAULT_BOT_NAME => RunTestingBot},
+      num_players: 2
+    },
+    three_player_nolimit: {
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
+      text: '3-player no-limit',
+      opponents: {DEFAULT_BOT_NAME => RunTestingBot, 'Tester2' => RunTestingBot},
+      num_players: 3
+    },
+    three_player_limit: {
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:limit],
+      text: '3-player limit',
+      opponents: {DEFAULT_BOT_NAME => RunTestingBot, 'Tester2' => RunTestingBot},
+      num_players: 3
     }
-    initial_hash.each do |type, prop|
-      # @todo Change to any potential user
-      prop[:bots].merge! HUMAN_OPPONENT_NAME => nil
+  } unless const_defined? :GAME_DEFINITIONS
+
+  # Human opponent names map to nil
+  def self.game_definitions
+    lcl_game_defs = STATIC_GAME_DEFINITIONS.dup
+    lcl_game_defs.each do |type, prop|
+      User.each do |user|
+        prop[:opponents].merge! user.name => nil
+      end
     end
-    initial_hash
-  end.call unless const_defined? :GAME_DEFINITIONS
+  end
 
   LOG_DIRECTORY = File.expand_path('../../log', __FILE__) unless const_defined? :LOG_DIRECTORY
 
@@ -70,7 +71,7 @@ module ApplicationDefs
   #   classes as those classes.
   def self.bots(game_def_key, player_names)
     player_names.map do |name|
-      GAME_DEFINITIONS[game_def_key][:bots][name]
+      game_definitions[game_def_key][:opponents][name]
     end.reject { |elem| elem.nil? }
   end
   def self.random_seat(num_players)

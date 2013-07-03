@@ -11,6 +11,7 @@ root.DynamicSelector =
     options = filtered.html()
     # console.log("options: #{options}")
     if options
+      $(childSelector).empty().attr('disabled', false)
       $(childSelector).html(options).parent().show()
     else
       $(childSelector).empty().attr('disabled', true)

@@ -90,6 +90,12 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'meta_request'
+
+  # Not strictly necessary but makes
+  # testing through a VM network much faster
+  # because WeBrick needs a line of configuration
+  # changed, otherwise it's impossibly slow 
+  gem 'thin'
 end
 
 group :development, :test do

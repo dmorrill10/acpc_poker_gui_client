@@ -14,13 +14,7 @@ module PlayerActionsHelper
 
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view(match_id)
-    # Yes, this will reload @match_view from the database
-    # which will often be unnecessary, but it will ensure
-    # that the app being viewed by the user is always up to
-    # date. There are times in a multi-process server
-    # environment when not reloading the view can cause
-    # the app to lock in an unusable position.
-    @match_view = MatchView.new(match_id)
+    @match_view ||= MatchView.new(match_id)
     replace_page_contents 'player_actions/index'
   end
   def acting_player_id(player_seat)
@@ -80,5 +74,44 @@ module PlayerActionsHelper
   end
   def waiting_for_response
     session[:waiting_for_response]
+  end
+
+  def wager_disabled_when
+    waiting_for_response ||
+    !match_view.slice.users_turn_to_act? ||
+    !(
+      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) ||
+      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::BET)
+    )
+  end
+  def fold_disabled_when
+    waiting_for_response ||
+    !(
+      match_view.slice.users_turn_to_act? &&
+      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD)
+    )
+  end
+  def pass_action_button_label
+    if (
+      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::CALL) &&
+      match_view.user['amount_to_call'] > 0
+    )
+      if match_view.no_limit?
+        "Call (#{match_view.user['amount_to_call'].to_i})"
+      else
+       'Call'
+      end
+    else
+      'Check'
+    end
+  end
+  def make_wager_button_label
+    label = if match_view.slice.legal_actions.include?('b')
+      'Bet'
+    else
+      'Raise'
+    end
+    label += ' to' if match_view.no_limit?
+    label
   end
 end

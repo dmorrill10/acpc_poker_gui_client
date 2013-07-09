@@ -13,7 +13,7 @@
   }
 - unless user_must_act?
   :javascript
-    timerId = setInterval(updateState, 100);
+    timerId = setInterval(updateState, 250);
 .hidden
   = form_tag take_action_url, :remote => true do
     = hidden_field_tag :match_id, match.id
@@ -26,5 +26,4 @@
     = hidden_field_tag :match_id, match.id
     = submit_tag nil, class: update_state_html_class
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
-= render partial: 'chip_balances'
 = render partial: 'game_interface'

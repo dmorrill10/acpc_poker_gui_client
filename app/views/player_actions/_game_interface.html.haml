@@ -1,4 +1,5 @@
 .game_interface
+  = render partial: 'chip_balances'
   .poker_table
     - match_view.opponents.sort_by { |opp| AcpcPokerTypes::Seat.new(opp['seat'], match_view.players.length).seats_from(match_view.user['seat'])  }.each_with_index do |opponent, i|
       .opponent{ :class => [acting_player_id(opponent['seat']), "opponent_#{i+1}_of_#{match_view.opponents.length}"] }
@@ -29,10 +30,6 @@
         - next_hand_label = "Next Hand"
         %button{ class: next_hand_id, disabled: waiting_for_response, data: { disable_with: next_hand_label } }= next_hand_label
     - else
-      - fold_is_disabled_when = waiting_for_response || !(match_view.slice.users_turn_to_act? && match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD))
-      - pass_action_button_label = if (match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::CALL) && match_view.user['amount_to_call'] > 0) then (if match_view.no_limit? then "Call (#{match_view.user['amount_to_call'].to_i})" else 'Call' end) else 'Check' end
-      - make_wager_button_label = if match_view.slice.legal_actions.include?('b') then 'Bet' else 'Raise' end
-      - make_wager_button_label += ' to' if match_view.no_limit?
       .action_modification_tools
         - if match_view.no_limit?
           .wager_amount-slider
@@ -45,19 +42,18 @@
               .slider_label.all_in All-in
             .slider
               .ui_slider
-          .wager_amount-num_field= number_field_tag :modifier, match_view.minimum_wager_to.to_i, min: match_view.minimum_wager_to.to_i, max: match_view.all_in.to_i, step: match_view.match.min_wagers[match_view.state.round].to_i
+          .wager_amount-num_field= number_field_tag :modifier, match_view.minimum_wager_to.to_i, min: match_view.minimum_wager_to.to_i, max: match_view.all_in.to_i, step: match_view.match.min_wagers[match_view.state.round].to_i, disabled: wager_disabled_when
       .actions
         .poker_actn_btn
           - fold_label = 'Fold'
           - fold_attributes = { class: fold_html_class, type: 'submit', data: { disable_with: fold_label }}
-          - fold_attributes[:disabled] = 'disabled' if fold_is_disabled_when
+          - fold_attributes[:disabled] = 'disabled' if fold_disabled_when
           %button{fold_attributes}= fold_label
         .poker_actn_btn
           - pass_attributes = { class: pass_html_class, type: 'submit', data: { disable_with: pass_action_button_label }}
           - pass_attributes[:disabled] = 'disabled' if waiting_for_response || !match_view.slice.users_turn_to_act?
           %button{pass_attributes}= pass_action_button_label
         .poker_actn_btn
-          - wager_disabled_when = waiting_for_response || !match_view.slice.users_turn_to_act? || !(match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) || match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::BET))
           - wager_attributes = { class: wager_html_class, type: 'submit', data: { disable_with: make_wager_button_label }}
           - wager_attributes[:disabled] = 'disabled' if wager_disabled_when
           %button{wager_attributes}= make_wager_button_label

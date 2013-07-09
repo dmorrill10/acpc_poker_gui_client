@@ -51,7 +51,9 @@ class PlayerActionsController < ApplicationController
         return update unless @match_view.slice.hand_ended?
       end
     )
-    render nothing: true
+    # Although I think it should be safe to render nothing here,
+    # empirically this causes the app to freeze at times
+    replace_page_contents_with_updated_game_view(params[:match_id])
   end
 
   def update
@@ -65,7 +67,9 @@ class PlayerActionsController < ApplicationController
 
         # Abort if there is only one slice in the match view
         if @match_view.match.slices.length < 2
-          return render(nothing: true)
+          # Although I think it should be safe to render nothing here,
+          # empirically this causes the app to freeze at times
+          return replace_page_contents_with_updated_game_view(params[:match_id])
         end
 
         # Delete the last slice since it's no longer needed

@@ -170,11 +170,11 @@ class Match
     local_port_numbers
   end
   def human_opponent_seats(opponent_user_name = nil)
-    player_names.each_index.select do |i|
+    self.opponent_names.each_index.select do |i|
       if opponent_user_name
-        player_names[i] == opponent_user_name
+        self.opponent_names[i] == opponent_user_name
       else
-        User.where(name: player_names[i]).exists?
+        User.where(name: self.opponent_names[i]).exists?
       end
     end.map { |s| s + 1 }
   end

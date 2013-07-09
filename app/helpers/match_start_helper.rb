@@ -91,9 +91,8 @@ module MatchStartHelper
   end
   def seats_to_rejoin
     matches_to_rejoin.inject({}) do |hash, lcl_match|
-      hash[lcl_match.name_from_user] = lcl_match.human_opponent_seats
-      hash[lcl_match.name_from_user] << lcl_match.seat
-      hash[lcl_match.name_from_user]
+      hash[lcl_match.name] = lcl_match.human_opponent_seats
+      hash[lcl_match.name] << lcl_match.seat
       hash
     end
   end

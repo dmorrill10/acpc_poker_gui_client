@@ -170,13 +170,13 @@ class Match
     local_port_numbers
   end
   def human_opponent_seats(opponent_user_name = nil)
-    self.opponent_names.each_index.select do |i|
+    player_names.each_index.select do |i|
       if opponent_user_name
-        self.opponent_names[i] == opponent_user_name
+        player_names[i] == opponent_user_name
       else
-        User.where(name: self.opponent_names[i]).exists?
+        User.where(name: player_names[i]).exists?
       end
-    end.map { |s| s + 1 }
+    end.map { |s| s + 1 } - [self.seat]
   end
   def human_opponent_ports
     human_opponent_seats.map { |human_opp_seat| port_numbers[human_opp_seat - 1] }
@@ -187,5 +187,12 @@ class Match
       local_opponent_ports.delete port
     end
     local_opponent_ports
+  end
+  def rejoinable_seats(user_name)
+    (
+      self.human_opponent_seats(user_name) -
+      # Remove seats already taken by players who have already joined this match
+      Match.where(name: self.name).ne(name_from_user: self.name).map { |m| m.seat }
+    )
   end
 end

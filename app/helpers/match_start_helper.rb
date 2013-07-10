@@ -61,28 +61,21 @@ module MatchStartHelper
   end
 
   def matches_to_join
-    @matches_to_join ||= Match.all.select do |m|
-      m.opponent_names &&
-      m.opponent_names.any? do |name|
-        name.match(user.name)
-      end &&
+    @matches_to_join ||= Match.asc(:name).all.select do |m|
+      !m.name_from_user.match(/^_+$/) &&
       m.slices.empty? &&
-      !m.name_from_user.match(/^_+$/)
+      !m.human_opponent_seats(user.name).empty?
     end
   end
   def seats_to_join
     matches_to_join.inject({}) do |hash, lcl_match|
-      # Remove seats already taken by players who have already joined this match
-      hash[lcl_match.name_from_user] = (
-        lcl_match.human_opponent_seats(user.name) -
-        Match.where(name: lcl_match.name).map { |m| m.seat }
-      )
+      hash[lcl_match.name] = lcl_match.rejoinable_seats(user.name).sort
       hash
     end
   end
 
   def matches_to_rejoin
-    @matches_to_rejoin ||= Match.all.select do |m|
+    @matches_to_rejoin ||= Match.asc(:name).all.select do |m|
       m.user_name == user_name &&
       !m.name_from_user.match(/^_+$/) &&
       !m.finished? &&
@@ -90,9 +83,10 @@ module MatchStartHelper
     end
   end
   def seats_to_rejoin
-    matches_to_rejoin.inject({}) do |hash, lcl_match|
+    matches_to_rejoin.sort_by{ |m| m.name }.inject({}) do |hash, lcl_match|
       hash[lcl_match.name] = lcl_match.human_opponent_seats
-      hash[lcl_match.name] << lcl_match.seat
+      hash[lcl_match.name] << lcl_match.seat unless hash[lcl_match.name].include?(lcl_match.seat)
+      hash[lcl_match.name].sort!
       hash
     end
   end

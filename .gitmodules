@@ -1,0 +1,3 @@
+[submodule "manifests/modules/puppet-bundler"]
+	path = manifests/modules/puppet-bundler
+	url = https://github.com/puppetlabs-operations/puppet-bundler.git

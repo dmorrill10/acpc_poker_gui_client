@@ -65,13 +65,13 @@ Vagrant.configure("2") do |config|
   #   content => "Welcome to your Vagrant-built virtual machine!
   #               Managed by Puppet.\n"
   # }
-  
+
   config.vm.provision :shell, inline: 'sudo apt-get update && sudo apt-get install -y puppet'
 
   config.vm.provision :puppet do |puppet|
     #puppet.manifests_path = "manifests"
     #puppet.manifest_file  = "init.pp"
-    #puppet.module_path = 'manifests/modules'
+    #puppet.module_path = ???
   end
 
   # Enable provisioning with chef solo, specifying a cookbooks path, roles

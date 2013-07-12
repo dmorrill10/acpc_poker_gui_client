@@ -25,4 +25,8 @@ function install_puppet_module {
     puppet module install $module
   fi
 }
-install_puppet_module 'puppetlabs-ruby'
+install_puppet_module 'alup-rbenv'
+install_puppet_module 'puppetlabs-mongodb'
+install_puppet_module 'puppetlabs-nodejs'
+install_puppet_module 'thomasvandoren-redis'
+install_puppet_module 'ploperations-bundler'

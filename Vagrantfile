@@ -73,6 +73,10 @@ Vagrant.configure("2") do |config|
     puppet.manifest_file  = "init.pp"
   end
 
+  config.vm.provider "virtualbox" do |v|
+    v.customize ["modifyvm", :id, "--cpus", 2]
+  end
+
   # Enable provisioning with chef solo, specifying a cookbooks path, roles
   # path, and data_bags path (all relative to this Vagrantfile), and adding
   # some recipes and/or roles.

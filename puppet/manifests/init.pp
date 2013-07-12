@@ -10,14 +10,6 @@ exec { $update:
 
 # Basic libraries (libz, libxml, etc.)
 #---------------
-package { "build-essential":
-  ensure => installed,
-  require  => Exec[$update],
-}
-package { "git":
-  ensure => installed,
-  require  => Exec[$update],
-}
 package { "openssl":
   ensure => installed,
   require  => Exec[$update],
@@ -50,10 +42,10 @@ package { "libxml2-dev":
   ensure => installed,
   require  => Exec[$update],
 }
-package { "libxslt-dev":
-  ensure => installed,
-  require  => Exec[$update],
-}
+# package { "libxslt-dev":
+#   ensure => installed,
+#   require  => Exec[$update],
+# }
 package { "autoconf":
   ensure => installed,
   require  => Exec[$update],
@@ -79,61 +71,24 @@ package { "bison":
   require  => Exec[$update],
 }
 
-# NodeJS
-#---------
-package { 'python-software-properties':
-  ensure => installed,
-  require => Exec[$update]
-}
-package { 'python':
-  ensure => installed,
-  require => Exec[$update]
-}
-package { 'g++':
-  ensure => installed,
-  require => Exec[$update]
-}
-package { 'make':
-  ensure => installed,
-  require => Exec[$update]
-}
-$nodejs_repo = 'sudo add-apt-repository -y ppa:chris-lea/node.js'
-exec { $nodejs_repo:
-  path => "/usr/bin"
-}
-$nodejs = "nodejs"
-package { $nodejs:
-  ensure => installed,
-  require  => [Exec[$update], Package['python'], Package['g++'], Package['make'], Exec[$nodejs_repo], Exec[$update]]
-}
+include nodejs
 
-# MongoDB
-#------------
-$mongodb_key = 'sudo apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10'
-exec { $mongodb_key:
-  path => '/usr/bin'
-}
-$mongodb_source_list_entry = "echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/10gen.list"
-exec { $mongodb_source_list_entry:
-  path => '/usr/bin'
-}
-$mongodb = 'mongodb-10gen'
-package { $mongodb:
-  ensure => 'installed',
-  require => [Exec[$mongodb_key], Exec[$mongodb_source_list_entry], Exec[$update]]
-}
+include mongodb
+
+include redis
 
 # Redis
 #-------
-$redis = 'redis-server'
-package { $redis:
-  ensure => 'installed',
-  require => Exec[$update]
-}
+# $redis = 'redis-server'
+# package { $redis:
+#   ensure => 'installed',
+#   require => Exec[$update]
+# }
 
 # Ruby
 #----------
-$gemrc = '/home/vagrant/.gemrc'
+$home = '/home/vagrant'
+$gemrc = "$home/.gemrc"
 file { $gemrc:
   ensure => file,
   content => '---
@@ -145,13 +100,23 @@ gem: --no-ri --no-rdoc
 '
 }
 
-class { 'ruby':
-  version => '2.0.0-p247',
-  gems_version  => 'latest',
+$app_user = 'vagrant'
+rbenv::install { $app_user:
+  home => $home
+}
+
+$ruby_version = '2.0.0-p247'
+rbenv::compile { $ruby_version:
+  user => $app_user,
+  home => $home,
+  global => true,
   require => File[$gemrc]
 }
 
-# $ruby_version = '2.0.0-p247'
+# rbenv::gem { "bundler":
+#   user => $app_user,
+#   ruby => $ruby_version,
+# }
 
 # rbenv rehash
 # rbenv global $ruby_version
@@ -196,28 +161,32 @@ class { 'ruby':
 $app_root = '/vagrant'
 $mongodb_data = '/data/db'
 # Ensure that mongoDB data directory is present
-file { $mongodb_data:
+file { ['/data', $mongodb_data]:
   ensure => 'directory'
 }
-# Install gems
-$bundler = 'gem install bundler'
-package { $bundler:
-  require => [File[$gemrc], Class['ruby']]
-}
-$bundle_install = 'bundle install'
-exec { $bundle_install:
-  path => $app_root,
-  require => [Package[$nodejs], Package[$bundler]]
-}
 
-# Ensure that god is running
-$god = 'bundle exec god -c config/god.vagrant.rb -l log/god.log'
-exec { $god:
-  path => $app_root,
-  require => [File[$mongodb_data], Package[$redis], Package[$mongodb], Exec[$bundle_install]]
-}
-# Set the development server running on the default port 3000
-exec { 'rails s':
-  path => $app_root,
-  require => [Exec[$god]]
-}
+
+
+# User level
+#-----------------
+# $gems = '/home/vagrant/.rbenv/shims/bundle install'
+# exec { $gems:
+#   path => $app_root,
+#   user => $app_user,
+#   require => Rbenv::Compile[$ruby_version]
+# }
+
+# # Ensure that god is running
+# $god = '/home/vagrant/.rbenv/shims/bundle exec /home/vagrant/.rbenv/shims/god -c config/god.vagrant.rb -l log/god.log'
+# exec { $god:
+#   path => $app_root,
+#   user => $app_user,
+#   require => [File[$mongodb_data], Class['redis'], Class['mongodb'], Class['redis'], Exec[$gems]]
+# }
+
+# # Set the development server running on the default port 3000
+# exec { 'rails s':
+#   path => $app_root,
+#   user => $app_user,
+#   require => Exec[$god]
+# }

@@ -15,11 +15,16 @@ class PlayerActionsController < ApplicationController
   include ApplicationHelper
   include PlayerActionsHelper
 
+  # @todo exempt_before_filter update_state from clear_waiting_for_response
+
   def index
     return reset_to_match_entry_view if (
       error?(
         "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
-      ) { replace_page_contents_with_updated_game_view params[:match_id] }
+      ) do
+        session[:waiting_for_response] = false
+        replace_page_contents_with_updated_game_view params[:match_id]
+      end
     )
   end
 
@@ -28,6 +33,9 @@ class PlayerActionsController < ApplicationController
       error?(
         "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
       ) do
+        # Initialize the match view so that the app is guaranteed to not update before showing the
+        # table.
+        @match_view ||= MatchView.new params[:match_id]
         TableManager.perform_async(
           ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
           params[:match_id],
@@ -67,6 +75,8 @@ class PlayerActionsController < ApplicationController
 
         # Abort if there is only one slice in the match view
         if @match_view.match.slices.length < 2
+          # To ensure that we can't try to click 'Next Hand' again.
+          session[:waiting_for_response] = true
           # Although I think it should be safe to render nothing here,
           # empirically this causes the app to freeze at times
           return replace_page_contents_with_updated_game_view(params[:match_id])
@@ -82,6 +92,7 @@ class PlayerActionsController < ApplicationController
       error?(
         "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
       ) do
+        # @todo Remove this once before filter is in place
         session[:waiting_for_response] = false
         replace_page_contents_with_updated_game_view(params[:match_id])
       end

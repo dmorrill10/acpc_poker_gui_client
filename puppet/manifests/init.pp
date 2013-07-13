@@ -42,10 +42,6 @@ package { "libxml2-dev":
   ensure => installed,
   require  => Exec[$update],
 }
-# package { "libxslt-dev":
-#   ensure => installed,
-#   require  => Exec[$update],
-# }
 package { "autoconf":
   ensure => installed,
   require  => Exec[$update],
@@ -74,16 +70,14 @@ package { "bison":
 include nodejs
 
 include mongodb
+$app_root = '/vagrant'
+$mongodb_data = '/data/db'
+# Ensure that mongoDB data directory is present
+file { ['/data', $mongodb_data]:
+  ensure => 'directory'
+}
 
 include redis
-
-# Redis
-#-------
-# $redis = 'redis-server'
-# package { $redis:
-#   ensure => 'installed',
-#   require => Exec[$update]
-# }
 
 # Ruby
 #----------
@@ -112,59 +106,6 @@ rbenv::compile { $ruby_version:
   global => true,
   require => File[$gemrc]
 }
-
-# rbenv::gem { "bundler":
-#   user => $app_user,
-#   ruby => $ruby_version,
-# }
-
-# rbenv rehash
-# rbenv global $ruby_version
-
-# $rbenv = '~/.rbenv'
-# $clone_rbenv = 'clone_rbenv'
-# exec { $clone_rbenv:
-#   command => "git clone https://github.com/sstephenson/rbenv.git $rbenv",
-#   creates => $rbenv
-# }
-
-# $ruby_build = '~/.rbenv/plugins/ruby-build'
-# $clone_ruby_build = 'clone_ruby_build'
-# exec { $clone_ruby_build:
-#   command => "git clone https://github.com/sstephenson/ruby-build.git $ruby_build"
-#   creates => $ruby_build
-#   require => Exec[$clone_rbenv]
-# }
-
-# $restart_shell = 'exec $SHELL -l'
-# exec { $restart_shell }
-
-# $rbenv_install =
-# exec { $rbenv_install:
-#   command => "rbenv install $ruby_version",
-#   creates => '$rbenv/shims/ruby'
-#   require => [Exec[$restart_shell], Exec[$ruby_build]]
-# }
-
-# $rbenv_init = 'echo \'eval "$(rbenv init -)"\' >> ~/.profile'
-# exec { $rbenv_init:
-#   before => $restart_shell
-# }
-
-# $rbenv_path = 'echo \'export PATH="$HOME/.rbenv/bin:$PATH"\' >> ~/.profile'
-# exec { $rbenv_path:
-#   before => $rbenv_init
-# }
-
-# Start the application
-#-----------
-$app_root = '/vagrant'
-$mongodb_data = '/data/db'
-# Ensure that mongoDB data directory is present
-file { ['/data', $mongodb_data]:
-  ensure => 'directory'
-}
-
 
 
 # User level

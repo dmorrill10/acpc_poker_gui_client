@@ -19,7 +19,10 @@ class PlayerActionsController < ApplicationController
     return reset_to_match_entry_view if (
       error?(
         "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
-      ) { replace_page_contents_with_updated_game_view params[:match_id] }
+      ) do
+        session[:waiting_for_response] = false
+        replace_page_contents_with_updated_game_view params[:match_id]
+      end
     )
   end
 
@@ -28,6 +31,7 @@ class PlayerActionsController < ApplicationController
       error?(
         "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
       ) do
+        @match_view ||= MatchView.new params[:match_id]
         TableManager.perform_async(
           ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
           params[:match_id],
@@ -67,6 +71,11 @@ class PlayerActionsController < ApplicationController
 
         # Abort if there is only one slice in the match view
         if @match_view.match.slices.length < 2
+
+          if @match_view.slice.hand_ended?
+            session[:waiting_for_response] = true
+          end
+
           # Although I think it should be safe to render nothing here,
           # empirically this causes the app to freeze at times
           return replace_page_contents_with_updated_game_view(params[:match_id])

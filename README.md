@@ -20,8 +20,22 @@ Much of this application's functionality comes from component gems that began as
 * [ACPC Poker Player Proxy][ACPC Poker Player Proxy GitHub] - Provides a full proxy through which a match of poker may be played with the [<em>ACPC Dealer Server</em>][ACPC competition server]. Match states sent by the dealer are retrieved automatically whenever they are available, and are interpreted and managed for the user.
 * [ACPC Poker Types][ACPC Poker Types] - Fundamental poker types like `Card`, `Player`, `GameDefinition`, and `MatchState`.
 
-Prerequisites
-----------------
+Installation
+---------------------
+
+### Vagrant (still experimental but potentially *much* easier. I recommend trying this first.)
+Install [*Vagrant*](http://www.vagrantup.com/) for your system and run `vagrant up` in the root directory of this project. This will download and boot a virtual machine, then install the necessary packages to be compatible with this project. Once the virtual machine has started successfully, 
+
+1. ssh into it (see these [instructions](http://docs.vagrantup.com/v2/getting-started/up.html) for more details on how to do this), 
+2. clone this project again to your home directory (the share folder is unusably slow so either clone the project again from Github, or copy it from the shared `/vagrant` directory), 
+3. run `bundle install`, and finally 
+4. `./script/start_dev_server` to get the app running.
+
+The app should then be available on `http:localhost:3000`.
+
+### Manual
+
+#### Prerequisites
 
 * A compatible *\*NIX*-based operating system. Has been successfully installed on *Ubuntu 10.04.4 LTS*, *11.04*, *12.04*, and *Mac OS X Lion*. *Windows* is not supported (in this case, it is recommended to run a compatible operating system as a virtual machine in [VMWare Player](http://www.vmware.com/products/player/) or [VirtualBox](https://www.virtualbox.org/).
 * Ruby 1.9.3 - This can be installed in different ways, but a good choice is [RVM][RVM homepage]. Or you can follow these [instructions][Ruby downloads] to install via a different method.
@@ -34,10 +48,10 @@ Once Ruby is installed, installing Bundler should only be a matter of running
         gem install bundler
 
 * A non-LLVM version of GCC - This may require some extra steps on OSX as some versions of XCode no longer include such compilers. There are many [discussions on solutions for this on stack overflow](http://stackoverflow.com/questions/8032824/cant-install-ruby-under-lion-with-rvm-gcc-issues).
-* For using the app, a modern non-*Internet Explorer* browser (*Google Chrome* or *Chromium* tend to work best and is most thoroughly tested with). Must support *JavaScript* and *websockets*, and both must be enabled. In theory, Internet Explorer should work properly but it (at least in this application) has a problem with the rails `remote: true` option for injecting *AJAX* into forms, and I'm not sure why or how to fix it.
+* Redis - Background process server. See these [instructions](http://redis.io/topics/quickstart) for details on how to install.
+* For using the app, a modern browser (*Google Chrome* or *Chromium* tend to work best and is most thoroughly tested). Must support and have *JavaScript* enabled.
 
-Installation
----------------
+#### Installing the Project
 Download [the code][ACPC Poker GUI Client GitHub], which can be done by running
 
     git clone git://github.com/dmorrill10/acpc_poker_gui_client.git
@@ -51,60 +65,23 @@ then, in the project's root directory, run
 
 This should install most of the application's dependencies, except [<em>Apache</em>][Apache homepage], including gems, and will complete the MongoDB setup.
 
-
 Non-gem dependencies
 ---------------------------
-[<em>MongoDB</em>][MongoDB homepage] is used as the database back-end.
+[<em>MongoDB</em>][MongoDB homepage] is used as the database back-end and [Redis](http://redis.io/) for background processing.
 
 Web server
 --------------
 ### Development mode
-A `WEBrick` server packaged with `rails` serves the application locally in development mode.
+A `Thin` server packaged with `rails` serves the application locally in development mode (though if the installation of the `thin` gem has problems, simply remove that line from the `Gemfile` and the default `WEBrick` server will be used instead).
 
 ### Production mode
 An [<em>Apache server</em>][Apache homepage] hosts the application proper in production mode. This is currently done with Apache-Rails integration through [<em>Phusion Passenger</em>][Phusion Passenger homepage]. As [Apache][Apache homepage] is only used in production, it is not required to deploy this application on a local development server.
 
+
 Deployment
 ------------
-
-### Simple start
-For convenience, there are two `rake` tasks that combine the two operations described below that are needed to start the app for different environments.
-
-#### Development mode
-Deploying the application in development mode on a `WEBrick` server is simply a matter of running
-
-    bundle exec rake start_dev_server
-in the project's root directory.
-
-#### Production mode
-Similarly, to deploy in production mode (given that [<em>Apache</em>][Apache homepage] and [<em>Phusion Passenger</em>][Phusion Passenger homepage] are properly configured), run:
-
-    bundle exec rake start_prod_server
-
-### More details
-For the app to be deployed properly, three servers must be started:
-1. The *MongoDB* database server `mongod`
-2. The custom `em-websocket` server `lib/background/worker.rb`. This is a fairly simple Ruby script that listens for websocket connections from the app (all other foreign connection attempts are closed upon connection) and manages background processes necessary to play matches, such as `dealer`, opponent agent, and user proxy (which is an agent that connects to the dealer on the user's behalf and takes actions according to the user's directions from the app) instances.
-3. A web server for Rails (see **Web server**).
-
-The `god` script `config/god.rb` will start both `mongod` and `lib/background/worker.rb`. To run this, use the command (the `-l <log file>` logging option is optional but recommended)
-        
-    bundle exec god -c config/god.rb` -l log/god.log
-
-After `god` is running, all that's left is to run a web server.
-
-Updates
----------
-Updating this application can be done by running
-
-    bundle exec rake update
-in the project's root directory, which will pull the newest down code from the [repository][ACPC Poker GUI Client GitHub] and install any missing gems.
-
-These tasks can be done separately too (as can all rake tasks, see Rakefile for more details), with [Git][Git homepage] and [Bundler][Bundler homepage] commands.
-
-CLI
-------
-`bin/acpc_cli_client` is a somewhat crude command line interface that allows users to start and participate in `dealer` hosted matches through the command line.
+### Simple Start in Development Mode
+Run `script/start_dev_server` and point a browser to `http:localhost:3000`.
 
 Generators
 ------------

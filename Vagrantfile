@@ -13,6 +13,8 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network :forwarded_port, guest: 3000, host: 3000
+  # Using a private network seems to be slightly faster, but it's simpler to point a browser to a forwarded port, so I'll leave that as the default.
+  # config.vm.network :private_network, ip: "192.168.50.4"
 
   config.vm.provision :shell, path: 'puppet/ubuntu.sh'
 
@@ -22,12 +24,8 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider "virtualbox" do |v|
-    # @todo These are supposed to make installing gems faster
-    #   (because they are intolerably slow by default)
-    #   but I haven't tested yet
     v.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
-    # @todo Need to enable IO ACPI for this to work properly
-    # v.customize ["modifyvm", :id, "--cpus", 2]
+    v.customize ["modifyvm", :id, "--memory", "1024", "--ioapic", "on", "--cpus", 2]
   end
 end

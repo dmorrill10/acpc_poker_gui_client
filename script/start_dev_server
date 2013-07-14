@@ -5,4 +5,5 @@ project_root=$( cd "$( dirname "$0" )/../" && pwd )
 cd $project_root
 
 $project_root/script/start_god
-rails s
+bundle exec rails s
+

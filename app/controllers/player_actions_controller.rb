@@ -15,12 +15,20 @@ class PlayerActionsController < ApplicationController
   include ApplicationHelper
   include PlayerActionsHelper
 
+  before_filter :log_session
+
+  def log_session
+    Rails.logger.ap session: session
+  end
+
   def index
     return reset_to_match_entry_view if (
       error?(
         "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
       ) do
         session[:waiting_for_response] = false
+        Rails.logger.ap waiting_for_response: session[:waiting_for_response]
+
         replace_page_contents_with_updated_game_view params[:match_id]
       end
     )
@@ -31,6 +39,8 @@ class PlayerActionsController < ApplicationController
       error?(
         "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
       ) do
+        # Initialize the match view so that the app is guaranteed to not update before showing the
+        # table.
         @match_view ||= MatchView.new params[:match_id]
         TableManager.perform_async(
           ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
@@ -38,6 +48,8 @@ class PlayerActionsController < ApplicationController
           action: params[:poker_action]
         )
         session[:waiting_for_response] = true
+        Rails.logger.ap waiting_for_response: session[:waiting_for_response]
+
         replace_page_contents_with_updated_game_view(params[:match_id])
       end
     )
@@ -50,11 +62,13 @@ class PlayerActionsController < ApplicationController
       ) do
         @match_view ||= MatchView.new params[:match_id]
 
-        Rails.logger.ap @match_view.slice.hand_ended?
+        Rails.logger.ap hand_ended: @match_view.slice.hand_ended?
 
         return update unless @match_view.slice.hand_ended?
       end
     )
+    Rails.logger.ap waiting_for_response: session[:waiting_for_response]
+
     # Although I think it should be safe to render nothing here,
     # empirically this causes the app to freeze at times
     replace_page_contents_with_updated_game_view(params[:match_id])
@@ -68,6 +82,12 @@ class PlayerActionsController < ApplicationController
         "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
       ) do
         @match_view ||= MatchView.new params[:match_id]
+
+        if @match_view.slice.hand_ended?
+          # To ensure that we can't try to click 'Next Hand' again.
+          session[:waiting_for_response] = true
+          Rails.logger.ap waiting_for_response: session[:waiting_for_response]
+        end
 
         # Abort if there is only one slice in the match view
         if @match_view.match.slices.length < 2

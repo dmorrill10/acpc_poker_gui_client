@@ -6,99 +6,20 @@ This application is built with *Ruby and Rails*.
 
 More details
 ----------------
-* [GitHub][ACPC Poker GUI Client GitHub] - Code
-* [Documentation][documentation] - Documentation
-
-Components
-------------
-Much of this application's functionality comes from component gems that began as part of this project and subsequently branched away to become stand-alone projects:
-
-* [ACPC Dealer][ACPC Dealer GitHub] - Wraps the [<em>ACPC Dealer Server</em>][ACPC competition server] in a handy gem with a convenient runner class, and a script for compiling and running the dealer and example players.
-* [ACPC Dealer Data][ACPC Dealer Data GitHub] - Utilities for extracting information from [<em>ACPC Dealer Server</em>][ACPC competition server] logs. Used for testing.
-* [ACPC Poker Basic Proxy][ACPC Poker Basic Proxy GitHub] - Utilities for communicating with the [<em>ACPC Dealer Server</em>][ACPC competition server].
-* [ACPC Poker Match State][ACPC Poker Match State GitHub] - Provides a manager for the state of a poker match.
-* [ACPC Poker Player Proxy][ACPC Poker Player Proxy GitHub] - Provides a full proxy through which a match of poker may be played with the [<em>ACPC Dealer Server</em>][ACPC competition server]. Match states sent by the dealer are retrieved automatically whenever they are available, and are interpreted and managed for the user.
-* [ACPC Poker Types][ACPC Poker Types] - Fundamental poker types like `Card`, `Player`, `GameDefinition`, and `MatchState`.
-
-Installation
----------------------
-
-### Vagrant (still experimental but potentially *much* easier. I recommend trying this first.)
-Install [*Vagrant*](http://www.vagrantup.com/) for your system and run `vagrant up` in the root directory of this project. This will download and boot a virtual machine, then install the necessary packages to be compatible with this project. Once the virtual machine has started successfully, 
-
-1. ssh into it (see these [instructions](http://docs.vagrantup.com/v2/getting-started/up.html) for more details on how to do this), 
-2. clone this project again to your home directory (the share folder is unusably slow so either clone the project again from Github, or copy it from the shared `/vagrant` directory), 
-3. run `bundle install`, and finally 
-4. `./script/start_dev_server` to get the app running.
-
-The app should then be available on `http:localhost:3000`.
-
-### Manual
-
-#### Prerequisites
-
-* A compatible *\*NIX*-based operating system. Has been successfully installed on *Ubuntu 10.04.4 LTS*, *11.04*, *12.04*, and *Mac OS X Lion*. *Windows* is not supported (in this case, it is recommended to run a compatible operating system as a virtual machine in [VMWare Player](http://www.vmware.com/products/player/) or [VirtualBox](https://www.virtualbox.org/).
-* Ruby 1.9.3 - This can be installed in different ways, but a good choice is [RVM][RVM homepage]. Or you can follow these [instructions][Ruby downloads] to install via a different method.
-* Git - While this should only be required if you want to install Ruby via [RVM][RVM homepage], installing Git also makes working with this repository easier, so it is recommended. Follow these [instructions][Git setup] to do so.
-* [Bundler][Bundler homepage] - Bundler is a Ruby gem that manages a project's gem dependencies. It requires zlib, which can be installed through [RVM][RVM homepage] by running
-    
-        rvm pkg install zlib
-Once Ruby is installed, installing Bundler should only be a matter of running
-
-        gem install bundler
-
-* A non-LLVM version of GCC - This may require some extra steps on OSX as some versions of XCode no longer include such compilers. There are many [discussions on solutions for this on stack overflow](http://stackoverflow.com/questions/8032824/cant-install-ruby-under-lion-with-rvm-gcc-issues).
-* Redis - Background process server. See these [instructions](http://redis.io/topics/quickstart) for details on how to install.
-* For using the app, a modern browser (*Google Chrome* or *Chromium* tend to work best and is most thoroughly tested). Must support and have *JavaScript* enabled.
-
-#### Installing the Project
-Download [the code][ACPC Poker GUI Client GitHub], which can be done by running
-
-    git clone git://github.com/dmorrill10/acpc_poker_gui_client.git
-
-Next, download a [<em>MongoDB</em>][MongoDB downloads] version compatible with your system, unpack the compressed file to `<project root>/vendor`, and rename the resulting directory to `mongoDB`.
-
-then, in the project's root directory, run
-
-    bundle install
-    bundle exec rake install
-
-This should install most of the application's dependencies, except [<em>Apache</em>][Apache homepage], including gems, and will complete the MongoDB setup.
-
-Non-gem dependencies
----------------------------
-[<em>MongoDB</em>][MongoDB homepage] is used as the database back-end and [Redis](http://redis.io/) for background processing.
-
-Web server
---------------
-### Development mode
-A `Thin` server packaged with `rails` serves the application locally in development mode (though if the installation of the `thin` gem has problems, simply remove that line from the `Gemfile` and the default `WEBrick` server will be used instead).
-
-### Production mode
-An [<em>Apache server</em>][Apache homepage] hosts the application proper in production mode. This is currently done with Apache-Rails integration through [<em>Phusion Passenger</em>][Phusion Passenger homepage]. As [Apache][Apache homepage] is only used in production, it is not required to deploy this application on a local development server.
-
+* [Code on GitHub][ACPC Poker GUI Client GitHub]
+* [Documentation][documentation]
+* [Installation](docs/Installation.md)
+* [Adding agents](docs/Agents.md)
+* [User Help](docs/Help.md)
+* [Components](docs/Components.md)
 
 Deployment
 ------------
 ### Simple Start in Development Mode
 Run `script/start_dev_server` and point a browser to `http:localhost:3000`.
 
-Generators
-------------
-This project includes custom generators:
-
-* poker_bot
-* scss_class
-
-For execution details, run
-
-    rails g <generator name> --help
-
-For more information, see this [tutorial][Rails generators tutorial] on [_Rails_][Rails] generators.
-
 Contributing
 ----------------------
-
 ### Issues
 See the [issue tracker](https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open) for currently known issues, or to log new ones.
 

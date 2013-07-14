@@ -1,5 +1,6 @@
 
 class RunTestingBot
+   PROJECT_ROOT = File.expand_path('../..', __FILE__)
    EXECUTE_COMMAND = File.expand_path('../testing_bot.rb', __FILE__)
    ARGUMENTS = [:port_number, :server]
 

@@ -1,5 +1,5 @@
 .chip_balances
-  %h5= "#{match_view.match.name} <span class=\"right\">#{match_view.slice.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
+  %h5.match_name= "#{match_view.match.name} <span class=\"right\">#{match_view.slice.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
   %table.table.table-striped
     %thead
       %tr

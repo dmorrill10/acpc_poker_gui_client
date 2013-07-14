@@ -5,15 +5,9 @@
 = render partial: 'adjust_sizes'
 = render partial: 'initial_focus'
 
-
-:javascript
-  var timerId;
-  if (timerId) {
-    clearInterval(timerId);
-  }
 - unless user_must_act?
   :javascript
-    timerId = setInterval(updateState, 250);
+    setTimeout(updateState, 250);
 .hidden
   = form_tag take_action_url, :remote => true do
     = hidden_field_tag :match_id, match.id

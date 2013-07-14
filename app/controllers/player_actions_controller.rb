@@ -69,8 +69,7 @@ class PlayerActionsController < ApplicationController
     )
     Rails.logger.ap waiting_for_response: session[:waiting_for_response]
 
-    # Although I think it should be safe to render nothing here,
-    # empirically this causes the app to freeze at times
+    return render(nothing: true) if params[:match_state] == @match_view.slice.state_string
     replace_page_contents_with_updated_game_view(params[:match_id])
   end
 
@@ -83,21 +82,16 @@ class PlayerActionsController < ApplicationController
       ) do
         @match_view ||= MatchView.new params[:match_id]
 
-        if @match_view.slice.hand_ended?
-          # To ensure that we can't try to click 'Next Hand' again.
-          session[:waiting_for_response] = true
-          Rails.logger.ap waiting_for_response: session[:waiting_for_response]
-        end
-
         # Abort if there is only one slice in the match view
         if @match_view.match.slices.length < 2
 
           if @match_view.slice.hand_ended?
+            # To ensure that we can't try to click 'Next Hand' again.
             session[:waiting_for_response] = true
+            return replace_page_contents_with_updated_game_view(params[:match_id])
           end
 
-          # Although I think it should be safe to render nothing here,
-          # empirically this causes the app to freeze at times
+          return render(nothing: true) if params[:match_state] == @match_view.slice.state_string
           return replace_page_contents_with_updated_game_view(params[:match_id])
         end
 

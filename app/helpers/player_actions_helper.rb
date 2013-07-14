@@ -15,7 +15,8 @@ module PlayerActionsHelper
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view(match_id)
     @match_view ||= MatchView.new(match_id)
-    replace_page_contents 'player_actions/index'
+    @partial ||= 'player_actions/index'
+    replace_page_contents @partial
   end
   def acting_player_id(player_seat)
     if (

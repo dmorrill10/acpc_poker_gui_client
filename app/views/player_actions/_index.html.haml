@@ -6,8 +6,8 @@
 = render partial: 'initial_focus'
 
 - unless user_must_act?
-  :javascript
-    setTimeout(updateState, 250);
+  .update_state_periodically
+    = render partial: 'update_state_periodically'
 .hidden
   = form_tag take_action_url, :remote => true do
     = hidden_field_tag :match_id, match.id

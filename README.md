@@ -35,7 +35,7 @@ Run `rspec` in the project's root directory to run its tests. When making change
 
 Copyright
 ---------
-Copyright &copy; 2011-2013 by the Computer Poker Research Group, University of Alberta. See [LICENSE](LICENSE.md) for details.
+Copyright &copy; 2011-2013 by the Computer Poker Research Group, University of Alberta. See [LICENSE](docs/LICENSE.md) for details.
 
 Further resources
 ------------------

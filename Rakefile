@@ -21,6 +21,25 @@ namespace :in do
   end
 end
 
+namespace :compile do
+  desc 'Recompile acpc_poker_types C extension'
+  task :acpc_poker_types do
+    Dir.chdir `bundle show acpc_poker_types`.chomp do |dir_name|
+      # @todo File.rm 'lib/*.so'
+      # @todo How can I call acpc_poker_types rake file
+      sh %{ bundle exec rake clean }
+      sh %{ bundle exec rake compile }
+    end
+  end
+  desc 'Compile acpc_dealer'
+  task :dealer do
+    sh %{ acpc_dealer compile }
+  end
+  # Assets
+  desc 'Precompiles assets. Only do in production.'
+  task :assets => ['in:prod', 'assets:precompile']
+end
+
 namespace :install do
   # Project hierarchy
   VENDOR_DIRECTORY = "#{RAILS_ROOT}/vendor"
@@ -76,16 +95,12 @@ namespace :install do
     end
   end
 
-  # Assets
-  desc 'Precompiles assets. Only do in production.'
-  task :assets => ['in:prod', 'assets:precompile']
-
   # Full installation
   desc 'Installs all dependencies for development'
-  task :dev => ['in:dev', :mongodb, :redis, 'gems:dev']
+  task :dev => ['in:dev', :mongodb, :redis, 'gems:dev', 'compile:dealer']
 
   desc 'Installs all dependencies for production, other than production web server'
-  task :prod => ['in:prod', :mongodb, :redis, 'gems:prod', :assets]
+  task :prod => ['in:prod', :mongodb, :redis, 'gems:prod', 'compile:dealer', 'compile:assets']
 end
 
 namespace :update do

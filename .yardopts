@@ -4,3 +4,4 @@ app/**/*.rb
 lib/**/*.rb
 -
 *.md
+docs/*

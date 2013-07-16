@@ -22,18 +22,16 @@ namespace :in do
 end
 
 namespace :compile do
-  desc 'Recompile acpc_poker_types C extension'
-  task :acpc_poker_types do
-    Dir.chdir `bundle show acpc_poker_types`.chomp do |dir_name|
-      # @todo File.rm 'lib/*.so'
-      # @todo How can I call acpc_poker_types rake file
-      sh %{ bundle exec rake clean }
-      sh %{ bundle exec rake compile }
-    end
-  end
   desc 'Compile acpc_dealer'
   task :dealer do
     sh %{ acpc_dealer compile }
+
+    Dir.chdir `bundle show acpc_dealer`.chomp do |dir_name|
+      File.delete 'lib/hand_evaluator.so'
+      load(File.join(dir_name, 'Rakefile'))
+      sh %{ bundle exec rake clean }
+      sh %{ bundle exec rake compile }
+    end
   end
   # Assets
   desc 'Precompiles assets. Only do in production.'

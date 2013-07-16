@@ -14,9 +14,8 @@ Install [*Vagrant*](http://www.vagrantup.com/) for your system and run `vagrant 
 1. ssh into it (see these [instructions](http://docs.vagrantup.com/v2/getting-started/up.html) for more details on how to do this), 
 2. clone this project again to your home directory (the share folder is unusably slow so either clone the project again from Github, or copy it from the shared `/vagrant` directory), 
 3. run `bundle install` to install Ruby (gem) dependencies, 
-4. compile the ACPC dealer by running `acpc_dealer compile`, 
-5. (on 64-bit hosts, there appears to be a problem with a C extension in `acpc_poker_types` where it compiles for a 64-bit architecture when Vagrant's virtual machine is 32-bit. In this case, you'll need to recompile the C extension by running `rake compile:acpc_poker_types`), and
-6. `./script/start_dev_server` to get the app running.
+4. compile the ACPC dealer by running `acpc_dealer compile`, and
+5. `./script/start_dev_server` to get the app running.
 
 The app should then be served on `http:localhost:3000`.
 

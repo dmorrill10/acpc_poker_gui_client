@@ -18,5 +18,5 @@ fi
 bundle exec sidekiq -r $project_root &
 kill_string="$kill_string $!"
 
-trap kill_string SIGINT SIGTERM
+trap $kill_string SIGINT SIGTERM
 bundle exec rails s

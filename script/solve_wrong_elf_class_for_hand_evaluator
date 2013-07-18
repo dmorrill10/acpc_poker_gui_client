@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd $( bundle show acpc_dealer )
+rm lib/hand_evaluator.so
+cd ext/hand_evaluator
+make clean
+cd ../../
+rake clean
+rake compile

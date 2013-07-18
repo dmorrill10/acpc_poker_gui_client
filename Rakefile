@@ -25,13 +25,6 @@ namespace :compile do
   desc 'Compile acpc_dealer'
   task :dealer do
     sh %{ acpc_dealer compile }
-
-    Dir.chdir `bundle show acpc_dealer`.chomp do |dir_name|
-      File.delete 'lib/hand_evaluator.so'
-      load(File.join(dir_name, 'Rakefile'))
-      sh %{ bundle exec rake clean }
-      sh %{ bundle exec rake compile }
-    end
   end
   # Assets
   desc 'Precompiles assets. Only do in production.'

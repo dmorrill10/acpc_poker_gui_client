@@ -11,6 +11,5 @@ pid[1]=$!
 bundle exec sidekiq -r $project_root &
 pid[2]=$!
 
-echo ${pid[1]}
 trap "kill ${pid[2]} ${pid[1]} ${pid[0]}" SIGINT SIGTERM
 bundle exec rails s

@@ -15,8 +15,9 @@ Install [*Vagrant*](http://www.vagrantup.com/) for your system and run `vagrant 
 2. clone this project again to your home directory (the share folder is unusably slow so either clone the project again from Github, or copy it from the shared `/vagrant` directory), 
 3. run `bundle install` to install Ruby (gem) dependencies, 
 4. run `rbenv rehash` to ensure gem binaries will be in your path,
-5. compile the ACPC dealer by running `rake compile:dealer`, and
-6. `./script/start_dev_server` to get the app running.
+5. run `script/solve_wrong_elf_class_for_hand_evaluator` to fix an architecture class compilation problem,
+6. compile the ACPC dealer by running `acpc_dealer compile`, and
+7. `./script/start_dev_server` to get the app running.
 
 The app should then be served on `http:localhost:3000`.
 

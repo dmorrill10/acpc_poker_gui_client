@@ -4,6 +4,13 @@ project_root=$( cd "$( dirname "$0" )/../" && pwd )
 
 cd $project_root
 
-$project_root/script/start_god
-bundle exec rails s
+$project_root/vendor/mongoDB/bin/mongod --dbpath $project_root/db &
+pid[0]=$!
+$project_root/vendor/redis-stable/src/redis-server &
+pid[1]=$!
+bundle exec sidekiq -r $project_root &
+pid[2]=$!
 
+echo ${pid[1]}
+trap "kill ${pid[2]} ${pid[1]} ${pid[0]}" SIGINT SIGTERM
+bundle exec rails s

@@ -38,6 +38,7 @@ Once Ruby is installed, installing Bundler should only be a matter of running
 
 * A non-LLVM version of GCC - This may require some extra steps on OSX as some versions of XCode no longer include such compilers. There are many [discussions on solutions for this on stack overflow](http://stackoverflow.com/questions/8032824/cant-install-ruby-under-lion-with-rvm-gcc-issues).
 * Redis - Background process server. See these [instructions](http://redis.io/topics/quickstart) for installation instructions.
+* JavaScript runtime such as [Node.js](http://nodejs.org/), or add `gem 'therubyracer'` to the `Gemfile` (pure Ruby JS runtime; convenient, but inefficient).
 * For using the app, a modern browser (*Google Chrome* or *Chromium* tend to work best and are most thoroughly tested). Must support *JavaScript* and this must be enabled.
 
 ### Installing the Project

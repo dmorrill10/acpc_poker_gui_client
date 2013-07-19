@@ -54,6 +54,15 @@ module ApplicationDefs
         # 'YourAgentNameForDropdownAndLogs' => RunYourAgentBot
       },
       num_players: 3
+    },
+    three_player_kuhn: {
+      file: File.expand_path('../../game_defs/kuhn.limit.3p.game', __FILE__),
+      text: '3-player kuhn',
+      opponents: {
+        DEFAULT_BOT_NAME => RunTestingBot,
+        'Tester2' => RunTestingBot
+      },
+      num_players: 3
     }
   } unless const_defined? :STATIC_GAME_DEFINITIONS
 

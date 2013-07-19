@@ -110,7 +110,8 @@ class TableManager
       match_processes[:dealer] = dealer_information
       @@table_information[match.id] = match_processes
     rescue => unable_to_start_dealer_exception
-      handle_exception match.id, "unable to start dealer: #{unable_to_start_dealer_exception.message}"
+      full_msg = unable_to_start_dealer_exception.message << "\n#{unable_to_start_dealer_exception.backtrace}"
+      handle_exception match.id, "unable to start dealer: #{full_msg}"
       raise unable_to_start_dealer_exception
     end
 
@@ -123,7 +124,8 @@ class TableManager
 
       save_match_instance match
     rescue => unable_to_retrieve_port_numbers_from_dealer_exception
-      handle_exception match.id, "unable to retrieve player port numbers from the dealer: #{unable_to_retrieve_port_numbers_from_dealer_exception.message}"
+      full_msg = unable_to_retrieve_port_numbers_from_dealer_exception.message << "\n#{unable_to_retrieve_port_numbers_from_dealer_exception.backtrace}"
+      handle_exception match.id, "unable to retrieve player port numbers from the dealer: #{full_msg}"
       raise unable_to_retrieve_port_numbers_from_dealer_exception
     end
 
@@ -144,7 +146,8 @@ class TableManager
     begin
       log __method__, pid: ProcessRunner.go(bot_start_command)
     rescue => unable_to_start_bot_exception
-      handle_exception match_id, "unable to start bot with command \"#{bot_start_command}\": #{unable_to_start_bot_exception.message}"
+      full_msg = unable_to_start_bot_exception.message << "\n#{unable_to_start_bot_exception.backtrace}"
+      handle_exception match_id, "unable to start bot with command \"#{bot_start_command}\": #{full_msg}"
       raise unable_to_start_bot_exception
     end
 
@@ -191,7 +194,8 @@ class TableManager
         }
       end
     rescue => e
-      handle_exception match.id, "unable to start the user's proxy: #{e.message}"
+      full_msg = e.message << "\n#{e.backtrace}"
+      handle_exception match.id, "unable to start the user's proxy: #{full_msg}"
       raise e
     end
 
@@ -231,7 +235,8 @@ class TableManager
     begin
       proxy.play!(action) {}
     rescue => e
-      handle_exception match.id, "unable to take action #{action.to_acpc}: #{e.message}"
+      full_msg = e.message << "\n#{e.backtrace}"
+      handle_exception match.id, "unable to take action #{action.to_acpc}: #{full_msg}"
       raise e
     end
 

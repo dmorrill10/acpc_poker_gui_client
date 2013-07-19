@@ -5,9 +5,9 @@ numRounds = 1
 blind = 5 10 0
 raiseSize = 10
 firstPlayer = 3
-maxRaises = 3
+maxRaises = 1
 numSuits = 1
-numRanks = 3
+numRanks = 4
 numHoleCards = 1
 numBoardCards = 0
 END GAMEDEF

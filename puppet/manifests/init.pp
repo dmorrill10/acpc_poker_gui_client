@@ -66,6 +66,10 @@ package { "bison":
   ensure => installed,
   require  => Exec[$update],
 }
+package { "lsyncd":
+  ensure => installed,
+  require  => Exec[$update],
+}
 
 include nodejs
 

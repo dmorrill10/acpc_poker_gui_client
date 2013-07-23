@@ -2,12 +2,13 @@ GAMEDEF
 limit
 numPlayers = 3
 numRounds = 1
-blind = 5 10 0
-raiseSize = 10
-firstPlayer = 3
+blind = 1 1 1
+raiseSize = 1
+firstPlayer = 1
 maxRaises = 1
 numSuits = 1
 numRanks = 4
 numHoleCards = 1
 numBoardCards = 0
+stack = 2 2 2
 END GAMEDEF

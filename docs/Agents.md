@@ -1,16 +1,14 @@
 Adding Agents
 ================
+After completing one set of the below instructions for registering an agent and restarting your server, your bot should be available to select in the match start dropdown, and it should be playable.
 
-When adding agents to play against, there are three tasks to do:
+By ACPC-Style Script
+---------
+Simply provide an agent name and run path to a program that takes a dealer host name and port number, in that order, in [`bots/bots.rb`](../bots/bots.rb) under all the game definitions that your agent can play.
 
-1. Ensure that your agent, or a script wrapper around your agent exists that can be run by providing a port number and (optionally) a `dealer` host name, e.g.
+By Ruby Object and Dynamic Command Builder
+----------------
+This method allows greater freedom on how and what arguments are provided to your agent, but it takes a few extra steps and requires some knowledge of Ruby:
 
-        ./your_agent <port number> [host name]
-Or
-
-        ssh your_agent <port number> [host name]
-
-2. Copy the Ruby class `bots/run_testing_bot.rb` and rename it `bots/run_your_agent.rb`, where `your_agent` is the name of your agent. Open this file and customize its contents for your bot.
-3. Add an entry to `bots/bots.rb` as described in that file.
-
-After restarting your server, the your bot should then be available to select in the match start dropdown, and should be playable.
+1. Copy the Ruby class [`bots/run_testing_bot.rb`](../bots/run_testing_bot.rb) and rename it `bots/run_your_agent.rb`, where `your_agent` is the name of your bot. Open this file and customize its contents for your agent.
+2. Add an entry for your class to [`bots/bots.rb`](../bots/bots.rb) as described in that file.

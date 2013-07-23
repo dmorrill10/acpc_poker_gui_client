@@ -1,10 +1,8 @@
-# require each bot runner class
-Dir.glob("#{File.expand_path('../', __FILE__)}/run_*.rb").each do |runner_class|
-  begin
-    require runner_class
-  rescue
-  end
-end
+# To add bots, please see ApplicationDefs::STATIC_GAME_DEFINITIONS
+# below and add your script or class appropriately as the examples
+# describe for every game definition your bot plays.
+
+require_relative 'all_bot_runner_classes'
 require_relative '../app/models/user'
 require 'acpc_dealer'
 

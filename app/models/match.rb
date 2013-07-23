@@ -150,15 +150,17 @@ class Match
     bot_opponent_ports.zip(
       ApplicationDefs.bots(game_definition_key, opponent_names)
     ).each do |port_num, bot|
-      # ENSURE THAT ALL REQUIRED KEY-VALUE PAIRS ARE INCLUDED IN THIS BOT
-      # ARGUMENT HASH.
-      bot_argument_hash = {
-        port_number: port_num,
-        server: dealer_host,
-        game_def: game_definition_file_name
-      }
+      if bot.is_a?(Class)
+        bot_argument_hash = {
+          port_number: port_num,
+          server: dealer_host,
+          game_def: game_definition_file_name
+        }
 
-      yield bot.run_command(bot_argument_hash).split(' ')
+        yield bot.run_command(bot_argument_hash).split(' ')
+      else # bot is a script that takes a host name and port in that order
+        yield [bot, dealer_host, port_num]
+      end
     end
   end
   def users_port

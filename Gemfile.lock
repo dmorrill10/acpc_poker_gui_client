@@ -182,7 +182,7 @@ GEM
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
     rake (10.1.0)
-    rake-compiler (0.8.3)
+    rake-compiler (0.9.1)
       rake
     rdoc (3.12.2)
       json (~> 1.4)

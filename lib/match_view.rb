@@ -24,16 +24,16 @@ class MatchView
   end
 
   # # @todo Needed?
-  # def self.chip_contributions_in_previous_rounds(
-  #   player,
-  #   round = player['chip_contributions'].length - 1
-  # )
-  #   if round > 0
-  #     player['chip_contributions'][0..round-1].inject(:+)
-  #   else
-  #     0
-  #   end
-  # end
+  def self.chip_contributions_in_previous_rounds(
+    player,
+    round = player.contributions.length - 1
+  )
+    if round > 0
+      player.contributions[0..round-1].inject(:+)
+    else
+      0
+    end
+  end
   # def self.chip_contribution_after_calling(player)
   #   player['chip_contributions'].inject(:+) + player['amount_to_call']
   # end
@@ -125,17 +125,20 @@ class MatchView
   # Over round
   def betting_sequence
     sequence = ''
-    round = 0
-    slice.betting_sequence.scan(/.\d*/)
-      .each_with_index do |action, action_index|
-      round += 1 if action == '/'
-      action = adjust_action_amount action, round, action_index
+    state.betting_sequence(game_def).each_with_index do |actions_per_round, round|
+      actions_per_round.each_with_index do |action, action_index|
+        action = adjust_action_amount action, round, action_index
 
-      sequence << if slice.player_acting_sequence[action_index].to_i == @match.seat-1
-        action.capitalize
-      else
-        action
+        sequence << if (
+          state.player_acting_sequence(game_def)[round][action_index].to_i ==
+          state.position_relative_to_dealer
+        )
+          action.capitalize
+        else
+          action
+        end
       end
+      sequence << '/' unless round == state.betting_sequence(game_def).length - 1
     end
     sequence
   end
@@ -143,16 +146,15 @@ class MatchView
   private
 
   def adjust_action_amount(action, round, action_index)
-    amount_to_over_hand = action[1..-1]
-    if amount_to_over_hand.empty?
+    amount_to_over_hand = action.modifier
+    if amount_to_over_hand.blank?
       action
     else
       amount_to_over_round = (
-        amount_to_over_hand.to_i -
-        MatchView.chip_contributions_in_previous_rounds(
-          players[slice.player_acting_sequence[action_index].to_i],
+        amount_to_over_hand.to_i - MatchView.chip_contributions_in_previous_rounds(
+          state.players(game_def)[state.position_relative_to_dealer],
           round
-        )
+        ).to_i
       )
       "#{action[0]}#{amount_to_over_round}"
     end

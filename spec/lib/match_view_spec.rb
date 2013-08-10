@@ -63,31 +63,20 @@ describe MatchView do
       @patient = nil
     end
   end
-  # it '#betting_sequence works' do
-  #   slice = mock('MatchSlice')
-  #   @x_match.stubs(:slices).returns([slice])
-  #   slice.stubs(:betting_sequence).returns('ccr15cc/b50fr100c/kk/kk')
-  #   @x_match.stubs(:seat).returns(2)
-  #   players = [
-  #     {
-  #       'name' => 'opponent1',
-  #       'chip_contributions' => [15, 85, 0, 0]
-  #     },
-  #     {
-  #       'name' => 'user',
-  #       'chip_contributions' => [15, 0, 0, 0]
-  #     },
-  #     {
-  #       'name' => 'opponent2',
-  #       'chip_contributions' => [15, 85, 0, 0]
-  #     }
-  #   ]
-  #   slice.stubs(:players).returns(players)
-  #   slice.stubs(:player_acting_sequence).returns(
-  #     '20120/0120/02/02'
-  #   )
-  #   @patient.betting_sequence.should == 'ccR15cc/b35Fr85c/kk/kk'
-  # end
+  it '#betting_sequence works' do
+    game_def = {
+      first_player_positions: [3, 2, 2, 2],
+      chip_stacks: [200, 200, 200],
+      blinds: [10, 0, 5],
+      raise_sizes: [10]*4,
+      number_of_ranks: 3
+    }
+    @x_match.expects(:game_def).returns(game_def)
+    slice = mock('MatchSlice')
+    @x_match.stubs(:slices).returns([slice])
+    slice.expects(:state_string).returns("#{MatchState::LABEL}:1:0:ccr20cc/r50fr100c/cc/cc:AhKs||")
+    @patient.betting_sequence.should == 'ckR20cc/B30fr80C/Kk/Kk'
+  end
   # describe '#pot_at_start_of_round' do
   #   it 'works after the first round' do
   #     slice = mock('MatchSlice')

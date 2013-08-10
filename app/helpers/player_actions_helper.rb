@@ -3,7 +3,6 @@
 require 'acpc_poker_types/game_definition'
 require 'acpc_poker_types/hand'
 require 'acpc_poker_types/suit'
-require 'acpc_poker_match_state'
 
 require File.expand_path('../application_helper', __FILE__)
 

@@ -169,12 +169,7 @@ class TableManager
 
     begin
       game_definition = GameDefinition.parse_file(match.game_definition_file_name)
-      # Store some necessary game definition properties in the database so the web app can access
-      # them without parsing the game definition itself
-      match.betting_type = game_definition.betting_type
-      match.number_of_hole_cards = game_definition.number_of_hole_cards
-      match.min_wagers = game_definition.min_wagers
-      match.blinds = game_definition.blinds
+      match.game_def = game_definition.to_h
       save_match_instance match
 
       proxy = WebApplicationPlayerProxy.new(

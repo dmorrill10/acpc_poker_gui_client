@@ -33,6 +33,7 @@ class Match
     field :game_definition_key, type: Symbol
     validates_presence_of :game_definition_key
     field :game_definition_file_name
+    field :game_def, type: Hash
   end
   def self.include_number_of_hands
     field :number_of_hands, type: Integer
@@ -104,11 +105,18 @@ class Match
   include_opponent_names
   include_seat
 
-  # Game definition information
-  field :betting_type, type: String
-  field :number_of_hole_cards, type: Integer
-  field :min_wagers, type: Array
-  field :blinds, type: Array
+  def betting_type
+    self.game_def.betting_type
+  end
+  def number_of_hole_cards
+    self.game_def.number_of_hole_cards
+  end
+  def min_wagers
+    self.game_def.min_wagers
+  end
+  def blinds
+    self.game_def.blinds
+  end
 
   def finished?
     !slices.empty? && slices.last.match_ended?

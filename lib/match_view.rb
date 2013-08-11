@@ -7,23 +7,6 @@ class MatchView
   include AcpcPokerTypes
   attr_reader :match
 
-  def initialize(match_id)
-    @match = Match.find(match_id)
-  end
-  def state
-    @state ||= MatchState.parse slice.state_string
-  end
-  def slice
-    @match.slices.first
-  end
-  def no_limit?
-    game_def.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
-  end
-  def game_def
-    @game_def ||= GameDefinition.new(@match.game_def)
-  end
-
-  # # @todo Needed?
   def self.chip_contributions_in_previous_rounds(
     player,
     round = player.contributions.length - 1
@@ -34,6 +17,49 @@ class MatchView
       0
     end
   end
+
+  def initialize(match_id)
+    @match = Match.find(match_id)
+  end
+  def state
+    @state ||= MatchState.parse slice.state_string
+  end
+  def slice
+    @slice ||= @match.slices.first
+  end
+  def no_limit?
+    game_def.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
+  end
+  def game_def
+    @game_def ||= GameDefinition.new(@match.game_def)
+  end
+  def betting_sequence
+    sequence = ''
+    state.betting_sequence(game_def).each_with_index do |actions_per_round, round|
+      actions_per_round.each_with_index do |action, action_index|
+        action = adjust_action_amount action, round, action_index
+
+        sequence << if (
+          state.player_acting_sequence(game_def)[round][action_index].to_i ==
+          state.position_relative_to_dealer
+        )
+          action.capitalize
+        else
+          action
+        end
+      end
+      sequence << '/' unless round == state.betting_sequence(game_def).length - 1
+    end
+    sequence
+  end
+  def pot_at_start_of_round
+    if state.round == 0
+      game_def.blinds.inject(:+)
+    else
+      state.players(game_def).inject(0) { |sum, pl| pl.contributions[state.round - 1] }
+    end
+  end
+
   # def self.chip_contribution_after_calling(player)
   #   player['chip_contributions'].inject(:+) + player['amount_to_call']
   # end
@@ -42,11 +68,7 @@ class MatchView
   # )
   #   MatchView.chip_contributions_in_previous_rounds(user, round)
   # end
-  # def pot_at_start_of_round
-  #   slice.players.inject(0) do |sum, player|
-  #     sum += MatchView.chip_contributions_in_previous_rounds(player)
-  #   end
-  # end
+
   # def players
   #   slice.players.map do |player|
   #     if player['hole_cards'].nil? || player['hole_cards'].kind_of?(Hand)
@@ -123,25 +145,6 @@ class MatchView
   #   ).round
   # end
   # Over round
-  def betting_sequence
-    sequence = ''
-    state.betting_sequence(game_def).each_with_index do |actions_per_round, round|
-      actions_per_round.each_with_index do |action, action_index|
-        action = adjust_action_amount action, round, action_index
-
-        sequence << if (
-          state.player_acting_sequence(game_def)[round][action_index].to_i ==
-          state.position_relative_to_dealer
-        )
-          action.capitalize
-        else
-          action
-        end
-      end
-      sequence << '/' unless round == state.betting_sequence(game_def).length - 1
-    end
-    sequence
-  end
 
   private
 

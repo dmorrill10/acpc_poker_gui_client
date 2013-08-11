@@ -77,18 +77,35 @@ describe MatchView do
     slice.expects(:state_string).returns("#{MatchState::LABEL}:1:0:ccr20cc/r50fr100c/cc/cc:AhKs||")
     @patient.betting_sequence.should == 'ckR20cc/B30fr80C/Kk/Kk'
   end
-  # describe '#pot_at_start_of_round' do
-  #   it 'works after the first round' do
-  #     slice = mock('MatchSlice')
-  #     @x_match.expects(:slices).returns([slice])
-  #     x_contribution_in_first_round = 10
-  #     players = [
-  #       {'chip_contributions' => [x_contribution_in_first_round, 15]},
-  #       {'chip_contributions' => [x_contribution_in_first_round, 0]}
-  #     ]
-  #     slice.expects(:players).returns(players)
-  #
-  # end
+  describe '#pot_at_start_of_round' do
+    it 'works after each round' do
+      game_def = {
+        first_player_positions: [3, 2, 2, 2],
+        chip_stacks: [200, 200, 200],
+        blinds: [10, 0, 5],
+        raise_sizes: [10]*4,
+        number_of_ranks: 3
+      }
+      betting_sequence = [['c', 'c', 'r20', 'c', 'c'], ['r50', 'f', 'r100', 'c'], ['c', 'c'], ['c', 'c']]
+      betting_sequence_string = ''
+      x_contributionx_at_start_of_round = [15, 60, 220, 220]
+
+      betting_sequence.each_with_index do |actions_per_round, round|
+        actions_per_round.each do |action|
+          betting_sequence_string << action
+          match_state = "#{MatchState::LABEL}:1:0:#{betting_sequence_string}:AhKs||"
+
+          slice = mock('MatchSlice')
+          slice.expects(:state_string).returns(match_state)
+          @x_match.expects(:game_def).returns(game_def)
+          @x_match.expects(:slices).returns([slice])
+
+          patient.pot_at_start_of_round.should == x_contributionx_at_start_of_round[round]
+          @patient = nil
+        end
+      end
+    end
+  end
   # it '#user works' do
   #   @x_match.expects(:seat).returns(2)
   #   slice = mock('MatchSlice')

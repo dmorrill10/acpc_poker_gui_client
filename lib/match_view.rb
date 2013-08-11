@@ -56,7 +56,7 @@ class MatchView
     if state.round == 0
       game_def.blinds.inject(:+)
     else
-      state.players(game_def).inject(0) { |sum, pl| pl.contributions[state.round - 1] }
+      state.players(game_def).inject(0) { |sum, pl| sum += pl.contributions[0..state.round - 1].inject(:+) }
     end
   end
 

@@ -91,6 +91,7 @@ describe MatchView do
       x_contributionx_at_start_of_round = [15, 60, 220, 220]
 
       betting_sequence.each_with_index do |actions_per_round, round|
+        betting_sequence_string << '/' unless round == 0
         actions_per_round.each do |action|
           betting_sequence_string << action
           match_state = "#{MatchState::LABEL}:1:0:#{betting_sequence_string}:AhKs||"

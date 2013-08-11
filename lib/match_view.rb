@@ -27,6 +27,15 @@ class MatchView
   def slice
     @slice ||= @match.slices.first
   end
+  def player_names
+    @player_names ||= @match.player_names
+  end
+  def seat
+    @seat ||= @match.seat
+  end
+  def balances
+    @balances ||= slice.balances
+  end
   def no_limit?
     game_def.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
   end
@@ -60,6 +69,34 @@ class MatchView
     end
   end
 
+  # @return [Array<Hash>] Player information. Each player hash should contain
+  # values for the following keys:
+  # 'name',
+  # 'seat'
+  # 'chip_stack'
+  # 'chip_contributions'
+  # 'chip_balance'
+  # 'hole_cards'
+  def players
+    player_hashes = []
+    state.players(game_def).rotate(-seat).each_with_index do |player, lcl_seat|
+      hole_cards = if !player.hand.empty? || player.folded?
+        player.hand
+      else
+        Hand.new(['']*game_def.number_of_hole_cards)
+      end
+
+      player_hashes.push(
+        'name' => player_names[lcl_seat],
+        'seat' => lcl_seat,
+        'chip_stack' => player.stack,
+        'chip_balance' => balances.rotate(-seat),
+        'hole_cards' => hole_cards
+      )
+    end
+    player_hashes
+  end
+
   # def self.chip_contribution_after_calling(player)
   #   player['chip_contributions'].inject(:+) + player['amount_to_call']
   # end
@@ -69,20 +106,6 @@ class MatchView
   #   MatchView.chip_contributions_in_previous_rounds(user, round)
   # end
 
-  # def players
-  #   slice.players.map do |player|
-  #     if player['hole_cards'].nil? || player['hole_cards'].kind_of?(Hand)
-  #       # Do nothing
-  #     elsif player['folded?']
-  #       player['hole_cards'] = Hand.new
-  #     elsif player['hole_cards'].empty?
-  #       player['hole_cards'] = Hand.new(['']*@match.number_of_hole_cards)
-  #     else
-  #       player['hole_cards'] = Hand.from_acpc(player['hole_cards'])
-  #     end
-  #     player
-  #   end
-  # end
   # # zero indexed
   # def users_seat
   #   @match.seat - 1

@@ -6,6 +6,20 @@ require 'acpc_poker_types/hand'
 
 require 'match_view'
 
+module MapWithIndex
+  refine Array do
+    def map_with_index
+      i = 0
+      map do |elem|
+        result = yield elem, i
+        i += 1
+        result
+      end
+    end
+  end
+end
+using MapWithIndex
+
 include AcpcPokerTypes
 
 describe MatchView do
@@ -107,6 +121,117 @@ describe MatchView do
       end
     end
   end
+  describe '#players' do
+    it 'works in general' do
+      wager_size = 10
+      x_game_def = {
+        first_player_positions: [3, 2, 2, 2],
+        chip_stacks: [100, 200, 150],
+        blinds: [0, 10, 5],
+        raise_sizes: [wager_size]*4,
+        number_of_ranks: 3
+      }
+      game_def = GameDefinition.new(x_game_def)
+      x_actions = [
+        [
+          [
+            PokerAction.new(PokerAction::RAISE, cost: wager_size + 10),
+          ],
+          [
+            PokerAction.new(PokerAction::CHECK)
+          ],
+          [
+            PokerAction.new(PokerAction::FOLD)
+          ]
+        ],
+        [
+          [
+            PokerAction.new(PokerAction::CALL, cost: wager_size)
+          ],
+          [
+            PokerAction.new(PokerAction::CHECK)
+          ],
+          [
+            PokerAction.new(PokerAction::BET, cost: wager_size)
+          ]
+        ],
+        [
+          [
+            PokerAction.new(PokerAction::CALL, cost: 5),
+            PokerAction.new(PokerAction::CALL, cost: wager_size)
+          ],
+          [
+            PokerAction.new(PokerAction::CHECK)
+          ],
+          [
+            PokerAction.new(PokerAction::RAISE, cost: 2 * wager_size)
+          ]
+        ]
+      ]
+      x_contributions = x_actions.map_with_index do |actions_per_player, i|
+        player_contribs = actions_per_player.map do |actions_per_round|
+          actions_per_round.inject(0) { |sum, action| sum += action.cost }
+        end
+        player_contribs[0] += game_def.blinds[i]
+        player_contribs
+      end
+      x_stacks = game_def.chip_stacks.map_with_index do |chip_stack, i|
+        chip_stack - x_contributions[i].inject(:+)
+      end
+      x_player_names = ['opponent0', 'user', 'opponent2']
+      (0..game_def.number_of_players-1).each do |position|
+        slice = mock('MatchSlice')
+        @x_match.expects(:slices).returns([slice])
+        @x_match.expects(:game_def).returns(x_game_def)
+        @x_match.expects(:seat).returns(1)
+        @x_match.expects(:player_names).returns(x_player_names)
+
+        hands = game_def.number_of_players.times.map { Hand.new }
+        hands[position] = arbitrary_hole_card_hand
+
+        hand_string = hands.inject('') do |hand_string, hand|
+          hand_string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+        end[0..-2]
+
+        match_state =
+          "#{MatchState::LABEL}:#{position}:0:crcc/ccc/rrf:#{hand_string}"
+        slice.expects(:state_string).returns(match_state)
+
+        x_balances = x_stacks.map_with_index { |stack, seat| stack - game_def.chip_stacks[seat] }
+        slice.expects(:balances).returns(x_balances)
+
+        x_players = [
+          {
+            'name' => x_player_names[0],
+            'seat' => 0,
+            'chip_stack' => x_stacks[0],
+            'chip_contributions' => x_contributions[0],
+            'chip_balance' => x_balances[0],
+            'hole_cards' => hands[0]
+          },
+          {
+            'name' => x_player_names[1],
+            'seat' => 1,
+            'chip_stack' => x_stacks[1],
+            'chip_contributions' => x_contributions[1],
+            'chip_balance' => x_balances[1],
+            'hole_cards' => hands[1]
+          },
+          {
+            'name' => x_player_names[2],
+            'seat' => 2,
+            'chip_stack' => x_stacks[2],
+            'chip_contributions' => x_contributions[2],
+            'chip_balance' => x_balances[2],
+            'hole_cards' => Hand.new(['']*game_def.number_of_hole_cards)
+          }
+        ]
+
+        patient.players.should == x_players
+        @patient = nil
+      end
+    end
+  end
   # it '#user works' do
   #   @x_match.expects(:seat).returns(2)
   #   slice = mock('MatchSlice')
@@ -120,18 +245,7 @@ describe MatchView do
   #   slice.expects(:players).returns(players)
   #
   # end
-  # describe '#players' do
-  #   it 'works in general' do
-  #     slice = mock('MatchSlice')
-  #     @x_match.expects(:slices).returns([slice])
-  #     x_players = [
-  #       {'name' => 'opponent1'},
-  #       {'name' => 'user'},
-  #       {'name' => 'opponent2'}
-  #     ]
-  #     slice.expects(:players).returns(x_players)
-  #
-  # end
+
   # it '#opponents works' do
   #   @x_match.stubs(:seat).returns(2)
   #   slice = mock('MatchSlice')
@@ -264,4 +378,8 @@ describe MatchView do
   #   slice.stubs(:players).returns(players)
   #
   # end
+end
+
+def arbitrary_hole_card_hand
+  Hand.from_acpc('2s3h')
 end

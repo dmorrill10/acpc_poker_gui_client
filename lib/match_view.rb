@@ -71,7 +71,8 @@ class MatchView
     end
   end
 
-  # @return [Array<Hash>] Player information. Each player hash should contain
+  # @return [Array<Hash>] Player information ordered by seat.
+  # Each player hash should contain
   # values for the following keys:
   # 'name',
   # 'seat'
@@ -102,39 +103,37 @@ class MatchView
     end
     player_hashes
   end
+  def user
+    players[users_seat]
+  end
+  def opponents
+    opp = players.dup
+    opp.delete_at(users_seat)
+    opp
+  end
+  def chip_contribution_after_calling(position_relative_to_dealer)
+    contribution_this_round = (
+      state.players(game_def)[position_relative_to_dealer].contributions[state.round] ||
+      0
+    )
 
-  # def self.chip_contribution_after_calling(player)
-  #   player['chip_contributions'].inject(:+) + player['amount_to_call']
-  # end
+    contribution_this_round + state.players(game_def).amount_to_call(state.next_to_act(game_def))
+  end
   # def user_contributions_in_previous_rounds(
   #   round = user['chip_contributions'].length - 1
   # )
   #   MatchView.chip_contributions_in_previous_rounds(user, round)
   # end
-  # def user
-  #   players[users_seat]
-  # end
-  # def opponents
-  #   opp = players.dup
-  #   opp.delete_at(users_seat)
-  #   opp
-  # end
-  # def next_player_to_act
-  #   ap _ID: @match.id, _SLICES: @match.slices if slice.nil?
-  #   if slice.seat_next_to_act
-  #     players[slice.seat_next_to_act]
-  #   end
-  # end
-  # # Over round
-  # def minimum_wager_to
-  #   return 0 unless next_player_to_act
-  #   [
-  #     slice.minimum_wager +
-  #     next_player_to_act['amount_to_call'] +
-  #     next_player_to_act['chip_contributions'].last,
-  #     all_in
-  #   ].min.round
-  # end
+
+  # Over round
+  def minimum_wager_to
+    return 0 unless state.next_to_act(game_def)
+
+    (
+      state.min_wager_by(game_def) +
+      chip_contribution_after_calling(state.next_to_act(game_def))
+    ).round
+  end
   # def pot
   #   players.inject(0) { |sum, player| sum += player['chip_contributions'].inject(:+) }
   # end

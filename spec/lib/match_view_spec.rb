@@ -121,8 +121,8 @@ describe MatchView do
       end
     end
   end
-  describe '#players' do
-    it 'works in general' do
+  describe '#players, #user, and #opponents' do
+    it 'work' do
       wager_size = 10
       x_game_def = {
         first_player_positions: [3, 2, 2, 2],
@@ -239,85 +239,52 @@ describe MatchView do
         ]
 
         patient.players.should == x_players
+        patient.user.should == x_players[seat]
+        patient.opponents.should === -> { opp = x_players.dup; opp.delete_at(seat); opp }.call
         @patient = nil
       end
     end
   end
-  # it '#user works' do
-  #   @x_match.expects(:seat).returns(2)
-  #   slice = mock('MatchSlice')
-  #   @x_match.expects(:slices).returns([slice])
-  #   x_user = {'name' => 'user'}
-  #   players = [
-  #     {'name' => 'opponent1'},
-  #     x_user,
-  #     {'name' => 'opponent2'}
-  #   ]
-  #   slice.expects(:players).returns(players)
-  #
-  # end
+  describe '#minimum_wager_to' do
+    it 'works' do
+      wager_size = 10
+      x_game_def = {
+        first_player_positions: [0, 0, 0],
+        chip_stacks: [100, 200, 150],
+        blinds: [0, 10, 5],
+        raise_sizes: [wager_size]*3,
+        number_of_ranks: 3
+      }
+      game_def = GameDefinition.new(x_game_def)
 
-  # it '#opponents works' do
-  #   @x_match.stubs(:seat).returns(2)
-  #   slice = mock('MatchSlice')
-  #   @x_match.stubs(:slices).returns([slice])
-  #   x_opponents = [
-  #     {'name' => 'opponent1'},
-  #     {'name' => 'opponent2'}
-  #   ]
-  #   players = [
-  #     x_opponents[0],
-  #     {'name' => 'user'},
-  #     x_opponents[1]
-  #   ]
-  #   slice.stubs(:players).returns(players)
-  #
-  # end
-  # it '#acting_player works' do
-  #   slice = mock('MatchSlice')
-  #   @x_match.stubs(:slices).returns([slice])
-  #   slice.stubs(:seat_next_to_act).returns(2)
-  #   x_player_next_to_act = {'name' => 'opponent2'}
-  #   players = [
-  #     {'name' => 'opponent1'},
-  #     {'name' => 'user'},
-  #     x_player_next_to_act
-  #   ]
-  #   slice.stubs(:players).returns(players)
+      x_min_wagers = [[2*wager_size], [2*wager_size, 50, 170, 170, 170], [wager_size, wager_size, wager_size], [wager_size, 2*wager_size, 50, 90, 90]]
 
-  #
-  # end
-  # it '#minimum_wager_to works' do
-  #   slice = mock('MatchSlice')
-  #   @x_match.stubs(:slices).returns([slice])
-  #   slice.stubs(:seat_next_to_act).returns(2)
-  #   minimum_wager = 5
-  #   slice.expects(:minimum_wager).returns(minimum_wager)
-  #   contribution_in_first_round = 10
-  #   amount_to_call = 15
-  #   players = [
-  #     {
-  #       'name' => 'opponent1',
-  #       'amount_to_call' => 0,
-  #       'chip_contributions' => [contribution_in_first_round/2],
-  #       'chip_stack' => 2000
-  #     },
-  #     {
-  #       'name' => 'user',
-  #       'amount_to_call' => 0,
-  #       'chip_contributions' => [contribution_in_first_round/2],
-  #       'chip_stack' => 2000
-  #     },
-  #     {
-  #       'name' => 'opponent2',
-  #       'amount_to_call' => amount_to_call,
-  #       'chip_contributions' => [contribution_in_first_round],
-  #       'chip_stack' => 2000
-  #     }
-  #   ]
-  #   slice.stubs(:players).returns(players)
-  #
-  # end
+      (0..game_def.number_of_players-1).each do |position|
+        actions = ''
+        [[''], ['c', 'r30', 'r100', 'c', 'c'], ['c', 'c', 'c'], ['c', 'r110', 'r130', 'r160', 'c']].each_with_index do |actions_per_round, i|
+          actions_per_round.each_with_index do |action, j|
+            actions << action
+
+            hands = game_def.number_of_players.times.map { |i| "Ac#{i+2}h" }
+
+            hand_string = hands.inject('') do |string, hand|
+              string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+            end[0..-2]
+
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{actions}:#{hand_string}"
+            slice = mock('MatchSlice')
+            slice.expects(:state_string).returns(match_state)
+            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:slices).returns([slice])
+
+            patient.minimum_wager_to.should == x_min_wagers[i][j]
+            @patient = nil
+          end
+          actions << '/' unless actions_per_round.first.empty?
+        end
+      end
+    end
+  end
   # it '#pot works' do
   #   slice = mock('MatchSlice')
   #   @x_match.stubs(:slices).returns([slice])

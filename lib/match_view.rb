@@ -31,8 +31,9 @@ class MatchView
   def player_names
     @player_names ||= @match.player_names
   end
-  def seat
-    @seat ||= @match.seat
+  # zero indexed
+  def users_seat
+    @users_seat ||= @match.seat - 1
   end
   def balances
     @balances ||= slice.balances
@@ -80,7 +81,7 @@ class MatchView
   # 'hole_cards'
   def players
     player_hashes = []
-    rotation_for_seat = state.position_relative_to_dealer - seat
+    rotation_for_seat = state.position_relative_to_dealer - users_seat
     state.players(game_def).rotate(rotation_for_seat).each_with_index do |player, lcl_seat|
       hole_cards = if !(player.hand.empty? || player.folded?)
         player.hand
@@ -95,7 +96,7 @@ class MatchView
         'seat' => lcl_seat,
         'chip_stack' => player.stack,
         'chip_contributions' => player.contributions,
-        'chip_balance' => balances.rotate(-seat)[lcl_seat],
+        'chip_balance' => balances.rotate(-users_seat)[lcl_seat],
         'hole_cards' => hole_cards
       )
     end
@@ -109,11 +110,6 @@ class MatchView
   #   round = user['chip_contributions'].length - 1
   # )
   #   MatchView.chip_contributions_in_previous_rounds(user, round)
-  # end
-
-  # # zero indexed
-  # def users_seat
-  #   @match.seat - 1
   # end
   # def user
   #   players[users_seat]

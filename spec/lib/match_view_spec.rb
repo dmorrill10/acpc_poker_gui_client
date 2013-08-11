@@ -177,7 +177,7 @@ describe MatchView do
         @x_match.expects(:slices).returns([slice])
         @x_match.expects(:game_def).returns(x_game_def)
         seat = 1
-        @x_match.expects(:seat).returns(seat)
+        @x_match.expects(:seat).returns(seat + 1)
         @x_match.expects(:player_names).returns(x_player_names)
 
         hands = []

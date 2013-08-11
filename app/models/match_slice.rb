@@ -1,6 +1,5 @@
 require 'mongoid'
 
-require_relative '../../lib/mongoid_ext/player'
 require_relative '../../lib/mongoid_ext/chip_stack'
 
 class MatchSlice

@@ -1,3 +1,4 @@
+
 require 'match'
 require 'acpc_poker_types/match_state'
 require 'acpc_poker_types/game_definition'
@@ -79,9 +80,12 @@ class MatchView
   # 'hole_cards'
   def players
     player_hashes = []
-    state.players(game_def).rotate(-seat).each_with_index do |player, lcl_seat|
-      hole_cards = if !player.hand.empty? || player.folded?
+    rotation_for_seat = state.position_relative_to_dealer - seat
+    state.players(game_def).rotate(rotation_for_seat).each_with_index do |player, lcl_seat|
+      hole_cards = if !(player.hand.empty? || player.folded?)
         player.hand
+      elsif player.folded?
+        Hand.new
       else
         Hand.new(['']*game_def.number_of_hole_cards)
       end
@@ -90,7 +94,8 @@ class MatchView
         'name' => player_names[lcl_seat],
         'seat' => lcl_seat,
         'chip_stack' => player.stack,
-        'chip_balance' => balances.rotate(-seat),
+        'chip_contributions' => player.contributions,
+        'chip_balance' => balances.rotate(-seat)[lcl_seat],
         'hole_cards' => hole_cards
       )
     end

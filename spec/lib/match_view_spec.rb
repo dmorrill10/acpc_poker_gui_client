@@ -87,7 +87,7 @@ describe MatchView do
     }
     @x_match.expects(:game_def).returns(game_def)
     slice = mock('MatchSlice')
-    @x_match.stubs(:slices).returns([slice])
+    @x_match.expects(:slices).returns([slice])
     slice.expects(:state_string).returns("#{MatchState::LABEL}:1:0:ccr20cc/r50fr100c/cc/cc:AhKs||")
     @patient.betting_sequence.should == 'ckR20cc/B30fr80C/Kk/Kk'
   end
@@ -126,10 +126,11 @@ describe MatchView do
       wager_size = 10
       x_game_def = {
         first_player_positions: [3, 2, 2, 2],
-        chip_stacks: [100, 200, 150],
+        chip_stacks: [500, 450, 550],
         blinds: [0, 10, 5],
         raise_sizes: [wager_size]*4,
-        number_of_ranks: 3
+        number_of_ranks: 3,
+        number_of_hole_cards: 1
       }
       game_def = GameDefinition.new(x_game_def)
       x_actions = [
@@ -168,37 +169,47 @@ describe MatchView do
           ]
         ]
       ]
-      x_contributions = x_actions.map_with_index do |actions_per_player, i|
-        player_contribs = actions_per_player.map do |actions_per_round|
-          actions_per_round.inject(0) { |sum, action| sum += action.cost }
-        end
-        player_contribs[0] += game_def.blinds[i]
-        player_contribs
-      end
-      x_stacks = game_def.chip_stacks.map_with_index do |chip_stack, i|
-        chip_stack - x_contributions[i].inject(:+)
-      end
+
       x_player_names = ['opponent0', 'user', 'opponent2']
+
       (0..game_def.number_of_players-1).each do |position|
         slice = mock('MatchSlice')
         @x_match.expects(:slices).returns([slice])
         @x_match.expects(:game_def).returns(x_game_def)
-        @x_match.expects(:seat).returns(1)
+        seat = 1
+        @x_match.expects(:seat).returns(seat)
         @x_match.expects(:player_names).returns(x_player_names)
 
-        hands = game_def.number_of_players.times.map { Hand.new }
-        hands[position] = arbitrary_hole_card_hand
+        hands = []
+        hands << Hand.new
+        hands << Hand.new(['']*game_def.number_of_hole_cards)
+        hands << Hand.new(['']*game_def.number_of_hole_cards)
+        hands[position] = arbitrary_hole_card_hand unless hands[position].empty?
 
-        hand_string = hands.inject('') do |hand_string, hand|
+        hands_for_string = hands.dup
+        hands_for_string[position] = arbitrary_hole_card_hand
+        hand_string = hands_for_string.inject('') do |hand_string, hand|
           hand_string << "#{hand}#{MatchState::HAND_SEPARATOR}"
         end[0..-2]
+
+        x_contributions = x_actions.rotate(position - seat).map_with_index do |actions_per_player, i|
+          player_contribs = actions_per_player.map do |actions_per_round|
+            actions_per_round.inject(0) { |sum, action| sum += action.cost }
+          end
+          player_contribs[0] += game_def.blinds.rotate(position - seat)[i]
+          player_contribs
+        end
+
+        x_stacks = game_def.chip_stacks.rotate(position - seat).map_with_index do |chip_stack, i|
+          chip_stack - x_contributions[i].inject(:+)
+        end
 
         match_state =
           "#{MatchState::LABEL}:#{position}:0:crcc/ccc/rrf:#{hand_string}"
         slice.expects(:state_string).returns(match_state)
 
-        x_balances = x_stacks.map_with_index { |stack, seat| stack - game_def.chip_stacks[seat] }
-        slice.expects(:balances).returns(x_balances)
+        x_balances = x_contributions.map { |contrib| -contrib.inject(:+) }
+        slice.expects(:balances).returns(x_balances.rotate(seat))
 
         x_players = [
           {
@@ -207,7 +218,7 @@ describe MatchView do
             'chip_stack' => x_stacks[0],
             'chip_contributions' => x_contributions[0],
             'chip_balance' => x_balances[0],
-            'hole_cards' => hands[0]
+            'hole_cards' => hands.rotate(position - seat)[0]
           },
           {
             'name' => x_player_names[1],
@@ -215,7 +226,7 @@ describe MatchView do
             'chip_stack' => x_stacks[1],
             'chip_contributions' => x_contributions[1],
             'chip_balance' => x_balances[1],
-            'hole_cards' => hands[1]
+            'hole_cards' => hands[position]
           },
           {
             'name' => x_player_names[2],
@@ -223,7 +234,7 @@ describe MatchView do
             'chip_stack' => x_stacks[2],
             'chip_contributions' => x_contributions[2],
             'chip_balance' => x_balances[2],
-            'hole_cards' => Hand.new(['']*game_def.number_of_hole_cards)
+            'hole_cards' => hands.rotate(position - seat)[2]
           }
         ]
 

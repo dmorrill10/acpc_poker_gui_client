@@ -257,21 +257,35 @@ describe MatchView do
       }
       game_def = GameDefinition.new(x_game_def)
 
-      x_min_wagers = [[2*wager_size], [2*wager_size, 50, 170, 170, 170], [wager_size, wager_size, wager_size], [wager_size, 2*wager_size, 50, 90, 90]]
+      x_min_wagers = [
+        [2*wager_size],
+        [2*wager_size, 50, 170, 170, wager_size],
+        [wager_size, wager_size, wager_size],
+        [wager_size, 2*wager_size, 50, 90, 90]
+      ]
+
+      hands = game_def.number_of_players.times.map { |i| Hand.new }
+
+      hand_string = hands.inject('') do |string, hand|
+        string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+      end[0..-2]
 
       (0..game_def.number_of_players-1).each do |position|
-        actions = ''
-        [[''], ['c', 'r30', 'r100', 'c', 'c'], ['c', 'c', 'c'], ['c', 'r110', 'r130', 'r160', 'c']].each_with_index do |actions_per_round, i|
-          actions_per_round.each_with_index do |action, j|
-            actions << action
+        [
+          [''],
+          ['c', 'cr30', 'cr30r100', 'cr30r100c', 'cr30r100cc/'],
+          ['cr30r100cc/c', 'cr30r100cc/cc', 'cr30r100cc/ccc/'],
+          [
+            'cr30r100cc/ccc/c',
+            'cr30r100cc/ccc/cr110',
+            'cr30r100cc/ccc/cr110r130',
+            'cr30r100cc/ccc/cr110r130r160',
+            'cr30r100cc/ccc/cr110r130r160c'
+          ]
+        ].each_with_index do |betting_sequence_list, i|
+          betting_sequence_list.each_with_index do |betting_sequence, j|
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
 
-            hands = game_def.number_of_players.times.map { |i| "Ac#{i+2}h" }
-
-            hand_string = hands.inject('') do |string, hand|
-              string << "#{hand}#{MatchState::HAND_SEPARATOR}"
-            end[0..-2]
-
-            match_state = "#{MatchState::LABEL}:#{position}:0:#{actions}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
             @x_match.expects(:game_def).returns(x_game_def)
@@ -280,7 +294,6 @@ describe MatchView do
             patient.minimum_wager_to.should == x_min_wagers[i][j]
             @patient = nil
           end
-          actions << '/' unless actions_per_round.first.empty?
         end
       end
     end
@@ -301,38 +314,42 @@ describe MatchView do
         [15],
         [
           15 + 10,
-          15 + 10 + 20,
-          15 + 10 + 20 + 5 + 90,
-          15 + 10 + 20 + 5 + 90 + 90,
-          15 + 10 + 20 + 5 + 90 + 90 + 70
+          15 + 30,
+          30 + 10 + 100,
+          200 + 30,
+          300
         ],
+        [300] * 3,
         [
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70
-        ],
-        [
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 60,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 60 + 50
+          300,
+          310,
+          110 + 130 + 100,
+          160 + 130 + 110,
+          160 * 2 + 130
         ]
       ]
 
+      hands = game_def.number_of_players.times.map { |i| Hand.new }
+
+      hand_string = hands.inject('') do |string, hand|
+        string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+      end[0..-2]
+
       (0..game_def.number_of_players-1).each do |position|
-        actions = ''
-        [[''], ['c', 'r30', 'r100', 'c', 'c'], ['c', 'c', 'c'], ['c', 'r110', 'r130', 'r160', 'c']].each_with_index do |actions_per_round, i|
-          actions_per_round.each_with_index do |action, j|
-            actions << action
-
-            hands = game_def.number_of_players.times.map { |i| "Ac#{i+2}h" }
-
-            hand_string = hands.inject('') do |string, hand|
-              string << "#{hand}#{MatchState::HAND_SEPARATOR}"
-            end[0..-2]
-
-            match_state = "#{MatchState::LABEL}:#{position}:0:#{actions}:#{hand_string}"
+        [
+          [''],
+          ['c', 'cr30', 'cr30r100', 'cr30r100c', 'cr30r100cc/'],
+          ['cr30r100cc/c', 'cr30r100cc/cc', 'cr30r100cc/ccc/'],
+          [
+            'cr30r100cc/ccc/c',
+            'cr30r100cc/ccc/cr110',
+            'cr30r100cc/ccc/cr110r130',
+            'cr30r100cc/ccc/cr110r130r160',
+            'cr30r100cc/ccc/cr110r130r160c'
+          ]
+        ].each_with_index do |betting_sequence_list, i|
+          betting_sequence_list.each_with_index do |betting_sequence, j|
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
             @x_match.expects(:game_def).returns(x_game_def)
@@ -341,7 +358,6 @@ describe MatchView do
             patient.pot.should == x_pot[i][j]
             @patient = nil
           end
-          actions << '/' unless actions_per_round.first.empty?
         end
       end
     end
@@ -362,38 +378,46 @@ describe MatchView do
         [15 + 10],
         [
           15 + 10,
-          15 + 10 + 20 + 5 + 20,
-          15 + 10 + 20 + 5 + 90 + 90,
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70
+          30 * 2 + 10,
+          100 * 2 + 30,
+          300,
+          300
         ],
         [
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70
+          300,
+          300,
+          300
         ],
         [
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 10,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 30,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 60 + 50,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 60 + 50 + 30
+          300,
+          310 + 10,
+          110 * 3 + 20 * 2,
+          160 * 3 - 30,
+          160 * 3
         ]
       ]
 
+      hands = game_def.number_of_players.times.map { |i| Hand.new }
+
+      hand_string = hands.inject('') do |string, hand|
+        string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+      end[0..-2]
+
       (0..game_def.number_of_players-1).each do |position|
-        actions = ''
-        [[''], ['c', 'r30', 'r100', 'c', 'c'], ['c', 'c', 'c'], ['c', 'r110', 'r130', 'r160', 'c']].each_with_index do |actions_per_round, i|
-          actions_per_round.each_with_index do |action, j|
-            actions << action
-
-            hands = game_def.number_of_players.times.map { |i| Hand.new }
-
-            hand_string = hands.inject('') do |string, hand|
-              string << "#{hand}#{MatchState::HAND_SEPARATOR}"
-            end[0..-2]
-
-            match_state = "#{MatchState::LABEL}:#{position}:0:#{actions}:#{hand_string}"
+        [
+          [''],
+          ['c', 'cr30', 'cr30r100', 'cr30r100c', 'cr30r100cc/'],
+          ['cr30r100cc/c', 'cr30r100cc/cc', 'cr30r100cc/ccc/'],
+          [
+            'cr30r100cc/ccc/c',
+            'cr30r100cc/ccc/cr110',
+            'cr30r100cc/ccc/cr110r130',
+            'cr30r100cc/ccc/cr110r130r160',
+            'cr30r100cc/ccc/cr110r130r160c'
+          ]
+        ].each_with_index do |betting_sequence_list, i|
+          betting_sequence_list.each_with_index do |betting_sequence, j|
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
             @x_match.expects(:game_def).returns(x_game_def)
@@ -402,7 +426,6 @@ describe MatchView do
             patient.pot_after_call.should == x_pot[i][j]
             @patient = nil
           end
-          actions << '/' unless actions_per_round.first.empty?
         end
       end
     end
@@ -412,51 +435,53 @@ describe MatchView do
       wager_size = 10
       x_game_def = {
         first_player_positions: [0, 0, 0],
-        chip_stacks: [500, 600, 550],
-        blinds: [0, 10, 5],
+        chip_stacks: [5000, 6000, 5500],
+        blinds: [0, 5, 10],
         raise_sizes: [wager_size]*3,
         number_of_ranks: 3
       }
       game_def = GameDefinition.new(x_game_def)
 
-      # @todo This might be wrong
       x_pot_fraction_wager_to = [
         [15 + 10 + 10],
         [
-          15 + 10 + 10,
-          15 + 10 + 20 + 5 + 20 + 10,
-          15 + 10 + 20 + 5 + 90 + 90 + 10,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 30,
-          15 + 10 + 20 + 5 + 90 + 90 + 70
+          30 + 10,
+          70 + 30,
+          30 + 100 + 100 + 100,
+          300 + 100,
+          300
         ],
+        [300]*3,
         [
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70
-        ],
-        [
-          15 + 10 + 20 + 5 + 90 + 90 + 70,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 10,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 30,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 60 + 50,
-          15 + 10 + 20 + 5 + 90 + 90 + 70 + 10 + 30 + 60 + 50 + 30 + 10
+          100 * 3, # after 'cr30r100cc/ccc/c'
+          110 * 2 + 100 + 10, # after 'cr30r100cc/ccc/cr110'
+          130 * 2 + 110 + 30, # after 'cr30r100cc/ccc/cr110r130'
+          160 * 2 + 130 + 60, # after 'cr30r100cc/ccc/cr110r130r160'
+          160 * 3 + 60 # after 'cr30r100cc/ccc/cr110r130r160c'
         ]
       ]
 
+      hands = game_def.number_of_players.times.map { |i| Hand.new }
+
+      hand_string = hands.inject('') do |string, hand|
+        string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+      end[0..-2]
+
       (0..game_def.number_of_players-1).each do |position|
-        actions = ''
-        [[''], ['c', 'r30', 'r100', 'c', 'c'], ['c', 'c', 'c'], ['c', 'r110', 'r130', 'r160', 'c']].each_with_index do |actions_per_round, i|
-          actions_per_round.each_with_index do |action, j|
-            actions << '/' if i != 0 && j == actions_per_round.length - 1
-            actions << action
-
-            hands = game_def.number_of_players.times.map { |i| Hand.new }
-
-            hand_string = hands.inject('') do |string, hand|
-              string << "#{hand}#{MatchState::HAND_SEPARATOR}"
-            end[0..-2]
-
-            match_state = "#{MatchState::LABEL}:#{position}:0:#{actions}:#{hand_string}"
+        [
+          [''],
+          ['c', 'cr30', 'cr30r100', 'cr30r100c', 'cr30r100cc/'],
+          ['cr30r100cc/c', 'cr30r100cc/cc', 'cr30r100cc/ccc/'],
+          [
+            'cr30r100cc/ccc/c',
+            'cr30r100cc/ccc/cr110',
+            'cr30r100cc/ccc/cr110r130',
+            'cr30r100cc/ccc/cr110r130r160',
+            'cr30r100cc/ccc/cr110r130r160c'
+          ]
+        ].each_with_index do |betting_sequence_list, i|
+          betting_sequence_list.each_with_index do |betting_sequence, j|
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
             @x_match.expects(:game_def).returns(x_game_def)
@@ -468,35 +493,121 @@ describe MatchView do
         end
       end
     end
+    it 'provides a half pot wager to amount when given 0.5' do
+      wager_size = 10
+      x_game_def = {
+        first_player_positions: [0, 0, 0],
+        chip_stacks: [5000, 6000, 5500],
+        blinds: [0, 5, 10],
+        raise_sizes: [wager_size]*3,
+        number_of_ranks: 3
+      }
+      game_def = GameDefinition.new(x_game_def)
+
+      x_pot_fraction_wager_to = [
+        [(15 + 10)/2.0 + 10],
+        [
+          30/2.0 + 10,
+          70/2.0 + 30,
+          (30 + 100 + 100)/2.0 + 100,
+          300/2.0 + 100,
+          300/2.0
+        ],
+        [300/2.0]*3,
+        [
+          (100 * 3)/2.0, # after 'cr30r100cc/ccc/c'
+          (110 * 2 + 100)/2.0 + 10, # after 'cr30r100cc/ccc/cr110'
+          (130 * 2 + 110)/2.0 + 30, # after 'cr30r100cc/ccc/cr110r130'
+          (160 * 2 + 130)/2.0 + 60, # after 'cr30r100cc/ccc/cr110r130r160'
+          (160 * 3)/2.0 + 60 # after 'cr30r100cc/ccc/cr110r130r160c'
+        ]
+      ]
+
+      hands = game_def.number_of_players.times.map { |i| Hand.new }
+
+      hand_string = hands.inject('') do |string, hand|
+        string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+      end[0..-2]
+
+      (0..game_def.number_of_players-1).each do |position|
+        [
+          [''],
+          ['c', 'cr30', 'cr30r100', 'cr30r100c', 'cr30r100cc/'],
+          ['cr30r100cc/c', 'cr30r100cc/cc', 'cr30r100cc/ccc/'],
+          [
+            'cr30r100cc/ccc/c',
+            'cr30r100cc/ccc/cr110',
+            'cr30r100cc/ccc/cr110r130',
+            'cr30r100cc/ccc/cr110r130r160',
+            'cr30r100cc/ccc/cr110r130r160c'
+          ]
+        ].each_with_index do |betting_sequence_list, i|
+          betting_sequence_list.each_with_index do |betting_sequence, j|
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
+            slice = mock('MatchSlice')
+            slice.expects(:state_string).returns(match_state)
+            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:slices).returns([slice])
+
+            patient.pot_fraction_wager_to(0.5).should == x_pot_fraction_wager_to[i][j].floor
+            @patient = nil
+          end
+        end
+      end
+    end
   end
-  # end
-  # it '#all_in works' do
-  #   slice = mock('MatchSlice')
-  #   @x_match.stubs(:slices).returns([slice])
-  #   slice.stubs(:seat_next_to_act).returns(2)
-  #   contribution_in_first_round = 10
-  #   chip_stack = 2000
-  #   players = [
-  #     {
-  #       'name' => 'opponent1',
-  #       'amount_to_call' => 0,
-  #       'chip_contributions' => [contribution_in_first_round]
-  #     },
-  #     {
-  #       'name' => 'opponent2',
-  #       'amount_to_call' => 0,
-  #       'chip_contributions' => [contribution_in_first_round]
-  #     },
-  #     {
-  #       'name' => 'user',
-  #       'amount_to_call' => contribution_in_first_round/2,
-  #       'chip_contributions' => [contribution_in_first_round/2],
-  #       'chip_stack' => chip_stack - contribution_in_first_round/2
-  #     }
-  #   ]
-  #   slice.stubs(:players).returns(players)
-  #
-  # end
+  describe '#all_in' do
+    it 'works' do
+      wager_size = 10
+      x_game_def = {
+        first_player_positions: [0, 0, 0],
+        chip_stacks: [5000, 5000, 5000],
+        blinds: [0, 5, 10],
+        raise_sizes: [wager_size]*3,
+        number_of_ranks: 3
+      }
+      game_def = GameDefinition.new(x_game_def)
+
+      x_all_in = [
+        [5000],
+        [5000]*4 << 4900,
+        [4900]*3,
+        [4900]*5
+      ]
+
+      hands = game_def.number_of_players.times.map { |i| Hand.new }
+
+      hand_string = hands.inject('') do |string, hand|
+        string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+      end[0..-2]
+
+      (0..game_def.number_of_players-1).each do |position|
+        [
+          [''],
+          ['c', 'cr30', 'cr30r100', 'cr30r100c', 'cr30r100cc/'],
+          ['cr30r100cc/c', 'cr30r100cc/cc', 'cr30r100cc/ccc/'],
+          [
+            'cr30r100cc/ccc/c',
+            'cr30r100cc/ccc/cr110',
+            'cr30r100cc/ccc/cr110r130',
+            'cr30r100cc/ccc/cr110r130r160',
+            'cr30r100cc/ccc/cr110r130r160c'
+          ]
+        ].each_with_index do |betting_sequence_list, i|
+          betting_sequence_list.each_with_index do |betting_sequence, j|
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
+            slice = mock('MatchSlice')
+            slice.expects(:state_string).returns(match_state)
+            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:slices).returns([slice])
+
+            patient.all_in.should == x_all_in[i][j].floor
+            @patient = nil
+          end
+        end
+      end
+    end
+  end
 end
 
 def arbitrary_hole_card_hand

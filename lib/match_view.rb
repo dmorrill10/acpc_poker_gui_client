@@ -118,17 +118,36 @@ class MatchView
   def next_player_to_act
     state.players(game_def)[state.next_to_act(game_def)]
   end
+  def amount_for_player_to_call(position_relative_to_dealer)
+    state.players(game_def).amount_to_call(position_relative_to_dealer)
+  end
   def amount_for_next_player_to_call
-    @amount_for_next_player_to_call ||= (
-      state.players(game_def).amount_to_call(state.next_to_act(game_def))
+    @amount_for_next_player_to_call ||= amount_for_player_to_call(
+      state.next_to_act(game_def)
     )
   end
-  def chip_contribution_after_calling(position_relative_to_dealer)
-    contribution_this_round = (
+
+  # Over round
+  def chip_contribution_for_next_player_after_calling
+    @chip_contribution_for_next_player_after_calling ||= chip_contribution_after_calling(
+      state.next_to_act(game_def)
+    )
+  end
+
+  # Over round
+  def chip_contribution(position_relative_to_dealer)
+    (
       state.players(game_def)[position_relative_to_dealer].contributions[state.round] ||
       0
     )
-    contribution_this_round + amount_for_next_player_to_call
+  end
+
+  # Over round
+  def chip_contribution_after_calling(position_relative_to_dealer)
+    (
+      chip_contribution(position_relative_to_dealer) +
+      amount_for_player_to_call(position_relative_to_dealer)
+    )
   end
 
   # Over round
@@ -137,14 +156,16 @@ class MatchView
       (
         state.min_wager_by(game_def) +
         chip_contribution_after_calling(state.next_to_act(game_def))
-      ).round
+      ).ceil
     else
       0
     end
   end
+
   def pot
     @pot ||= state.pot(game_def)
   end
+
   # Over round
   def pot_after_call
     @pot_after_call ||= pot + if state.hand_ended?(game_def)
@@ -153,6 +174,7 @@ class MatchView
       amount_for_next_player_to_call
     end
   end
+
   # Over round
   def pot_fraction_wager_to(fraction=1)
     @pot_fraction_wager_to ||= if state.hand_ended?(game_def)
@@ -162,15 +184,15 @@ class MatchView
         [
           (
             fraction * pot_after_call +
-            next_player_to_act.contributions.last +
-            amount_for_next_player_to_call
+            chip_contribution_for_next_player_after_calling
           ),
           minimum_wager_to
         ].max,
         all_in
-      ].min.round
+      ].min.floor
     end
   end
+
   # Over round
   def all_in
     @all_in ||= if state.hand_ended?(game_def)
@@ -178,8 +200,8 @@ class MatchView
     else
       (
         next_player_to_act.stack +
-        next_player_to_act.contributions.last
-      ).round
+        chip_contribution(state.next_to_act(game_def))
+      ).floor
     end
   end
 

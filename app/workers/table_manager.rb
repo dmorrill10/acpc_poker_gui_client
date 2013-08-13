@@ -27,15 +27,23 @@ require_relative '../../lib/application_defs'
 class TableManager
   include WorkerHelpers
   include AcpcPokerTypes
-  include SimpleLogging
   include Sidekiq::Worker
+  include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
 
   sidekiq_options retry: false, backtrace: true
 
   DEALER_HOST = Socket.gethostname
 
   @@table_information ||= {}
-  @@logger ||= Logger.from_file_name(File.join(ApplicationDefs::LOG_DIRECTORY, 'table_manager.log')).with_metadata!
+
+  def initialize
+    @logger = Logger.from_file_name(
+      File.join(
+        ApplicationDefs::LOG_DIRECTORY,
+        'table_manager.log'
+      )
+    ).with_metadata!
+  end
 
   def perform(request, match_id, params=nil)
     log __method__, table_information_length: @@table_information.length, request: request, match_id: match_id, params: params
@@ -51,18 +59,23 @@ class TableManager
             opponents << bot_command
           end
 
-          start_opponents!(opponents).start_proxy!(match)
+          begin
+            start_opponents!(opponents)
+          rescue => unable_to_start_bot_exception
+             match_id, unable_to_start_bot_exception
+            raise unable_to_start_bot_exception
+          end
+          start_proxy!(match)
         when ApplicationDefs::START_PROXY_REQUEST_CODE
           start_proxy! match
         when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
           play! params, match
         else
-          raise "Unrecognized request: #{params[ApplicationDefs::REQUEST_KEY]}"
+          log __method__, message: "Unrecognized request", request: params[ApplicationDefs::REQUEST_KEY]
         end
       end
     rescue => e
-      error = {error: {message: e.message, backtrace: e.backtrace}}
-      log "#{__method__}: rescued", error, Logger::Severity::ERROR
+      handle_exception match_id, e
       Rusen.notify e # Send an email notification
     end
   end
@@ -102,32 +115,19 @@ class TableManager
     return self if dealer_information[:pid] && dealer_information[:pid].process_exists? # The dealer is already started
 
     # Start the dealer
-    begin
-      dealer_information = AcpcDealer::DealerRunner.start(
-        dealer_arguments,
-        log_directory
-      )
-      match_processes[:dealer] = dealer_information
-      @@table_information[match.id] = match_processes
-    rescue => unable_to_start_dealer_exception
-      full_msg = unable_to_start_dealer_exception.message << "\n#{unable_to_start_dealer_exception.backtrace}"
-      handle_exception match.id, "unable to start dealer: #{full_msg}"
-      raise unable_to_start_dealer_exception
-    end
+    dealer_information = AcpcDealer::DealerRunner.start(
+      dealer_arguments,
+      log_directory
+    )
+    match_processes[:dealer] = dealer_information
+    @@table_information[match.id] = match_processes
 
     # Get the player port numbers
-    begin
-      port_numbers = dealer_information[:port_numbers]
+    port_numbers = dealer_information[:port_numbers]
 
-      # Store the port numbers in the database so the web app can access them
-      match.port_numbers = port_numbers
-
-      save_match_instance match
-    rescue => unable_to_retrieve_port_numbers_from_dealer_exception
-      full_msg = unable_to_retrieve_port_numbers_from_dealer_exception.message << "\n#{unable_to_retrieve_port_numbers_from_dealer_exception.backtrace}"
-      handle_exception match.id, "unable to retrieve player port numbers from the dealer: #{full_msg}"
-      raise unable_to_retrieve_port_numbers_from_dealer_exception
-    end
+    # Store the port numbers in the database so the web app can access them
+    match.port_numbers = port_numbers
+    save_match_instance match
 
     self
   end
@@ -141,15 +141,7 @@ class TableManager
   end
 
   def start_opponent!(bot_start_command)
-    log __method__, bot_start_command: bot_start_command
-
-    begin
-      log __method__, pid: ProcessRunner.go(bot_start_command)
-    rescue => unable_to_start_bot_exception
-      full_msg = unable_to_start_bot_exception.message << "\n#{unable_to_start_bot_exception.backtrace}"
-      handle_exception match_id, "unable to start bot with command \"#{bot_start_command}\": #{full_msg}"
-      raise unable_to_start_bot_exception
-    end
+    log __method__, bot_start_command: bot_start_command, pid: ProcessRunner.go(bot_start_command)
 
     self
   end
@@ -167,31 +159,25 @@ class TableManager
 
     return self if proxy
 
-    begin
-      game_definition = GameDefinition.parse_file(match.game_definition_file_name)
-      match.game_def = game_definition.to_h
-      save_match_instance match
+    game_definition = GameDefinition.parse_file(match.game_definition_file_name)
+    match.game_def = game_definition.to_h
+    save_match_instance match
 
-      proxy = WebApplicationPlayerProxy.new(
-        match.id,
-        AcpcDealer::ConnectionInformation.new(
-          match.port_numbers[match.seat - 1],
-          DEALER_HOST
-        ),
-        match.seat - 1,
-        game_definition,
-        match.player_names.join(' '),
-        match.number_of_hands
-      ) do |players_at_the_table|
-        log "#{__method__}: Initializing proxy", {
-          match_id: match.id,
-          at_least_one_state: !players_at_the_table.transition.next_state.nil?
-        }
-      end
-    rescue => e
-      full_msg = e.message << "\n#{e.backtrace}"
-      handle_exception match.id, "unable to start the user's proxy: #{full_msg}"
-      raise e
+    proxy = WebApplicationPlayerProxy.new(
+      match.id,
+      AcpcDealer::ConnectionInformation.new(
+        match.port_numbers[match.seat - 1],
+        DEALER_HOST
+      ),
+      match.seat - 1,
+      game_definition,
+      match.player_names.join(' '),
+      match.number_of_hands
+    ) do |players_at_the_table|
+      log "#{__method__}: Initializing proxy", {
+        match_id: match.id,
+        at_least_one_state: !players_at_the_table.transition.next_state.nil?
+      }
     end
 
     log "#{__method__}: After starting proxy", {
@@ -227,13 +213,7 @@ class TableManager
       num_tables: @@table_information.length
     }
 
-    begin
-      proxy.play!(action) {}
-    rescue => e
-      full_msg = e.message << "\n#{e.backtrace}"
-      handle_exception match.id, "unable to take action #{action.to_acpc}: #{full_msg}"
-      raise e
-    end
+    proxy.play!(action)
 
     if proxy.match_ended?
       log __method__, msg: "Deleting background processes with match ID #{match.id}"

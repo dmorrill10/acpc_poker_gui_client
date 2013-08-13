@@ -14,6 +14,10 @@ class Logger
 
     logger = new(file_name, shift_age, shift_size)
   end
+
+  def path
+    @logdev.filename
+  end
 end
 
 module SimpleLogging
@@ -38,7 +42,6 @@ module SimpleLogging
 
   def logger(stream = STDOUT)
     @logger ||= Logger.new(stream)
-    @logger
   end
   def log(method, variables = nil, msg_type = Logger::Severity::INFO)
     msg = "#{self.class}: #{method}"

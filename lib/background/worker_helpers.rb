@@ -3,8 +3,8 @@ require 'awesome_print'
 
 module WorkerHelpers
   def delete_state!(match_id)
-    @match_id_to_background_processes.delete match_id
     begin
+      @match_id_to_background_processes.delete match_id
       match = Match.find(match_id)
     rescue
     else
@@ -13,9 +13,9 @@ module WorkerHelpers
   end
 
   # @param [String] match_id The ID of the match in which the exception occurred.
-  # @param [String] message The exception message to log.
-  def handle_exception(match_id, message)
-    log __method__, "In match #{match_id}, #{message}", Logger::Severity::ERROR
+  # @param [Exception] e The exception to log.
+  def handle_exception(match_id, e)
+    log __method__, {match_id: match_id, message: e.message, backtrace: e.backtrace}, Logger::Severity::ERROR
     delete_state! match_id
   end
 
@@ -26,7 +26,7 @@ module WorkerHelpers
     begin
       match = Match.find match_id
     rescue => unable_to_find_match_exception
-      handle_exception match_id, "unable to find a match with ID #{match_id}: #{unable_to_find_match_exception.message}"
+      handle_exception match_id, unable_to_find_match_exception
       raise unable_to_find_match_exception
     end
     match
@@ -38,7 +38,7 @@ module WorkerHelpers
     begin
       match.save
     rescue => unable_to_save_match_exception
-      handle_exception match.id, "Unable to save match: #{unable_to_save_match_exception}"
+      handle_exception match.id, unable_to_save_match_exception
       raise unable_to_save_match_exception
     end
   end
@@ -70,7 +70,7 @@ class Hash
   def retrieve_parameter_or_raise_exception(parameter_key)
     retrieved_param = self[parameter_key]
     unless retrieved_param
-      error_message = "No #{parameter_key.to_english} provided."
+      error_message = StandardError.new("No #{parameter_key.to_english} provided.")
       if self[MATCH_ID_KEY]
         WorkerHelpers.handle_exception self['match_id'], error_message
       else

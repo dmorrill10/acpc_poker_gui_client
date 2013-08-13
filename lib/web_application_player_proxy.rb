@@ -50,7 +50,7 @@ class WebApplicationPlayerProxy
       users_seat
     ) do |players_at_the_table|
 
-      if players_at_the_table.transition.next_state
+      if players_at_the_table.match_state
         update_database! players_at_the_table
 
         yield players_at_the_table if block_given?
@@ -76,7 +76,11 @@ class WebApplicationPlayerProxy
 
   # @see PlayerProxy#match_ended?
   def match_ended?
-    match_has_ended = @player_proxy.players_at_the_table.match_ended?
+    match_has_ended = if @player_proxy
+      @player_proxy.match_ended?
+    else
+      false
+    end
 
     log __method__, match_has_ended: match_has_ended
 
@@ -90,7 +94,7 @@ class WebApplicationPlayerProxy
 
     # Save and retrieve game def hash in Match, then more of the game can be deduced from MatchState
     slice_attributes = {
-      match_has_ended: players_at_the_table.match_ended?,
+      match_has_ended: match_ended?,
       seat_with_small_blind: players_at_the_table.small_blind_payer.seat.to_i,
       seat_with_big_blind: players_at_the_table.big_blind_payer.seat.to_i,
       seat_with_dealer_button: players_at_the_table.dealer_player.seat.to_i,
@@ -102,33 +106,6 @@ class WebApplicationPlayerProxy
         player.balance
       end
     }
-
-    # slice_attributes = {
-    #   hand_has_ended: players_at_the_table.hand_ended?,
-    #   match_has_ended: players_at_the_table.match_ended?,
-    #   users_turn_to_act: players_at_the_table.users_turn_to_act?,
-    #   hand_number: players_at_the_table.transition.next_state.hand_number,
-    #   minimum_wager: players_at_the_table.min_wager,
-    #   seat_with_small_blind: players_at_the_table.small_blind_payer.seat.to_i,
-    #   seat_with_big_blind: players_at_the_table.big_blind_payer.seat.to_i,
-    #   seat_with_dealer_button: players_at_the_table.player_with_dealer_button.seat.to_i,
-    #   seat_next_to_act: if players_at_the_table.next_player_to_act
-    #     players_at_the_table.next_player_to_act.seat.to_i
-    #   end,
-    #   state_string: players_at_the_table.transition.next_state.to_s,
-    #   betting_sequence: players_at_the_table.betting_sequence_string,
-    #   legal_actions: players_at_the_table.legal_actions.to_a.map do |action|
-    #     action.to_s
-    #   end,
-    #   players: players_at_the_table.players.sort_by do |player|
-    #     player.seat.to_i
-    #   end.map do |player|
-    #     player.to_h.merge(
-    #       { amount_to_call: players_at_the_table.amount_to_call(player).to_f }
-    #     )
-    #   end,
-    #   player_acting_sequence: players_at_the_table.player_acting_sequence_string
-    # }
 
     log __method__, slice_attributes
 

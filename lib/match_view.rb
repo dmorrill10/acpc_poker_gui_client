@@ -78,10 +78,15 @@ class MatchView
     @hand_has_ended
   end
   def match_ended?
-    @match_has_ended = (
-      slice.match_ended? ||
-      state.hand_number >= @match.number_of_hands - 1
-    ) if @match_has_ended.nil?
+    if @match_has_ended.nil?
+      @match_has_ended = (
+        slice.match_ended? ||
+        (
+          state.hand_ended? &&
+          state.hand_number >= @match.number_of_hands - 1
+        )
+      )
+    end
 
     @match_has_ended
   end

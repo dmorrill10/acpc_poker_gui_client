@@ -113,10 +113,12 @@ class Match
   end
   def finished?
     !slices.empty? && (
-      slices.last.match_ended? ||
-      AcpcPokerTypes::MatchState.parse(
-        slices.last.state_string
-      ).hand_number >= self.number_of_hands - 1
+      slices.last.match_ended? || -> do
+        state = AcpcPokerTypes::MatchState.parse(
+          slices.last.state_string
+        )
+        state.hand_ended?(game_def) && state.hand_number >= self.number_of_hands - 1
+      end.call
     )
   end
   def finish_starting!

@@ -82,7 +82,7 @@ class MatchView
       @match_has_ended = (
         slice.match_ended? ||
         (
-          state.hand_ended? &&
+          state.hand_ended?(game_def) &&
           state.hand_number >= @match.number_of_hands - 1
         )
       )

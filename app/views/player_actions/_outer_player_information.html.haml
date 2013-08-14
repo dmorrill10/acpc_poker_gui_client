@@ -5,6 +5,6 @@
     - if !hand_ended && player['chip_contributions'][round] > 0
       .stack_added_to_pot
         = render partial: 'chip_stack', locals: { amount: player['chip_contributions'][round].to_i }
-    - elsif player['chip_contributions'].last < 0
+    - elsif player['winnings'] > 0
       .stack_taken_from_pot
-        = render partial: 'chip_stack', locals: { amount: -player['chip_contributions'].last.to_i }
+        = render partial: 'chip_stack', locals: { amount: player['winnings'].floor }

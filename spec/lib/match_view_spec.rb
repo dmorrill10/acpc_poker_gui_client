@@ -3,6 +3,7 @@ require_relative '../spec_helper'
 require 'acpc_poker_types/match_state'
 require 'acpc_poker_types/game_definition'
 require 'acpc_poker_types/hand'
+require_relative '../../lib/application_defs'
 
 require 'match_view'
 
@@ -554,6 +555,82 @@ describe MatchView do
           end
         end
       end
+    end
+    it 'provides a two pot wager to amount when given 2' do
+      wager_size = 10
+      x_game_def = {
+        first_player_positions: [0, 0, 0],
+        chip_stacks: [5000, 6000, 5500],
+        blinds: [0, 5, 10],
+        raise_sizes: [wager_size]*3,
+        number_of_ranks: 3
+      }
+      game_def = GameDefinition.new(x_game_def)
+
+      x_pot_fraction_wager_to = [
+        [(15 + 10)*2.0 + 10],
+        [
+          30*2.0 + 10,
+          70*2.0 + 30,
+          (30 + 100 + 100)*2.0 + 100,
+          300*2.0 + 100,
+          300*2.0
+        ],
+        [300*2.0]*3,
+        [
+          (100 * 3)*2.0, # after 'cr30r100cc/ccc/c'
+          (110 * 2 + 100)*2.0 + 10, # after 'cr30r100cc/ccc/cr110'
+          (130 * 2 + 110)*2.0 + 30, # after 'cr30r100cc/ccc/cr110r130'
+          (160 * 2 + 130)*2.0 + 60, # after 'cr30r100cc/ccc/cr110r130r160'
+          (160 * 3)*2.0 + 60 # after 'cr30r100cc/ccc/cr110r130r160c'
+        ]
+      ]
+
+      hands = game_def.number_of_players.times.map { |i| Hand.new }
+
+      hand_string = hands.inject('') do |string, hand|
+        string << "#{hand}#{MatchState::HAND_SEPARATOR}"
+      end[0..-2]
+
+      (0..game_def.number_of_players-1).each do |position|
+        [
+          [''],
+          ['c', 'cr30', 'cr30r100', 'cr30r100c', 'cr30r100cc/'],
+          ['cr30r100cc/c', 'cr30r100cc/cc', 'cr30r100cc/ccc/'],
+          [
+            'cr30r100cc/ccc/c',
+            'cr30r100cc/ccc/cr110',
+            'cr30r100cc/ccc/cr110r130',
+            'cr30r100cc/ccc/cr110r130r160',
+            'cr30r100cc/ccc/cr110r130r160c'
+          ]
+        ].each_with_index do |betting_sequence_list, i|
+          betting_sequence_list.each_with_index do |betting_sequence, j|
+            match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
+            slice = mock('MatchSlice')
+            slice.expects(:state_string).returns(match_state)
+            @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
+            @x_match.expects(:slices).returns([slice])
+
+            patient.pot_fraction_wager_to(2).should == x_pot_fraction_wager_to[i][j].floor
+            @patient = nil
+          end
+        end
+      end
+    end
+    it 'provides all common fractions correctly for a particular state' do
+      game_def = GameDefinition.parse_file(ApplicationDefs::STATIC_GAME_DEFINITIONS[:two_player_nolimit][:file])
+      state = "MATCHSTATE:1:1:cc/r200c/c:|Qs8d/Qd7s9d/Ac"
+
+      slice = mock('MatchSlice')
+      slice.expects(:state_string).returns(state)
+      @x_match.expects(:game_def).returns(game_def)
+      @x_match.expects(:slices).returns([slice])
+
+      patient.pot_fraction_wager_to(0.5).should == 200
+      patient.pot_fraction_wager_to(0.75).should == 300
+      patient.pot_fraction_wager_to.should == 400
+      patient.pot_fraction_wager_to(2).should == 800
     end
   end
   describe '#all_in' do

@@ -39,7 +39,7 @@ module PlayerActionsHelper
     )
   end
   def next_hand_button_visible?
-    @match_view.hand_ended? && !@match_view.slice.match_ended?
+    !@match_view.match_ended? && @match_view.hand_ended?
   end
   def match_view() @match_view end
   def hotkey_field_tag(name, initial_value='', options={})
@@ -73,21 +73,21 @@ module PlayerActionsHelper
     user.hotkeys[action_label] == new_key
   end
   def waiting_for_response
-    session[:waiting_for_response]
+    session['waiting_for_response']
   end
 
   def wager_disabled_when
-    waiting_for_response ||
-    !match_view.users_turn_to_act? ||
     !(
-      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) ||
-      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::BET)
+      user_must_act? &&
+      (
+        match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) ||
+        match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::BET)
+      )
     )
   end
   def fold_disabled_when
-    waiting_for_response ||
     !(
-      match_view.users_turn_to_act? &&
+      user_must_act? &&
       match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD)
     )
   end

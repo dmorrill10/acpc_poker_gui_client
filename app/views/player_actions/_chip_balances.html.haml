@@ -9,5 +9,4 @@
       - match_view.players.each do |player|
         %tr
           %td= "#{player['name']}"
-          - chip_balance = player['chip_balance'] + (if !match_view.hand_ended? && player['chip_contributions'].inject(:+) > 0 then player['chip_contributions'].inject(:+) else 0 end)
-          %td= "#{chip_balance}"
+          %td= "#{player['chip_balance'].to_f}"

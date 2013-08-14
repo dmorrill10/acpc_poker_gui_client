@@ -4,6 +4,4 @@
     = render partial: 'cards', locals: { cards: player['hole_cards'] }
   .player_stack
     / A player's chip contributions can only be negative if chips have been given to the player, so adjust for that
-    - players_stack = player['chip_stack'].to_i + (if player['chip_contributions'].last < 0 then player['chip_contributions'].last else 0 end)
-    - players_stack = players_stack.to_i unless players_stack.to_i != players_stack
-    = render partial: 'chip_stack', locals: { amount: players_stack }
+    = render partial: 'chip_stack', locals: { amount: (player['chip_stack'] - player['winnings']).to_i }

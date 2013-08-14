@@ -73,10 +73,22 @@ class MatchView
     end
   end
   def hand_ended?
-    @hand_has_ended ||= state.hand_ended?(game_def)
+    @hand_has_ended = state.hand_ended?(game_def) if @hand_has_ended.nil?
+
+    @hand_has_ended
+  end
+  def match_ended?
+    @match_has_ended = (
+      slice.match_ended? ||
+      state.hand_number >= @match.number_of_hands - 1
+    ) if @match_has_ended.nil?
+
+    @match_has_ended
   end
   def users_turn_to_act?
-    @users_turn_to_act ||= state.next_to_act(game_def) == state.position_relative_to_dealer
+    @users_turn_to_act = state.next_to_act(game_def) == state.position_relative_to_dealer if @users_turn_to_act.nil?
+
+    @users_turn_to_act
   end
   def legal_actions
     @legal_actions ||= state.legal_actions(game_def)
@@ -111,7 +123,8 @@ class MatchView
         'chip_stack' => player.stack,
         'chip_contributions' => player.contributions,
         'chip_balance' => balances.rotate(-users_seat)[lcl_seat],
-        'hole_cards' => hole_cards
+        'hole_cards' => hole_cards,
+        'winnings' => player.winnings
       )
     end
     @players
@@ -127,12 +140,24 @@ class MatchView
     end
   end
   def opponents
-    opp = players.dup
-    opp.delete_at(users_seat)
-    opp
+    @opponents ||= -> do
+      opp = players.dup
+      opp.delete_at(users_seat)
+      opp
+    end.call
+  end
+  def opponents_sorted_by_position_from_user
+    @opponents_sorted_by_position_from_user ||= opponents.sort_by do |opp|
+      Seat.new(
+        opp['seat'],
+        players.length
+      ).seats_from(
+        users_seat
+      )
+    end
   end
   def next_player_to_act
-    state.players(game_def)[state.next_to_act(game_def)]
+    @next_player_to_act ||= state.players(game_def)[state.next_to_act(game_def)]
   end
   def amount_for_player_to_call(position_relative_to_dealer)
     state.players(game_def).amount_to_call(position_relative_to_dealer)
@@ -153,7 +178,9 @@ class MatchView
   # Over round
   def chip_contribution(position_relative_to_dealer)
     (
-      state.players(game_def)[position_relative_to_dealer].contributions[state.round] ||
+      state.players(
+        game_def
+      )[position_relative_to_dealer].contributions[state.round] ||
       0
     )
   end
@@ -193,7 +220,7 @@ class MatchView
 
   # Over round
   def pot_fraction_wager_to(fraction=1)
-    @pot_fraction_wager_to ||= if state.hand_ended?(game_def)
+    if state.hand_ended?(game_def)
       0
     else
       [
@@ -219,6 +246,18 @@ class MatchView
         chip_contribution(state.next_to_act(game_def))
       ).floor
     end
+  end
+
+  def betting_type_label
+    if @betting_type_label.nil?
+      @betting_type_label = if no_limit?
+        'nolimit'
+      else
+       'limit'
+      end
+    end
+
+    @betting_type_label
   end
 
   private

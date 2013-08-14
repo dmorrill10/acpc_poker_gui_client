@@ -111,7 +111,10 @@ class Match
     @game_def ||= AcpcPokerTypes::GameDefinition.new(self.game_def_hash)
   end
   def finished?
-    !slices.empty? && slices.last.match_ended?
+    !slices.empty? && (
+      slices.last.match_ended? ||
+      slices.last.hand_number >= self.number_of_hands - 1
+    )
   end
   def finish_starting!
     local_name = name_from_user.strip

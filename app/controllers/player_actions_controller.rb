@@ -26,8 +26,8 @@ class PlayerActionsController < ApplicationController
       error?(
         "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
       ) do
-        session[:waiting_for_response] = false
-        Rails.logger.ap waiting_for_response: session[:waiting_for_response]
+        session['waiting_for_response'] = false
+        Rails.logger.ap waiting_for_response: session['waiting_for_response']
 
         replace_page_contents_with_updated_game_view params[:match_id]
       end
@@ -47,8 +47,8 @@ class PlayerActionsController < ApplicationController
           params[:match_id],
           action: params[:poker_action]
         )
-        session[:waiting_for_response] = true
-        Rails.logger.ap waiting_for_response: session[:waiting_for_response]
+        session['waiting_for_response'] = true
+        Rails.logger.ap waiting_for_response: session['waiting_for_response']
 
         replace_page_contents_with_updated_game_view(params[:match_id])
       end
@@ -67,7 +67,7 @@ class PlayerActionsController < ApplicationController
         return update unless @match_view.hand_ended?
       end
     )
-    Rails.logger.ap waiting_for_response: session[:waiting_for_response]
+    Rails.logger.ap waiting_for_response: session['waiting_for_response']
 
     if params[:match_state] == @match_view.state.to_s
       @container = '.update_state_periodically'
@@ -91,7 +91,7 @@ class PlayerActionsController < ApplicationController
 
           if @match_view.hand_ended?
             # To ensure that we can't try to click 'Next Hand' again.
-            session[:waiting_for_response] = true
+            session['waiting_for_response'] = true
             return replace_page_contents_with_updated_game_view(params[:match_id])
           end
 
@@ -113,7 +113,7 @@ class PlayerActionsController < ApplicationController
       error?(
         "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
       ) do
-        session[:waiting_for_response] = false
+        session['waiting_for_response'] = false
         replace_page_contents_with_updated_game_view(params[:match_id])
       end
     )

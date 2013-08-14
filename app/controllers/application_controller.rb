@@ -1,3 +1,5 @@
+require_relative '../../lib/application_defs'
+
 class ApplicationController < ActionController::Base
   protect_from_forgery
   helper :layout

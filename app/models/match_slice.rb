@@ -7,7 +7,6 @@ class MatchSlice
 
   embedded_in :match, inverse_of: :slices
 
-  # Non-accumulating state
   field :match_has_ended, type: Boolean
   field :seat_with_dealer_button, type: Integer
   field :seat_with_small_blind, type: Integer
@@ -15,6 +14,7 @@ class MatchSlice
   field :seat_next_to_act, type: Integer
   field :state_string, type: String
   field :balances, type: Array
+  field :betting_sequence, type: String
 
   def match_ended?
     match_has_ended

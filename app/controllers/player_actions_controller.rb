@@ -1,13 +1,10 @@
 # Local modules
 require 'application_defs'
 require 'application_helper'
-
-# Local classes
+require 'acpc_poker_types/seat'
 require 'match'
 
 require 'ap'
-
-require 'acpc_poker_types/seat'
 
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
@@ -41,14 +38,13 @@ class PlayerActionsController < ApplicationController
       ) do
         # Initialize the match view so that the app is guaranteed to not update before showing the
         # table.
-        @match_view ||= MatchView.new params[:match_id]
+        @match_view = MatchView.new params[:match_id]
         TableManager.perform_async(
           ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
           params[:match_id],
           action: params[:poker_action]
         )
         session['waiting_for_response'] = true
-        Rails.logger.ap waiting_for_response: session['waiting_for_response']
 
         replace_page_contents_with_updated_game_view(params[:match_id])
       end
@@ -60,14 +56,14 @@ class PlayerActionsController < ApplicationController
       error?(
         "Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}."
       ) do
-        @match_view ||= MatchView.new params[:match_id]
+        @match_view = MatchView.new params[:match_id]
 
         Rails.logger.ap hand_ended: @match_view.hand_ended?
 
         return update unless @match_view.hand_ended?
       end
     )
-    Rails.logger.ap waiting_for_response: session['waiting_for_response']
+    Rails.logger.ap action: 'update_state', waiting_for_response: session['waiting_for_response']
 
     if params[:match_state] == @match_view.state.to_s
       @container = '.update_state_periodically'
@@ -78,15 +74,15 @@ class PlayerActionsController < ApplicationController
   end
 
   def update
-    last_slice = nil
+    deleted_slice = nil
 
     return reset_to_match_entry_view if (
       error?(
         "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
       ) do
-        @match_view ||= MatchView.new params[:match_id]
+        @match_view = MatchView.new params[:match_id]
 
-        # Abort if there is only one slice in the match view
+        # Abort the update if there's only one slice
         if @match_view.match.slices.length < 2
 
           if @match_view.hand_ended?
@@ -94,6 +90,8 @@ class PlayerActionsController < ApplicationController
             session['waiting_for_response'] = true
             return replace_page_contents_with_updated_game_view(params[:match_id])
           end
+
+          Rails.logger.ap action: 'update', param_ms: params[:match_state], view_ms: @match_view.state.to_s, equal_ms: params[:match_state] == @match_view.state.to_s
 
           if params[:match_state] == @match_view.state.to_s
             @container = '.update_state_periodically'
@@ -103,9 +101,9 @@ class PlayerActionsController < ApplicationController
           return replace_page_contents_with_updated_game_view(params[:match_id])
         end
 
-        # Delete the last slice since it's no longer needed
-        last_slice = @match_view.match.slices.first
-        last_slice.delete
+        # Delete the first slice in the list since it's no longer needed
+        deleted_slice = @match_view.match.slices.first
+        deleted_slice.delete
       end
     )
 
@@ -118,7 +116,7 @@ class PlayerActionsController < ApplicationController
       end
     )
       begin
-        @match_view.match.slices << last_slice if @match_view.match.slices.empty?
+        @match_view.match.slices << deleted_slice if @match_view.match.slices.empty?
         @match_view.match.save!
       rescue => e
         # If the match can't be retrieved or saved then

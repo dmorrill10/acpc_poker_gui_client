@@ -45,25 +45,7 @@ class MatchView
     @game_def ||= @match.game_def
   end
   def betting_sequence
-    @betting_sequence ||= -> do
-      sequence = ''
-      state.betting_sequence(game_def).each_with_index do |actions_per_round, round|
-        actions_per_round.each_with_index do |action, action_index|
-          action = adjust_action_amount action, round, action_index
-
-          sequence << if (
-            state.player_acting_sequence(game_def)[round][action_index].to_i ==
-            state.position_relative_to_dealer
-          )
-            action.capitalize
-          else
-            action
-          end
-        end
-        sequence << '/' unless round == state.betting_sequence(game_def).length - 1
-      end
-      sequence
-    end.call
+    @betting_sequence ||= slice[:betting_sequence] || compute_betting_sequence
   end
   def pot_at_start_of_round
     @pot_at_start_of_round ||= if state.round == 0
@@ -145,11 +127,7 @@ class MatchView
     end
   end
   def opponents
-    @opponents ||= -> do
-      opp = players.dup
-      opp.delete_at(users_seat)
-      opp
-    end.call
+    @opponents ||= compute_opponents
   end
   def opponents_sorted_by_position_from_user
     @opponents_sorted_by_position_from_user ||= opponents.sort_by do |opp|
@@ -266,6 +244,32 @@ class MatchView
   end
 
   private
+
+  def compute_betting_sequence
+    sequence = ''
+    state.betting_sequence(game_def).each_with_index do |actions_per_round, round|
+      actions_per_round.each_with_index do |action, action_index|
+        action = adjust_action_amount action, round, action_index
+
+        sequence << if (
+          state.player_acting_sequence(game_def)[round][action_index].to_i ==
+          state.position_relative_to_dealer
+        )
+          action.capitalize
+        else
+          action
+        end
+      end
+      sequence << '/' unless round == state.betting_sequence(game_def).length - 1
+    end
+    sequence
+  end
+
+  def compute_opponents
+    opp = players.dup
+    opp.delete_at(users_seat)
+    opp
+  end
 
   def adjust_action_amount(action, round, action_index)
     amount_to_over_hand = action.modifier

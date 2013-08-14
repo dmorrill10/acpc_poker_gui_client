@@ -89,6 +89,32 @@ class WebApplicationPlayerProxy
 
   private
 
+  def self.chip_contributions_in_previous_rounds(
+    player,
+    round = player.contributions.length - 1
+  )
+    if round > 0
+      player.contributions[0..round-1].inject(:+)
+    else
+      0
+    end
+  end
+
+  def adjust_action_amount(action, round, action_index, patt)
+    amount_to_over_hand = action.modifier
+    if amount_to_over_hand.blank?
+      action
+    else
+      amount_to_over_round = (
+        amount_to_over_hand.to_i - self.class.chip_contributions_in_previous_rounds(
+          patt.match_state.players(patt.game_def)[patt.match_state.position_relative_to_dealer],
+          round
+        ).to_i
+      )
+      "#{action[0]}#{amount_to_over_round}"
+    end
+  end
+
   def update_database!(players_at_the_table)
     match = Match.find(@match_id)
 
@@ -104,7 +130,31 @@ class WebApplicationPlayerProxy
       state_string: players_at_the_table.match_state.to_s,
       balances: players_at_the_table.players.map do |player|
         player.balance
-      end
+      end,
+
+      # Not necessary to be in the database, but more performant than processing on the
+      # Rails server
+      betting_sequence: -> do
+        sequence = ''
+        players_at_the_table.match_state.betting_sequence(players_at_the_table.game_def).each_with_index do |actions_per_round, round|
+          actions_per_round.each_with_index do |action, action_index|
+            action = adjust_action_amount(action, round, action_index, players_at_the_table)
+
+            sequence << if (
+              players_at_the_table.match_state.player_acting_sequence(players_at_the_table.game_def)[round][action_index].to_i ==
+              players_at_the_table.match_state.position_relative_to_dealer
+            )
+              action.capitalize
+            else
+              action
+            end
+          end
+          unless round == players_at_the_table.match_state.betting_sequence(players_at_the_table.game_def).length - 1
+            sequence << '/'
+          end
+        end
+        sequence
+      end.call
     }
 
     log __method__, slice_attributes

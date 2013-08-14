@@ -67,7 +67,7 @@ class MatchView
   end
   def pot_at_start_of_round
     @pot_at_start_of_round ||= if state.round == 0
-      game_def.blinds.inject(:+)
+      0
     else
       state.players(game_def).inject(0) { |sum, pl| sum += pl.contributions[0..state.round - 1].inject(:+) }
     end

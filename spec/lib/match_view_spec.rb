@@ -102,7 +102,7 @@ describe MatchView do
       )
       betting_sequence = [['c', 'c', 'r20', 'c', 'c'], ['r50', 'f', 'r100', 'c'], ['c', 'c'], ['c', 'c']]
       betting_sequence_string = ''
-      x_contributionx_at_start_of_round = [15, 60, 220, 220]
+      x_contributionx_at_start_of_round = [0, 60, 220, 220]
 
       betting_sequence.each_with_index do |actions_per_round, round|
         betting_sequence_string << '/' unless round == 0
@@ -112,7 +112,7 @@ describe MatchView do
 
           slice = mock('MatchSlice')
           slice.expects(:state_string).returns(match_state)
-          @x_match.expects(:game_def).returns(game_def)
+          @x_match.expects(:game_def).returns(game_def) unless round == 0
           @x_match.expects(:slices).returns([slice])
 
           patient.pot_at_start_of_round.should == x_contributionx_at_start_of_round[round]

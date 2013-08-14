@@ -7,6 +7,7 @@ require_relative 'match_slice'
 require_relative 'user'
 
 require 'acpc_poker_types/game_definition'
+require 'acpc_poker_types/match_state'
 
 class Match
   include Mongoid::Document
@@ -113,7 +114,9 @@ class Match
   def finished?
     !slices.empty? && (
       slices.last.match_ended? ||
-      slices.last.hand_number >= self.number_of_hands - 1
+      AcpcPokerTypes::MatchState.parse(
+        slices.last.state_string
+      ).hand_number >= self.number_of_hands - 1
     )
   end
   def finish_starting!

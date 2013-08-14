@@ -62,14 +62,14 @@ class PlayerActionsController < ApplicationController
       ) do
         @match_view ||= MatchView.new params[:match_id]
 
-        Rails.logger.ap hand_ended: @match_view.slice.hand_ended?
+        Rails.logger.ap hand_ended: @match_view.hand_ended?
 
-        return update unless @match_view.slice.hand_ended?
+        return update unless @match_view.hand_ended?
       end
     )
     Rails.logger.ap waiting_for_response: session[:waiting_for_response]
 
-    if params[:match_state] == @match_view.slice.state_string
+    if params[:match_state] == @match_view.state.to_s
       @container = '.update_state_periodically'
       @partial = 'player_actions/update_state_periodically'
       return replace_page_contents_with_updated_game_view(params[:match_id])
@@ -89,13 +89,13 @@ class PlayerActionsController < ApplicationController
         # Abort if there is only one slice in the match view
         if @match_view.match.slices.length < 2
 
-          if @match_view.slice.hand_ended?
+          if @match_view.hand_ended?
             # To ensure that we can't try to click 'Next Hand' again.
             session[:waiting_for_response] = true
             return replace_page_contents_with_updated_game_view(params[:match_id])
           end
 
-          if params[:match_state] == @match_view.slice.state_string
+          if params[:match_state] == @match_view.state.to_s
             @container = '.update_state_periodically'
             @partial = 'player_actions/update_state_periodically'
             return replace_page_contents_with_updated_game_view(params[:match_id])

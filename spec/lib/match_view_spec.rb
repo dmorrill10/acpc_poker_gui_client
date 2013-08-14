@@ -36,7 +36,7 @@ describe MatchView do
   end
   describe '#game_def' do
     it 'works' do
-      x_game_def = {
+      x_game_def = GameDefinition.new(
         :betting_type => 'nolimit',
         :number_of_players => 2,
         :number_of_rounds => 4,
@@ -49,10 +49,10 @@ describe MatchView do
         :number_of_ranks => 13,
         :number_of_hole_cards => 2,
         :number_of_board_cards => [0, 3, 1, 1]
-      }
+      )
       @x_match.expects(:game_def).returns(x_game_def)
 
-      patient.game_def.to_h.should == x_game_def
+      patient.game_def.to_h.should == x_game_def.to_h
     end
   end
   it '#state works' do
@@ -72,19 +72,19 @@ describe MatchView do
         :betting_type => type
       }
 
-      @x_match.expects(:game_def).returns(x_game_def)
+      @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
       patient.no_limit?.should == x_is_no_limit
       @patient = nil
     end
   end
   it '#betting_sequence works' do
-    game_def = {
+    game_def = GameDefinition.new(
       first_player_positions: [3, 2, 2, 2],
       chip_stacks: [200, 200, 200],
       blinds: [10, 0, 5],
       raise_sizes: [10]*4,
       number_of_ranks: 3
-    }
+    )
     @x_match.expects(:game_def).returns(game_def)
     slice = mock('MatchSlice')
     @x_match.expects(:slices).returns([slice])
@@ -93,13 +93,13 @@ describe MatchView do
   end
   describe '#pot_at_start_of_round' do
     it 'works after each round' do
-      game_def = {
+      game_def = GameDefinition.new(
         first_player_positions: [3, 2, 2, 2],
         chip_stacks: [200, 200, 200],
         blinds: [10, 0, 5],
         raise_sizes: [10]*4,
         number_of_ranks: 3
-      }
+      )
       betting_sequence = [['c', 'c', 'r20', 'c', 'c'], ['r50', 'f', 'r100', 'c'], ['c', 'c'], ['c', 'c']]
       betting_sequence_string = ''
       x_contributionx_at_start_of_round = [15, 60, 220, 220]
@@ -175,7 +175,7 @@ describe MatchView do
       (0..game_def.number_of_players-1).each do |position|
         slice = mock('MatchSlice')
         @x_match.expects(:slices).returns([slice])
-        @x_match.expects(:game_def).returns(x_game_def)
+        @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
         seat = 1
         @x_match.expects(:seat).returns(seat + 1)
         @x_match.expects(:player_names).returns(x_player_names)
@@ -288,7 +288,7 @@ describe MatchView do
 
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
-            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
             @x_match.expects(:slices).returns([slice])
 
             patient.minimum_wager_to.should == x_min_wagers[i][j]
@@ -352,7 +352,7 @@ describe MatchView do
             match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
-            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
             @x_match.expects(:slices).returns([slice])
 
             patient.pot.should == x_pot[i][j]
@@ -420,7 +420,7 @@ describe MatchView do
             match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
-            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
             @x_match.expects(:slices).returns([slice])
 
             patient.pot_after_call.should == x_pot[i][j]
@@ -484,7 +484,7 @@ describe MatchView do
             match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
-            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
             @x_match.expects(:slices).returns([slice])
 
             patient.pot_fraction_wager_to.should == x_pot_fraction_wager_to[i][j]
@@ -546,7 +546,7 @@ describe MatchView do
             match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
-            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
             @x_match.expects(:slices).returns([slice])
 
             patient.pot_fraction_wager_to(0.5).should == x_pot_fraction_wager_to[i][j].floor
@@ -598,7 +598,7 @@ describe MatchView do
             match_state = "#{MatchState::LABEL}:#{position}:0:#{betting_sequence}:#{hand_string}"
             slice = mock('MatchSlice')
             slice.expects(:state_string).returns(match_state)
-            @x_match.expects(:game_def).returns(x_game_def)
+            @x_match.expects(:game_def).returns(GameDefinition.new(x_game_def))
             @x_match.expects(:slices).returns([slice])
 
             patient.all_in.should == x_all_in[i][j].floor

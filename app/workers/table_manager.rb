@@ -59,13 +59,7 @@ class TableManager
             opponents << bot_command
           end
 
-          begin
-            start_opponents!(opponents)
-          rescue => unable_to_start_bot_exception
-             match_id, unable_to_start_bot_exception
-            raise unable_to_start_bot_exception
-          end
-          start_proxy!(match)
+          start_opponents!(opponents).start_proxy!(match)
         when ApplicationDefs::START_PROXY_REQUEST_CODE
           start_proxy! match
         when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
@@ -160,7 +154,7 @@ class TableManager
     return self if proxy
 
     game_definition = GameDefinition.parse_file(match.game_definition_file_name)
-    match.game_def = game_definition.to_h
+    match.game_def_hash = game_definition.to_h
     save_match_instance match
 
     proxy = WebApplicationPlayerProxy.new(
@@ -176,7 +170,7 @@ class TableManager
     ) do |players_at_the_table|
       log "#{__method__}: Initializing proxy", {
         match_id: match.id,
-        at_least_one_state: !players_at_the_table.transition.next_state.nil?
+        at_least_one_state: !players_at_the_table.match_state.nil?
       }
     end
 

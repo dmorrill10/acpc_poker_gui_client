@@ -19,7 +19,7 @@ module PlayerActionsHelper
   end
   def acting_player_id(player_seat)
     if (
-      !match_view.slice.hand_ended? &&
+      !match_view.hand_ended? &&
       match_view.slice.seat_next_to_act == player_seat
     )
       'acting_player'
@@ -31,15 +31,15 @@ module PlayerActionsHelper
     (
       !waiting_for_response && (
         (
-          @match_view.slice.users_turn_to_act? &&
+          @match_view.users_turn_to_act? &&
           @match_view.match.slices.length == 1
         ) ||
-        @match_view.slice.hand_ended?
+        @match_view.hand_ended?
       )
     )
   end
   def next_hand_button_visible?
-    @match_view.slice.hand_ended? && !@match_view.slice.match_ended?
+    @match_view.hand_ended? && !@match_view.slice.match_ended?
   end
   def match_view() @match_view end
   def hotkey_field_tag(name, initial_value='', options={})
@@ -78,26 +78,26 @@ module PlayerActionsHelper
 
   def wager_disabled_when
     waiting_for_response ||
-    !match_view.slice.users_turn_to_act? ||
+    !match_view.users_turn_to_act? ||
     !(
-      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) ||
-      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::BET)
+      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) ||
+      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::BET)
     )
   end
   def fold_disabled_when
     waiting_for_response ||
     !(
-      match_view.slice.users_turn_to_act? &&
-      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD)
+      match_view.users_turn_to_act? &&
+      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD)
     )
   end
   def pass_action_button_label
     if (
-      match_view.slice.legal_actions.include?(AcpcPokerTypes::PokerAction::CALL) &&
-      match_view.user['amount_to_call'] > 0
+      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::CALL) &&
+      match_view.amount_for_next_player_to_call > 0
     )
       if match_view.no_limit?
-        "Call (#{match_view.user['amount_to_call'].to_i})"
+        "Call (#{match_view.amount_for_next_player_to_call.to_i})"
       else
        'Call'
       end
@@ -106,7 +106,7 @@ module PlayerActionsHelper
     end
   end
   def make_wager_button_label
-    label = if match_view.slice.legal_actions.include?('b')
+    label = if match_view.legal_actions.include?('b')
       'Bet'
     else
       'Raise'

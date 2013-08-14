@@ -42,7 +42,7 @@ class MatchView
     @is_no_limit ||= game_def.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
   end
   def game_def
-    @game_def ||= GameDefinition.new(@match.game_def)
+    @game_def ||= @match.game_def
   end
   def betting_sequence
     @betting_sequence ||= -> do
@@ -71,6 +71,15 @@ class MatchView
     else
       state.players(game_def).inject(0) { |sum, pl| sum += pl.contributions[0..state.round - 1].inject(:+) }
     end
+  end
+  def hand_ended?
+    @hand_has_ended ||= state.hand_ended?(game_def)
+  end
+  def users_turn_to_act?
+    @users_turn_to_act ||= state.next_to_act(game_def) == state.position_relative_to_dealer
+  end
+  def legal_actions
+    @legal_actions ||= state.legal_actions(game_def)
   end
 
   # @return [Array<Hash>] Player information ordered by seat.
@@ -108,7 +117,14 @@ class MatchView
     @players
   end
   def user
-    players[users_seat]
+    @user ||= players[users_seat]
+  end
+  def user_contributions_in_previous_rounds
+    @user_contributions_in_previous_rounds ||= if state.round == 0
+      0
+    else
+      user['chip_contributions'][0..state.round-1].inject(:+)
+    end
   end
   def opponents
     opp = players.dup

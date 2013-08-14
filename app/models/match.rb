@@ -6,6 +6,8 @@ require_relative '../../lib/application_defs'
 require_relative 'match_slice'
 require_relative 'user'
 
+require 'acpc_poker_types/game_definition'
+
 class Match
   include Mongoid::Document
   include Mongoid::Timestamps::Updated
@@ -33,7 +35,7 @@ class Match
     field :game_definition_key, type: Symbol
     validates_presence_of :game_definition_key
     field :game_definition_file_name
-    field :game_def, type: Hash
+    field :game_def_hash, type: Hash
   end
   def self.include_number_of_hands
     field :number_of_hands, type: Integer
@@ -105,19 +107,9 @@ class Match
   include_opponent_names
   include_seat
 
-  def betting_type
-    self.game_def.betting_type
+  def game_def
+    @game_def ||= AcpcPokerTypes::GameDefinition.new(self.game_def_hash)
   end
-  def number_of_hole_cards
-    self.game_def.number_of_hole_cards
-  end
-  def min_wagers
-    self.game_def.min_wagers
-  end
-  def blinds
-    self.game_def.blinds
-  end
-
   def finished?
     !slices.empty? && slices.last.match_ended?
   end

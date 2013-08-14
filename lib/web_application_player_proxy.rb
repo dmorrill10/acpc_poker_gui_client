@@ -115,52 +115,56 @@ class WebApplicationPlayerProxy
     end
   end
 
+  def compute_betting_sequence(players_at_the_table)
+    sequence = ''
+    players_at_the_table.match_state.betting_sequence(players_at_the_table.game_def).each_with_index do |actions_per_round, round|
+      actions_per_round.each_with_index do |action, action_index|
+        action = adjust_action_amount(action, round, action_index, players_at_the_table)
+
+        sequence << if (
+          players_at_the_table.match_state.player_acting_sequence(players_at_the_table.game_def)[round][action_index].to_i ==
+          players_at_the_table.match_state.position_relative_to_dealer
+        )
+          action.capitalize
+        else
+          action
+        end
+      end
+      unless round == players_at_the_table.match_state.betting_sequence(players_at_the_table.game_def).length - 1
+        sequence << '/'
+      end
+    end
+    sequence
+  end
+
   def update_database!(players_at_the_table)
     match = Match.find(@match_id)
 
     # Save and retrieve game def hash in Match, then more of the game can be deduced from MatchState
-    slice_attributes = {
-      match_has_ended: match_ended?,
-      seat_with_small_blind: players_at_the_table.small_blind_payer.seat.to_i,
-      seat_with_big_blind: players_at_the_table.big_blind_payer.seat.to_i,
-      seat_with_dealer_button: players_at_the_table.dealer_player.seat.to_i,
-      seat_next_to_act: if players_at_the_table.next_player_to_act
-        players_at_the_table.next_player_to_act.seat.to_i
-      end,
-      state_string: players_at_the_table.match_state.to_s,
-      balances: players_at_the_table.players.map do |player|
-        player.balance
-      end,
+    # slice_attributes = {
+    #   match_has_ended: match_ended?,
+    #   seat_with_small_blind: players_at_the_table.small_blind_payer.seat.to_i,
+    #   seat_with_big_blind: players_at_the_table.big_blind_payer.seat.to_i,
+    #   seat_with_dealer_button: players_at_the_table.dealer_player.seat.to_i,
+    #   seat_next_to_act: if players_at_the_table.next_player_to_act
+    #     players_at_the_table.next_player_to_act.seat.to_i
+    #   end,
+    #   state_string: players_at_the_table.match_state.to_s,
+    #   balances: players_at_the_table.players.map do |player|
+    #     player.balance
+    #   end,
 
-      # Not necessary to be in the database, but more performant than processing on the
-      # Rails server
-      betting_sequence: -> do
-        sequence = ''
-        players_at_the_table.match_state.betting_sequence(players_at_the_table.game_def).each_with_index do |actions_per_round, round|
-          actions_per_round.each_with_index do |action, action_index|
-            action = adjust_action_amount(action, round, action_index, players_at_the_table)
+    #   # Not necessary to be in the database, but more performant than processing on the
+    #   # Rails server
+    #   betting_sequence: compute_betting_sequence(players_at_the_table)
+    # }
 
-            sequence << if (
-              players_at_the_table.match_state.player_acting_sequence(players_at_the_table.game_def)[round][action_index].to_i ==
-              players_at_the_table.match_state.position_relative_to_dealer
-            )
-              action.capitalize
-            else
-              action
-            end
-          end
-          unless round == players_at_the_table.match_state.betting_sequence(players_at_the_table.game_def).length - 1
-            sequence << '/'
-          end
-        end
-        sequence
-      end.call
-    }
-
-    log __method__, slice_attributes
+    # log __method__, slice_attributes
 
     begin
-      match.slices.create! slice_attributes
+      # match.slices.create! slice_attributes
+
+      match.slices << MatchSlice.from_players_at_the_table(players_at_the_table)
 
       # Since creating a new slice doesn't "update" the match for some reason
       match.update_attribute(:updated_at, Time.now)

@@ -46,7 +46,8 @@ class WebApplicationPlayerProxy
     @match_id = match_id
     @player_proxy = AcpcPokerPlayerProxy::PlayerProxy.new(
       dealer_information,
-      game_definition
+      game_definition,
+      users_seat
     ) do |players_at_the_table|
 
       if players_at_the_table.match_state

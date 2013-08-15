@@ -99,15 +99,14 @@ describe MatchSlice do
   describe '::players' do
     it 'works' do
       wager_size = 10
-      x_game_def = {
+      game_def = GameDefinition.new(
         first_player_positions: [3, 2, 2, 2],
         chip_stacks: [500, 450, 550],
         blinds: [0, 10, 5],
         raise_sizes: [wager_size]*4,
         number_of_ranks: 3,
         number_of_hole_cards: 1
-      }
-      game_def = GameDefinition.new(x_game_def)
+      )
       x_actions = [
         [
           [
@@ -163,9 +162,9 @@ describe MatchSlice do
 
         x_contributions = x_actions.rotate(position - seat).map_with_index do |actions_per_player, i|
           player_contribs = actions_per_player.map do |actions_per_round|
-            actions_per_round.inject(0) { |sum, action| sum += action.cost }
+            actions_per_round.inject(0) { |sum, action| sum += action.cost }.to_i
           end
-          player_contribs[0] += game_def.blinds.rotate(position - seat)[i]
+          player_contribs[0] += game_def.blinds.rotate(position - seat)[i].to_i
           player_contribs
         end
 
@@ -177,7 +176,8 @@ describe MatchSlice do
           "#{MatchState::LABEL}:#{position}:0:crcc/ccc/rrf:#{hand_string}"
         )
 
-        x_balances = x_contributions.map { |contrib| -contrib.inject(:+) }
+        # Balances should only be adjusted at the end of the hand
+        x_balances = x_contributions.map { |contrib| 0 }
 
         x_players = [
           {
@@ -210,11 +210,8 @@ describe MatchSlice do
         ]
 
         patient.players(
-          match_state,
-          game_def,
-          seat,
-          x_player_names,
-          x_balances.rotate(seat)
+          PlayersAtTheTable.new(game_def, seat).update!(match_state),
+          x_player_names
         ).should == x_players
         @patient = nil
       end
@@ -234,13 +231,12 @@ describe MatchSlice do
           :number_of_board_cards=>[0, 3, 1, 1]
         )
         patient.players(
-          MatchState.parse(
-            'MATCHSTATE:0:2:cr20000c///:8h8s|5s5c/KdTcKh/9h/Jh'
+          PlayersAtTheTable.new(game_def, 0).update!(
+            MatchState.parse(
+              'MATCHSTATE:0:2:cr20000c///:8h8s|5s5c/KdTcKh/9h/Jh'
+            ),
           ),
-          game_def,
-          0,
-          ['p1', 'p2'],
-          [0, 0]
+          ['p1', 'p2']
         ).map { |pl| pl['winnings'] }.should == [40000.0, 0.0]
       end
   end

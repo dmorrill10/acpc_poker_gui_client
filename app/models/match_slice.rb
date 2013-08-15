@@ -2,8 +2,6 @@ require 'mongoid'
 
 require 'acpc_poker_types/game_definition'
 
-require_relative '../../lib/mongoid_ext/chip_stack'
-
 class MatchSlice
   include Mongoid::Document
 
@@ -12,8 +10,6 @@ class MatchSlice
   field :hand_has_ended, type: Boolean
   field :match_has_ended, type: Boolean
   field :seat_with_dealer_button, type: Integer
-  field :seat_with_small_blind, type: Integer
-  field :seat_with_big_blind, type: Integer
   field :seat_next_to_act, type: Integer
   field :state_string, type: String
   # Not necessary to be in the database, but more performant than processing on the
@@ -29,13 +25,9 @@ class MatchSlice
   field :amount_to_call, type: Integer
 
   def self.from_players_at_the_table!(patt, match_has_ended, match)
-    player_balances = patt.players.map { |player| player.balance.to_f }
-
     match.slices.create!(
       hand_has_ended: patt.hand_ended?,
       match_has_ended: match_has_ended,
-      seat_with_small_blind: patt.small_blind_payer.seat.to_i,
-      seat_with_big_blind: patt.big_blind_payer.seat.to_i,
       seat_with_dealer_button: patt.dealer_player.seat.to_i,
       seat_next_to_act: if patt.next_player_to_act
         patt.next_player_to_act.seat.to_i
@@ -45,7 +37,7 @@ class MatchSlice
       # Rails server
       betting_sequence: betting_sequence(patt.match_state, patt.game_def),
       pot_at_start_of_round: pot_at_start_of_round(patt.match_state, patt.game_def).to_i,
-      players: players(patt.match_state, patt.game_def, match.seat - 1, match.player_names, player_balances),
+      players: players(patt, match.player_names),
       minimum_wager_to: minimum_wager_to(patt.match_state, patt.game_def).to_i,
       chip_contribution_after_calling: chip_contribution_after_calling(patt.match_state, patt.game_def).to_i,
       pot_after_call: pot_after_call(patt.match_state, patt.game_def).to_i,
@@ -103,29 +95,27 @@ class MatchSlice
   # 'chip_balance'
   # 'hole_cards'
   # 'winnings'
-  def self.players(state, game_def, users_seat, player_names, balances)
-    players = []
-    rotation_for_seat = state.position_relative_to_dealer - users_seat
-    state.players(game_def).rotate(rotation_for_seat).each_with_index do |player, seat|
+  def self.players(patt, player_names)
+    player_names_queue = player_names.dup
+    patt.players.map do |player|
       hole_cards = if !(player.hand.empty? || player.folded?)
         player.hand.to_acpc
       elsif player.folded?
         ''
       else
-        '_' * game_def.number_of_hole_cards
+        '_' * patt.game_def.number_of_hole_cards
       end
 
-      players.push(
-        'name' => player_names[seat],
-        'seat' => seat,
+      {
+        'name' => player_names_queue.shift,
+        'seat' => player.seat,
         'chip_stack' => player.stack.to_i,
         'chip_contributions' => player.contributions.map { |contrib| contrib.to_i },
-        'chip_balance' => balances.rotate(-users_seat)[seat],
+        'chip_balance' => player.balance,
         'hole_cards' => hole_cards,
         'winnings' => player.winnings.to_f
-      )
+      }
     end
-    players
   end
 
   # Over round

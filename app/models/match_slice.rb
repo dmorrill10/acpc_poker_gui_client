@@ -9,6 +9,7 @@ class MatchSlice
 
   embedded_in :match, inverse_of: :slices
 
+  field :hand_has_ended, type: Boolean
   field :match_has_ended, type: Boolean
   field :seat_with_dealer_button, type: Integer
   field :seat_with_small_blind, type: Integer
@@ -16,11 +17,49 @@ class MatchSlice
   field :seat_next_to_act, type: Integer
   field :state_string, type: String
   field :balances, type: Array
+  # Not necessary to be in the database, but more performant than processing on the
+  # Rails server
   field :betting_sequence, type: String
+  field :pot_at_start_of_round, type: Integer
+  field :players, type: Array
+  field :minimum_wager_to, type: Integer
+  field :chip_contribution_after_calling, type: Integer
+  field :pot_after_call, type: Integer
+  field :is_users_turn_to_act, type: Boolean
+  field :legal_actions, type: Array
+  field :amount_to_call, type: Integer
 
-  def self.from_players_at_the_table(patt)
-    # @todo thing to do
-    raise 'todo'
+  def self.from_players_at_the_table!(patt, match_has_ended, users_seat, player_names)
+    player_balances = patt.players.map { |player| player.balance }
+
+    create!(
+      hand_has_ended: patt.hand_ended?,
+      match_has_ended: match_has_ended,
+      seat_with_small_blind: patt.small_blind_payer.seat.to_i,
+      seat_with_big_blind: patt.big_blind_payer.seat.to_i,
+      seat_with_dealer_button: patt.dealer_player.seat.to_i,
+      seat_next_to_act: if patt.next_player_to_act
+        patt.next_player_to_act.seat.to_i
+      end,
+      state_string: patt.match_state.to_s,
+      balances: player_balances,
+      # Not necessary to be in the database, but more performant than processing on the
+      # Rails server
+      betting_sequence: betting_sequence(patt.match_state, patt.game_def),
+      pot_at_start_of_round: pot_at_start_of_round(patt.match_state, patt.game_def).to_i,
+      players: players(patt.match_state, patt.game_def, users_seat, player_names, player_balances),
+      minimum_wager_to: minimum_wager_to(patt.match_state, patt.game_def).to_i,
+      chip_contribution_after_calling: chip_contribution_after_calling(patt.match_state, patt.game_def).to_i,
+      pot_after_call: pot_after_call(patt.match_state, patt.game_def).to_i,
+      all_in: all_in(patt.match_state, patt.game_def),
+      is_users_turn_to_act: patt.users_turn_to_act?,
+      legal_actions: patt.legal_actions.map { |action| action.to_s },
+      amount_to_call: amount_to_call(patt.match_state, game_def).to_i
+    )
+  end
+
+  def users_turn_to_act?
+    is_users_turn_to_act
   end
 
   def self.betting_sequence(match_state, game_def)
@@ -46,10 +85,6 @@ class MatchSlice
       sequence << '/' unless round == match_state.betting_sequence(game_def).length - 1
     end
     sequence
-  end
-
-  def self.no_limit?(game_def)
-    game_def.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
   end
 
   def self.pot_at_start_of_round(match_state, game_def)
@@ -112,8 +147,7 @@ class MatchSlice
         state.players(game_def)[
           state.next_to_act(game_def)
         ].contributions[state.round] || 0
-      ) +
-      state.players(game_def).amount_to_call(state.next_to_act(game_def))
+      ) + amount_to_call(state, game_def)
     )
   end
 
@@ -122,22 +156,6 @@ class MatchSlice
     return state.pot(game_def) if state.hand_ended?(game_def)
 
     state.pot(game_def) + state.players(game_def).amount_to_call(state.next_to_act(game_def))
-  end
-
-  # Over round
-  def self.pot_fraction_wager_to(state, game_def, fraction=1)
-    return 0 if state.hand_ended?(game_def)
-
-    [
-      [
-        (
-          fraction * pot_after_call(state, game_def) +
-          chip_contribution_after_calling(state, game_def)
-        ),
-        minimum_wager_to(state, game_def)
-      ].max,
-      all_in(state, game_def)
-    ].min.floor
   end
 
   # Over round
@@ -153,7 +171,13 @@ class MatchSlice
     ).floor
   end
 
+  def self.amount_to_call(state, game_def)
+    state.players(game_def).amount_to_call(state.next_to_act(game_def))
+  end
 
+  def hand_ended?
+    hand_has_ended
+  end
 
   def match_ended?
     match_has_ended

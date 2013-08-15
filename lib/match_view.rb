@@ -39,46 +39,34 @@ class MatchView
     @balances ||= slice.balances
   end
   def no_limit?
-    @is_no_limit ||= game_def.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
+    @is_no_limit ||= @match.no_limit?
   end
   def game_def
     @game_def ||= @match.game_def
   end
   def betting_sequence
-    @betting_sequence ||= slice[:betting_sequence] || compute_betting_sequence
+    @betting_sequence ||= slice.betting_sequence
   end
   def pot_at_start_of_round
-    @pot_at_start_of_round ||= if state.round == 0
-      0
-    else
-      state.players(game_def).inject(0) { |sum, pl| sum += pl.contributions[0..state.round - 1].inject(:+) }
-    end
+    @pot_at_start_of_round ||= slice.pot_at_start_of_round
   end
   def hand_ended?
-    @hand_has_ended = state.hand_ended?(game_def) if @hand_has_ended.nil?
+    @hand_has_ended = slice.hand_ended? if @hand_has_ended.nil?
 
     @hand_has_ended
   end
   def match_ended?
-    if @match_has_ended.nil?
-      @match_has_ended = (
-        slice.match_ended? ||
-        (
-          state.hand_ended?(game_def) &&
-          state.hand_number >= @match.number_of_hands - 1
-        )
-      )
-    end
+    @match_has_ended = slice.match_ended? if @match_has_ended.nil?
 
     @match_has_ended
   end
   def users_turn_to_act?
-    @users_turn_to_act = state.next_to_act(game_def) == state.position_relative_to_dealer if @users_turn_to_act.nil?
+    @is_users_turn_to_act = slice.users_turn_to_act? if @is_users_turn_to_act.nil?
 
-    @users_turn_to_act
+    @is_users_turn_to_act
   end
   def legal_actions
-    @legal_actions ||= state.legal_actions(game_def)
+    @legal_actions ||= slice.legal_actions.map { |action| AcpcPokerTypes::PokerAction.new(action) }
   end
 
   # @return [Array<Hash>] Player information ordered by seat.
@@ -93,38 +81,10 @@ class MatchView
   def players
     return @players if @players
 
-    @players = []
-    rotation_for_seat = state.position_relative_to_dealer - users_seat
-    state.players(game_def).rotate(rotation_for_seat).each_with_index do |player, lcl_seat|
-      hole_cards = if !(player.hand.empty? || player.folded?)
-        player.hand
-      elsif player.folded?
-        Hand.new
-      else
-        Hand.new(['']*game_def.number_of_hole_cards)
-      end
-
-      @players.push(
-        'name' => player_names[lcl_seat],
-        'seat' => lcl_seat,
-        'chip_stack' => player.stack,
-        'chip_contributions' => player.contributions,
-        'chip_balance' => balances.rotate(-users_seat)[lcl_seat],
-        'hole_cards' => hole_cards,
-        'winnings' => player.winnings
-      )
-    end
-    @players
+    @players = slice.players
   end
   def user
     @user ||= players[users_seat]
-  end
-  def user_contributions_in_previous_rounds
-    @user_contributions_in_previous_rounds ||= if state.round == 0
-      0
-    else
-      user['chip_contributions'][0..state.round-1].inject(:+)
-    end
   end
   def opponents
     @opponents ||= compute_opponents
@@ -139,96 +99,44 @@ class MatchView
       )
     end
   end
-  def next_player_to_act
-    @next_player_to_act ||= state.players(game_def)[state.next_to_act(game_def)]
-  end
-  def amount_for_player_to_call(position_relative_to_dealer)
-    state.players(game_def).amount_to_call(position_relative_to_dealer)
-  end
   def amount_for_next_player_to_call
-    @amount_for_next_player_to_call ||= amount_for_player_to_call(
-      state.next_to_act(game_def)
-    )
+    @amount_for_next_player_to_call ||= slice.amount_to_call
   end
 
   # Over round
   def chip_contribution_for_next_player_after_calling
-    @chip_contribution_for_next_player_after_calling ||= chip_contribution_after_calling(
-      state.next_to_act(game_def)
-    )
-  end
-
-  # Over round
-  def chip_contribution(position_relative_to_dealer)
-    (
-      state.players(
-        game_def
-      )[position_relative_to_dealer].contributions[state.round] ||
-      0
-    )
-  end
-
-  # Over round
-  def chip_contribution_after_calling(position_relative_to_dealer)
-    (
-      chip_contribution(position_relative_to_dealer) +
-      amount_for_player_to_call(position_relative_to_dealer)
-    )
+    @chip_contribution_for_next_player_after_calling ||= slice.chip_contribution_after_calling
   end
 
   # Over round
   def minimum_wager_to
-    @minimum_wager_to ||= if state.next_to_act(game_def)
-      (
-        state.min_wager_by(game_def) +
-        chip_contribution_after_calling(state.next_to_act(game_def))
-      ).ceil
-    else
-      0
-    end
-  end
-
-  def pot
-    @pot ||= state.pot(game_def)
+    @minimum_wager_to ||= slice.minimum_wager_to
   end
 
   # Over round
   def pot_after_call
-    @pot_after_call ||= pot + if state.hand_ended?(game_def)
-      0
-    else
-      amount_for_next_player_to_call
-    end
+    @pot_after_call ||= slice.pot_after_call
   end
 
   # Over round
   def pot_fraction_wager_to(fraction=1)
-    if state.hand_ended?(game_def)
-      0
-    else
+    return 0 if hand_ended?
+
+    [
       [
-        [
-          (
-            fraction * pot_after_call +
-            chip_contribution_for_next_player_after_calling
-          ),
-          minimum_wager_to
-        ].max,
-        all_in
-      ].min.floor
-    end
+        (
+          fraction * pot_after_call +
+          chip_contribution_for_next_player_after_calling
+        ),
+        minimum_wager_to
+      ].max,
+      all_in
+    ].min.floor
   end
 
   # Over round
   def all_in
-    @all_in ||= if state.hand_ended?(game_def)
-      0
-    else
-      (
-        next_player_to_act.stack +
-        chip_contribution(state.next_to_act(game_def))
-      ).floor
-    end
+    @all_in ||= slice.all_in
   end
 
   def betting_type_label
@@ -245,44 +153,9 @@ class MatchView
 
   private
 
-  def compute_betting_sequence
-    sequence = ''
-    state.betting_sequence(game_def).each_with_index do |actions_per_round, round|
-      actions_per_round.each_with_index do |action, action_index|
-        action = adjust_action_amount action, round, action_index
-
-        sequence << if (
-          state.player_acting_sequence(game_def)[round][action_index].to_i ==
-          state.position_relative_to_dealer
-        )
-          action.capitalize
-        else
-          action
-        end
-      end
-      sequence << '/' unless round == state.betting_sequence(game_def).length - 1
-    end
-    sequence
-  end
-
   def compute_opponents
     opp = players.dup
     opp.delete_at(users_seat)
     opp
-  end
-
-  def adjust_action_amount(action, round, action_index)
-    amount_to_over_hand = action.modifier
-    if amount_to_over_hand.blank?
-      action
-    else
-      amount_to_over_round = (
-        amount_to_over_hand.to_i - MatchView.chip_contributions_in_previous_rounds(
-          state.players(game_def)[state.position_relative_to_dealer],
-          round
-        ).to_i
-      )
-      "#{action[0]}#{amount_to_over_round}"
-    end
   end
 end

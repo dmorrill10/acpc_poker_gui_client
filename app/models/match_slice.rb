@@ -117,6 +117,44 @@ class MatchSlice
     )
   end
 
+  # Over round
+  def self.pot_after_call(state, game_def)
+    return state.pot(game_def) if state.hand_ended?(game_def)
+
+    state.pot(game_def) + state.players(game_def).amount_to_call(state.next_to_act(game_def))
+  end
+
+  # Over round
+  def self.pot_fraction_wager_to(state, game_def, fraction=1)
+    return 0 if state.hand_ended?(game_def)
+
+    [
+      [
+        (
+          fraction * pot_after_call(state, game_def) +
+          chip_contribution_after_calling(state, game_def)
+        ),
+        minimum_wager_to(state, game_def)
+      ].max,
+      all_in(state, game_def)
+    ].min.floor
+  end
+
+  # Over round
+  def self.all_in(state, game_def)
+    return 0 if state.hand_ended?(game_def)
+
+    (
+      state.players(game_def)[state.next_to_act(game_def)].stack +
+      (
+        state.players(game_def)[state.next_to_act(game_def)]
+          .contributions[state.round] || 0
+      )
+    ).floor
+  end
+
+
+
   def match_ended?
     match_has_ended
   end

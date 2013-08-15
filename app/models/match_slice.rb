@@ -16,7 +16,6 @@ class MatchSlice
   field :seat_with_big_blind, type: Integer
   field :seat_next_to_act, type: Integer
   field :state_string, type: String
-  field :balances, type: Array
   # Not necessary to be in the database, but more performant than processing on the
   # Rails server
   field :betting_sequence, type: String
@@ -29,10 +28,10 @@ class MatchSlice
   field :legal_actions, type: Array
   field :amount_to_call, type: Integer
 
-  def self.from_players_at_the_table!(patt, match_has_ended, users_seat, player_names)
-    player_balances = patt.players.map { |player| player.balance }
+  def self.from_players_at_the_table!(patt, match_has_ended, match)
+    player_balances = patt.players.map { |player| player.balance.to_f }
 
-    create!(
+    match.slices.create!(
       hand_has_ended: patt.hand_ended?,
       match_has_ended: match_has_ended,
       seat_with_small_blind: patt.small_blind_payer.seat.to_i,
@@ -42,16 +41,15 @@ class MatchSlice
         patt.next_player_to_act.seat.to_i
       end,
       state_string: patt.match_state.to_s,
-      balances: player_balances,
       # Not necessary to be in the database, but more performant than processing on the
       # Rails server
       betting_sequence: betting_sequence(patt.match_state, patt.game_def),
       pot_at_start_of_round: pot_at_start_of_round(patt.match_state, patt.game_def).to_i,
-      players: players(patt.match_state, patt.game_def, users_seat, player_names, player_balances),
+      players: players(patt.match_state, patt.game_def, match.seat - 1, match.player_names, player_balances),
       minimum_wager_to: minimum_wager_to(patt.match_state, patt.game_def).to_i,
       chip_contribution_after_calling: chip_contribution_after_calling(patt.match_state, patt.game_def).to_i,
       pot_after_call: pot_after_call(patt.match_state, patt.game_def).to_i,
-      all_in: all_in(patt.match_state, patt.game_def),
+      all_in: all_in(patt.match_state, patt.game_def).to_i,
       is_users_turn_to_act: patt.users_turn_to_act?,
       legal_actions: patt.legal_actions.map { |action| action.to_s },
       amount_to_call: amount_to_call(patt.match_state, patt.game_def).to_i
@@ -110,7 +108,7 @@ class MatchSlice
     rotation_for_seat = state.position_relative_to_dealer - users_seat
     state.players(game_def).rotate(rotation_for_seat).each_with_index do |player, seat|
       hole_cards = if !(player.hand.empty? || player.folded?)
-        player.hand.to_s
+        player.hand.to_acpc
       elsif player.folded?
         ''
       else
@@ -120,11 +118,11 @@ class MatchSlice
       players.push(
         'name' => player_names[seat],
         'seat' => seat,
-        'chip_stack' => player.stack,
-        'chip_contributions' => player.contributions,
+        'chip_stack' => player.stack.to_i,
+        'chip_contributions' => player.contributions.map { |contrib| contrib.to_i },
         'chip_balance' => balances.rotate(-users_seat)[seat],
         'hole_cards' => hole_cards,
-        'winnings' => player.winnings
+        'winnings' => player.winnings.to_f
       )
     end
     players

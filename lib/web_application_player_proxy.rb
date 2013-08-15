@@ -46,8 +46,7 @@ class WebApplicationPlayerProxy
     @match_id = match_id
     @player_proxy = AcpcPokerPlayerProxy::PlayerProxy.new(
       dealer_information,
-      game_definition,
-      users_seat
+      game_definition
     ) do |players_at_the_table|
 
       if players_at_the_table.match_state
@@ -75,12 +74,14 @@ class WebApplicationPlayerProxy
   end
 
   # @see PlayerProxy#match_ended?
-  def match_ended?(patt, number_of_hands)
+  def match_ended?
     match_has_ended = if @player_proxy
+      @match ||= Match.find(@match_id)
+
       @player_proxy.match_ended? ||
       (
-        patt.hand_ended? &&
-        patt.match_state.hand_number >= number_of_hands - 1
+        @player_proxy.hand_ended? &&
+        @player_proxy.match_state.hand_number >= @match.number_of_hands - 1
       )
     else
       false
@@ -94,19 +95,18 @@ class WebApplicationPlayerProxy
   private
 
   def update_database!(players_at_the_table)
-    match = Match.find(@match_id)
+    @match = Match.find(@match_id)
 
     begin
-      match.slices << MatchSlice.from_players_at_the_table!(
+      MatchSlice.from_players_at_the_table!(
         players_at_the_table,
-        match_ended?(players_at_the_table, match.number_of_hands),
-        match.seat - 1,
-        match.player_names
+        match_ended?,
+        @match
       )
 
       # Since creating a new slice doesn't "update" the match for some reason
-      match.update_attribute(:updated_at, Time.now)
-      match.save!
+      @match.update_attribute(:updated_at, Time.now)
+      @match.save!
     rescue => e
       raise UnableToCreateMatchSlice.with_context('Unable to create match slice', e)
     end

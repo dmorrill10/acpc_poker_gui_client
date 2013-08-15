@@ -8,12 +8,9 @@ class MatchView
   include AcpcPokerTypes
   attr_reader :match
 
-  def self.chip_contributions_in_previous_rounds(
-    player,
-    round = player.contributions.length - 1
-  )
+  def self.chip_contributions_in_previous_rounds(player, round)
     if round > 0
-      player.contributions[0..round-1].inject(:+)
+      player['chip_contributions'][0..round-1].inject(:+)
     else
       0
     end
@@ -21,6 +18,9 @@ class MatchView
 
   def initialize(match_id)
     @match = Match.find(match_id)
+  end
+  def user_contributions_in_previous_rounds
+    self.class.chip_contributions_in_previous_rounds(user, state.round)
   end
   def state
     @state ||= MatchState.parse slice.state_string

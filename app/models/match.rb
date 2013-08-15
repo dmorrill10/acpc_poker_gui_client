@@ -112,7 +112,7 @@ class Match
     @game_def ||= AcpcPokerTypes::GameDefinition.new(self.game_def_hash)
   end
   def no_limit?
-    @is_no_limit ||= game_def.betting_type == GameDefinition::BETTING_TYPES[:nolimit]
+    @is_no_limit ||= game_def.betting_type == AcpcPokerTypes::GameDefinition::BETTING_TYPES[:nolimit]
   end
   def finished?
     !slices.empty? && (

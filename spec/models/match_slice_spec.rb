@@ -29,6 +29,31 @@ describe MatchSlice do
   def patient
     @patient ||= MatchSlice
   end
+  describe '::chip_contribution_after_calling and ::amount_to_call' do
+    it 'work after all-in' do
+      game_def = GameDefinition.new(
+        :betting_type=>"nolimit",
+        :chip_stacks=>[20000, 20000],
+        :number_of_players=>2,
+        :blinds=>[100, 50],
+        :raise_sizes=>nil,
+        :number_of_rounds=>4,
+        :first_player_positions=>[1, 0, 0, 0],
+        :max_number_of_wagers=>[255],
+        :number_of_suits=>4,
+        :number_of_ranks=>13,
+        :number_of_hole_cards=>2,
+        :number_of_board_cards=>[0, 3, 1, 1]
+      )
+      match_state = MatchState.parse(
+        'MATCHSTATE:1:1:cr20000c///:7c7d|6cAc/2s9cKc/4s/5s'
+      )
+      patient.chip_contribution_after_calling(
+        match_state, game_def
+      ).should == 0
+      patient.amount_to_call(match_state, game_def).should == 0
+    end
+  end
   describe '::betting_sequence' do
     it 'works' do
       game_def = GameDefinition.new(
@@ -72,7 +97,7 @@ describe MatchSlice do
     end
   end
   describe '::players' do
-    it 'work' do
+    it 'works' do
       wager_size = 10
       x_game_def = {
         first_player_positions: [3, 2, 2, 2],
@@ -194,6 +219,30 @@ describe MatchSlice do
         @patient = nil
       end
     end
+    it 'works when players are all-in' do
+        game_def = GameDefinition.new(
+          :betting_type=>"nolimit",
+          :chip_stacks=>[20000, 20000],
+          :number_of_players=>2,
+          :blinds=>[100, 50],
+          :raise_sizes=>nil,
+          :number_of_rounds=>4,
+          :first_player_positions=>[1, 0, 0, 0],
+          :number_of_suits=>4,
+          :number_of_ranks=>13,
+          :number_of_hole_cards=>2,
+          :number_of_board_cards=>[0, 3, 1, 1]
+        )
+        patient.players(
+          MatchState.parse(
+            'MATCHSTATE:0:2:cr20000c///:8h8s|5s5c/KdTcKh/9h/Jh'
+          ),
+          game_def,
+          0,
+          ['p1', 'p2'],
+          [0, 0]
+        ).map { |pl| pl['winnings'] }.should == [40000.0, 0.0]
+      end
   end
   describe '::minimum_wager_to' do
     it 'works' do

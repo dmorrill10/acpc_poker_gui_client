@@ -1,10 +1,10 @@
 .outer_player_information
   - if seat_with_dealer_button == player['seat']
     = render partial: 'dealer_button'
-  - if player['chip_contributions'].length > round
-    - if !hand_ended && player['chip_contributions'][round] > 0
+  - if hand_ended && player['winnings'] > 0
+    .stack_taken_from_pot
+      = render partial: 'chip_stack', locals: { amount: player['winnings'].floor }
+  - elsif !hand_ended && player['chip_contributions'].length > round
+    - if player['chip_contributions'][round] > 0
       .stack_added_to_pot
         = render partial: 'chip_stack', locals: { amount: player['chip_contributions'][round].to_i }
-    - elsif player['winnings'] > 0
-      .stack_taken_from_pot
-        = render partial: 'chip_stack', locals: { amount: player['winnings'].floor }

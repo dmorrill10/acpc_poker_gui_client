@@ -70,26 +70,28 @@ class WebApplicationPlayerProxy
       yield players_at_the_table if block_given?
     end
 
+    log(
+      __method__,
+      {
+        users_turn_to_act?: @player_proxy.users_turn_to_act?,
+        match_ended?: @player_proxy.match_ended?
+      }
+    )
+
     self
   end
 
   # @see PlayerProxy#match_ended?
   def match_ended?
-    match_has_ended = if @player_proxy
-      @match ||= Match.find(@match_id)
+    return false if @player_proxy.nil?
 
-      @player_proxy.match_ended? ||
-      (
-        @player_proxy.hand_ended? &&
-        @player_proxy.match_state.hand_number >= @match.number_of_hands - 1
-      )
-    else
-      false
-    end
+    @match ||= Match.find(@match_id)
 
-    log __method__, match_has_ended: match_has_ended
-
-    match_has_ended
+    @player_proxy.match_ended? ||
+    (
+      @player_proxy.hand_ended? &&
+      @player_proxy.match_state.hand_number >= @match.number_of_hands - 1
+    )
   end
 
   private

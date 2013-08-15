@@ -140,6 +140,8 @@ class MatchSlice
 
   # Over round
   def self.chip_contribution_after_calling(state, game_def)
+    return 0 unless state.next_to_act(game_def)
+
     (
       (
         state.players(game_def)[
@@ -170,6 +172,8 @@ class MatchSlice
   end
 
   def self.amount_to_call(state, game_def)
+    return 0 if state.next_to_act(game_def).nil?
+
     state.players(game_def).amount_to_call(state.next_to_act(game_def))
   end
 

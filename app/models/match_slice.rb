@@ -54,7 +54,7 @@ class MatchSlice
       all_in: all_in(patt.match_state, patt.game_def),
       is_users_turn_to_act: patt.users_turn_to_act?,
       legal_actions: patt.legal_actions.map { |action| action.to_s },
-      amount_to_call: amount_to_call(patt.match_state, game_def).to_i
+      amount_to_call: amount_to_call(patt.match_state, patt.game_def).to_i
     )
   end
 

@@ -217,28 +217,28 @@ describe MatchSlice do
       end
     end
     it 'works when players are all-in' do
-        game_def = GameDefinition.new(
-          :betting_type=>"nolimit",
-          :chip_stacks=>[20000, 20000],
-          :number_of_players=>2,
-          :blinds=>[100, 50],
-          :raise_sizes=>nil,
-          :number_of_rounds=>4,
-          :first_player_positions=>[1, 0, 0, 0],
-          :number_of_suits=>4,
-          :number_of_ranks=>13,
-          :number_of_hole_cards=>2,
-          :number_of_board_cards=>[0, 3, 1, 1]
-        )
-        patient.players(
-          PlayersAtTheTable.new(game_def, 0).update!(
-            MatchState.parse(
-              'MATCHSTATE:0:2:cr20000c///:8h8s|5s5c/KdTcKh/9h/Jh'
-            ),
+      game_def = GameDefinition.new(
+        :betting_type=>"nolimit",
+        :chip_stacks=>[20000, 20000],
+        :number_of_players=>2,
+        :blinds=>[100, 50],
+        :raise_sizes=>nil,
+        :number_of_rounds=>4,
+        :first_player_positions=>[1, 0, 0, 0],
+        :number_of_suits=>4,
+        :number_of_ranks=>13,
+        :number_of_hole_cards=>2,
+        :number_of_board_cards=>[0, 3, 1, 1]
+      )
+      patient.players(
+        PlayersAtTheTable.new(game_def, 0).update!(
+          MatchState.parse(
+            'MATCHSTATE:0:2:cr20000c///:8h8s|5s5c/KdTcKh/9h/Jh'
           ),
-          ['p1', 'p2']
-        ).map { |pl| pl['winnings'] }.should == [40000.0, 0.0]
-      end
+        ),
+        ['p1', 'p2']
+      ).map { |pl| pl['winnings'] }.should == [40000.0, 0.0]
+    end
   end
   describe '::minimum_wager_to' do
     it 'works' do

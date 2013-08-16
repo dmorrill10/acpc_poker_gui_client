@@ -135,7 +135,14 @@ class TableManager
   end
 
   def start_opponent!(bot_start_command)
-    log __method__, bot_start_command: bot_start_command, pid: ProcessRunner.go(bot_start_command)
+    log(
+      __method__,
+      {
+        bot_start_command_parameters: bot_start_command,
+        command_to_be_run: bot_start_command.join(' '),
+        pid: ProcessRunner.go(bot_start_command)
+      }
+    )
 
     self
   end

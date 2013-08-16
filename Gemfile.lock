@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    acpc_dealer (2.0.2)
+    acpc_dealer (2.0.6)
       clive (~> 1.2)
       process_runner (~> 0.0)
       rake-compiler (~> 0.8)

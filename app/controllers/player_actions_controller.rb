@@ -134,8 +134,20 @@ class PlayerActionsController < ApplicationController
         "Sorry, there was a problem saving hotkeys, #{self.class.report_error_request_message}."
       ) do
         conflicting_hotkeys = []
-        params[hotkeys_param_key].each do |action_label, new_key|
-          next if action_label.blank? || new_key.blank?
+
+        hotkey_hash = params[hotkeys_param_key]
+        params[custom_hotkeys_amount_param_key].zip(
+          params[custom_hotkeys_keys_param_key]
+        ).each do |amount, key|
+          hotkey_hash[User.wager_hotkey_label(amount.to_f)] = key
+        end
+        hotkey_hash.each do |action_label, new_key|
+          if new_key.blank?
+            # Delete custom hotkeys that have been left blank
+            user.hotkeys.delete(action_label) unless User::DEFAULT_HOTKEYS.include?(action_label)
+            next
+          end
+          next if action_label.blank?
           new_key = new_key.strip.capitalize
           next if no_change?(action_label, new_key)
 

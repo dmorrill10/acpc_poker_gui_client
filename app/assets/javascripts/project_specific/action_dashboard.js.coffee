@@ -34,7 +34,7 @@ root.ActionDashboard =
         return
       wager_to_amount_over_round = parseInt(wagerAmountField().val())
 
-      if @tooSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to) or @tooLargeWager(wager_to_amount_over_round, all_in_to)
+      if @tooLargeWager(wager_to_amount_over_round, all_in_to) or @tooSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to)
         return e.stopImmediatePropagation()
       wager_to_amount_over_hand = wager_to_amount_over_round + user_contributions_in_previous_rounds
 

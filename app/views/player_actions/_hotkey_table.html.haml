@@ -1,5 +1,6 @@
 - classes ||= []
 - footer_partial ||= nil
+- custom_hotkeys_partial ||= nil
 %table.table.table-striped{ class: classes, role: 'menu'}
   %thead
     %tr
@@ -19,6 +20,8 @@
         %tr
           %td= label
           %td= right_column.call(label, key.to_s.capitalize)
+      - if custom_hotkeys_partial
+        = render partial: custom_hotkeys_partial
   - if footer_partial
     %tfoot
       = render partial: footer_partial

@@ -71,7 +71,7 @@ class User
   }
 
   def reset_hotkeys!
-    self.hotkeys = self.class::DEFAULT_HOTKEYS
+    self.hotkeys = self.class::DEFAULT_HOTKEYS.dup
     save!
 
     self

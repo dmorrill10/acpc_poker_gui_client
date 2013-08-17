@@ -1,0 +1,8 @@
+:javascript
+  $('.add_wager_hotkey_button').click(function() {
+    $('.add_wager_hotkey_row').before("#{escape_javascript(render(partial: 'custom_wager_inputs'))}");
+  });
+= render partial: 'custom_wager_inputs'
+%tr.add_wager_hotkey_row
+  %th{colspan: 2}
+    .btn.btn-info.add_wager_hotkey_button Add wager hotkey

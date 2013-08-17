@@ -46,6 +46,24 @@ module PlayerActionsHelper
     text_field_tag name, initial_value, options.merge(maxlength: 1, size: 1, name: "#{hotkeys_param_key}[#{name}]")
   end
 
+  # Assumes that it will be called right after the corresponding custom_hotkey_amount_field_tag call
+  def custom_hotkey_key_field_tag
+    text_field_tag "custom_key", '', maxlength: 1, size: 1, name: "#{custom_hotkeys_keys_param_key}[]"
+  end
+
+  def custom_hotkey_amount_field_tag
+    number_field_tag(
+      "custom_amount",
+      '',
+      maxlength: 4,
+      size: 4,
+      name: "#{custom_hotkeys_amount_param_key}[]",
+      min: 0,
+      max: 9999,
+      step: 0.01
+    )
+  end
+
   # @todo Do not require state, remove from this module
   def fold_html_class() 'fold' end
   def pass_html_class() 'pass' end
@@ -68,6 +86,12 @@ module PlayerActionsHelper
   end
   def customize_hotkeys_html_id
     'customize_hotkeys'
+  end
+  def custom_hotkeys_amount_param_key
+    'custom_hotkeys_amount'
+  end
+  def custom_hotkeys_keys_param_key
+    'custom_hotkeys_key'
   end
   def no_change?(action_label, new_key)
     user.hotkeys[action_label] == new_key

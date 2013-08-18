@@ -7,16 +7,20 @@
       %th Action
       %th Key
   %tbody
-    - user.hotkeys.each do |label, key|
-      - next if User.wager_hotkey?(label)
+    - user.hotkeys.each do |hotkey|
+      - next if hotkey.wager_hotkey?
+      - label = hotkey.action
+      - key = hotkey.key
       %tr
         %td= label
         %td= right_column.call(label, key.to_s.capitalize)
     - if match_view.no_limit?
       %tr
         %th{colspan: 2} Wagers
-      - user.hotkeys.each do |label, key|
-        - next unless User.wager_hotkey?(label)
+      - user.hotkeys.each do |hotkey|
+        - next unless hotkey.wager_hotkey?
+        - label = hotkey.action
+        - key = hotkey.key
         %tr
           %td= label
           %td= right_column.call(label, key.to_s.capitalize)

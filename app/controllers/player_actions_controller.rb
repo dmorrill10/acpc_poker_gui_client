@@ -3,6 +3,8 @@ require 'application_defs'
 require 'application_helper'
 require 'acpc_poker_types/seat'
 require 'match'
+require 'user'
+require 'hotkey'
 
 require 'ap'
 
@@ -19,10 +21,10 @@ class PlayerActionsController < ApplicationController
   end
 
   def index
-    return reset_to_match_entry_view if (
-      error?(
-        "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
-      ) do
+    return reset_to_match_entry_view(
+      "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
+    ) if (
+      error? do
         session['waiting_for_response'] = false
         Rails.logger.ap waiting_for_response: session['waiting_for_response']
 
@@ -32,10 +34,10 @@ class PlayerActionsController < ApplicationController
   end
 
   def take_action
-    return reset_to_match_entry_view if (
-      error?(
-        "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
-      ) do
+    return reset_to_match_entry_view(
+      "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
+    ) if (
+      error? do
         # Initialize the match view so that the app is guaranteed to not update before showing the
         # table.
         @match_view = MatchView.new params[:match_id]
@@ -52,10 +54,10 @@ class PlayerActionsController < ApplicationController
   end
 
   def update_state
-    return reset_to_match_entry_view if (
-      error?(
-        "Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}."
-      ) do
+    return reset_to_match_entry_view(
+      "Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}."
+    ) if (
+      error? do
         @match_view = MatchView.new params[:match_id]
 
         Rails.logger.ap hand_ended: @match_view.hand_ended?
@@ -76,10 +78,10 @@ class PlayerActionsController < ApplicationController
   def update
     deleted_slice = nil
 
-    return reset_to_match_entry_view if (
-      error?(
-        "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
-      ) do
+    return reset_to_match_entry_view(
+      "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
+    ) if (
+      error? do
         @match_view = MatchView.new params[:match_id]
 
         # Abort the update if there's only one slice
@@ -108,9 +110,7 @@ class PlayerActionsController < ApplicationController
     )
 
     if (
-      error?(
-        "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
-      ) do
+      error? do
         session['waiting_for_response'] = false
         replace_page_contents_with_updated_game_view(params[:match_id])
       end
@@ -124,40 +124,53 @@ class PlayerActionsController < ApplicationController
         # special to do here.
         log_error e
       end
-      return reset_to_match_entry_view
+      return(
+        reset_to_match_entry_view(
+          "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
+        )
+      )
     end
   end
 
   def update_hotkeys
-    return reset_to_match_entry_view if (
-      error?(
-        "Sorry, there was a problem saving hotkeys, #{self.class.report_error_request_message}."
-      ) do
+    return reset_to_match_entry_view(
+      "Sorry, there was a problem saving hotkeys, #{self.class.report_error_request_message}."
+    ) if (
+      error? do
         conflicting_hotkeys = []
 
         hotkey_hash = params[hotkeys_param_key]
         params[custom_hotkeys_amount_param_key].zip(
           params[custom_hotkeys_keys_param_key]
         ).each do |amount, key|
-          hotkey_hash[User.wager_hotkey_label(amount.to_f)] = key
+          hotkey_hash[Hotkey.wager_hotkey_label(amount.to_f)] = key
         end
         hotkey_hash.each do |action_label, new_key|
           if new_key.blank?
             # Delete custom hotkeys that have been left blank
-            user.hotkeys.delete(action_label) unless User::DEFAULT_HOTKEYS.include?(action_label)
+            user.hotkeys.where(action: action_label).delete unless Hotkey::DEFAULT_HOTKEYS.include?(action_label)
             next
           end
           next if action_label.blank?
           new_key = new_key.strip.capitalize
           next if no_change?(action_label, new_key)
 
-          conflicted_label = user.hotkeys.select { |label, key| key == new_key }.keys.first
-          if conflicted_label
-            conflicting_hotkeys << { key: new_key, current_label: conflicted_label, new_label: action_label }
-            next
+          conflicted_hotkey = user.hotkeys.select { |hotkey| hotkey.key == new_key }.first
+          if conflicted_hotkey
+            conflicted_label = conflicted_hotkey.action
+            if conflicted_label
+              conflicting_hotkeys << { key: new_key, current_label: conflicted_label, new_label: action_label }
+              next
+            end
           end
 
-          user.hotkeys[action_label] = new_key
+          previous_hotkey = user.hotkeys.where(action: action_label).first
+          if previous_hotkey
+            previous_hotkey.key = new_key
+            previous_hotkey.save!
+          else
+            user.hotkeys.create! action: action_label, key: new_key
+          end
         end
         user.save!
 

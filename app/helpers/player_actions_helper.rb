@@ -94,7 +94,8 @@ module PlayerActionsHelper
     'custom_hotkeys_key'
   end
   def no_change?(action_label, new_key)
-    user.hotkeys[action_label] == new_key
+    old_hotkey = user.hotkeys.where(action: action_label).first
+    old_hotkey && old_hotkey.key == new_key
   end
   def waiting_for_response
     session['waiting_for_response']

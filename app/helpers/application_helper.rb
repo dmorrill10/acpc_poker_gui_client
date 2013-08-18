@@ -17,9 +17,12 @@ module ApplicationHelper
   # @param [String] alert_message An alert message to be displayed.
   def replace_page_contents(replacement_partial, alert_message=@alert_message)
     @alert_message = alert_message
+
+    Rails.logger.fatal({method: __method__, alert_message: @alert_message}.awesome_inspect)
+
     @replacement_partial = replacement_partial
     if (
-      error?("Unable to update the page, #{self.class.report_error_request_message}") do
+      error? do
         respond_to do |format|
           format.js do
             render REPLACE_CONTENTS_JS, formats: [:js]
@@ -27,7 +30,12 @@ module ApplicationHelper
         end
       end
     )
-      redirect_to root_path, remote: true
+      @alert_message ||= "Unable to update the page, #{self.class.report_error_request_message}"
+      if replacement_partial == NEW_MATCH_PARTIAL
+        return(redirect_to(root_path, remote: true))
+      else
+        return reset_to_match_entry_view
+      end
     end
   end
 
@@ -47,13 +55,12 @@ module ApplicationHelper
     Rails.logger.fatal({exception: {message: e.message, backtrace: e.backtrace}}.awesome_inspect)
   end
 
-  def error?(message)
+  def error?
     begin
       yield if block_given?
       false
     rescue => e
       log_error e
-      @alert_message = message
       true
     end
   end
@@ -71,8 +78,9 @@ module ApplicationHelper
     return @user if @user
     users = User.where name: user_name
     @user = if users.empty?
-      u = User.new name: user_name, hotkeys: User::DEFAULT_HOTKEYS
+      u = User.new name: user_name
       u.save!
+      u.reset_hotkeys!
       u
     else
       users.shift

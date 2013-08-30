@@ -24,6 +24,7 @@ module ApplicationDefs
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
         DEFAULT_BOT_NAME => RunTestingBot,
+        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:nolimit]
       },
       num_players: 2
     },
@@ -38,6 +39,7 @@ module ApplicationDefs
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
         DEFAULT_BOT_NAME => RunTestingBot,
+        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:limit]
       },
       num_players: 2
     },
@@ -51,7 +53,7 @@ module ApplicationDefs
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        DEFAULT_BOT_NAME => RunTestingBot,
+        DEFAULT_BOT_NAME => RunTestingBot
       },
       num_players: 2
     },
@@ -59,13 +61,14 @@ module ApplicationDefs
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:nolimit],
       text: '3-player no-limit',
       opponents: {
-        DEFAULT_BOT_NAME => RunTestingBot,
         # ADD BOTS HERE LIKE SO:
         # 'YourAgentNameForDropdownAndLogs' => RunYourAgent
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
+        DEFAULT_BOT_NAME => RunTestingBot,
+        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[3][:nolimit],
         'Tester2' => File.join(BOT_DIR, 'agent_scripts/testing_bot'),
       },
       num_players: 3
@@ -74,19 +77,20 @@ module ApplicationDefs
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:limit],
       text: '3-player limit',
       opponents: {
-        DEFAULT_BOT_NAME => RunTestingBot,
         # ADD BOTS HERE LIKE SO:
         # 'YourAgentNameForDropdownAndLogs' => RunYourAgent
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        'Tester2' => File.join(BOT_DIR, 'agent_scripts/testing_bot'),
+        DEFAULT_BOT_NAME => RunTestingBot,
+        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[3][:limit],
+        'Tester2' => File.join(BOT_DIR, 'agent_scripts/testing_bot')
       },
       num_players: 3
     },
     three_player_kuhn: {
-      file: File.expand_path('../../game_defs/kuhn.limit.3p.game', __FILE__),
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[3][:kuhn],
       text: '3-player kuhn',
       opponents: {
         # ADD BOTS HERE LIKE SO:
@@ -95,6 +99,9 @@ module ApplicationDefs
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
+        'SF1Equilibrium' => AcpcDealer::EXAMPLE_PLAYERS[3][:kuhn_sf1],
+        'SF2Equilibrium' => AcpcDealer::EXAMPLE_PLAYERS[3][:kuhn_sf2],
+        'SF3Equilibrium' => AcpcDealer::EXAMPLE_PLAYERS[3][:kuhn_sf3],
         DEFAULT_BOT_NAME => RunTestingBot,
         'Tester2' => File.join(BOT_DIR, 'agent_scripts/testing_bot'),
       },

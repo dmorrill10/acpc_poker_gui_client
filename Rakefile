@@ -101,3 +101,14 @@ namespace :update do
   desc 'Update gems and assets in development'
   task :prod => ['in:dev', 'install:gems:dev']
 end
+
+desc 'Delete incompatible (deprecated) User instances'
+task :delete_deprecated_users do
+  require_relative 'lib/database_config'
+  User.all.map do |u|
+    unless u.hotkeys.all? { |key| key.is_a?(Hotkey) }
+      puts "Deleted #{u.name}"
+      u.delete
+    end
+  end
+end

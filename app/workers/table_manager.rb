@@ -86,11 +86,11 @@ class TableManager
     end
 
     dealer_arguments = {
-      match_name: match.name,
+      match_name: "\"#{match.name}\"",
       game_def_file_name: match.game_definition_file_name,
       hands: match.number_of_hands,
       random_seed: match.random_seed.to_s,
-      player_names: match.player_names.join(' '),
+      player_names: match.player_names.map { |name| "\"#{name}\"" }.join(' '),
       options: (params['options'] || {})
     }
     log_directory = params['log_directory']

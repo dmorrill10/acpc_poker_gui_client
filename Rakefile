@@ -107,7 +107,7 @@ task :delete_deprecated_users do
   require_relative 'lib/database_config'
   User.all.map do |u|
     begin
-      unless u.u.respond_to?(:hotkeys) && u.hotkeys.all? { |key| key.is_a?(Hotkey) }
+      unless u.respond_to?(:hotkeys) && u.hotkeys.all? { |key| key.is_a?(Hotkey) }
         puts "Deleted #{u.name}"
         u.delete
       end

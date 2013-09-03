@@ -106,8 +106,12 @@ desc 'Delete incompatible (deprecated) User instances'
 task :delete_deprecated_users do
   require_relative 'lib/database_config'
   User.all.map do |u|
-    unless u.hotkeys.all? { |key| key.is_a?(Hotkey) }
-      puts "Deleted #{u.name}"
+    begin
+      unless u.u.respond_to?(:hotkeys) && u.hotkeys.all? { |key| key.is_a?(Hotkey) }
+        puts "Deleted #{u.name}"
+        u.delete
+      end
+    rescue TypeError
       u.delete
     end
   end

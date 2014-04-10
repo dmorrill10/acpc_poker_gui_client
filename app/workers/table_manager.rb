@@ -58,7 +58,6 @@ class TableManager
   end
 
   def perform(request, match_id, params=nil)
-    # @todo Extract this into a method
     if request == ApplicationDefs::START_MATCH_REQUEST_CODE
       refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
       refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')

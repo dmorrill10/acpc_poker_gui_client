@@ -23,7 +23,6 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        'NewBot' => RunTestingBot,
         DEFAULT_BOT_NAME => RunTestingBot,
         'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:nolimit]
       },

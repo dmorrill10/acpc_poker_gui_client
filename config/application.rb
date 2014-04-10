@@ -6,6 +6,8 @@ require "active_resource/railtie"
 require "rails/test_unit/railtie"
 require "sprockets/railtie"
 
+require 'require_reloader'
+
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
   Bundler.require(*Rails.groups(:assets => %w(development test)))
@@ -21,7 +23,7 @@ module AcpcPokerGuiClient
 
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
-    config.autoload_paths += Dir["#{config.root}/lib/**/"]
+    config.autoload_paths += Dir["#{config.root}/lib/**/"] + Dir["#{config.root}/bots/**/"]
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
@@ -49,5 +51,11 @@ module AcpcPokerGuiClient
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    # watch all .rb files recursively under modules/module1/ dir
+    config.watchable_dirs["#{config.root}/bots"] = [:rb]
+
+    # To autoreload bots/bots.rb
+    RequireReloader.watch :bots
   end
 end

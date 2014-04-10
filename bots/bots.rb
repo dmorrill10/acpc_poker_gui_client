@@ -7,7 +7,7 @@ require_relative '../app/models/user'
 require 'acpc_dealer'
 
 # Assortment of constant definitions.
-module ApplicationDefs
+module Bots
   DEFAULT_BOT_NAME = 'Tester' unless const_defined? :DEFAULT_BOT_NAME
 
   BOT_DIR = File.expand_path('../', __FILE__)
@@ -23,6 +23,7 @@ module ApplicationDefs
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
+        'NewBot' => RunTestingBot,
         DEFAULT_BOT_NAME => RunTestingBot,
         'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:nolimit]
       },
@@ -112,10 +113,11 @@ module ApplicationDefs
   # Human opponent names map to nil
   def self.game_definitions
     lcl_game_defs = STATIC_GAME_DEFINITIONS.dup
-    lcl_game_defs.each do |type, prop|
-      User.each do |user|
-        prop[:opponents].merge! user.name => nil
-      end
-    end
+    # @todo Code duplication
+    #lcl_game_defs.each do |type, prop|
+    #  User.each do |user|
+    #    prop[:opponents].merge! user.name => nil
+    #  end
+    #end
   end
 end

@@ -58,6 +58,9 @@ gem 'process_runner'
 # For background process communication
 gem 'sidekiq'
 
+# To add bots without restarting the server
+gem 'require_reloader'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

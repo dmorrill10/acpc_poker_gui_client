@@ -18,11 +18,12 @@ require_relative '../../lib/background/worker_helpers'
 # Email on error
 require_relative '../../lib/background/setup_rusen'
 
+require_relative '../../lib/application_defs'
+
 # Easier logging
 require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
-require_relative '../../lib/application_defs'
 
 class TableManager
   include WorkerHelpers
@@ -36,6 +37,17 @@ class TableManager
 
   @@table_information ||= {}
 
+  # @todo Poorly named arguments
+  def refresh_module(mod, mod_file, mode_file_base)
+    if Object.const_defined?(mod)
+      Object.send(:remove_const, mod)
+    end
+    $".delete_if {|s| s.include?(mode_file_base) }
+    load mod_file
+
+    log __method__, msg: "RELOADED #{mod}"
+  end
+
   def initialize
     @logger = Logger.from_file_name(
       File.join(
@@ -46,6 +58,12 @@ class TableManager
   end
 
   def perform(request, match_id, params=nil)
+    # @todo Extract this into a method
+    if request == ApplicationDefs::START_MATCH_REQUEST_CODE
+      refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
+      refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
+    end
+    
     log __method__, table_information_length: @@table_information.length, request: request, match_id: match_id, params: params
 
     begin

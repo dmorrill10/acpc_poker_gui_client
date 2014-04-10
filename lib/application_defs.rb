@@ -4,6 +4,9 @@ require_relative '../bots/bots.rb'
 
 # Assortment of constant definitions.
 module ApplicationDefs
+  # @todo Not sure if this is necessary
+  def self.included(klass) klass.class_eval { include Bots } end
+
   # @return [String] Improper amount warning message.
   IMPROPER_AMOUNT_MESSAGE = "Improper amount entered" unless const_defined?(:IMPROPER_AMOUNT_MESSAGE)
 
@@ -16,6 +19,17 @@ module ApplicationDefs
   START_MATCH_REQUEST_CODE = 'dealer' unless const_defined? :START_MATCH_REQUEST_CODE
   START_PROXY_REQUEST_CODE = 'proxy' unless const_defined? :START_PROXY_REQUEST_CODE
   PLAY_ACTION_REQUEST_CODE = 'play' unless const_defined? :PLAY_ACTION_REQUEST_CODE
+
+  # Human opponent names map to nil
+  def self.game_definitions
+    lcl_game_defs = Bots::STATIC_GAME_DEFINITIONS.dup
+    # Uncomment these lines to include user names in the opponent selection menu.
+    #lcl_game_defs.each do |type, prop|
+    #User.each do |user|
+    #    prop[:opponents].merge! user.name => nil
+    #  end
+    #end
+  end
 
   # @return [Array<Class>] Returns only the names that correspond to bot runner
   #   classes as those classes.

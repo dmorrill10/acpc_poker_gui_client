@@ -49,7 +49,7 @@ class TestingBot
   def send_deterministic_action(match_state)
     log __method__, "raising 1"
 
-    if match_state.first_state_of_round?
+    if match_state.first_state_of_first_round? || match_state.first_state_of_round?
       @proxy_bot.send_action AcpcPokerTypes::PokerAction.new('c')
     else
       @proxy_bot.send_action AcpcPokerTypes::PokerAction.new('r1')

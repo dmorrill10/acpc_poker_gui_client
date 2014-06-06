@@ -22,4 +22,5 @@
     = hidden_field_tag :match_state, match_view.state.to_s
     = submit_tag nil, class: update_state_html_class
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
+= render partial: 'chip_balances'
 = render partial: 'game_interface'

@@ -2,7 +2,7 @@ require 'acpc_poker_types'
 
 # General controller/view helpers for this application.
 module ApplicationHelper
-  APP_NAME = 'ACPC Poker GUI Client' unless const_defined? :APP_NAME
+  APP_NAME = 'Exhibition Match' unless const_defined? :APP_NAME
 
   NEW_MATCH_PARTIAL = 'match_start/index' unless const_defined? :NEW_MATCH_PARTIAL
   FOOTER = 'match_start/footer' unless const_defined? :FOOTER

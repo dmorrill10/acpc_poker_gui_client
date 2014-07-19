@@ -2,5 +2,4 @@
   alert("#{escape_javascript(@alert_message.html_safe)}");
 
 - content = escape_javascript(render partial: @replacement_partial)
-- @container ||= '.container'
-$('#{@container}').html('#{content}');
+$('#{@html_element}').html('#{content}');

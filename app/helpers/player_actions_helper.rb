@@ -15,7 +15,11 @@ module PlayerActionsHelper
   def replace_page_contents_with_updated_game_view(match_id)
     @match_view ||= MatchView.new(match_id)
     @partial ||= 'player_actions/index'
-    replace_page_contents @partial
+    replace_page_contents(
+      @partial,
+      nil,
+      "#{ApplicationDefs::HTML_CLASS_PREFIX}#{ApplicationDefs::POKER_VIEW_HTML_CLASS}"
+    )
   end
   def acting_player_id(player_seat)
     if (

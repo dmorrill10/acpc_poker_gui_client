@@ -55,7 +55,7 @@ module MatchStartHelper
   def wait_for_match_to_start
     respond_to do |format|
       format.js do
-        replace_page_contents wait_for_match_to_start_partial
+        replace_page_contents ApplicationDefs::WAIT_FOR_MATCH_TO_START_PARTIAL
       end
     end
   end

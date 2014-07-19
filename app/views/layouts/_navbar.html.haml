@@ -1,6 +1,6 @@
 .navbar
   .navbar-inner
-    = link_to ApplicationHelper::APP_NAME, root_url, class: 'brand'
+    = link_to ApplicationDefs::APP_NAME, root_url, class: 'brand'
     %ul.nav
       = render partial: partial if partial
       %li= help_link

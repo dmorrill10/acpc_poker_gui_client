@@ -1,11 +1,12 @@
 !!!
 %html
   %head
-    %title= ApplicationHelper::APP_NAME
+    %title= ApplicationDefs::APP_NAME
     = stylesheet_link_tag "application", media: 'all'
     = javascript_include_tag "application"
     = csrf_meta_tag
     = yield(:head)
   %body
     .container
-      = yield
+      .app
+        = yield

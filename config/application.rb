@@ -59,3 +59,5 @@ module AcpcPokerGuiClient
     RequireReloader.watch :bots
   end
 end
+
+require 'application_defs'

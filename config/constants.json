@@ -8,7 +8,7 @@
   "HELP_LINK": "http://rubydoc.info/github/dmorrill10/acpc_poker_gui_client/master/file/Help.md",
   "HELP_LINK_HTML_CLASS": "help_link",
   "HELP_LINK_HTML_CLASS": "help_link",
-  "APP_NAME": "ACPC Poker GUI",
+  "APP_NAME": "ACPC Exhibition Match",
   "CHAT_CHANNEL_PREFIX": "acpc_exhibition_match-",
   "NEW_MATCH_PARTIAL": "match_start/index",
   "FOOTER": "match_start/footer",

@@ -14,5 +14,5 @@
   "WAIT_FOR_MATCH_TO_START_PARTIAL": "match_start/wait_for_match_to_start",
   "APP_VIEW_HTML_CLASS": "app",
   "POKER_VIEW_HTML_CLASS": "poker",
-  "HTML_CLASS_PREFIX": ".",
+  "HTML_CLASS_PREFIX": "."
 }

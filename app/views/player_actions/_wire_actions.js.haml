@@ -1,6 +1,10 @@
 :javascript
-  $(".#{fold_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}"); });
-  $(".#{pass_html_class}").click(function() { return submitAction("#{AcpcPokerTypes::PokerAction::CALL}"); });
+  $(".#{fold_html_class}").click(function() {
+    return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}");
+  });
+  $(".#{pass_html_class}").click(function() {
+    return submitAction("#{AcpcPokerTypes::PokerAction::CALL}");
+  });
   $(".#{wager_html_class}").click(function() {
     var wagerAmount = wagerAmountField().val();
     var action = "#{AcpcPokerTypes::PokerAction::RAISE}"

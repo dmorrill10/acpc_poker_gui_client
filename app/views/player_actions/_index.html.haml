@@ -5,22 +5,21 @@
 = render partial: 'adjust_sizes'
 = render partial: 'initial_focus'
 
-- unless user_must_act?
-  .update_state_periodically
-    = render partial: 'update_state_periodically'
 .hidden
   = form_tag take_action_url, :remote => true do
-    = hidden_field_tag :match_id, match.id
+    = hidden_field_tag :match_slice_index, match_view.slice_index
     = hidden_field_tag :poker_action
     = submit_tag nil, class: 'take_action'
-  = form_tag update_url, :remote => true do
-    = hidden_field_tag :match_id, match.id
-    = hidden_field_tag :match_state, match_view.state.to_s
+  = form_tag force_update_url, :remote => true do
+    = hidden_field_tag :match_slice_index, match_view.slice_index
     = submit_tag nil, class: update_id
   = form_tag update_state_url, :remote => true do
-    = hidden_field_tag :match_id, match.id
-    = hidden_field_tag :match_state, match_view.state.to_s
+    = hidden_field_tag :match_slice_index, match_view.slice_index
     = submit_tag nil, class: update_state_html_class
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 = render partial: 'chip_balances'
 = render partial: 'game_interface'
+
+- unless next_hand_button_visible?
+  :javascript
+    Realtime.finishedUpdating();

@@ -41,6 +41,14 @@ module ApplicationHelper
     end
   end
 
+  def match_id(new_id=nil)
+    if new_id
+      session['match_id'] = new_id.to_s
+    else
+      session['match_id']
+    end
+  end
+
   def reset_to_match_entry_view(error_message=@alert_message)
     replace_page_contents ApplicationDefs::NEW_MATCH_PARTIAL, error_message
   end

@@ -1,11 +1,12 @@
 .action_dashboard{ class: match_view.betting_type_label }
   - if match_view.match_ended?
     .meta_action
-      = button_tag leave_match_label, disabled: waiting_for_response, data: { disable_with: leave_match_label }, class: leave_match_button_html_class
+      / @todo Does this need to be disabled?
+      = button_tag leave_match_label, data: { disable_with: leave_match_label }, class: leave_match_button_html_class
   - elsif next_hand_button_visible?
     .meta_action
       - next_hand_label = "Next Hand"
-      %button{ class: next_hand_id, disabled: waiting_for_response, data: { disable_with: next_hand_label } }= next_hand_label
+      %button{ class: next_hand_id, data: { disable_with: next_hand_label } }= next_hand_label
   - else
     .action_modification_tools
       - if match_view.no_limit?

@@ -5,3 +5,4 @@ db
 dump.rdb
 .yardoc
 doc
+realtime/node_modules

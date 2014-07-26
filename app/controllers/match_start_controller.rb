@@ -43,9 +43,16 @@ class MatchStartController < ApplicationController
       end
     )
 
+    match_id(@match.id)
+
+    connect_client_with_background_server
+  end
+
+  # @todo Generalize to any request code and use with join
+  def start
     TableManager.perform_async(
       ApplicationDefs::START_MATCH_REQUEST_CODE,
-      @match.id.to_s,
+      session['match_id'],
       options: [
         '-a', # Append logs with the same name rather than overwrite
         "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
@@ -87,6 +94,8 @@ class MatchStartController < ApplicationController
         @match.opponent_names.delete_at(seat - 1)
         @match.save!(validate: false)
 
+        match_id(@match.id)
+
         TableManager.perform_async(
           ApplicationDefs::START_PROXY_REQUEST_CODE,
           @match.id.to_s
@@ -107,14 +116,11 @@ class MatchStartController < ApplicationController
       error? do
         @match = Match.where(name: match_name, seat: seat).first
         raise unless @match
+
+        match_id(@match.id)
       end
     )
 
-    wait_for_match_to_start
-  end
-
-  def poll
-    @match = Match.find params[:match_id]
     wait_for_match_to_start
   end
 end

@@ -1,22 +1,4 @@
 .poker
-  :javascript
-    function startMatch() {
-      return $("##{hidden_begin_match}").submit();
-    };
-    var timerId;
-    if (timerId) {
-      clearInterval(timerId);
-    }
-    function poll() {
-      return $("##{hidden_poll}").submit();
-    };
-  - if match.slices.empty?
-    :javascript
-      timerId = setInterval(poll, 250);
-  - else
-    :javascript
-      startMatch();
-
   = render partial: "layouts/navbar", locals: { partial: nil }
   .loading
     .hero-unit
@@ -24,7 +6,5 @@
       .header-info This could take a minute or two...
       .header-info Please do not reload the page.
       %h5 If the table does not appear in ten minutes (after all human players have connected), please log an issue <a href='#{ApplicationDefs::ISSUE_TRACKER}' target='#'>here</a> detailing your exact situation (date and time, system and browser, match setup, and your observations).
-    .hidden= hidden_begin_match_form(match.id)
-    .hidden= hidden_match_start_poll_form(match.id)
-
+    .hidden= hidden_begin_match_form
     = render partial: ApplicationDefs::FOOTER

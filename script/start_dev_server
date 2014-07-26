@@ -17,5 +17,9 @@ fi
 bundle exec sidekiq -r $project_root -L $project_root/log/sidekiq.log &
 kill_string="$kill_string $!"
 
+cd realtime
+node . &
+kill_string="$kill_string $!"
+
 trap "$kill_string" SIGINT SIGTERM
 bundle exec rails s

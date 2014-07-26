@@ -1,5 +1,4 @@
 module MatchStartHelper
-  def hidden_match_id() 'hidden_id' end
   def hidden_match_name() 'hidden_name' end
   def hidden_game_def_file_name() 'hidden_game_def_file_name' end
   def hidden_num_hands() 'hidden_num_hands' end
@@ -7,8 +6,7 @@ module MatchStartHelper
   def hidden_rand_seed() 'hidden_rand_seed' end
   def hidden_submit() 'hidden_submit' end
   def hidden_start_opponents() 'hidden_start_opponents' end
-  def hidden_begin_match() 'hidden-begin_match' end
-  def hidden_poll() 'hidden-poll' end
+  def hidden_start_match() 'hidden-start_match' end
 
   # Renders a +JavaScript+ template that sends parameters to
   # +PlayerActionsController+ so that it can connect to an
@@ -19,19 +17,24 @@ module MatchStartHelper
 
   # Hidden form, within which game parameters may be placed that can be
   # submitted to the +PlayerActionsController+.
-  def hidden_begin_match_form(match_id)
+  def hidden_begin_match_form
     form_tag match_home_url, :remote => true do
-      form = hidden_field_tag(:match_id, match_id, :id => hidden_match_id)
-
-      form << submit_tag('', :id => hidden_begin_match, style: 'visibility: hidden')
+      form = submit_tag(
+        '',
+        class: ApplicationDefs::HIDDEN_UPDATE_MATCH_HTML_CLASS,
+        style: 'visibility: hidden'
+      )
     end
   end
 
-  def hidden_match_start_poll_form(match_id)
-    form_tag match_start_poll_url, :remote => true do
-      form = hidden_field_tag(:match_id, match_id, :id => hidden_match_id)
-
-      form << submit_tag('', :id => hidden_poll, style: 'visibility: hidden')
+  # @todo Make this pure JS form?
+  def hidden_start_match_form
+    form_tag start_match_url, :remote => true do
+      form = submit_tag(
+        '',
+        id: hidden_start_match,
+        style: 'visibility: hidden'
+      )
     end
   end
 
@@ -52,6 +55,15 @@ module MatchStartHelper
     end
     match_params[:opponent_names]
   end
+
+  def connect_client_with_background_server
+    respond_to do |format|
+      format.js do
+        replace_page_contents ApplicationDefs::CONNECT_CLIENT_WITH_BACKGROUND_SERVER_PARTIAL
+      end
+    end
+  end
+
   def wait_for_match_to_start
     respond_to do |format|
       format.js do

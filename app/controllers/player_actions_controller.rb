@@ -14,21 +14,12 @@ class PlayerActionsController < ApplicationController
   include ApplicationHelper
   include PlayerActionsHelper
 
-  before_filter :log_session
-
-  def log_session
-    Rails.logger.ap session: session
-  end
-
   def index
     return reset_to_match_entry_view(
       "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        session['waiting_for_response'] = false
-        Rails.logger.ap waiting_for_response: session['waiting_for_response']
-
-        replace_page_contents_with_updated_game_view params[:match_id]
+        replace_page_contents_with_updated_game_view 0
       end
     )
   end
@@ -38,98 +29,54 @@ class PlayerActionsController < ApplicationController
       "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        # Initialize the match view so that the app is guaranteed to not update before showing the
-        # table.
-        @match_view = MatchView.new params[:match_id]
         TableManager.perform_async(
           ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
-          params[:match_id],
+          session['match_id'],
           action: params[:poker_action]
         )
-        session['waiting_for_response'] = true
-
-        replace_page_contents_with_updated_game_view(params[:match_id])
       end
     )
+
+    render nothing: true
   end
 
   def update_state
     return reset_to_match_entry_view(
-      "Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}."
+      "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        @match_view = MatchView.new params[:match_id]
+        @match_view = MatchView.new match_id, params[:match_slice_index].to_i
 
         Rails.logger.ap hand_ended: @match_view.hand_ended?
 
-        return update unless @match_view.hand_ended?
+        return (
+          if @match_view.hand_ended?
+            replace_page_contents_with_updated_game_view
+          else
+            force_update
+          end
+        )
       end
     )
-    Rails.logger.ap action: 'update_state', waiting_for_response: session['waiting_for_response']
-
-    if params[:match_state] == @match_view.state.to_s
-      @container = '.update_state_periodically'
-      @partial = 'player_actions/update_state_periodically'
-      return replace_page_contents_with_updated_game_view(params[:match_id])
-    end
-    replace_page_contents_with_updated_game_view(params[:match_id])
   end
 
-  def update
-    deleted_slice = nil
-
+  def force_update
     return reset_to_match_entry_view(
-      "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
+      "Sorry, there was a problem continuing match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        @match_view = MatchView.new params[:match_id]
+        @match_view ||= MatchView.new match_id, params[:match_slice_index].to_i
+        @match_view.next_slice!
 
-        # Abort the update if there's only one slice
-        if @match_view.match.slices.length < 2
-
-          if @match_view.hand_ended?
-            # To ensure that we can't try to click 'Next Hand' again.
-            session['waiting_for_response'] = true
-            return replace_page_contents_with_updated_game_view(params[:match_id])
-          end
-
-          Rails.logger.ap action: 'update', param_ms: params[:match_state], view_ms: @match_view.state.to_s, equal_ms: params[:match_state] == @match_view.state.to_s
-
-          if params[:match_state] == @match_view.state.to_s
-            @container = '.update_state_periodically'
-            @partial = 'player_actions/update_state_periodically'
-            return replace_page_contents_with_updated_game_view(params[:match_id])
-          end
-          return replace_page_contents_with_updated_game_view(params[:match_id])
-        end
-
-        # Delete the first slice in the list since it's no longer needed
-        deleted_slice = @match_view.match.slices.first
-        deleted_slice.delete
-      end
-    )
-
-    if (
-      error? do
-        session['waiting_for_response'] = false
-        replace_page_contents_with_updated_game_view(params[:match_id])
-      end
-    )
-      begin
-        @match_view.match.slices << deleted_slice if @match_view.match.slices.empty?
-        @match_view.match.save!
-      rescue => e
-        # If the match can't be retrieved or saved then
-        # it can't be resumed anyway, so nothing
-        # special to do here.
-        log_error e
-      end
-      return(
-        reset_to_match_entry_view(
-          "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
+        Rails.logger.ap(
+          action: 'force_update',
+          match_slice_index_to_be_rendered: @match_view.slice_index,
+          view_ms: @match_view.state.to_s
         )
-      )
-    end
+
+        return replace_page_contents_with_updated_game_view
+      end
+    )
   end
 
   def update_hotkeys

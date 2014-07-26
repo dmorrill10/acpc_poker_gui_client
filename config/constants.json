@@ -12,7 +12,14 @@
   "FOOTER": "match_start/footer",
   "REPLACE_CONTENTS_JS": "shared/replace_content",
   "WAIT_FOR_MATCH_TO_START_PARTIAL": "match_start/wait_for_match_to_start",
+  "CONNECT_CLIENT_WITH_BACKGROUND_SERVER_PARTIAL": "match_start/connect_client_with_background_server",
   "APP_VIEW_HTML_CLASS": "app",
   "POKER_VIEW_HTML_CLASS": "poker",
-  "HTML_CLASS_PREFIX": "."
+  "HTML_CLASS_PREFIX": ".",
+  "REALTIME_SERVER_PORT": 5001,
+  "REALTIME_CHANNEL": "table-manager-update",
+  "MESSAGE_SERVER_PORT": 6379,
+  "PLAYER_ACTION_CHANNEL_PREFIX": "player-action-in-",
+  "PLAYER_COMMENT_CHANNEL_PREFIX": "player-comment-in-",
+  "HIDDEN_UPDATE_MATCH_HTML_CLASS": "hidden-update_match"
 }

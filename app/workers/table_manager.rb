@@ -24,6 +24,15 @@ require_relative '../../lib/application_defs'
 require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
+# To push notifications back to the browser
+require 'redis'
+
+THIS_MACHINE = Socket.gethostname
+
+$message_server = Redis.new(
+  host: THIS_MACHINE,
+  port: ApplicationDefs::MESSAGE_SERVER_PORT
+)
 
 class TableManager
   include WorkerHelpers
@@ -33,7 +42,7 @@ class TableManager
 
   sidekiq_options retry: false, backtrace: true
 
-  DEALER_HOST = Socket.gethostname
+  DEALER_HOST = THIS_MACHINE
 
   @@table_information ||= {}
 
@@ -62,7 +71,7 @@ class TableManager
       refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
       refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
     end
-    
+
     log __method__, table_information_length: @@table_information.length, request: request, match_id: match_id, params: params
 
     begin
@@ -196,6 +205,13 @@ class TableManager
         match_id: match.id,
         at_least_one_state: !players_at_the_table.match_state.nil?
       }
+
+      $message_server.publish(
+        ApplicationDefs::REALTIME_CHANNEL,
+        {
+          channel: "#{ApplicationDefs::PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+        }.to_json
+      )
     end
 
     log "#{__method__}: After starting proxy", {
@@ -231,7 +247,14 @@ class TableManager
       num_tables: @@table_information.length
     }
 
-    proxy.play!(action)
+    proxy.play!(action) do |players_at_the_table|
+      $message_server.publish(
+        ApplicationDefs::REALTIME_CHANNEL,
+        {
+          channel: "#{ApplicationDefs::PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+        }.to_json
+      )
+    end
 
     if proxy.match_ended?
       log __method__, msg: "Deleting background processes with match ID #{match.id}"

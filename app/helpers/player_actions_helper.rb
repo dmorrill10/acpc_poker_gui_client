@@ -12,8 +12,8 @@ module PlayerActionsHelper
   include AcpcPokerTypes
 
   # Replaces the page contents with an updated game view
-  def replace_page_contents_with_updated_game_view(match_id)
-    @match_view ||= MatchView.new(match_id)
+  def replace_page_contents_with_updated_game_view(slice_index=nil)
+    @match_view ||= MatchView.new(session['match_id'], slice_index)
     @partial ||= 'player_actions/index'
     replace_page_contents(
       @partial,
@@ -31,16 +31,9 @@ module PlayerActionsHelper
       'not_acting_player'
     end
   end
+
   def user_must_act?
-    (
-      !waiting_for_response && (
-        (
-          @match_view.users_turn_to_act? &&
-          @match_view.match.slices.length == 1
-        ) ||
-        @match_view.hand_ended?
-      )
-    )
+    @match_view.users_turn_to_act? || @match_view.hand_ended?
   end
   def next_hand_button_visible?
     !@match_view.match_ended? && @match_view.hand_ended?
@@ -72,9 +65,12 @@ module PlayerActionsHelper
   def fold_html_class() 'fold' end
   def pass_html_class() 'pass' end
   def wager_html_class() 'wager' end
+
+  # @todo The naming for these two properties are so confusing
   def next_hand_id() 'next_state' end
-  def update_id() 'update' end
-  def update_state_html_class() 'update_state' end
+  def update_id() 'next_hand' end
+
+  def update_state_html_class() ApplicationDefs::HIDDEN_UPDATE_MATCH_HTML_CLASS end
   def update_hotkeys_html_class() 'update_hotkeys' end
   def leave_match_button_html_class() 'leave-btn' end
   def nav_leave_html_class() 'leave' end
@@ -100,9 +96,6 @@ module PlayerActionsHelper
   def no_change?(action_label, new_key)
     old_hotkey = user.hotkeys.where(action: action_label).first
     old_hotkey && old_hotkey.key == new_key
-  end
-  def waiting_for_response
-    session['waiting_for_response']
   end
 
   def wager_disabled_when

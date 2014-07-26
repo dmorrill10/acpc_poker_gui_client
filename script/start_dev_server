@@ -21,5 +21,7 @@ cd realtime
 node . &
 kill_string="$kill_string $!"
 
+cd ..
+
 trap "$kill_string" SIGINT SIGTERM
 bundle exec rails s

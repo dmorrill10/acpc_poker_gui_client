@@ -6,10 +6,6 @@
 = render partial: 'initial_focus'
 
 .hidden
-  = form_tag take_action_url, :remote => true do
-    = hidden_field_tag :match_slice_index, match_view.slice_index
-    = hidden_field_tag :poker_action
-    = submit_tag nil, class: 'take_action'
   = form_tag force_update_url, :remote => true do
     = hidden_field_tag :match_slice_index, match_view.slice_index
     = submit_tag nil, class: update_id

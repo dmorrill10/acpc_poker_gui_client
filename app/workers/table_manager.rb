@@ -66,11 +66,16 @@ class TableManager
     ).with_metadata!
   end
 
-  def perform(request, match_id, params=nil)
-    if request == ApplicationDefs::START_MATCH_REQUEST_CODE
+  def perform(request, params)
+    case request
+    when ApplicationDefs::START_MATCH_REQUEST_CODE
       refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
       refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
+    when ApplicationDefs::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
+      return Match.delete_irrelevant_matches!
     end
+
+    match_id = params['match_id']
 
     log __method__, table_information_length: @@table_information.length, request: request, match_id: match_id, params: params
 

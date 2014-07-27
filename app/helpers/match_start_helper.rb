@@ -56,14 +56,6 @@ module MatchStartHelper
     match_params[:opponent_names]
   end
 
-  def connect_client_with_background_server
-    respond_to do |format|
-      format.js do
-        replace_page_contents ApplicationDefs::CONNECT_CLIENT_WITH_BACKGROUND_SERVER_PARTIAL
-      end
-    end
-  end
-
   def wait_for_match_to_start
     respond_to do |format|
       format.js do

@@ -26,40 +26,27 @@ class MatchView < SimpleDelegator
   def user_contributions_in_previous_rounds
     self.class.chip_contributions_in_previous_rounds(user, state.round)
   end
-  def state
-    @state ||= MatchState.parse slice.state_string
-  end
-  def slice
-    # Don't cache this since @slice_index can change after initialization
-    @slice = @match.slices[@slice_index]
-  end
-  def next_slice!
+  def state() @state ||= MatchState.parse slice.state_string end
+  def slice() slices[@slice_index] end
+  def next_slice!()
     @slice_index += 1
+    while @slice_index >= slices.length do
+      sleep(0.1)
+      @match = Match.find(@match.id)
+      __setobj__ @match
+    end
   end
   # zero indexed
-  def users_seat
-    @users_seat ||= @match.seat - 1
-  end
-  def betting_sequence
-    @betting_sequence ||= slice.betting_sequence
-  end
-  def pot_at_start_of_round
-    @pot_at_start_of_round ||= slice.pot_at_start_of_round
-  end
-  def hand_ended?
-    @hand_has_ended = slice.hand_ended? if @hand_has_ended.nil?
-    @hand_has_ended
-  end
-  def match_ended?
-    @match_has_ended = slice.match_ended? if @match_has_ended.nil?
-    @match_has_ended
-  end
-  def users_turn_to_act?
-    @is_users_turn_to_act = slice.users_turn_to_act? if @is_users_turn_to_act.nil?
-    @is_users_turn_to_act
-  end
+  def users_seat() @users_seat ||= @match.seat - 1 end
+  def betting_sequence() slice.betting_sequence end
+  def pot_at_start_of_round() slice.pot_at_start_of_round end
+  def hand_ended?() slice.hand_ended? end
+  def match_ended?() slice.match_ended? end
+  def users_turn_to_act?() slice.users_turn_to_act? end
   def legal_actions
-    @legal_actions ||= slice.legal_actions.map { |action| AcpcPokerTypes::PokerAction.new(action) }
+    slice.legal_actions.map do |action|
+      AcpcPokerTypes::PokerAction.new(action)
+    end
   end
 
   # @return [Array<Hash>] Player information ordered by seat.

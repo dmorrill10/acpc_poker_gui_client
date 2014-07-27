@@ -1,4 +1,10 @@
 :javascript
+  function nextHand() {
+    return $(".#{update_id}").submit();
+  };
+  function submitAction(action) {
+    return Realtime.playAction(action);
+  };
   $(".#{fold_html_class}").click(function() {
     return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}");
   });

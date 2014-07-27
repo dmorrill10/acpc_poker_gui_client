@@ -1,3 +1,24 @@
+:javascript
+  Realtime.listenToPlayerAction("#{match_id}");
+- case @request_code
+- when ApplicationDefs::START_MATCH_REQUEST_CODE
+  :javascript
+    Realtime.startMatch(
+      [
+        '-a', // Append logs with the same name rather than overwrite
+        "--t_response #{ApplicationDefs::DEALER_MILLISECOND_TIMEOUT}",
+        '--t_hand -1',
+        '--t_per_hand -1'
+      ].join(' '),
+      "#{ApplicationDefs::MATCH_LOG_DIRECTORY}"
+    );
+- when ApplicationDefs::START_PROXY_REQUEST_CODE
+  :javascript
+    Realtime.startProxy();
+- else
+  :javascript
+    Realtime.updateState();
+
 .poker
   = render partial: "layouts/navbar", locals: { partial: nil }
   .loading

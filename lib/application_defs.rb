@@ -43,5 +43,12 @@ module ApplicationDefs
     random_float = rand
     random_int = (random_float * 10**random_float.to_s.length).to_i
   end
+
+  def self.to_json
+    constants.inject({}) do |hash, c|
+      hash[c] = const_get(c)
+      hash
+    end.to_json
+  end
 end
 

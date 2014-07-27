@@ -24,22 +24,6 @@ class PlayerActionsController < ApplicationController
     )
   end
 
-  def take_action
-    return reset_to_match_entry_view(
-      "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
-    ) if (
-      error? do
-        TableManager.perform_async(
-          ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
-          session['match_id'],
-          action: params[:poker_action]
-        )
-      end
-    )
-
-    render nothing: true
-  end
-
   def update_state
     return reset_to_match_entry_view(
       "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
@@ -66,6 +50,13 @@ class PlayerActionsController < ApplicationController
     ) if (
       error? do
         @match_view ||= MatchView.new match_id, params[:match_slice_index].to_i
+
+        Rails.logger.ap(
+          action: 'force_update',
+          old_match_slice_index: @match_view.slice_index,
+          num_slices: @match_view.slices.length
+        )
+
         @match_view.next_slice!
 
         Rails.logger.ap(

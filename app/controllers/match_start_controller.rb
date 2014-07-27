@@ -17,8 +17,6 @@ class MatchStartController < ApplicationController
 
   # Presents the main 'start a new game' view.
   def index
-    Match.delete_irrelevant_matches!
-
     unless user_initialized?
       @alert_message = "Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}"
     end
@@ -44,23 +42,7 @@ class MatchStartController < ApplicationController
     )
 
     match_id(@match.id)
-
-    connect_client_with_background_server
-  end
-
-  # @todo Generalize to any request code and use with join
-  def start
-    TableManager.perform_async(
-      ApplicationDefs::START_MATCH_REQUEST_CODE,
-      session['match_id'],
-      options: [
-        '-a', # Append logs with the same name rather than overwrite
-        "--t_response #{DEALER_MILLISECOND_TIMEOUT}",
-        '--t_hand -1',
-        '--t_per_hand -1'
-      ].join(' '),
-      log_directory: MATCH_LOG_DIRECTORY
-    )
+    @request_code = ApplicationDefs::START_MATCH_REQUEST_CODE
 
     wait_for_match_to_start
   end
@@ -93,15 +75,11 @@ class MatchStartController < ApplicationController
         )
         @match.opponent_names.delete_at(seat - 1)
         @match.save!(validate: false)
-
-        match_id(@match.id)
-
-        TableManager.perform_async(
-          ApplicationDefs::START_PROXY_REQUEST_CODE,
-          @match.id.to_s
-        )
       end
     )
+
+    match_id(@match.id)
+    @request_code = ApplicationDefs::START_PROXY_REQUEST_CODE
 
     wait_for_match_to_start
   end
@@ -116,10 +94,10 @@ class MatchStartController < ApplicationController
       error? do
         @match = Match.where(name: match_name, seat: seat).first
         raise unless @match
-
-        match_id(@match.id)
       end
     )
+
+    match_id(@match.id)
 
     wait_for_match_to_start
   end

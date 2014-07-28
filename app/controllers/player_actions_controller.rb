@@ -29,7 +29,7 @@ class PlayerActionsController < ApplicationController
       "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        @match_view = MatchView.new match_id, params[:match_slice_index].to_i
+        @match_view = MatchView.new match_id, match_slice_index
 
         Rails.logger.ap hand_ended: @match_view.hand_ended?
 
@@ -49,7 +49,7 @@ class PlayerActionsController < ApplicationController
       "Sorry, there was a problem continuing match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        @match_view ||= MatchView.new match_id, params[:match_slice_index].to_i
+        @match_view ||= MatchView.new match_id, match_slice_index
 
         Rails.logger.ap(
           action: 'force_update',
@@ -75,7 +75,10 @@ class PlayerActionsController < ApplicationController
       "Sorry, there was a problem saving hotkeys, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        conflicting_hotkeys = []
+        Rails.logger.ap(
+          action: 'update_hotkeys',
+          params: params
+        )
 
         hotkey_hash = params[hotkeys_param_key]
         params[custom_hotkeys_amount_param_key].zip(
@@ -83,50 +86,29 @@ class PlayerActionsController < ApplicationController
         ).each do |amount, key|
           hotkey_hash[Hotkey.wager_hotkey_label(amount.to_f)] = key
         end
-        hotkey_hash.each do |action_label, new_key|
-          if new_key.blank?
-            # Delete custom hotkeys that have been left blank
-            user.hotkeys.where(action: action_label).delete unless Hotkey::DEFAULT_HOTKEYS.include?(action_label)
-            next
-          end
-          next if action_label.blank?
-          new_key = new_key.strip.capitalize
-          next if no_change?(action_label, new_key)
 
-          conflicted_hotkey = user.hotkeys.select { |hotkey| hotkey.key == new_key }.first
-          if conflicted_hotkey
-            conflicted_label = conflicted_hotkey.action
-            if conflicted_label
-              conflicting_hotkeys << { key: new_key, current_label: conflicted_label, new_label: action_label }
-              next
-            end
-          end
-
-          previous_hotkey = user.hotkeys.where(action: action_label).first
-          if previous_hotkey
-            previous_hotkey.key = new_key
-            previous_hotkey.save!
-          else
-            user.hotkeys.create! action: action_label, key: new_key
-          end
+        begin
+          user.update_hotkeys! hotkey_hash
+        rescue User::ConflictingHotkeys => e
+          @alert_message = "Sorry, the following hotkeys conflicted and were not saved: \n" << e.message << "\n"
         end
-        user.save!
 
-        unless conflicting_hotkeys.empty?
-          @alert_message = "Sorry, the following hotkeys conflicted and were not saved: \n" <<
-            conflicting_hotkeys.map do |conflict|
-              "    - You tried to set '#{conflict[:new_label]}' to '#{conflict[:key]}' when it was already mapped to '#{conflict[:current_label]}'\n"
-            end.join
-        end
-        return replace_page_contents_with_updated_game_view(params[:match_id])
+        Rails.logger.ap(
+          action: 'update_hotkeys',
+          alert_message: @alert_message
+        )
+
+        return replace_page_contents_with_updated_game_view
       end
     )
-    render nothing: true
+    reset_to_match_entry_view
   end
 
   def reset_hotkeys
+    Rails.logger.ap(action: 'reset_hotkeys')
+
     user.reset_hotkeys!
-    return replace_page_contents_with_updated_game_view(params[:match_id])
+    return replace_page_contents_with_updated_game_view
   end
 
   def leave_match

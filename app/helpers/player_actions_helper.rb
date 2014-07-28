@@ -11,13 +11,18 @@ module PlayerActionsHelper
   include ApplicationHelper
   include AcpcPokerTypes
 
+  def stale_slice?
+    match_slice_index < (match_view.slices.length - 1)
+  end
+
   # Replaces the page contents with an updated game view
-  def replace_page_contents_with_updated_game_view(slice_index=nil)
-    @match_view ||= MatchView.new(session['match_id'], slice_index)
+  def replace_page_contents_with_updated_game_view(slice_index=match_slice_index)
+    @match_view ||= MatchView.new(match_id, slice_index)
+    match_slice_index(@match_view.slice_index)
     @partial ||= 'player_actions/index'
     replace_page_contents(
       @partial,
-      nil,
+      @alert_message,
       "#{ApplicationDefs::HTML_CLASS_PREFIX}#{ApplicationDefs::POKER_VIEW_HTML_CLASS}"
     )
   end
@@ -92,10 +97,6 @@ module PlayerActionsHelper
   end
   def custom_hotkeys_keys_param_key
     'custom_hotkeys_key'
-  end
-  def no_change?(action_label, new_key)
-    old_hotkey = user.hotkeys.where(action: action_label).first
-    old_hotkey && old_hotkey.key == new_key
   end
 
   def wager_disabled_when

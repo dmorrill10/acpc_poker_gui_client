@@ -13,14 +13,21 @@ root.Realtime =
     @numUpdatesInQueue = 0
     # @todo Port number is defined in constants.json
     @socket = io.connect('http://0.0.0.0:5001');
-  forceUpdateState: ()-> $(".hidden-update_match").submit()
+  forceUpdateState: ()->
+    @numUpdatesInQueue -= 1 if @numUpdatesInQueue > 0
+    $(".hidden-update_match").submit()
   updateState: ()->
     return @numUpdatesInQueue += 1 if @numUpdatesInQueue > 0
     @forceUpdateState()
     @numUpdatesInQueue += 1
   finishedUpdating: ()->
+    return false unless @numUpdatesInQueue > 0
     @numUpdatesInQueue -= 1
-    @forceUpdateState() if @numUpdatesInQueue > 0
+    if @numUpdatesInQueue > 0
+      @forceUpdateState()
+      true
+    else
+      false
   listenToPlayerAction: (matchId)->
     @matchId = matchId
     @onPlayerAction = (message)-> Realtime.updateState()

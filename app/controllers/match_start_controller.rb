@@ -38,13 +38,13 @@ class MatchStartController < ApplicationController
     ) if (
       error? do
         @match = Match.new(params[:match].merge(user_name: user_name)).finish_starting!
+
+        match_id(@match.id)
+        @request_code = ApplicationDefs::START_MATCH_REQUEST_CODE
+
+        wait_for_match_to_start
       end
     )
-
-    match_id(@match.id)
-    @request_code = ApplicationDefs::START_MATCH_REQUEST_CODE
-
-    wait_for_match_to_start
   end
 
   def join
@@ -75,13 +75,13 @@ class MatchStartController < ApplicationController
         )
         @match.opponent_names.delete_at(seat - 1)
         @match.save!(validate: false)
+
+        match_id(@match.id)
+        @request_code = ApplicationDefs::START_PROXY_REQUEST_CODE
+
+        wait_for_match_to_start
       end
     )
-
-    match_id(@match.id)
-    @request_code = ApplicationDefs::START_PROXY_REQUEST_CODE
-
-    wait_for_match_to_start
   end
 
   def rejoin
@@ -94,11 +94,11 @@ class MatchStartController < ApplicationController
       error? do
         @match = Match.where(name: match_name, seat: seat).first
         raise unless @match
+
+        match_id(@match.id)
+
+        wait_for_match_to_start
       end
     )
-
-    match_id(@match.id)
-
-    wait_for_match_to_start
   end
 end

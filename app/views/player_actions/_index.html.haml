@@ -7,15 +7,19 @@
 
 .hidden
   = form_tag force_update_url, :remote => true do
-    = hidden_field_tag :match_slice_index, match_view.slice_index
     = submit_tag nil, class: update_id
   = form_tag update_state_url, :remote => true do
-    = hidden_field_tag :match_slice_index, match_view.slice_index
     = submit_tag nil, class: update_state_html_class
 = render partial: 'layouts/navbar', locals: {partial: 'navbar'}
 = render partial: 'chip_balances'
 = render partial: 'game_interface'
 
 - unless next_hand_button_visible?
-  :javascript
-    Realtime.finishedUpdating();
+  - if stale_slice?
+    :javascript
+      if (!Realtime.finishedUpdating()) {
+        Realtime.forceUpdateState();
+      }
+  - else
+    :javascript
+      Realtime.finishedUpdating();

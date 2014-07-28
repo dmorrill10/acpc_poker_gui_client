@@ -49,6 +49,14 @@ module ApplicationHelper
     end
   end
 
+  def match_slice_index(new_index=nil)
+    if new_index
+      session['match_slice_index'] = new_index.to_i
+    else
+      session['match_slice_index']
+    end
+  end
+
   def reset_to_match_entry_view(error_message=@alert_message)
     replace_page_contents ApplicationDefs::NEW_MATCH_PARTIAL, error_message
   end

@@ -19,21 +19,26 @@ class MatchView < SimpleDelegator
 
   def initialize(match_id, slice_index=nil)
     @match = Match.find(match_id)
-    @slice_index = slice_index || [@match.slices.length - 1, 0].max
-
     super @match
+
+    @slice_index = (slice_index.to_i || @match.slices.length) - 1
+    next_slice!
   end
   def user_contributions_in_previous_rounds
     self.class.chip_contributions_in_previous_rounds(user, state.round)
   end
   def state() @state ||= MatchState.parse slice.state_string end
   def slice() slices[@slice_index] end
-  def next_slice!()
+  def next_slice!
     @slice_index += 1
+    max_retries = 100
+    retries = 0
     while @slice_index >= slices.length do
       sleep(0.1)
       @match = Match.find(@match.id)
       __setobj__ @match
+      raise "Unable to find next match slice after #{retries} retries" if retries >= max_retries
+      retries += 1
     end
   end
   # zero indexed

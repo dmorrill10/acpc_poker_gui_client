@@ -27,35 +27,28 @@ using SimpleLogging::MessageFormatting
 # To push notifications back to the browser
 require 'redis'
 
-THIS_MACHINE = Socket.gethostname
-
-$message_server = Redis.new(
-  host: THIS_MACHINE,
-  port: ApplicationDefs::MESSAGE_SERVER_PORT
-)
-
 class TableManager
   include WorkerHelpers
   include AcpcPokerTypes
+
   include Sidekiq::Worker
+  sidekiq_options retry: false, backtrace: true
+
   include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
 
-  sidekiq_options retry: false, backtrace: true
+  THIS_MACHINE = Socket.gethostname
 
   DEALER_HOST = THIS_MACHINE
 
-  @@table_information ||= {}
+  CONSTANTS_FILE = File.expand_path('../table_manager.json', __FILE__)
 
-  # @todo Poorly named arguments
-  def refresh_module(mod, mod_file, mode_file_base)
-    if Object.const_defined?(mod)
-      Object.send(:remove_const, mod)
-    end
-    $".delete_if {|s| s.include?(mode_file_base) }
-    load mod_file
-
-    log __method__, msg: "RELOADED #{mod}"
+  JSON.parse(
+    ApplicationDefs.read_constants(CONSTANTS_FILE)
+  ).each do |constant, val|
+    TableManager.const_set(constant, val) unless const_defined? constant
   end
+
+  MATCH_LOG_DIRECTORY = File.join(ApplicationDefs::LOG_DIRECTORY, 'match_logs')
 
   def initialize
     @logger = Logger.from_file_name(
@@ -64,25 +57,38 @@ class TableManager
         'table_manager.log'
       )
     ).with_metadata!
+    @@table_information ||= {}
+    @message_server = Redis.new(
+      host: THIS_MACHINE,
+      port: @message_server_PORT
+    )
   end
 
-  def perform(request, params)
+  def refresh_module(module_constant, module_file, mode_file_base)
+    if Object.const_defined?(module_constant)
+      Object.send(:remove_const, module_constant)
+    end
+    $".delete_if {|s| s.include?(mode_file_base) }
+    load module_file
+
+    log __method__, msg: "RELOADED #{module_constant}"
+  end
+
+  def perform(request, match_id, params)
+    log __method__, table_information_length: @@table_information.length, request: request, match_id: match_id, params: params
+
     case request
-    when ApplicationDefs::START_MATCH_REQUEST_CODE
+    when START_MATCH_REQUEST_CODE
       refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
       refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
-    when ApplicationDefs::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
+    when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
       return Match.delete_irrelevant_matches!
     end
-
-    match_id = params['match_id']
-
-    log __method__, table_information_length: @@table_information.length, request: request, match_id: match_id, params: params
 
     begin
       ->(&block) { block.call match_instance(match_id) }.call do |match|
         case request
-        when ApplicationDefs::START_MATCH_REQUEST_CODE
+        when START_MATCH_REQUEST_CODE
           start_dealer!(params, match)
 
           opponents = []
@@ -91,12 +97,12 @@ class TableManager
           end
 
           start_opponents!(opponents).start_proxy!(match)
-        when ApplicationDefs::START_PROXY_REQUEST_CODE
+        when START_PROXY_REQUEST_CODE
           start_proxy! match
-        when ApplicationDefs::PLAY_ACTION_REQUEST_CODE
+        when PLAY_ACTION_REQUEST_CODE
           play! params, match
         else
-          log __method__, message: "Unrecognized request", request: params[ApplicationDefs::REQUEST_KEY]
+          log __method__, message: "Unrecognized request", request: request
         end
       end
     rescue => e
@@ -124,14 +130,12 @@ class TableManager
       player_names: match.player_names.map { |name| "\"#{name}\"" }.join(' '),
       options: (params['options'] || {})
     }
-    log_directory = params['log_directory']
-
     match_processes = @@table_information[match.id] || {}
 
     log __method__, {
       match_id: match.id,
       dealer_arguments: dealer_arguments,
-      log_directory: log_directory,
+      log_directory: MATCH_LOG_DIRECTORY,
       num_tables: @@table_information.length
     }
 
@@ -142,7 +146,7 @@ class TableManager
     # Start the dealer
     dealer_information = AcpcDealer::DealerRunner.start(
       dealer_arguments,
-      log_directory
+      MATCH_LOG_DIRECTORY
     )
     match_processes[:dealer] = dealer_information
     @@table_information[match.id] = match_processes
@@ -211,10 +215,10 @@ class TableManager
         at_least_one_state: !players_at_the_table.match_state.nil?
       }
 
-      $message_server.publish(
-        ApplicationDefs::REALTIME_CHANNEL,
+      @message_server.publish(
+        REALTIME_CHANNEL,
         {
-          channel: "#{ApplicationDefs::PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+          channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
         }.to_json
       )
     end
@@ -253,10 +257,10 @@ class TableManager
     }
 
     proxy.play!(action) do |players_at_the_table|
-      $message_server.publish(
-        ApplicationDefs::REALTIME_CHANNEL,
+      @message_server.publish(
+        REALTIME_CHANNEL,
         {
-          channel: "#{ApplicationDefs::PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+          channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
         }.to_json
       )
     end

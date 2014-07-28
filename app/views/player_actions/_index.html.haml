@@ -1,18 +1,6 @@
-- if match_view.no_limit?
-  = render partial: 'no_limit_wager_tools'
-= render partial: 'helpers'
-= render partial: 'wire_actions'
-= render partial: 'adjust_sizes'
-= render partial: 'initial_focus'
-
-.hidden
-  = form_tag force_update_url, :remote => true do
-    = submit_tag nil, class: update_id
-  = form_tag update_state_url, :remote => true do
-    = submit_tag nil, class: update_state_html_class
-= render partial: 'layouts/navbar', locals: {partial: 'navbar'}
-= render partial: 'chip_balances'
-= render partial: 'game_interface'
+= render partial: game_interface_partial('index')
+= render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
+= render partial: hud_partial('index')
 
 - unless next_hand_button_visible?
   - if stale_slice?

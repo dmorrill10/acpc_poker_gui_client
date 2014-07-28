@@ -1,17 +1,17 @@
 :javascript
   function nextHand() {
-    return $(".#{update_id}").submit();
+    return Realtime.controllerAction("#{update_match_url}");
   };
   function submitAction(action) {
-    return Realtime.playAction(action);
+    return Realtime.playAction("#{play_action_url}", action);
   };
-  $(".#{fold_html_class}").click(function() {
+  $(".#{PlayerActionsHelper::FOLD_HTML_CLASS}").click(function() {
     return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}");
   });
-  $(".#{pass_html_class}").click(function() {
+  $(".#{PlayerActionsHelper::PASS_HTML_CLASS}").click(function() {
     return submitAction("#{AcpcPokerTypes::PokerAction::CALL}");
   });
-  $(".#{wager_html_class}").click(function() {
+  $(".#{PlayerActionsHelper::WAGER_HTML_CLASS}").click(function() {
     var wagerAmount = wagerAmountField().val();
     var action = "#{AcpcPokerTypes::PokerAction::RAISE}"
     if (!isBlank(wagerAmount)) {
@@ -19,7 +19,7 @@
     }
     return submitAction(action);
   });
-  $(".#{next_hand_id}").click(function() { return nextHand(); });
+  $(".#{PlayerActionsHelper::NEXT_HAND_ID}").click(function() { return nextHand(); });
 - user.hotkeys.each do |hotkey|
   - label = hotkey.action
   - key = hotkey.key
@@ -36,5 +36,5 @@
     :javascript
       Hotkey.bindWager("#{label}", "#{wager_amount}", "#{key}");
 :javascript
-  // Must be done after initializing the websocket message sending click handlers
+  // Must be done after initializing the click handlers
   ActionDashboard.disableButtonsOnClick();

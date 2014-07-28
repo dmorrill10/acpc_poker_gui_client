@@ -37,7 +37,10 @@ class MatchView < SimpleDelegator
       sleep(0.1)
       @match = Match.find(@match.id)
       __setobj__ @match
-      raise "Unable to find next match slice after #{retries} retries" if retries >= max_retries
+      if retries >= max_retries
+        @slice_index -= 1
+        raise "Unable to find next match slice after #{retries} retries"
+      end
       retries += 1
     end
   end

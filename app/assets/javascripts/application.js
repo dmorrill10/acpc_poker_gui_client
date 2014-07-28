@@ -11,3 +11,7 @@
 //= require rails.validations
 //= require rails.validations.simple_form
 //= require_tree .
+
+function isBlank(str) {
+  return (!str || /^[\"\'\s]*$/.test(str));
+};

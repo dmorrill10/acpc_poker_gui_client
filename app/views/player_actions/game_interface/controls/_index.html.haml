@@ -1,0 +1,10 @@
+- if match_view.no_limit?
+  = render partial: poker_controls_partial('no_limit_wager_tools')
+= render partial: poker_controls_partial('wire_actions')
+
+:javascript
+  // Must come before change in focus code and as late into loading the page as possible
+  // to make sure the window fits exactly as expected.
+  GameInterface.adjustScale();
+= render partial: poker_controls_partial('initial_focus')
+= render partial: poker_controls_partial('action_dashboard')

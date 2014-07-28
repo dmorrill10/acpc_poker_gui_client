@@ -1,7 +1,7 @@
 !!!
 %html
   %head
-    %title= ApplicationDefs::APP_NAME
+    %title= ApplicationHelper::APP_NAME
     = stylesheet_link_tag "application", media: 'all'
     = javascript_include_tag "https://cdn.socket.io/socket.io-1.0.6.js"
     = javascript_include_tag "application"
@@ -9,5 +9,6 @@
     = yield(:head)
   %body
     .container
-      .app
+      / @todo Use these ruby constants in sass as well through https://github.com/vigetlabs/sass-json-vars
+      %div{class: ApplicationHelper::APP_VIEW_HTML_CLASS}
         = yield

@@ -5,8 +5,7 @@
   "main": "realtime-server.js",
   "dependencies": {
     "socket.io": "~1.0.6",
-    "redis": "~0.11.0",
-    "sidekiq": "~1.0.3"
+    "redis": "~0.11.0"
   },
   "devDependencies": {},
   "scripts": {

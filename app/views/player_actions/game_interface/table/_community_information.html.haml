@@ -1,10 +1,10 @@
 .community_information
   .board_cards
-    = render partial: 'cards', locals: {cards: match_view.state.community_cards.flatten}
+    = render partial: poker_table_partial('cards'), locals: {cards: match_view.state.community_cards.flatten}
   .pot
     / @todo Assumes Doyle's game in multi-player
     - if !match_view.hand_ended? && match_view.pot_at_start_of_round > 0
-      = render partial: 'player_actions/chip_stack', locals: { amount: match_view.pot_at_start_of_round.to_i }
+      = render partial: poker_table_partial('chip_stack'), locals: { amount: match_view.pot_at_start_of_round.to_i }
   .summary_information
     %p= "Actions: #{match_view.betting_sequence}"
     - if match_view.match_ended?

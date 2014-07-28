@@ -1,5 +1,25 @@
 require 'mongoid'
 
+# @todo Loading these constants here and duplicating PlayerActionsHelper in part
+# is like using a sledgehammer as a fly swatter but it's fine for now.
+module PlayerActionsHelper
+  def self.read_constants
+    File.read(Rails.root.join('app', 'constants', 'player_actions.json'))
+  end
+
+  JSON.parse(read_constants).each do |constant, val|
+    PlayerActionsHelper.const_set(constant, val) unless const_defined? constant
+  end
+
+  JSON.parse(File.read(Rails.root.join('app', 'constants', 'application.json'))).each do |constant, val|
+    PlayerActionsHelper.const_set(constant, val) unless const_defined? constant
+  end
+
+  def self.html_element_name_to_class(element)
+    "#{HTML_CLASS_PREFIX}#{element}"
+  end
+end
+
 class Hotkey
   include Mongoid::Document
 
@@ -26,9 +46,9 @@ class Hotkey
 
   MIN_WAGER_LABEL = 'Min'
   ALL_IN_WAGER_LABEL = 'All-in'
-  FOLD_LABEL = 'Fold'
-  PASS_LABEL = 'Check / Call'
-  WAGER_LABEL = 'Bet / Raise'
+  FOLD_LABEL = PlayerActionsHelper::FOLD_LABEL
+  PASS_LABEL = "#{PlayerActionsHelper::CHECK_LABEL} / #{PlayerActionsHelper::CALL_LABEL}"
+  WAGER_LABEL = "#{PlayerActionsHelper::BET_LABEL} / #{PlayerActionsHelper::RAISE_LABEL}"
   NEXT_HAND_LABEL = 'Next Hand'
   LEAVE_MATCH_LABEL = 'Leave Match'
   POT_LABEL = 'Pot'
@@ -44,12 +64,14 @@ class Hotkey
       "#{pot_fraction.round(MAX_POT_FRACTION_PRECISION)}xPot"
     end
   end
+
+  # @todo Use the proper PlayerActionsHelper constants here
   HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK = {
-    FOLD_LABEL => ".fold",
-    PASS_LABEL => ".pass",
-    WAGER_LABEL => ".wager",
-    NEXT_HAND_LABEL => ".next_state",
-    LEAVE_MATCH_LABEL => ".leave"
+    FOLD_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::FOLD_HTML_CLASS),
+    PASS_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::PASS_HTML_CLASS),
+    WAGER_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::WAGER_HTML_CLASS),
+    NEXT_HAND_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::NEXT_HAND_ID),
+    LEAVE_MATCH_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::LEAVE_MATCH_BUTTON_HTML_CLASS)
   }
   DEFAULT_HOTKEYS = {
     FOLD_LABEL => 'A',

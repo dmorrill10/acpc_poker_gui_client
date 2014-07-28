@@ -1,0 +1,3 @@
+.game_interface
+  = render partial: poker_table_partial('index')
+  = render partial: poker_controls_partial('index'), locals: {is_no_limit: match_view.no_limit?}

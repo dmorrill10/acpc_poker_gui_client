@@ -1,20 +1,20 @@
 :javascript
-  Realtime.listenToPlayerAction("#{match_id}");
+  Realtime.listenToPlayerAction("#{match_id}", "#{match_home_url}");
 - case @request_code
-- when ApplicationDefs::START_MATCH_REQUEST_CODE
+- when TableManager::START_MATCH_REQUEST_CODE
   :javascript
     Realtime.startMatch(
+      "#{start_dealer_and_players_url}",
       [
         '-a', // Append logs with the same name rather than overwrite
-        "--t_response #{ApplicationDefs::DEALER_MILLISECOND_TIMEOUT}",
+        "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
         '--t_hand -1',
         '--t_per_hand -1'
-      ].join(' '),
-      "#{ApplicationDefs::MATCH_LOG_DIRECTORY}"
+      ].join(' ')
     );
-- when ApplicationDefs::START_PROXY_REQUEST_CODE
+- when TableManager::START_PROXY_REQUEST_CODE
   :javascript
-    Realtime.startProxy();
+    Realtime.startProxy("#{start_proxy_url}");
 - else
   :javascript
     Realtime.forceUpdateState();
@@ -26,6 +26,5 @@
       .header-info Please wait for players to connect to the dealer...
       .header-info This could take a minute or two...
       .header-info Please do not reload the page.
-      %h5 If the table does not appear in ten minutes (after all human players have connected), please log an issue <a href='#{ApplicationDefs::ISSUE_TRACKER}' target='#'>here</a> detailing your exact situation (date and time, system and browser, match setup, and your observations).
-    .hidden= hidden_begin_match_form
-    = render partial: ApplicationDefs::FOOTER
+      %h5 If the table does not appear in ten minutes (after all human players have connected), please log an issue <a href='#{ApplicationHelper::ISSUE_TRACKER}' target='#'>here</a> detailing your exact situation (date and time, system and browser, match setup, and your observations).
+    = render partial: MatchStartHelper::FOOTER

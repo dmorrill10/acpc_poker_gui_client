@@ -1,6 +1,7 @@
 require 'logger'
 require 'awesome_print'
 
+# @todo Move into workers directory
 module WorkerHelpers
   def delete_state!(match_id)
     begin

@@ -10,13 +10,15 @@ module ApplicationDefs
     end
   end
 
-  JSON.parse(File.read(Rails.root.join('config', 'constants.json'))).each do |constant, val|
+  def self.read_constants(file=Rails.root.join('config', 'constants.json'))
+    File.read(file)
+  end
+
+  JSON.parse(ApplicationDefs.read_constants).each do |constant, val|
     ApplicationDefs.const_set(constant, val) unless const_defined? constant
   end
 
   LOG_DIRECTORY = Rails.root.join('log') unless const_defined? :LOG_DIRECTORY
-
-  MATCH_LOG_DIRECTORY = File.join(LOG_DIRECTORY, 'match_logs') unless const_defined? :MATCH_LOG_DIRECTORY
 
   # Human opponent names map to nil
   def self.game_definitions

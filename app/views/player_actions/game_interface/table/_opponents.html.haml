@@ -1,0 +1,4 @@
+- match_view.opponents_sorted_by_position_from_user.each_with_index do |opponent, i|
+  .opponent{ :class => [player_role_id(opponent['seat']), "opponent_#{i+1}_of_#{match_view.opponents.length}"] }
+    = render partial: poker_table_partial('held_player_information'), locals: {player: opponent}
+    = render partial: poker_table_partial('outer_player_information'), locals: { player: opponent, round: match_view.state.round, hand_ended: match_view.hand_ended?, seat_with_dealer_button: match_view.slice.seat_with_dealer_button }

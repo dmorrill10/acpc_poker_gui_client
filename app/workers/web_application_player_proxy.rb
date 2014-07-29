@@ -1,12 +1,12 @@
 require 'acpc_poker_player_proxy'
 
-require_relative 'database_config'
-require_relative '../app/models/match'
-require_relative '../app/models/match_slice'
+require_relative '../../lib/database_config'
+require_relative '../models/match'
+require_relative '../models/match_slice'
 
-require_relative 'application_defs'
+require_relative '../../lib/application_defs'
 
-require_relative 'simple_logging'
+require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
 require 'contextual_exceptions'

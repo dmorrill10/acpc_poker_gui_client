@@ -151,10 +151,12 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        TableManager.perform_async(
+        TableManager::TableManagerWorker.perform_async(
           TableManager::PLAY_ACTION_REQUEST_CODE,
-          match_id,
-          action: params[:poker_action]
+          {
+            TableManager::MATCH_ID_KEY => match_id,
+            TableManager::ACTION_KEY => params[:poker_action]
+          }
         )
       end
     )

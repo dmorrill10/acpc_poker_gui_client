@@ -90,9 +90,9 @@ class MatchManagerController < UserManagerController
 
   def match_id(new_id=nil)
     if new_id
-      session[ApplicationHelper::MATCH_ID_KEY] = new_id.to_s
+      session[TableManager::MATCH_ID_KEY] = new_id.to_s
     else
-      session[ApplicationHelper::MATCH_ID_KEY]
+      session[TableManager::MATCH_ID_KEY]
     end
   end
 

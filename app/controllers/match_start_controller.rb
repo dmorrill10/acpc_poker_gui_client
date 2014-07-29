@@ -20,6 +20,13 @@ class MatchStartController < ApplicationController
 
   # Presents the main 'start a new game' view.
   def index
+    begin
+      TableManager::TableManagerWorker.perform_async(
+        TableManager::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
+      )
+    rescue # Quiet any errors
+    end
+
     unless user_initialized?
       @alert_message = "Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}"
     end
@@ -95,15 +102,17 @@ class MatchStartController < ApplicationController
       'Sorry, unable to start the dealer and players, please try again or join a match already in progress.'
     ) if (
       error? do
-        TableManager.perform_async(
+        TableManager::TableManagerWorker.perform_async(
           TableManager::START_MATCH_REQUEST_CODE,
-          match_id,
-          options: [
-            '-a', # Append logs with the same name rather than overwrite
-            "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
-            '--t_hand -1',
-            '--t_per_hand -1'
-          ].join(' ')
+          {
+            TableManager::MATCH_ID_KEY => match_id,
+            TableManager::OPTIONS_KEY => [
+              '-a', # Append logs with the same name rather than overwrite
+              "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
+              '--t_hand -1',
+              '--t_per_hand -1'
+            ].join(' ')
+          }
         )
       end
     )
@@ -115,9 +124,9 @@ class MatchStartController < ApplicationController
       'Sorry, unable to start the dealer and players, please try again or join a match already in progress.'
     ) if (
       error? do
-        TableManager.perform_async(
+        TableManager::TableManagerWorker.perform_async(
           TableManager::START_PROXY_REQUEST_CODE,
-          match_id
+          TableManager::MATCH_ID_KEY => match_id
         )
       end
     )

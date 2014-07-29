@@ -1,9 +1,8 @@
 require 'json'
-require_relative '../../lib/application_defs'
 
 module MatchStartHelper
   def self.read_constants
-    ApplicationDefs.read_constants(
+    File.read(
       Rails.root.join('app', 'constants', 'match_start.json')
     )
   end

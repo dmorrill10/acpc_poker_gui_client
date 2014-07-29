@@ -1,7 +1,7 @@
 var path = require('path');
 var appDir = path.dirname(require.main.filename);
 var config = require('util')._extend(
-  require(appDir + '/../config/constants'),
+  require(appDir + '/realtime'),
   require(appDir + '/../app/workers/table_manager')
 );
 

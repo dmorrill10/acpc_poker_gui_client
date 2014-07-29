@@ -2,12 +2,11 @@ require 'acpc_poker_types/game_definition'
 require 'acpc_poker_types/hand'
 require 'acpc_poker_types/suit'
 require_relative 'application_helper'
-require_relative '../../lib/application_defs'
 
 # Define constants
 module PlayerActionsHelper
   def self.read_constants
-    ApplicationDefs.read_constants(
+    File.read(
       Rails.root.join('app', 'constants', 'player_actions.json')
     )
   end

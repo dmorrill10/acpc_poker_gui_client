@@ -110,7 +110,13 @@ class ApplicationController < MatchManagerController
 
   def table_manager_constants
     render(
-      json: ApplicationDefs.read_constants(TableManager::CONSTANTS_FILE)
+      json: File.read(TableManager::CONSTANTS_FILE)
+    )
+  end
+
+  def realtime_constants
+    render(
+      json: File.read(Rails.root.join('realtime', 'realtime.json'))
     )
   end
 

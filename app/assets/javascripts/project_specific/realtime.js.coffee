@@ -1,18 +1,27 @@
 root = exports ? this
 
 root.Realtime =
-  # @todo These constant prefixes are duplicated in constants.json
-  # because I'm not sure where or how constants.json should be parsed on
-  # the JS side of the app
-  playerActionChannel: ()-> "player-action-in-#{@matchId}"
-  playerCommentChannel: ()-> "player-comment-in-#{@matchId}"
+  playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@matchId}"
+  playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@matchId}"
 
-  connect: ()->
+  connect: (realtimeConstantsUrl, tableManagerConstantsUrl)->
     @numUpdatesInQueue = 0
     @matchHomeUrl = '/'
     @matchId = ''
-    # @todo Port number is defined in constants.json
-    @socket = io.connect('http://0.0.0.0:5001')
+    $.getJSON(realtimeConstantsUrl, (constants)=>
+      @socket = io.connect("http://0.0.0.0:#{constants.REALTIME_SERVER_PORT}")
+    ).fail(=> # Fallback to default
+      console.log 'Unable to retrieve Realtime constants, falling back to default'
+      @socket = io.connect("http://0.0.0.0:5001")
+    )
+    $.getJSON(tableManagerConstantsUrl, (constants)=>
+      @playerActionChannelPrefix = constants.PLAYER_ACTION_CHANNEL_PREFIX
+      @playerCommentChannelPrefix = constants.PLAYER_COMMENT_CHANNEL_PREFIX
+    ).fail(=> # Fallback to default
+      console.log 'Unable to retrieve TableManager constants, falling back to default'
+      @playerActionChannelPrefix = "player-action-in-"
+      @playerCommentChannelPrefix = "player-comment-in-"
+    )
 
   # To Rails server
   #================
@@ -33,9 +42,6 @@ root.Realtime =
     @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
-  # @todo Add this to app controller
-  deleteIrrelevantMatches: ()-> return false
-  # deleteIrrelevantMatches: (url)-> @controllerAction url
 
   # From Node.js server
   #====================
@@ -44,5 +50,3 @@ root.Realtime =
     @matchHomeUrl = matchHomeUrl
     @onPlayerAction = (message)-> Realtime.updateState()
     @socket.on @playerActionChannel(), @onPlayerAction
-
-Realtime.connect()

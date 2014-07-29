@@ -1,11 +1,10 @@
 require 'acpc_poker_types'
 require 'json'
-require_relative '../../lib/application_defs'
 
 # General controller/view helpers for this application.
 module ApplicationHelper
   def self.read_constants
-    ApplicationDefs.read_constants(
+    File.read(
       Rails.root.join('app', 'constants', 'application.json')
     )
   end

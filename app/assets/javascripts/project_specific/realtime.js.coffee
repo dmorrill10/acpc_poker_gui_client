@@ -18,28 +18,22 @@ root.Realtime =
   #================
   controllerAction: (urlArg, dataArg = {})->
     $.ajax({type: "POST", url: urlArg, data: dataArg})
-  forceUpdateState: ()->
-    @numUpdatesInQueue -= 1 if @numUpdatesInQueue > 0
-    @controllerAction @matchHomeUrl
+  forceUpdateState: ()-> @controllerAction @matchHomeUrl
   updateState: ()->
-    return @numUpdatesInQueue += 1 if @numUpdatesInQueue > 0
+    if @numUpdatesInQueue > 0
+      return @numUpdatesInQueue += 1
     @forceUpdateState()
     @numUpdatesInQueue += 1
-  finishedUpdating: ()->
+  finishedUpdating: (update = true)->
     return false unless @numUpdatesInQueue > 0
     @numUpdatesInQueue -= 1
     if @numUpdatesInQueue > 0
-      @forceUpdateState()
-      true
-    else
-      false
-  # send: (channel, args)->
-  #   args["match_id"] = @matchId
-  #   @socket.emit channel, args
+      @forceUpdateState() if update
   startMatch: (url, optionArgs)->
     @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
+  # @todo Add this to app controller
   deleteIrrelevantMatches: ()-> return false
   # deleteIrrelevantMatches: (url)-> @controllerAction url
 

@@ -2,12 +2,14 @@
 = render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
 = render partial: hud_partial('index')
 
-- unless next_hand_button_visible?
-  - if stale_slice?
-    :javascript
-      if (!Realtime.finishedUpdating()) {
-        Realtime.forceUpdateState();
-      }
-  - else
-    :javascript
-      Realtime.finishedUpdating();
+- if next_hand_button_visible?
+  :javascript
+    Realtime.finishedUpdating(false);
+- elsif stale_slice?
+  :javascript
+    if (!Realtime.finishedUpdating()) {
+      Realtime.forceUpdateState();
+    }
+- else
+  :javascript
+    Realtime.finishedUpdating();

@@ -16,6 +16,8 @@ class MatchStartController < ApplicationController
   include ApplicationHelper
   include MatchStartHelper
 
+  INITIAL_MATCH_SLICE_INDEX = -1
+
   # Presents the main 'start a new game' view.
   def index
     unless user_initialized?
@@ -41,7 +43,7 @@ class MatchStartController < ApplicationController
         @match = Match.new(params[:match].merge(user_name: user_name)).finish_starting!
 
         match_id(@match.id)
-        match_slice_index(-1)
+        match_slice_index(INITIAL_MATCH_SLICE_INDEX)
 
         wait_for_match_to_start TableManager::START_MATCH_REQUEST_CODE
       end
@@ -59,26 +61,10 @@ class MatchStartController < ApplicationController
         opponent_users_match = Match.where(name_from_user: match_name).first
         raise unless opponent_users_match
 
-        # Copy match information
-        @match = opponent_users_match.dup
-        underscore = '_'
-        @match.name_from_user = underscore
-        while !@match.save do
-          @match.name_from_user << underscore
-        end
-        @match.user_name = user.name
-
-        # Swap seat
-        @match.seat = seat
-        @match.opponent_names.insert(
-          opponent_users_match.seat - 1,
-          opponent_users_match.user_name
-        )
-        @match.opponent_names.delete_at(seat - 1)
-        @match.save!(validate: false)
+        @match = opponent_users_match.copy_for_next_human_player user.name, seat
 
         match_id(@match.id)
-        match_slice_index(-1)
+        match_slice_index(INITIAL_MATCH_SLICE_INDEX)
 
         wait_for_match_to_start TableManager::START_PROXY_REQUEST_CODE
       end

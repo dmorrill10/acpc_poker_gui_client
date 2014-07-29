@@ -78,6 +78,8 @@ GEM
       client_side_validations (~> 3.2.0)
       simple_form (~> 2.0.3)
     clive (1.2.0)
+    code_analyzer (0.4.5)
+      sexp_processor
     coderay (1.0.9)
     coffee-filter (0.1.3)
       coffee-script (>= 2.2.0)
@@ -89,6 +91,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.6.3)
+    colored (1.2)
     compass (0.12.2)
       chunky_png (~> 1.2)
       fssm (>= 0.2.7)
@@ -170,6 +173,16 @@ GEM
       activesupport (= 3.2.14)
       bundler (~> 1.0)
       railties (= 3.2.14)
+    rails_best_practices (1.15.4)
+      activesupport
+      awesome_print
+      code_analyzer (>= 0.4.3)
+      colored
+      erubis
+      i18n
+      json
+      require_all
+      ruby-progressbar
     railties (3.2.14)
       actionpack (= 3.2.14)
       activesupport (= 3.2.14)
@@ -185,6 +198,7 @@ GEM
     redis (3.0.4)
     redis-namespace (1.3.1)
       redis (~> 3.0.0)
+    require_all (1.3.2)
     require_reloader (0.2.0)
     rspec-core (2.14.5)
     rspec-expectations (2.14.1)
@@ -200,6 +214,7 @@ GEM
     rspec-rails-mocha (0.3.2)
       mocha (>= 0.9.8)
       rspec-rails (>= 2.0.0)
+    ruby-progressbar (1.5.1)
     rusen (0.0.2)
       pony
     sass (3.2.10)
@@ -207,6 +222,7 @@ GEM
       railties (~> 3.2.0)
       sass (>= 3.1.10)
       tilt (~> 1.3)
+    sexp_processor (4.4.3)
     sidekiq (2.13.1)
       celluloid (>= 0.14.1)
       connection_pool (>= 1.0.0)
@@ -277,6 +293,7 @@ DEPENDENCIES
   process_runner
   rack (~> 1.4)
   rails (~> 3.2)
+  rails_best_practices
   require_reloader
   rspec-rails
   rspec-rails-mocha

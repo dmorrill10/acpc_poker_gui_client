@@ -178,9 +178,9 @@ class Match
     port_numbers[seat - 1]
   end
   def opponent_ports
-    local_port_numbers = port_numbers.dup
-    users_port = local_port_numbers.delete_at(seat - 1)
-    local_port_numbers
+    port_numbers_ = port_numbers.dup
+    users_port_ = port_numbers_.delete_at(seat - 1)
+    port_numbers_
   end
   def human_opponent_seats(opponent_user_name = nil)
     player_names.each_index.select do |i|
@@ -207,5 +207,24 @@ class Match
       # Remove seats already taken by players who have already joined this match
       Match.where(name: self.name).ne(name_from_user: self.name).map { |m| m.seat }
     )
+  end
+
+  UNIQUENESS_GUARANTEE_CHARACTER = '_'
+  def copy_for_next_human_player(next_user_name, next_seat)
+    match = dup
+    # This match was not given a name from the user,
+    # so set this parameter to an arbitrary character
+    match.name_from_user = UNIQUENESS_GUARANTEE_CHARACTER
+    while !match.save do
+      match.name_from_user << UNIQUENESS_GUARANTEE_CHARACTER
+    end
+    match.user_name = next_user_name
+
+    # Swap seat
+    match.seat = next_seat
+    match.opponent_names.insert(seat - 1, user_name)
+    match.opponent_names.delete_at(seat - 1)
+    match.save!(validate: false)
+    match
   end
 end

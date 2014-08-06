@@ -1,34 +1,15 @@
-- if match_view.no_limit?
-  = render partial: 'no_limit_wager_tools'
-= render partial: 'helpers'
-= render partial: 'wire_actions'
-= render partial: 'adjust_sizes'
-= render partial: 'initial_focus'
+= render partial: game_interface_partial('index')
+= render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
+= render partial: hud_partial('index')
 
-- unless user_must_act?
-  .update_state_periodically
-    = render partial: 'update_state_periodically'
-.hidden
-  = form_tag take_action_url, :remote => true do
-    = hidden_field_tag :match_id, match.id
-    = hidden_field_tag :poker_action
-    = submit_tag nil, class: 'take_action'
-  = form_tag update_url, :remote => true do
-    = hidden_field_tag :match_id, match.id
-    = hidden_field_tag :match_state, match_view.state.to_s
-    = submit_tag nil, class: update_id
-  = form_tag update_state_url, :remote => true do
-    = hidden_field_tag :match_id, match.id
-    = hidden_field_tag :match_state, match_view.state.to_s
-    = submit_tag nil, class: update_state_html_class
-= render partial: 'layouts/navbar', locals: {partial: 'navbar'}
-= render partial: 'chip_balances'
-= render partial: 'game_interface'
-
-:javascript
-  // @todo This doesn't work as intended
-  $("#{ApplicationDefs::HTML_CLASS_PREFIX}#{ApplicationDefs::APP_VIEW_HTML_CLASS}").append(
-    "<div class=\"#{ApplicationDefs::CHAT_CLASS_HTML_CLASS}"\">
-      <div id=\"tlkio\" data-channel=\"#{ApplicationDefs::CHAT_CHANNEL_PREFIX}#{match.name}\" style=\"width:300px;height:200px;\"></div>
-    </div>"
-  );
+- if next_hand_button_visible?
+  :javascript
+    Realtime.finishedUpdating(false);
+- elsif stale_slice?
+  :javascript
+    if (!Realtime.finishedUpdating()) {
+      Realtime.forceUpdateState();
+    }
+- else
+  :javascript
+    Realtime.finishedUpdating();

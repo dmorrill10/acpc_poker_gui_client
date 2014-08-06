@@ -1,5 +1,6 @@
 :javascript
   $('.modal-backdrop').remove();
+
 = render partial: 'layouts/navbar', locals: { partial: nil }
 .match_start
   %ul.match_start_tabs.nav.nav-tabs
@@ -12,7 +13,7 @@
       = render partial: 'match_start/take_seat_form', locals: { form_target: join_match_path, matches: matches_to_join, btn_label: 'Join match', seats: seats_to_join }
     #rejoin_match_form.tab-pane
       = render partial: 'match_start/take_seat_form', locals: { form_target: rejoin_match_path, matches: matches_to_rejoin, btn_label: 'Rejoin match', seats: seats_to_rejoin }
-= render partial: ApplicationDefs::FOOTER
+= render partial: MatchStartHelper::FOOTER
 :javascript
   $('.match_start_tabs a:first').tab('show');
   DynamicSelector.makeDynamic('#join_match_form #match_name', '#join_match_form #seat');

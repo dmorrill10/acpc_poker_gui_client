@@ -1,0 +1,13 @@
+.held_player_information
+  .name= "#{player['name']}"
+  .hole_cards
+    - hole_cards = if player['hole_cards'].empty?
+      - []
+    - elsif player['hole_cards'].match(/^_+$/)
+      - player['hole_cards'].split('').map { '' }
+    - else
+      - AcpcPokerTypes::Hand.from_acpc(player['hole_cards'])
+    = render partial: poker_table_partial('cards'), locals: { cards: hole_cards }
+  .player_stack
+    / A player's chip contributions can only be negative if chips have been given to the player, so adjust for that
+    = render partial: poker_table_partial('chip_stack'), locals: { amount: (player['chip_stack'] - player['winnings']).to_i }

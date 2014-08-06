@@ -1,4 +1,4 @@
-# @todo Is this still useful?
+# @todo Included only for client_side_validations, which should be replaced
 module ErrorMessagesHelper
   # Render error messages for the given objects. The :message and :header_message options are allowed.
   def error_messages_for(*objects)

@@ -1,0 +1,23 @@
+{
+  "ACTOR_ID": "acting_player",
+  "PLAYER_NOT_ACTING_ID": "not_acting_player",
+  "CUSTOMIZE_HOTKEYS_ID": "customize_hotkeys",
+  "CUSTOMIZE_HOTKEYS_AMOUNT_KEY": "custom_hotkeys_amount",
+  "CUSTOMIZE_HOTKEYS_KEYS_HASH_KEY": "custom_hotkeys_key",
+  "FOLD_HTML_CLASS": "fold",
+  "PASS_HTML_CLASS": "pass",
+  "WAGER_HTML_CLASS": "wager",
+  "UPDATE_HOTKEYS_HTML_CLASS": "update_hotkeys",
+  "LEAVE_MATCH_BUTTON_HTML_CLASS": "leave-btn",
+  "NAV_LEAVE_HTML_CLASS": "leave",
+  "LEAVE_MATCH_CONFIRMATION_MESSAGE": "Are you sure you want to leave this match?",
+  "LEAVE_MATCH_LABEL": "Leave Match",
+  "CALL_LABEL": "Call",
+  "CHECK_LABEL": "Check",
+  "BET_LABEL": "Bet",
+  "RAISE_LABEL": "Raise",
+  "FOLD_LABEL": "Fold",
+  "DEALER_BUTTON_HTML_CLASS": "dealer_button",
+  "NEXT_HAND_LABEL": "Next Hand",
+  "NEXT_HAND_ID": "next_hand_id"
+}

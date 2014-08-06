@@ -1,0 +1,3 @@
+.user{ :class => player_role_id(match_view.user['seat']) }
+  = render partial: poker_table_partial('outer_player_information'), locals: { player: match_view.user, round: match_view.state.round, hand_ended: match_view.hand_ended?, seat_with_dealer_button: match_view.slice.seat_with_dealer_button }
+  = render partial: poker_table_partial('held_player_information'), locals: { player: match_view.user }

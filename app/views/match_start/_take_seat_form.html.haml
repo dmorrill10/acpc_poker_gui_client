@@ -2,12 +2,12 @@
   - match_names = matches.map { |m| m.name_from_user }
   .control-group
     .control-labels
-      %label.control-label.required= label_for_required 'Match name'
+      %label.control-label.required= MatchStartHelper.label_for_required 'Match name'
     .controls
       = select_tag :match_name, options_for_select(match_names), required: true, disabled: matches.empty?
   .control-group
     .control-labels
-      %label.control-label.required= label_for_required 'Seat'
+      %label.control-label.required= MatchStartHelper.label_for_required 'Seat'
     .controls
       = select_tag :seat, grouped_options_for_select(seats)
   .form-actions

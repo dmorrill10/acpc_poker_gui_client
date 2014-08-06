@@ -1,30 +1,30 @@
-.poker
+:javascript
+  Realtime.listenToPlayerAction("#{match_id}", "#{match_home_url}");
+- case @request_code
+- when TableManager::START_MATCH_REQUEST_CODE
   :javascript
-    function startMatch() {
-      return $("##{hidden_begin_match}").submit();
-    };
-    var timerId;
-    if (timerId) {
-      clearInterval(timerId);
-    }
-    function poll() {
-      return $("##{hidden_poll}").submit();
-    };
-  - if match.slices.empty?
-    :javascript
-      timerId = setInterval(poll, 250);
-  - else
-    :javascript
-      startMatch();
+    Realtime.startMatch(
+      "#{start_dealer_and_players_url}",
+      [
+        '-a', // Append logs with the same name rather than overwrite
+        "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
+        '--t_hand -1',
+        '--t_per_hand -1'
+      ].join(' ')
+    );
+- when TableManager::START_PROXY_REQUEST_CODE
+  :javascript
+    Realtime.startProxy("#{start_proxy_url}");
+- else
+  :javascript
+    Realtime.forceUpdateState();
 
+.poker
   = render partial: "layouts/navbar", locals: { partial: nil }
   .loading
     .hero-unit
       .header-info Please wait for players to connect to the dealer...
       .header-info This could take a minute or two...
       .header-info Please do not reload the page.
-      %h5 If the table does not appear in ten minutes (after all human players have connected), please log an issue <a href='#{ApplicationDefs::ISSUE_TRACKER}' target='#'>here</a> detailing your exact situation (date and time, system and browser, match setup, and your observations).
-    .hidden= hidden_begin_match_form(match.id)
-    .hidden= hidden_match_start_poll_form(match.id)
-
-    = render partial: ApplicationDefs::FOOTER
+      %h5 If the table does not appear in ten minutes (after all human players have connected), please log an issue <a href='#{ApplicationHelper::ISSUE_TRACKER}' target='#'>here</a> detailing your exact situation (date and time, system and browser, match setup, and your observations).
+    = render partial: MatchStartHelper::FOOTER

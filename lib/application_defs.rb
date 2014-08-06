@@ -1,7 +1,5 @@
 require_relative '../bots/bots.rb'
-require 'json'
 
-# Assortment of constant definitions.
 module ApplicationDefs
   # @todo Not sure if this is necessary
   def self.included(klass)
@@ -10,13 +8,7 @@ module ApplicationDefs
     end
   end
 
-  JSON.parse(File.read(Rails.root.join('config', 'constants.json'))).each do |constant, val|
-    ApplicationDefs.const_set(constant, val) unless const_defined? constant
-  end
-
   LOG_DIRECTORY = Rails.root.join('log') unless const_defined? :LOG_DIRECTORY
-
-  MATCH_LOG_DIRECTORY = File.join(LOG_DIRECTORY, 'match_logs') unless const_defined? :MATCH_LOG_DIRECTORY
 
   # Human opponent names map to nil
   def self.game_definitions

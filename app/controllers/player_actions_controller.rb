@@ -8,128 +8,159 @@ require 'hotkey'
 
 require 'ap'
 
-# Controller for the main game view where the table and actions are presented to the player.
-# Implements the actions in the main match view.
-class PlayerActionsController < ApplicationController
+class MatchViewManagerController < ApplicationController
   include ApplicationHelper
   include PlayerActionsHelper
+  helper_method(
+    :match_view,
+    :stale_slice?,
+    :player_role_id,
+    :user_must_act?,
+    :next_hand_button_visible?,
+    :wager_disabled_when,
+    :fold_disabled_when,
+    :pass_action_button_label,
+    :make_wager_button_label
+  )
+  protected
 
-  before_filter :log_session
+  def match_view() @match_view end
 
-  def log_session
-    Rails.logger.ap session: session
+  def stale_slice?
+    match_slice_index < (match_view.slices.length - 1)
   end
 
+  def player_role_id(player_seat)
+    if (
+      !match_view.hand_ended? &&
+      match_view.slice.seat_next_to_act == player_seat
+    )
+      PlayerActionsHelper::ACTOR_ID
+    else
+      PlayerActionsHelper::PLAYER_NOT_ACTING_ID
+    end
+  end
+
+  def user_must_act?
+    match_view.users_turn_to_act? || match_view.hand_ended?
+  end
+  def next_hand_button_visible?
+    !match_view.match_ended? && match_view.hand_ended?
+  end
+
+  def wager_disabled_when
+    !(
+      user_must_act? &&
+      (
+        match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::RAISE) ||
+        match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::BET)
+      )
+    )
+  end
+  def fold_disabled_when
+    !(
+      user_must_act? &&
+      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD)
+    )
+  end
+  def pass_action_button_label
+    if (
+      match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::CALL) &&
+      match_view.amount_for_next_player_to_call > 0
+    )
+      if match_view.no_limit?
+        "#{PlayerActionsHelper::CALL_LABEL} (#{match_view.amount_for_next_player_to_call.to_i})"
+      else
+       PlayerActionsHelper::CALL_LABEL
+      end
+    else
+      PlayerActionsHelper::CHECK_LABEL
+    end
+  end
+  def make_wager_button_label
+    label = if match_view.legal_actions.include?('b')
+      PlayerActionsHelper::BET_LABEL
+    else
+      PlayerActionsHelper::RAISE_LABEL
+    end
+    label += ' to' if match_view.no_limit?
+    label
+  end
+end
+
+# Controller for the main game view where the table and actions are presented to the player.
+# Implements the actions in the main match view.
+class PlayerActionsController < MatchViewManagerController
   def index
     return reset_to_match_entry_view(
-      "Sorry, there was a problem starting the match, #{self.class.report_error_request_message}."
+      "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        session['waiting_for_response'] = false
-        Rails.logger.ap waiting_for_response: session['waiting_for_response']
+        match_slice_index(0) unless match_slice_index
+        @match_view = MatchView.new match_id, match_slice_index
 
-        replace_page_contents_with_updated_game_view params[:match_id]
+        Rails.logger.ap action: __method__, hand_ended: @match_view.hand_ended?
+
+        return (
+          if @match_view.hand_ended?
+            replace_page_contents_with_updated_game_view
+          else
+            update_match
+          end
+        )
       end
     )
   end
 
-  def take_action
+  def update_match
+    return reset_to_match_entry_view(
+      "Sorry, there was a problem continuing match #{match_id}, #{self.class.report_error_request_message}."
+    ) if (
+      error? do
+        @match_view ||= MatchView.new match_id, match_slice_index
+
+        Rails.logger.ap(
+          action: __method__,
+          old_match_slice_index: @match_view.slice_index,
+          num_slices: @match_view.slices.length
+        )
+
+        begin
+          @match_view.next_slice!
+        rescue => e
+          Rails.logger.ap(
+            action: __method__,
+            suppressed_error: e.message,
+            suppression_action: "Re-rendering with most recent slice (##{@match_view.slice_index})"
+          )
+        end
+
+        Rails.logger.ap(
+          action: __method__,
+          match_slice_index_to_be_rendered: @match_view.slice_index,
+          view_ms: @match_view.state.to_s
+        )
+
+        return replace_page_contents_with_updated_game_view
+      end
+    )
+  end
+
+  def play_action
     return reset_to_match_entry_view(
       "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        # Initialize the match view so that the app is guaranteed to not update before showing the
-        # table.
-        @match_view = MatchView.new params[:match_id]
-        TableManager.perform_async(
-          ApplicationDefs::PLAY_ACTION_REQUEST_CODE,
-          params[:match_id],
-          action: params[:poker_action]
+        TableManager::TableManagerWorker.perform_async(
+          TableManager::PLAY_ACTION_REQUEST_CODE,
+          {
+            TableManager::MATCH_ID_KEY => match_id,
+            TableManager::ACTION_KEY => params[:poker_action]
+          }
         )
-        session['waiting_for_response'] = true
-
-        replace_page_contents_with_updated_game_view(params[:match_id])
       end
     )
-  end
-
-  def update_state
-    return reset_to_match_entry_view(
-      "Sorry, there was a problem retrieving match #{params[:match_id]}, #{self.class.report_error_request_message}."
-    ) if (
-      error? do
-        @match_view = MatchView.new params[:match_id]
-
-        Rails.logger.ap hand_ended: @match_view.hand_ended?
-
-        return update unless @match_view.hand_ended?
-      end
-    )
-    Rails.logger.ap action: 'update_state', waiting_for_response: session['waiting_for_response']
-
-    if params[:match_state] == @match_view.state.to_s
-      @container = '.update_state_periodically'
-      @partial = 'player_actions/update_state_periodically'
-      return replace_page_contents_with_updated_game_view(params[:match_id])
-    end
-    replace_page_contents_with_updated_game_view(params[:match_id])
-  end
-
-  def update
-    deleted_slice = nil
-
-    return reset_to_match_entry_view(
-      "Sorry, there was a problem cleaning up the previous match slice of #{params[:match_id]}, #{self.class.report_error_request_message}."
-    ) if (
-      error? do
-        @match_view = MatchView.new params[:match_id]
-
-        # Abort the update if there's only one slice
-        if @match_view.match.slices.length < 2
-
-          if @match_view.hand_ended?
-            # To ensure that we can't try to click 'Next Hand' again.
-            session['waiting_for_response'] = true
-            return replace_page_contents_with_updated_game_view(params[:match_id])
-          end
-
-          Rails.logger.ap action: 'update', param_ms: params[:match_state], view_ms: @match_view.state.to_s, equal_ms: params[:match_state] == @match_view.state.to_s
-
-          if params[:match_state] == @match_view.state.to_s
-            @container = '.update_state_periodically'
-            @partial = 'player_actions/update_state_periodically'
-            return replace_page_contents_with_updated_game_view(params[:match_id])
-          end
-          return replace_page_contents_with_updated_game_view(params[:match_id])
-        end
-
-        # Delete the first slice in the list since it's no longer needed
-        deleted_slice = @match_view.match.slices.first
-        deleted_slice.delete
-      end
-    )
-
-    if (
-      error? do
-        session['waiting_for_response'] = false
-        replace_page_contents_with_updated_game_view(params[:match_id])
-      end
-    )
-      begin
-        @match_view.match.slices << deleted_slice if @match_view.match.slices.empty?
-        @match_view.match.save!
-      rescue => e
-        # If the match can't be retrieved or saved then
-        # it can't be resumed anyway, so nothing
-        # special to do here.
-        log_error e
-      end
-      return(
-        reset_to_match_entry_view(
-          "Sorry, there was a problem continuing the match, #{self.class.report_error_request_message}."
-        )
-      )
-    end
+    render nothing: true
   end
 
   def update_hotkeys
@@ -137,61 +168,61 @@ class PlayerActionsController < ApplicationController
       "Sorry, there was a problem saving hotkeys, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        conflicting_hotkeys = []
+        Rails.logger.ap(
+          action: __method__,
+          params: params
+        )
 
-        hotkey_hash = params[hotkeys_param_key]
-        params[custom_hotkeys_amount_param_key].zip(
-          params[custom_hotkeys_keys_param_key]
+        hotkey_hash = params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_ID]
+        params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_AMOUNT_KEY].zip(
+          params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_KEYS_HASH_KEY]
         ).each do |amount, key|
           hotkey_hash[Hotkey.wager_hotkey_label(amount.to_f)] = key
         end
-        hotkey_hash.each do |action_label, new_key|
-          if new_key.blank?
-            # Delete custom hotkeys that have been left blank
-            user.hotkeys.where(action: action_label).delete unless Hotkey::DEFAULT_HOTKEYS.include?(action_label)
-            next
-          end
-          next if action_label.blank?
-          new_key = new_key.strip.capitalize
-          next if no_change?(action_label, new_key)
 
-          conflicted_hotkey = user.hotkeys.select { |hotkey| hotkey.key == new_key }.first
-          if conflicted_hotkey
-            conflicted_label = conflicted_hotkey.action
-            if conflicted_label
-              conflicting_hotkeys << { key: new_key, current_label: conflicted_label, new_label: action_label }
-              next
-            end
-          end
+        begin
+          user.update_hotkeys! hotkey_hash
+        rescue User::ConflictingHotkeys => e
+          @alert_message = "Sorry, the following hotkeys conflicted and were not saved: \n" << e.message << "\n"
 
-          previous_hotkey = user.hotkeys.where(action: action_label).first
-          if previous_hotkey
-            previous_hotkey.key = new_key
-            previous_hotkey.save!
-          else
-            user.hotkeys.create! action: action_label, key: new_key
-          end
+          Rails.logger.ap(
+            action: __method__,
+            alert_message: @alert_message
+          )
         end
-        user.save!
 
-        unless conflicting_hotkeys.empty?
-          @alert_message = "Sorry, the following hotkeys conflicted and were not saved: \n" <<
-            conflicting_hotkeys.map do |conflict|
-              "    - You tried to set '#{conflict[:new_label]}' to '#{conflict[:key]}' when it was already mapped to '#{conflict[:current_label]}'\n"
-            end.join
-        end
-        return replace_page_contents_with_updated_game_view(params[:match_id])
+        return replace_page_contents_with_updated_game_view
       end
     )
-    render nothing: true
+    reset_to_match_entry_view
   end
 
   def reset_hotkeys
+    Rails.logger.ap(action: __method__)
+
     user.reset_hotkeys!
-    return replace_page_contents_with_updated_game_view(params[:match_id])
+    return replace_page_contents_with_updated_game_view
   end
 
   def leave_match
     redirect_to root_path, remote: true
+  end
+
+  protected
+
+  def my_helper() PlayerActionsHelper end
+
+  # Replaces the page contents with an updated game view
+  def replace_page_contents_with_updated_game_view(
+    slice_index=match_slice_index
+  )
+    @match_view ||= MatchView.new(match_id, slice_index)
+    match_slice_index(@match_view.slice_index)
+    replace_page_contents(
+      replacement_partial: 'player_actions/index',
+      html_element: html_element_name_to_class(
+        ApplicationHelper::POKER_VIEW_HTML_CLASS
+      )
+    )
   end
 end

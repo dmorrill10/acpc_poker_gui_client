@@ -21,20 +21,6 @@ A `Thin` server packaged with `rails` serves the application locally in developm
 ## Production mode
 An [<em>Apache server</em>][Apache homepage] hosts the application proper in production mode. This is currently done with Apache-Rails integration through [<em>Phusion Passenger</em>][Phusion Passenger homepage]. As [Apache][Apache homepage] is only used in production, it is not required to deploy this application on a local development server.
 
-Generators
-------------
-This project includes custom generators:
-
-* poker_bot
-* scss_class
-
-For execution details, run
-
-    rails g <generator name> --help
-
-For more information, see this [tutorial][Rails generators tutorial] on [_Rails_][Rails] generators.
-
-
 <!---
     Link references
     ================
@@ -61,7 +47,6 @@ For more information, see this [tutorial][Rails generators tutorial] on [_Rails_
 [Programming Ruby]: http://www.ruby-doc.org/docs/ProgrammingRuby/
 [RDoc]: http://rdoc.sourceforge.net/
 [RVM homepage]: https://rvm.io//
-[Rails generators tutorial]: http://guides.rubyonrails.org/generators.html
 [Rails]: http://rubyonrails.org/
 [Railscasts]: http://railscasts.com/
 [Rake]: http://docs.rubyrake.org/

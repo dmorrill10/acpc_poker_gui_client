@@ -1,0 +1,12 @@
+{
+  "APP_NAME": "ACPC Poker GUI",
+  "HTML_CLASS_PREFIX": ".",
+  "APP_VIEW_HTML_CLASS": "app",
+  "POKER_VIEW_HTML_CLASS": "poker",
+  "HELP_LINK": "http://rubydoc.info/github/dmorrill10/acpc_poker_gui_client/master/file/Help.md",
+  "HELP_LINK_HTML_CLASS": "help_link",
+  "REPLACE_CONTENTS_JS": "shared/replace_content",
+  "NEW_MATCH_PARTIAL": "match_start/index",
+  "ISSUE_TRACKER": "https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open",
+  "MATCH_SLICE_SESSION_KEY": "match_slice_index"
+}

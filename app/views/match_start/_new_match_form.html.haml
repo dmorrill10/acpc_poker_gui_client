@@ -7,7 +7,7 @@
   - )
 #new_match_form.tab-pane
   = simple_form_for match, url: new_match_url, remote: true, validate: true, html: {class: 'form-horizontal'} do |f|
-    = f.input :name_from_user, label: 'Match name', required: true, hint: "Matches can be rejoined with this name for #{(((ApplicationDefs::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600)/24).to_i} days after the last action was taken"
+    = f.input :name_from_user, label: 'Match name', required: true, hint: "Matches can be rejoined with this name for #{(((MatchStartHelper::DEALER_MILLISECOND_TIMEOUT * (10**(-3)))/3600)/24).to_i} days after the last action was taken"
     .control-group.select.required
       = f.label 'Game definition', for: :game_definition_key, required: true, as: :select
       .controls

@@ -87,8 +87,6 @@ group :development do
   # To interpret markdown
   gem 'kramdown'
 
-  # gem 'rack-mini-profiler'
-
   # Better error information
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -97,8 +95,11 @@ group :development do
   # Not strictly necessary but makes
   # testing through a VM network much faster
   # because WeBrick needs a line of configuration
-  # changed, otherwise it's impossibly slow 
+  # changed, otherwise it's impossibly slow
   gem 'thin'
+
+  # Static code analysis
+  gem 'rails_best_practices'
 end
 
 group :development, :test do

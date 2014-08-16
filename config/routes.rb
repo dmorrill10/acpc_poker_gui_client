@@ -6,6 +6,9 @@ AcpcPokerGuiClient::Application.routes.draw do
   match 'match_start/start_dealer_and_players' => 'match_start#start_dealer_and_players', :as => :start_dealer_and_players
   match 'match_start/start_proxy_only' => 'match_start#start_proxy_only', :as => :start_proxy_only
 
+  match 'match_start/update_match_queue' => 'match_start#update_match_queue', :as => :update_match_queue
+  match 'match_start/new_exhibition_match' => 'match_start#new_exhibition_match', :as => :new_exhibition_match
+
   # Routes for PlayerActions
   match 'player_actions/match_home' => 'player_actions#index', :as => :match_home
   match 'player_actions/update_match' => 'player_actions#update_match', :as => :update_match

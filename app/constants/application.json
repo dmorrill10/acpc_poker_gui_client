@@ -1,5 +1,5 @@
 {
-  "APP_NAME": "ACPC Poker GUI",
+  "APP_NAME": "Exhibition Match",
   "HTML_CLASS_PREFIX": ".",
   "APP_VIEW_HTML_CLASS": "app",
   "POKER_VIEW_HTML_CLASS": "poker",
@@ -8,5 +8,6 @@
   "REPLACE_CONTENTS_JS": "shared/replace_content",
   "NEW_MATCH_PARTIAL": "match_start/index",
   "ISSUE_TRACKER": "https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open",
-  "MATCH_SLICE_SESSION_KEY": "match_slice_index"
+  "MATCH_SLICE_SESSION_KEY": "match_slice_index",
+  "MAX_NUM_MATCHES": 20
 }

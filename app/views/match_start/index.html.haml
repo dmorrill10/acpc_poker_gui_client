@@ -1,3 +1,8 @@
 :javascript
-  Realtime.connect("#{realtime_constants_url}", "#{table_manager_constants_url}");
+  Realtime.connect(
+    "#{realtime_constants_url}",
+    "#{table_manager_constants_url}",
+    "#{update_match_queue_url}"
+  );
+
 = render :partial => 'match_start/index'

@@ -134,7 +134,7 @@ class ApplicationController < MatchManagerController
     alert_message: @alert_message,
     html_element: @html_element
   )
-    @replacement_partial = replacement_partial || NEW_MATCH_PARTIAL
+    @replacement_partial = replacement_partial || ApplicationHelper::NEW_MATCH_PARTIAL
     @alert_message = alert_message
     @html_element = html_element || app_html_element
 

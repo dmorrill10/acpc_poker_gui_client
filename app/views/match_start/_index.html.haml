@@ -2,21 +2,5 @@
   $('.modal-backdrop').remove();
 
 = render partial: 'layouts/navbar', locals: { partial: nil }
-.match_start
-  %ul.match_start_tabs.nav.nav-tabs
-    %li= link_to('New match', '#new_match_form', data: { toggle: 'tab' })
-    %li= link_to('Join match', '#join_match_form', data: { toggle: 'tab' })
-    %li= link_to('Rejoin match', '#rejoin_match_form', data: { toggle: 'tab' })
-  .match_start_tabs-content.tab-content
-    = render partial: 'match_start/new_match_form'
-    #join_match_form.tab-pane
-      = render partial: 'match_start/take_seat_form', locals: { form_target: join_match_path, matches: matches_to_join, btn_label: 'Join match', seats: seats_to_join }
-    #rejoin_match_form.tab-pane
-      = render partial: 'match_start/take_seat_form', locals: { form_target: rejoin_match_path, matches: matches_to_rejoin, btn_label: 'Rejoin match', seats: seats_to_rejoin }
+= render partial: 'new_exhibition_match'
 = render partial: MatchStartHelper::FOOTER
-:javascript
-  $('.match_start_tabs a:first').tab('show');
-  DynamicSelector.makeDynamic('#join_match_form #match_name', '#join_match_form #seat');
-  DynamicSelector.makeDynamic('#rejoin_match_form #match_name', '#rejoin_match_form #seat');
-  DynamicSelector.selectDefault('#join_match_form #match_name');
-  DynamicSelector.selectDefault('#rejoin_match_form #match_name');

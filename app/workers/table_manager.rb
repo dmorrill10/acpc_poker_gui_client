@@ -1,4 +1,5 @@
 require 'socket'
+require 'thread'
 
 # Load the database configuration
 require_relative '../../lib/database_config'
@@ -69,96 +70,21 @@ module TableManager
 
   MATCH_LOG_DIRECTORY = File.join(ApplicationDefs::LOG_DIRECTORY, 'match_logs')
 
-  class TableManagerWorker
-    include AcpcPokerTypes
-
-    include Sidekiq::Worker
-    sidekiq_options retry: false, backtrace: true
-
-    include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
-
-    def initialize
-      @@logger ||= Logger.from_file_name(
-        File.join(
-          ApplicationDefs::LOG_DIRECTORY,
-          'table_manager.log'
-        )
-      ).with_metadata!
-      @logger = @@logger
-
-      @@table_information ||= {}
-      @@message_server ||= Redis.new(
-        host: THIS_MACHINE,
-        port: MESSAGE_SERVER_PORT
-      )
-      @message_server = @@message_server
+  class TableQueue
+    def initialize(message_server_)
+      @syncer = Mutex.new
+      @message_server = message_server_
     end
 
-    def refresh_module(module_constant, module_file, mode_file_base)
-      if Object.const_defined?(module_constant)
-        Object.send(:remove_const, module_constant)
-      end
-      $".delete_if {|s| s.include?(mode_file_base) }
-      load module_file
 
-      log __method__, msg: "RELOADED #{module_constant}"
+    # @todo
+    def enque()
     end
 
-    def perform(request, params=nil)
-      log __method__, table_information_length: @@table_information.length, request: request, params: params
-
-      case request
-      when START_MATCH_REQUEST_CODE
-        refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
-        refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
-      when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-        return Match.delete_irrelevant_matches!
-      end
-
-      begin
-        match_id = retrieve_match_id_or_raise_exception params
-
-        log(
-          __method__,
-          table_information_length: @@table_information.length,
-          request: request,
-          match_id: match_id
-        )
-
-        ->(&block) { block.call match_instance(match_id) }.call do |match|
-          case request
-          when START_MATCH_REQUEST_CODE
-            start_dealer!(
-              retrieve_parameter_or_raise_exception(params, OPTIONS_KEY),
-              match
-            )
-
-            opponents = []
-            match.every_bot(DEALER_HOST) do |bot_command|
-              opponents << bot_command
-            end
-
-            start_opponents!(opponents).start_proxy!(match)
-          when START_PROXY_REQUEST_CODE
-            start_proxy! match
-          when PLAY_ACTION_REQUEST_CODE
-            play!(
-              retrieve_parameter_or_raise_exception(params, ACTION_KEY),
-              match
-            )
-          else
-            log __method__, message: "Unrecognized request", request: request
-          end
-        end
-      rescue => e
-        handle_exception match_id, e
-        Rusen.notify e # Send an email notification
-      end
+    def dequeue()
     end
 
-    def start_dealer!(options, match)
-      log __method__, options: options
-
+    def watch_queue
       # Clean up data from dead matches
       @@table_information.each do |match_id, match_processes|
         unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
@@ -166,6 +92,24 @@ module TableManager
           @@table_information.delete(match_id)
         end
       end
+      # @todo Dequeue
+
+      # @todo Send message to update matches
+    end
+  end
+
+  class MatchAgentInitializer
+    include AcpcPokerTypes
+    include SimpleLogging
+
+    def initialize(logger_)
+      @logger = logger_
+    end
+
+
+    # @return [Hash<Symbol, Object>] The dealer information
+    def start_dealer!(options, match)
+      log __method__, options: options
 
       dealer_arguments = {
         match_name: "\"#{match.name}\"",
@@ -175,7 +119,6 @@ module TableManager
         player_names: match.player_names.map { |name| "\"#{name}\"" }.join(' '),
         options: (options || {})
       }
-      match_processes = @@table_information[match.id] || {}
 
       log __method__, {
         match_id: match.id,
@@ -184,26 +127,19 @@ module TableManager
         num_tables: @@table_information.length
       }
 
-      dealer_information = match_processes[:dealer] || {}
-
-      return self if dealer_information[:pid] && dealer_information[:pid].process_exists? # The dealer is already started
+      match_processes = {}
 
       # Start the dealer
-      dealer_information = AcpcDealer::DealerRunner.start(
+      dealer_info = AcpcDealer::DealerRunner.start(
         dealer_arguments,
         MATCH_LOG_DIRECTORY
       )
-      match_processes[:dealer] = dealer_information
-      @@table_information[match.id] = match_processes
-
-      # Get the player port numbers
-      port_numbers = dealer_information[:port_numbers]
 
       # Store the port numbers in the database so the web app can access them
-      match.port_numbers = port_numbers
+      match.port_numbers = dealer_info[:port_numbers]
       save_match_instance! match
 
-      self
+      dealer_info
     end
 
     def start_opponents!(bot_start_commands)
@@ -228,17 +164,9 @@ module TableManager
     end
 
     def start_proxy!(match)
-      match_processes = @@table_information[match.id] || {}
-      proxy = match_processes[:proxy]
-
       log __method__, {
-        match_id: match.id,
-        num_tables: @@table_information.length,
-        num_match_processes: match_processes.length,
-        proxy_present: !proxy.nil?
+        match_id: match.id
       }
-
-      return self if proxy
 
       game_definition = GameDefinition.parse_file(match.game_definition_file_name)
       match.game_def_hash = game_definition.to_h
@@ -260,12 +188,7 @@ module TableManager
           at_least_one_state: !players_at_the_table.match_state.nil?
         }
 
-        @message_server.publish(
-          REALTIME_CHANNEL,
-          {
-            channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
-          }.to_json
-        )
+        yield players_at_the_table if block_given?
       end
 
       log "#{__method__}: After starting proxy", {
@@ -273,48 +196,147 @@ module TableManager
         proxy_present: !proxy.nil?
       }
 
-      match_processes[:proxy] = proxy
-      @@table_information[match.id] = match_processes
-
-      self
+      proxy
     end
 
-    def play!(string_action, match)
-      unless @@table_information[match.id]
-        log(__method__, msg: "Ignoring request to play in match #{match.id} that doesn't exist.")
-        return self
-      end
-
-      proxy = @@table_information[match.id][:proxy]
-
-      unless proxy
-        log(__method__, msg: "Ignoring request to play in match #{match.id} in seat #{match.seat} when no such proxy exists.")
-        return self
-      end
-
+    def play!(string_action, match, proxy)
       action = PokerAction.new string_action
 
-      log __method__, {
-        match_id: match.id,
-        num_tables: @@table_information.length,
-        action: action
-      }
-
       proxy.play!(action) do |players_at_the_table|
-        @message_server.publish(
-          REALTIME_CHANNEL,
-          {
-            channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
-          }.to_json
+        yield players_at_the_table if block_given?
+      end
+    end
+  end
+
+  class TableManagerWorker
+    include Sidekiq::Worker
+    sidekiq_options retry: false, backtrace: true
+
+    include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
+
+    def initialize
+      @@logger ||= Logger.from_file_name(
+        File.join(
+          ApplicationDefs::LOG_DIRECTORY,
+          'table_manager.log'
         )
+      ).with_metadata!
+      @logger = @@logger
+      @agent_initializer = MatchAgentInitializer.new(@logger)
+
+      @@table_information ||= {}
+      @@message_server ||= Redis.new(
+        host: THIS_MACHINE,
+        port: MESSAGE_SERVER_PORT
+      )
+      @message_server = @@message_server
+    end
+
+    def refresh_module(module_constant, module_file, mode_file_base)
+      if Object.const_defined?(module_constant)
+        Object.send(:remove_const, module_constant)
+      end
+      $".delete_if {|s| s.include?(mode_file_base) }
+      load module_file
+
+      log __method__, msg: "RELOADED #{module_constant}"
+    end
+
+    def perform(request, params=nil)
+      log __method__, table_information_length: @@table_information.length, request: request, params: params
+
+      case request
+      when START_MATCH_REQUEST_CODE
+        # @todo Put bots in json so this hacky module reloading doesn't need to be done?
+        refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
+        refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
+      when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
+        return Match.delete_irrelevant_matches!
       end
 
-      if proxy.match_ended?
-        log __method__, msg: "Deleting background processes with match ID #{match.id}"
-        @@table_information.delete match.id
-      end
+      begin
+        match_id = retrieve_match_id_or_raise_exception params
 
-      self
+        log(
+          __method__,
+          table_information_length: @@table_information.length,
+          request: request,
+          match_id: match_id
+        )
+
+        ->(&block) { block.call match_instance(match_id) }.call do |match|
+          case request
+          when START_MATCH_REQUEST_CODE
+            raise StandardError.new("Match #{match_id} already started!") if @@table_information[match_id]
+
+            @@table_information[match_id] ||= {}
+            @@table_information[match_id][:dealer] = @agent_initializer.start_dealer!(
+              retrieve_parameter_or_raise_exception(params, OPTIONS_KEY),
+              match
+            )
+
+            opponents = []
+            match.every_bot(DEALER_HOST) do |bot_command|
+              opponents << bot_command
+            end
+
+            @agent_initializer.start_opponents!(opponents)
+            @@table_information[match_id][:proxy] = @agent_initializer.start_proxy!(match) do |players_at_the_table|
+              @message_server.publish(
+                REALTIME_CHANNEL,
+                {
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+                }.to_json
+              )
+            end
+          when START_PROXY_REQUEST_CODE
+            @agent_initializer.start_proxy!(match) do |players_at_the_table|
+              @message_server.publish(
+                REALTIME_CHANNEL,
+                {
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+                }.to_json
+              )
+            end
+          when PLAY_ACTION_REQUEST_CODE
+            unless @@table_information[match.id]
+              raise StandardError.new("Request to play in match #{match.id} doesn't exist!")
+            end
+            proxy = @@table_information[match.id][:proxy]
+            unless proxy
+              raise StandardError.new("Ignoring request to play in match #{match.id} in seat #{match.seat} when no such proxy exists.")
+            end
+
+            action = retrieve_parameter_or_raise_exception(params, ACTION_KEY)
+            log __method__, {
+              match_id: match.id,
+              num_tables: @@table_information.length,
+              action: action
+            }
+
+            @agent_initializer.play!(action, match, proxy) do |players_at_the_table|
+              @message_server.publish(
+                REALTIME_CHANNEL,
+                {
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+                }.to_json
+              )
+            end
+
+            if proxy.match_ended?
+              log __method__, msg: "Deleting background processes with match ID #{match.id}"
+              @@table_information.delete match.id
+
+              # @todo Dequeue
+            end
+          else
+            raise StandardError.new("Unrecognized request: #{request}")
+          end
+        end
+      rescue => e
+        handle_exception match_id, e
+        Rusen.notify e # Send an email notification
+      end
     end
 
     protected

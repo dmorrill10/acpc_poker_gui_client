@@ -133,6 +133,16 @@ class MatchStartController < ApplicationController
     render nothing: true
   end
 
+  def update_match_queue
+    replace_page_contents(
+      html_element: '.match_start',
+      replacement_partial: 'new_exhibition_match'
+    )
+  end
+
+  def new_exhibition_match
+  end
+
   protected
 
   def my_helper() MatchStartHelper end

@@ -21,6 +21,9 @@ class Match
   def self.finished
     all.select { |match| match.finished? }
   end
+  def self.unfinished
+    all.select { |match| !match.finished? }
+  end
   def self.include_name
     field :name
     validates_presence_of :name
@@ -70,7 +73,7 @@ class Match
 
     self
   end
-  def self.match_lifespan() 1.month end
+  def self.match_lifespan() 1.minute end
   def self.delete_irrelevant_matches!
     finished.each { |m| m.delete }
     delete_matches_older_than! match_lifespan

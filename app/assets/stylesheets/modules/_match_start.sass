@@ -1,2 +1,75 @@
 .match_start
+  +zen-grid-container
+
+  $match_start_num_grid_items: 12
+
+  $match_start_height: 780px
+  height: $match_start_height
+
   background-color: white
+  .matches-in-progress
+    +parent_grid(10)
+    +zen-grid-item($match_start_num_grid_items / 2, 1)
+
+    $matches-in-progress_height: $match_start_height
+    $matches-in-progress_width: 600px
+
+    padding: 20px
+
+    width: $matches-in-progress_width
+    height: $matches-in-progress_height
+
+    $matches-in-progress_font-size: 12px
+    font-size: $matches-in-progress_font-size
+    overflow: auto
+
+    .right
+      float: right
+      margin-left: 8px
+    .table
+      margin-bottom: 0
+
+      $spectate_button_width: 50px
+      tr
+        th
+          text-align: center
+          font-size: $matches-in-progress_font-size + 2
+          padding: 2px
+        td
+          text-align: center
+          padding: 2px
+        td:first-child
+          width: ($matches-in-progress_width - $spectate_button_width)/2.0
+        td:first-child + td
+          width: ($matches-in-progress_width - $spectate_button_width)/2.0
+        td:first-child + td + td
+          form
+            width: auto
+            margin: 0
+          input
+            width: $spectate_button_width
+            font-size: $matches-in-progress_font-size - 2
+  .play_button_box
+    +parent_grid(10)
+    +zen-grid-item($match_start_num_grid_items / 2, $match_start_num_grid_items / 2)
+
+    $play_button_box_height: 100px
+
+    padding-top: 100px
+
+    width: auto
+    position: relative
+    display: inline-block
+    form
+      padding: 0
+      margin: 0
+      height: auto
+      width: auto
+      .form-actions
+        padding: 0
+        margin: 0
+        height: auto
+        width: auto
+    .btn
+      font-size: 20px
+      height: $play_button_box_height

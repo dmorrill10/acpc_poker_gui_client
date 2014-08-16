@@ -45,4 +45,19 @@ module MatchStartHelper
       hash
     end
   end
+  def user_already_in_match?
+    @user_is_already_in_match ||= (
+      begin
+        matches = Match.where(user_name: user_name)
+        matches.reject { |m| m.name_from_user.match(/^_+$/) || m.finished? }
+        matches.length > 0
+      rescue => e
+        raise e
+        false
+      end
+    )
+  end
+  def num_matches_in_progress
+    @num_matches_in_progress ||= Match.unfinished.length
+  end
 end

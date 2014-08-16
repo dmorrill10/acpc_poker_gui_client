@@ -18,6 +18,7 @@ return io.on('connection', function(socket){
     console.log("realtime-server: Alerting view: " + message);
 
     var parsedMessage = JSON.parse(message);
-    socket.emit(parsedMessage.channel, parsedMessage.channel);
+    var msg = ("message" in parsedMessage) ? parsedMessage.message : parsedMessage.channel
+    socket.emit(parsedMessage.channel, msg);
   });
 });

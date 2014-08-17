@@ -3,6 +3,7 @@ root = exports ? this
 root.Realtime =
   playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@matchId}"
   playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@matchId}"
+  startExhibitionMatchChannel: ()-> "#{@startExhibitionMatchChannelPrefix}#{@matchId}"
 
   connect: (realtimeConstantsUrl, tableManagerConstantsUrl, updateMatchQueueUrl)->
     @numUpdatesInQueue = 0
@@ -19,12 +20,14 @@ root.Realtime =
     $.getJSON(tableManagerConstantsUrl, (constants)=>
       @playerActionChannelPrefix = constants.PLAYER_ACTION_CHANNEL_PREFIX
       @playerCommentChannelPrefix = constants.PLAYER_COMMENT_CHANNEL_PREFIX
-      @updateMatchQueueRequestCode = constants.UPDATE_MATCH_QUEUE
+      @updateMatchQueueChannel = constants.UPDATE_MATCH_QUEUE_CHANNEL
+      @startExhibitionMatchChannelPrefix = constants.START_EXHIBITION_MATCH_CHANNEL_PREFIX
     ).fail(=> # Fallback to default
       console.log 'Unable to retrieve TableManager constants, falling back to default'
       @playerActionChannelPrefix = "player-action-in-"
       @playerCommentChannelPrefix = "player-comment-in-"
-      @updateMatchQueueRequestCode = 'update_queue_count'
+      @updateMatchQueueChannel = 'update_queue_count'
+      @startExhibitionMatchChannelPrefix = 'start_exhibition_match-'
     )
 
   # To Rails server
@@ -47,6 +50,7 @@ root.Realtime =
     @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
+  startExhibitionMatch: -> @controllerAction @startExhibitionMatchUrl
 
   # From Node.js server
   #====================
@@ -59,3 +63,10 @@ root.Realtime =
     @matchHomeUrl = matchHomeUrl
     @onPlayerAction = (message)-> Realtime.updateState()
     @socket.on @playerActionChannel(), @onPlayerAction
+    # @todo Disconnect from updateMatchQueueUrl
+
+  # @todo Use user instead of match ID
+  listenToStartExhibitionMatch: (matchId, startExhibitionMatchUrl)->
+    @startExhibitionMatchUrl = startExhibitionMatchUrl
+    @matchId = matchId
+    @socket.on @startExhibitionMatchChannel(), @startExhibitionMatch

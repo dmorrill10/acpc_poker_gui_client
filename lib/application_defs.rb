@@ -28,12 +28,5 @@ module ApplicationDefs
       game_definitions[game_def_key][:opponents][name]
     end.reject { |elem| elem.nil? }
   end
-  def self.random_seat(num_players)
-    rand(num_players) + 1
-  end
-  def self.random_seed
-    random_float = rand
-    random_int = (random_float * 10**random_float.to_s.length).to_i
-  end
 end
 

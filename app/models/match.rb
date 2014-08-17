@@ -18,6 +18,13 @@ class Match
   scope :expired, ->(lifespan) do
     where(:updated_at.lt => (Time.new - lifespan))
   end
+  def self.new_random_seed
+    random_float = rand
+    random_int = (random_float * 10**random_float.to_s.length).to_i
+  end
+  def self.new_random_seat(num_players)
+    rand(num_players) + 1
+  end
   def self.finished
     all.select { |match| match.finished? }
   end
@@ -135,12 +142,12 @@ class Match
     game_info = ApplicationDefs.game_definitions[game_definition_key]
 
     # Adjust or initialize seat
-    self.seat ||= ApplicationDefs.random_seat(game_info[:num_players])
+    self.seat ||= self.class().new_random_seat(game_info[:num_players])
     if seat > game_info[:num_players]
       seat = game_info[:num_players]
     end
 
-    self.random_seed ||= ApplicationDefs.random_seed
+    self.random_seed ||= self.class().new_random_seed
 
     self.game_definition_file_name = game_info[:file]
 

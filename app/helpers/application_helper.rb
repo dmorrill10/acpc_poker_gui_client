@@ -13,6 +13,14 @@ module ApplicationHelper
     ApplicationHelper.const_set(constant, val) unless const_defined? constant
   end
 
+  JSON.parse(
+    File.read(
+      Rails.root.join('app', 'constants', 'exhibition.json')
+    )
+  ).each do |constant, val|
+    ApplicationHelper.const_set(constant, val) unless const_defined? constant
+  end
+
   def html_element_name_to_class(element)
     "#{HTML_CLASS_PREFIX}#{element}"
   end

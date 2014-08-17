@@ -140,7 +140,43 @@ class MatchStartController < ApplicationController
     )
   end
 
-  def new_exhibition_match
+  def enqueue_exhibition_match
+    seed = Match.new_random_seed
+    seat = Match.new_random_seat
+    match_name = "#{user_name}.#{NUM_HANDS_PER_MATCH}h.#{seed}r.#{seat}s"
+
+    params[:match] = {
+      opponent_names: [ApplicationHelper::EXHIBITION_BOT_NAME],
+      name_from_user: match_name,
+      game_definition_key: :two_player_limit,
+      number_of_hands: ApplicationHelper::NUM_HANDS_PER_MATCH,
+      seat: seat,
+      random_seed: seed,
+      user_name: user_name
+    }
+
+    return reset_to_match_entry_view(
+      'Sorry, unable to finish creating a match instance, please try again.'
+    ) if (
+      error? do
+        @match = Match.new(params[:match]).finish_starting!
+
+        match_id(@match.id)
+        match_slice_index(INITIAL_MATCH_SLICE_INDEX)
+
+        update_match_queue
+      end
+    )
+  end
+
+  def start_exhibition_match
+    return reset_to_match_entry_view(
+      'Sorry, unable to start match, please try again.'
+    ) if (
+      error? do
+        wait_for_match_to_start TableManager::START_MATCH_REQUEST_CODE
+      end
+    )
   end
 
   protected

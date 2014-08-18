@@ -1,18 +1,20 @@
 root = exports ? this
 
 root.Realtime =
-  playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@matchId}"
-  playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@matchId}"
-  startExhibitionMatchChannel: ()-> "#{@startExhibitionMatchChannelPrefix}#{@matchId}"
+  playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@user}"
+  playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@user}"
+  startExhibitionMatchChannel: ()-> "#{@startExhibitionMatchChannelPrefix}#{@user}"
 
-  connect: (realtimeConstantsUrl, tableManagerConstantsUrl, updateMatchQueueUrl)->
+  connect: (realtimeConstantsUrl, tableManagerConstantsUrl, updateMatchQueueUrl, user, startExhibitionMatchUrl, matchHomeUrl)->
     @numUpdatesInQueue = 0
     @updateMatchQueueUrl = '/'
     @matchHomeUrl = '/'
-    @matchId = ''
+    @user = ''
     $.getJSON(realtimeConstantsUrl, (constants)=>
       @socket = io.connect("http://0.0.0.0:#{constants.REALTIME_SERVER_PORT}")
       @listenToMatchQueueUpdates updateMatchQueueUrl
+      @listenToStartExhibitionMatch user, startExhibitionMatchUrl
+      @listenToPlayerAction user, matchHomeUrl
     ).fail(=> # Fallback to default
       console.log 'Unable to retrieve Realtime constants, falling back to default'
       @socket = io.connect("http://0.0.0.0:5001")
@@ -34,7 +36,7 @@ root.Realtime =
   #================
   controllerAction: (urlArg, dataArg = {})->
     $.ajax({type: "POST", url: urlArg, data: dataArg})
-  updateMatchQueue: (message)-> @controllerAction @updateMatchQueueUrl
+  updateMatchQueue: (message='')-> @controllerAction @updateMatchQueueUrl
   forceUpdateState: ()-> @controllerAction @matchHomeUrl
   updateState: ()->
     if @numUpdatesInQueue > 0
@@ -46,27 +48,27 @@ root.Realtime =
     @numUpdatesInQueue -= 1
     if @numUpdatesInQueue > 0
       @forceUpdateState() if update
-  startMatch: (url, optionArgs)->
+  startMatch: (url, optionArgs = '')->
     @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
-  startExhibitionMatch: -> @controllerAction @startExhibitionMatchUrl
+  startExhibitionMatch: (msg='')-> @controllerAction @startExhibitionMatchUrl
 
   # From Node.js server
   #====================
   listenToMatchQueueUpdates: (updateMatchQueueUrl)->
     @updateMatchQueueUrl = updateMatchQueueUrl
-    @socket.on @updateMatchQueueRequestCode, @updateMatchQueue
+    @socket.on @updateMatchQueueChannel, @updateMatchQueue
 
-  listenToPlayerAction: (matchId, matchHomeUrl)->
-    @matchId = matchId
+  listenToPlayerAction: (user, matchHomeUrl)->
+    @user = user
     @matchHomeUrl = matchHomeUrl
     @onPlayerAction = (message)-> Realtime.updateState()
     @socket.on @playerActionChannel(), @onPlayerAction
-    # @todo Disconnect from updateMatchQueueUrl
+    @socket.removeListener @updateMatchQueueChannel, @updateMatchQueue
+    @socket.removeListener @startExhibitionMatchChannel(), @startExhibitionMatch
 
-  # @todo Use user instead of match ID
-  listenToStartExhibitionMatch: (matchId, startExhibitionMatchUrl)->
+  listenToStartExhibitionMatch: (user, startExhibitionMatchUrl)->
     @startExhibitionMatchUrl = startExhibitionMatchUrl
-    @matchId = matchId
+    @user = user
     @socket.on @startExhibitionMatchChannel(), @startExhibitionMatch

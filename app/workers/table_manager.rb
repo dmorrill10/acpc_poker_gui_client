@@ -70,6 +70,77 @@ module TableManager
 
   MATCH_LOG_DIRECTORY = File.join(ApplicationDefs::LOG_DIRECTORY, 'match_logs')
 
+  module GracefulErrorHandling
+    protected
+
+    # @param [String] match_id The ID of the match in which the exception occurred.
+    # @param [Exception] e The exception to log.
+    def handle_exception(match_id, e)
+      log(
+        __method__,
+        {
+          match_id: match_id,
+          message: e.message,
+          backtrace: e.backtrace
+        },
+        Logger::Severity::ERROR
+      )
+      Match.delete_match! match_id if match_id
+    end
+
+    def try
+      begin
+        yield if block_given?
+      rescue => e
+        handle_exception match_id, e
+        raise e
+      end
+    end
+  end
+
+  module MatchInterface
+    include GracefulErrorHandling
+
+    protected
+
+    # @param [String] match_id The ID of the +Match+ instance to retrieve.
+    # @return [Match] The desired +Match+ instance.
+    # @raise (see Match#find)
+    def match_instance(match_id)
+      try { match = Match.find match_id }
+    end
+
+    # @param [Match] The +Match+ instance to save.
+    # @raise (see Match#save)
+    def save_match_instance!(match)
+      try { match.save }
+    end
+  end
+
+  module ParamRetrieval
+    include GracefulErrorHandling
+
+    protected
+
+    # @param [Hash<String, Object>] params Parameter hash
+    # @param parameter_key The key of the parameter to be retrieved.
+    # @raise
+    def retrieve_parameter_or_raise_exception(params, parameter_key)
+      raise StandardError.new("nil params hash given") unless params
+      retrieved_param = params[parameter_key]
+      unless retrieved_param
+        raise StandardError.new("No #{parameter_key.to_english} provided")
+      end
+      retrieved_param
+    end
+
+    # @param [Hash<String, Object>] params Parameter hash
+    # @raise (see #param)
+    def retrieve_match_id_or_raise_exception(params)
+      retrieve_parameter_or_raise_exception params, MATCH_ID_KEY
+    end
+  end
+
   class TableQueue
     def initialize(message_server_)
       @syncer = Mutex.new
@@ -101,11 +172,11 @@ module TableManager
   class MatchAgentInitializer
     include AcpcPokerTypes
     include SimpleLogging
+    include MatchInterface
 
     def initialize(logger_)
       @logger = logger_
     end
-
 
     # @return [Hash<Symbol, Object>] The dealer information
     def start_dealer!(options, match)
@@ -123,8 +194,7 @@ module TableManager
       log __method__, {
         match_id: match.id,
         dealer_arguments: dealer_arguments,
-        log_directory: MATCH_LOG_DIRECTORY,
-        num_tables: @@table_information.length
+        log_directory: MATCH_LOG_DIRECTORY
       }
 
       match_processes = {}
@@ -213,6 +283,8 @@ module TableManager
     sidekiq_options retry: false, backtrace: true
 
     include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
+    include MatchInterface
+    include ParamRetrieval
 
     def initialize
       @@logger ||= Logger.from_file_name(
@@ -269,6 +341,14 @@ module TableManager
           when START_MATCH_REQUEST_CODE
             raise StandardError.new("Match #{match_id} already started!") if @@table_information[match_id]
 
+            # @todo Enqueue match
+
+            @message_server.publish(
+              REALTIME_CHANNEL,
+              {
+                channel: "#{START_EXHIBITION_MATCH_CHANNEL_PREFIX}#{match.user_name}"
+              }.to_json
+            )
             @@table_information[match_id] ||= {}
             @@table_information[match_id][:dealer] = @agent_initializer.start_dealer!(
               retrieve_parameter_or_raise_exception(params, OPTIONS_KEY),
@@ -285,7 +365,7 @@ module TableManager
               @message_server.publish(
                 REALTIME_CHANNEL,
                 {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.user_name}"
                 }.to_json
               )
             end
@@ -294,7 +374,7 @@ module TableManager
               @message_server.publish(
                 REALTIME_CHANNEL,
                 {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.user_name}"
                 }.to_json
               )
             end
@@ -318,7 +398,7 @@ module TableManager
               @message_server.publish(
                 REALTIME_CHANNEL,
                 {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id}"
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.user_name}"
                 }.to_json
               )
             end
@@ -337,63 +417,6 @@ module TableManager
         handle_exception match_id, e
         Rusen.notify e # Send an email notification
       end
-    end
-
-    protected
-
-    # @param [String] match_id The ID of the match in which the exception occurred.
-    # @param [Exception] e The exception to log.
-    def handle_exception(match_id, e)
-      log(
-        __method__,
-        {
-          match_id: match_id,
-          message: e.message,
-          backtrace: e.backtrace
-        },
-        Logger::Severity::ERROR
-      )
-      Match.delete_match! match_id if match_id
-    end
-
-    def try
-      begin
-        yield if block_given?
-      rescue => e
-        handle_exception match_id, e
-        raise e
-      end
-    end
-
-    # @param [String] match_id The ID of the +Match+ instance to retrieve.
-    # @return [Match] The desired +Match+ instance.
-    # @raise (see Match#find)
-    def match_instance(match_id)
-      try { match = Match.find match_id }
-    end
-
-    # @param [Match] The +Match+ instance to save.
-    # @raise (see Match#save)
-    def save_match_instance!(match)
-      try { match.save }
-    end
-
-    # @param [Hash<String, Object>] params Parameter hash
-    # @param parameter_key The key of the parameter to be retrieved.
-    # @raise
-    def retrieve_parameter_or_raise_exception(params, parameter_key)
-      raise StandardError.new("nil params hash given") unless params
-      retrieved_param = params[parameter_key]
-      unless retrieved_param
-        raise StandardError.new("No #{parameter_key.to_english} provided")
-      end
-      retrieved_param
-    end
-
-    # @param [Hash<String, Object>] params Parameter hash
-    # @raise (see #param)
-    def retrieve_match_id_or_raise_exception(params)
-      retrieve_parameter_or_raise_exception params, MATCH_ID_KEY
     end
   end
 end

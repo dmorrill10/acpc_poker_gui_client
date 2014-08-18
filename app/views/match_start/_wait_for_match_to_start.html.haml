@@ -1,20 +1,13 @@
-:javascript
-  Realtime.listenToPlayerAction("#{match_id}", "#{match_home_url}");
 - case @request_code
 - when TableManager::START_MATCH_REQUEST_CODE
   :javascript
-    Realtime.startMatch(
-      "#{start_dealer_and_players_url}",
-      [
-        '-a', // Append logs with the same name rather than overwrite
-        "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
-        '--t_hand -1',
-        '--t_per_hand -1'
-      ].join(' ')
-    );
+    Realtime.startMatch("#{start_dealer_and_players_url}");
 - when TableManager::START_PROXY_REQUEST_CODE
   :javascript
     Realtime.startProxy("#{start_proxy_url}");
+- when TableManager::EXHIBITION_MATCH_REQUEST_CODE
+  :javascript
+    console.log("Exhibition match request");
 - else
   :javascript
     Realtime.forceUpdateState();

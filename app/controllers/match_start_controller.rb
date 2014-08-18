@@ -102,18 +102,7 @@ class MatchStartController < ApplicationController
       'Sorry, unable to start the dealer and players, please try again or join a match already in progress.'
     ) if (
       error? do
-        TableManager::TableManagerWorker.perform_async(
-          TableManager::START_MATCH_REQUEST_CODE,
-          {
-            TableManager::MATCH_ID_KEY => match_id,
-            TableManager::OPTIONS_KEY => [
-              '-a', # Append logs with the same name rather than overwrite
-              "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
-              '--t_hand -1',
-              '--t_per_hand -1'
-            ].join(' ')
-          }
-        )
+        self.class().start_dealer_and_players_on_server match_id
       end
     )
     render nothing: true
@@ -142,7 +131,7 @@ class MatchStartController < ApplicationController
 
   def enqueue_exhibition_match
     seed = Match.new_random_seed
-    seat = Match.new_random_seat
+    seat = Match.new_random_seat(2)
     match_name = "#{user_name}.#{NUM_HANDS_PER_MATCH}h.#{seed}r.#{seat}s"
 
     params[:match] = {
@@ -164,9 +153,11 @@ class MatchStartController < ApplicationController
         match_id(@match.id)
         match_slice_index(INITIAL_MATCH_SLICE_INDEX)
 
-        update_match_queue
+        self.class().start_dealer_and_players_on_server match_id
+        return update_match_queue
       end
     )
+    return update_match_queue
   end
 
   def start_exhibition_match
@@ -174,7 +165,7 @@ class MatchStartController < ApplicationController
       'Sorry, unable to start match, please try again.'
     ) if (
       error? do
-        wait_for_match_to_start TableManager::START_MATCH_REQUEST_CODE
+        return wait_for_match_to_start TableManager::EXHIBITION_MATCH_REQUEST_CODE
       end
     )
   end
@@ -206,5 +197,20 @@ class MatchStartController < ApplicationController
 
   def num_players(game_def_key)
     ApplicationDefs.game_definitions[game_def_key][:num_players]
+  end
+
+  def self.start_dealer_and_players_on_server(match_id_)
+    TableManager::TableManagerWorker.perform_async(
+      TableManager::START_MATCH_REQUEST_CODE,
+      {
+        TableManager::MATCH_ID_KEY => match_id_,
+        TableManager::OPTIONS_KEY => [
+          '-a', # Append logs with the same name rather than overwrite
+          "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
+          '--t_hand -1',
+          '--t_per_hand -1'
+        ].join(' ')
+      }
+    )
   end
 end

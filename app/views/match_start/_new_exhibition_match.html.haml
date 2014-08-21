@@ -1,0 +1,34 @@
+.match_start
+  .matches-in-progress
+    %table.table.table-striped.table-bordered
+      %thead
+        %tr
+          %th Matches in Progress
+          %th= "#{num_matches_in_progress} / #{ApplicationHelper::MAX_NUM_MATCHES}"
+          %th
+      %tbody
+        - Match.each do |m|
+          %tr
+            %td= m.user_name
+            %td= "#{m.slices.length} / #{m.number_of_hands} Hands completed"
+            %td
+              / @todo Spectate form
+              %form.spectate_form
+                %input.btn.btn-secondary{value: 'Spectate'}
+        - min_num_rows_to_display = 20
+        - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
+          %tr
+            %td
+            %td
+            %td
+              %form.spectate_form
+                %input.btn.btn-secondary{disabled: true, value: 'Spectate'}
+  .play_button_box
+    = form_for match, url: enqueue_exhibition_match_url, remote: true do |f|
+      - disabled_label = "Waiting..."
+      - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_progress < ApplicationHelper::MAX_NUM_MATCHES && !user_already_in_match? then "Play Match!" else "Play Match After #{num_matches_in_progress} Matches" end}
+      - if user_already_in_match?
+        - play_button_attributes[:disabled] = 'disabled'
+        - play_button_attributes[:value] = disabled_label
+      .form-actions
+        = f.submit play_button_attributes

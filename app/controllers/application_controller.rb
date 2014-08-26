@@ -76,7 +76,7 @@ class UserManagerController < ErrorManagerController
 end
 
 class MatchManagerController < UserManagerController
-  helper_method :match, :match_id, :match_slice_index
+  helper_method :match, :match_id, :match_slice_index, :user_started_match?, :spectating?
 
   protected
 
@@ -102,6 +102,14 @@ class MatchManagerController < UserManagerController
     else
       session[ApplicationHelper::MATCH_SLICE_SESSION_KEY]
     end
+  end
+
+  def user_started_match?(m)
+    user.name == m.user_name
+  end
+
+  def spectating?
+    !user_started_match?(match)
   end
 end
 

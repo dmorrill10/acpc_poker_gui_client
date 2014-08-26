@@ -1,6 +1,8 @@
 - if user_already_in_match?
   :javascript
-    Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}");
+    if (!Realtime.listeningForMatchToStart) {
+      Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}");
+    }
   - if matches_to_rejoin && !matches_to_rejoin.empty?
     :javascript
       Realtime.onMatchHasStarted();
@@ -24,7 +26,10 @@
             %td
               / @todo Spectate form
               %form.spectate_form
-                %input.btn.btn-secondary{value: 'Spectate'}
+                - spectate_or_rejoin_label = if user_started_match?(m) then 'Rejoining' else 'Spectate' end
+                - spectate_button = {value: spectate_or_rejoin_label}
+                - spectate_button[:disabled] = true if user_started_match?(m)
+                %input.btn.btn-secondary{spectate_button}
         - min_num_rows_to_display = 20
         - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
           %tr

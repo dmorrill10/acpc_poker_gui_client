@@ -14,6 +14,7 @@ root.Realtime =
     @updateMatchQueueUrl = '/'
     @matchHomeUrl = '/'
     @matchId = ''
+    @listeningForMatchToStart = false
 
     # Only start the app after a connection has been made
     onConnection = (socket)=>
@@ -76,8 +77,10 @@ root.Realtime =
     @socket.removeListener @updateMatchQueueChannel, @updateMatchQueue
     # Connect new method to this channel
     @socket.on @playerActionChannel(), @onPlayerAction
+    @listeningForMatchToStart = false
 
   listenForMatchToStart: (matchId, matchHomeUrl)->
     @matchId = matchId
     @matchHomeUrl = matchHomeUrl
+    @listeningForMatchToStart = true
     @socket.on @playerActionChannel(), @onMatchHasStarted

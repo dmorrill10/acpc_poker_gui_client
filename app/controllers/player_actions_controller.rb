@@ -17,8 +17,8 @@ class MatchViewManagerController < ApplicationController
     :player_role_id,
     :user_must_act?,
     :next_hand_button_visible?,
-    :wager_disabled_when,
-    :fold_disabled_when,
+    :wager_disabled?,
+    :fold_disabled?,
     :pass_action_button_label,
     :make_wager_button_label
   )
@@ -48,7 +48,8 @@ class MatchViewManagerController < ApplicationController
     !match_view.match_ended? && match_view.hand_ended?
   end
 
-  def wager_disabled_when
+  def wager_disabled?
+    spectating? ||
     !(
       user_must_act? &&
       (
@@ -57,7 +58,8 @@ class MatchViewManagerController < ApplicationController
       )
     )
   end
-  def fold_disabled_when
+  def fold_disabled?
+    spectating? ||
     !(
       user_must_act? &&
       match_view.legal_actions.include?(AcpcPokerTypes::PokerAction::FOLD)
@@ -205,6 +207,10 @@ class PlayerActionsController < MatchViewManagerController
   end
 
   def leave_match
+    # @todo Kill match on server and delete in DB
+    Match.delete_match! match_id
+    Rails.logger.ap("Deleted match #{match_id}")
+
     redirect_to root_path, remote: true
   end
 

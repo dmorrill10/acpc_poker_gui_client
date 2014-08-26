@@ -5,9 +5,6 @@
 - when TableManager::START_PROXY_REQUEST_CODE
   :javascript
     Realtime.startProxy("#{start_proxy_url}");
-- when TableManager::EXHIBITION_MATCH_REQUEST_CODE
-  :javascript
-    console.log("Exhibition match request");
 - else
   :javascript
     Realtime.forceUpdateState();

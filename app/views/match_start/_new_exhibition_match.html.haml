@@ -1,3 +1,13 @@
+- if user_already_in_match?
+  :javascript
+    Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}");
+  - if matches_to_rejoin && !matches_to_rejoin.empty?
+    :javascript
+      Realtime.onMatchHasStarted();
+      Realtime.forceUpdateState();
+  - else
+    :javascript
+      Realtime.controllerAction("#{enqueue_exhibition_match_url}");
 .match_start
   .matches-in-progress
     %table.table.table-striped.table-bordered
@@ -10,7 +20,7 @@
         - Match.each do |m|
           %tr
             %td= m.user_name
-            %td= "#{m.slices.length} / #{m.number_of_hands} Hands completed"
+            %td= if m.hand_number then "Hand #{m.hand_number + 1} / #{m.number_of_hands}" else '-----' end
             %td
               / @todo Spectate form
               %form.spectate_form
@@ -24,7 +34,7 @@
               %form.spectate_form
                 %input.btn.btn-secondary{disabled: true, value: 'Spectate'}
   .play_button_box
-    = form_for match, url: enqueue_exhibition_match_url, remote: true do |f|
+    = form_for match, url: new_match_url, remote: true do |f|
       - disabled_label = "Waiting..."
       - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_progress < ApplicationHelper::MAX_NUM_MATCHES && !user_already_in_match? then "Play Match!" else "Play Match After #{num_matches_in_progress} Matches" end}
       - if user_already_in_match?

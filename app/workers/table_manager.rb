@@ -315,18 +315,21 @@ module TableManager
     end
 
     def perform(request, params=nil)
-      log __method__, table_information_length: @@table_information.length, request: request, params: params
-
-      case request
-      when START_MATCH_REQUEST_CODE
-        # @todo Put bots in json so this hacky module reloading doesn't need to be done?
-        refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
-        refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
-      when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-        return Match.delete_irrelevant_matches!
-      end
-
       begin
+        log __method__, table_information_length: @@table_information.length, request: request, params: params
+
+        case request
+        when START_MATCH_REQUEST_CODE
+          # @todo Put bots in json so this hacky module reloading doesn't need to be done?
+          refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
+          refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
+        when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
+          log __method__, num_matches_before_deleting: Match.all.length
+          Match.delete_irrelevant_matches!
+          log __method__, num_matches_after_deleting: Match.all.length
+          return
+        end
+
         match_id = retrieve_match_id_or_raise_exception params
 
         log(
@@ -341,14 +344,14 @@ module TableManager
           when START_MATCH_REQUEST_CODE
             raise StandardError.new("Match #{match_id} already started!") if @@table_information[match_id]
 
-            # @todo Enqueue match
-
-            @message_server.publish(
-              REALTIME_CHANNEL,
-              {
-                channel: "#{START_EXHIBITION_MATCH_CHANNEL_PREFIX}#{match.user_name}"
-              }.to_json
+            log(
+              __method__,
+              request: request,
+              match_id: match_id,
+              msg: 'Enqueuing match'
             )
+
+            # @todo Enqueue match
             @@table_information[match_id] ||= {}
             @@table_information[match_id][:dealer] = @agent_initializer.start_dealer!(
               retrieve_parameter_or_raise_exception(params, OPTIONS_KEY),
@@ -365,7 +368,7 @@ module TableManager
               @message_server.publish(
                 REALTIME_CHANNEL,
                 {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.user_name}"
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
                 }.to_json
               )
             end
@@ -374,22 +377,22 @@ module TableManager
               @message_server.publish(
                 REALTIME_CHANNEL,
                 {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.user_name}"
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
                 }.to_json
               )
             end
           when PLAY_ACTION_REQUEST_CODE
-            unless @@table_information[match.id]
-              raise StandardError.new("Request to play in match #{match.id} doesn't exist!")
+            unless @@table_information[match_id]
+              raise StandardError.new("Request to play in match #{match_id} doesn't exist!")
             end
-            proxy = @@table_information[match.id][:proxy]
+            proxy = @@table_information[match_id][:proxy]
             unless proxy
-              raise StandardError.new("Ignoring request to play in match #{match.id} in seat #{match.seat} when no such proxy exists.")
+              raise StandardError.new("Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists.")
             end
 
             action = retrieve_parameter_or_raise_exception(params, ACTION_KEY)
             log __method__, {
-              match_id: match.id,
+              match_id: match_id,
               num_tables: @@table_information.length,
               action: action
             }
@@ -398,7 +401,7 @@ module TableManager
               @message_server.publish(
                 REALTIME_CHANNEL,
                 {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.user_name}"
+                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
                 }.to_json
               )
             end

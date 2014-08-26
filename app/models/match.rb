@@ -80,7 +80,7 @@ class Match
 
     self
   end
-  def self.match_lifespan() 1.minute end
+  def self.match_lifespan() 1.hour end
   def self.delete_irrelevant_matches!
     finished.each { |m| m.delete }
     delete_matches_older_than! match_lifespan
@@ -120,6 +120,13 @@ class Match
 
   def game_def
     @game_def ||= AcpcPokerTypes::GameDefinition.new(self.game_def_hash)
+  end
+  def hand_number
+    return nil if slices.last.nil?
+    state = AcpcPokerTypes::MatchState.parse(
+      slices.last.state_string
+    )
+    if state then state.hand_number else nil end
   end
   def no_limit?
     @is_no_limit ||= game_def.betting_type == AcpcPokerTypes::GameDefinition::BETTING_TYPES[:nolimit]

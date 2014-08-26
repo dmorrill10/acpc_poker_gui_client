@@ -1,6 +1,7 @@
 :javascript
   $('.modal-backdrop').remove();
 
-= render partial: 'layouts/navbar', locals: { partial: nil }
-= render partial: 'match_start/new_exhibition_match'
-= render partial: MatchStartHelper::FOOTER
+.poker
+  = render partial: 'layouts/navbar', locals: { partial: nil }
+  = render partial: 'match_start/new_exhibition_match'
+  = render partial: MatchStartHelper::FOOTER

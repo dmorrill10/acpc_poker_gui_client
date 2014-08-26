@@ -5,10 +5,10 @@ project_root=$( cd "$( dirname "$0" )/../" && pwd )
 cd $project_root
 
 kill_string="kill"
-if [ -e "$project_root/vendor/mongoDB/bin/mongod" ]; then
-  $project_root/vendor/mongoDB/bin/mongod --dbpath $project_root/db &
+#if [ -e "$project_root/vendor/mongoDB/bin/mongod" ]; then
+  mongod --dbpath $project_root/db &
   kill_string="$kill_string $!"
-fi
+#fi
 if [ -e "$project_root/vendor/redis-stable/src/redis-server" ]; then
   $project_root/vendor/redis-stable/src/redis-server &
   kill_string="$kill_string $!"

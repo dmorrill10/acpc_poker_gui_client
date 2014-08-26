@@ -2,7 +2,6 @@
   "START_MATCH_REQUEST_CODE": "dealer",
   "START_PROXY_REQUEST_CODE": "proxy",
   "PLAY_ACTION_REQUEST_CODE": "play",
-  "EXHIBITION_MATCH_REQUEST_CODE": "exhibition",
   "DELETE_IRRELEVANT_MATCHES_REQUEST_CODE": "delete_irrelevant_matches",
   "POKER_MANAGER": "TableManager",
   "PLAYER_ACTION_CHANNEL_PREFIX": "player-action-in-",
@@ -12,6 +11,5 @@
   "OPTIONS_KEY": "options",
   "ACTION_KEY": "action",
   "MESSAGE_SERVER_PORT": 6379,
-  "UPDATE_MATCH_QUEUE_CHANNEL": "update_match_queue",
-  "START_EXHIBITION_MATCH_CHANNEL_PREFIX": "start_exhibition_match-"
+  "UPDATE_MATCH_QUEUE_CHANNEL": "update_match_queue"
 }

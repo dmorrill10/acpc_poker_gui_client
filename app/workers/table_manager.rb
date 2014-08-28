@@ -26,6 +26,9 @@ using SimpleLogging::MessageFormatting
 # To push notifications back to the browser
 require 'redis'
 
+# For job scheduling
+require 'sidekiq'
+
 # Convenience monkey patching
 module ConversionToEnglish
   def to_english
@@ -66,6 +69,11 @@ module TableManager
   CONSTANTS_FILE = File.expand_path('../table_manager.json', __FILE__)
   JSON.parse(File.read(CONSTANTS_FILE)).each do |constant, val|
     TableManager.const_set(constant, val) unless const_defined? constant
+  end
+  module ExhibitionConstants
+    JSON.parse(File.read(File.expand_path('../../constants/exhibition.json', __FILE__))).each do |constant, val|
+      ExhibitionConstants.const_set(constant, val) unless const_defined? constant
+    end
   end
 
   MATCH_LOG_DIRECTORY = File.join(ApplicationDefs::LOG_DIRECTORY, 'match_logs')
@@ -141,35 +149,115 @@ module TableManager
     end
   end
 
+  class MatchCommunicator
+    def initialize
+      @message_server = Redis.new(
+        host: THIS_MACHINE,
+        port: MESSAGE_SERVER_PORT
+      )
+    end
+
+    def match_updated!(match)
+      @message_server.publish(
+        REALTIME_CHANNEL,
+        {
+          channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
+        }.to_json
+      )
+    end
+  end
+
   class TableQueue
-    def initialize(message_server_)
+    include MatchInterface
+
+    attr_reader :running_matches
+
+    def initialize(match_communicator_, agent_interface_)
       @syncer = Mutex.new
-      @message_server = message_server_
+      @match_communicator = match_communicator_
+      @agent_interface = agent_interface_
+      @matches_to_start = []
+      @running_matches = {}
     end
 
-
-    # @todo
-    def enque()
+    def length
+      @matches_to_start.length
     end
 
-    def dequeue()
+    def match_ended!(match_id)
+      @syncer.synchronize {
+        @@table_queue.running_matches.delete match.id
+
+        dequeue_without_synchronization!
+      }
     end
 
-    def watch_queue
-      # Clean up data from dead matches
-      @@table_information.each do |match_id, match_processes|
-        unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
-          log __method__, msg: "Deleting background processes with match ID #{match_id}"
-          @@table_information.delete(match_id)
+    def enque!(match_id, dealer_options)
+      raise StandardError.new("Match #{match_id} already started!") if @running_matches[match_id]
+
+      @syncer.synchronize {
+        @matches_to_start << {match_id: match_id, options: dealer_options}
+
+        if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
+          dequeue_without_synchronization!
         end
-      end
+      }
+
+      self
+    end
+
+    def dequeue!
+      @syncer.synchronize { dequeue_without_synchronization! }
+    end
+
+    def watch_queue!
+      @queue_checking_thread = Thread.new { while(1) do sleep(20); check_queue! end }
+    end
+
+    def check_queue!
+      # Clean up data from dead matches
+      # @table_information.each do |match_id, match_processes|
+      #   unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
+      #     log __method__, msg: "Deleting background processes with match ID #{match_id}"
+      #     @table_information.delete(match_id)
+      #   end
+      # end
       # @todo Dequeue
 
       # @todo Send message to update matches
     end
+
+    protected
+
+    def dequeue_without_synchronization!
+      return if @matches_to_start.empty?
+
+      match_info = @matches_to_start.first
+
+      match_id = match_info[:match_id]
+      match = match_instance(match_id)
+
+      options = match_info[:options]
+
+      @running_matches[match_id] ||= {}
+      @running_matches[match_id][:dealer] = @agent_interface.start_dealer!(
+        options,
+        match
+      )
+
+      opponents = []
+      match.every_bot(DEALER_HOST) do |bot_command|
+        opponents << bot_command
+      end
+
+      @agent_interface.start_opponents!(opponents)
+      @running_matches[match_id][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
+        @match_communicator.match_updated! match
+      end
+    end
   end
 
-  class MatchAgentInitializer
+  class MatchAgentInterface
     include AcpcPokerTypes
     include SimpleLogging
     include MatchInterface
@@ -294,14 +382,15 @@ module TableManager
         )
       ).with_metadata!
       @logger = @@logger
-      @agent_initializer = MatchAgentInitializer.new(@logger)
 
-      @@table_information ||= {}
-      @@message_server ||= Redis.new(
-        host: THIS_MACHINE,
-        port: MESSAGE_SERVER_PORT
-      )
-      @message_server = @@message_server
+      @@agent_interface ||= MatchAgentInterface.new(@logger)
+      @@match_communicator ||= MatchCommunicator.new
+
+      @@table_queue ||= nil
+      unless @@table_queue
+        @@table_queue = TableQueue.new(@@match_communicator, @@agent_interface)
+        @@table_queue.watch_queue!
+      end
     end
 
     def refresh_module(module_constant, module_file, mode_file_base)
@@ -316,7 +405,13 @@ module TableManager
 
     def perform(request, params=nil)
       begin
-        log __method__, table_information_length: @@table_information.length, request: request, params: params
+        log(
+          __method__,
+          table_queue_length: @@table_queue.length,
+          table_queue_running_matches_length: @@table_queue.running_matches.length,
+          request: request,
+          params: params
+        )
 
         case request
         when START_MATCH_REQUEST_CODE
@@ -334,91 +429,65 @@ module TableManager
 
         log(
           __method__,
-          table_information_length: @@table_information.length,
+          table_queue_length: @@table_queue.length,
+          table_queue_running_matches_length: @@table_queue.running_matches.length,
           request: request,
           match_id: match_id
         )
 
-        ->(&block) { block.call match_instance(match_id) }.call do |match|
-          case request
-          when START_MATCH_REQUEST_CODE
-            raise StandardError.new("Match #{match_id} already started!") if @@table_information[match_id]
-
-            log(
-              __method__,
-              request: request,
-              match_id: match_id,
-              msg: 'Enqueuing match'
-            )
-
-            # @todo Enqueue match
-            @@table_information[match_id] ||= {}
-            @@table_information[match_id][:dealer] = @agent_initializer.start_dealer!(
-              retrieve_parameter_or_raise_exception(params, OPTIONS_KEY),
-              match
-            )
-
-            opponents = []
-            match.every_bot(DEALER_HOST) do |bot_command|
-              opponents << bot_command
-            end
-
-            @agent_initializer.start_opponents!(opponents)
-            @@table_information[match_id][:proxy] = @agent_initializer.start_proxy!(match) do |players_at_the_table|
-              @message_server.publish(
-                REALTIME_CHANNEL,
-                {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
-                }.to_json
-              )
-            end
-          when START_PROXY_REQUEST_CODE
-            @agent_initializer.start_proxy!(match) do |players_at_the_table|
-              @message_server.publish(
-                REALTIME_CHANNEL,
-                {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
-                }.to_json
-              )
-            end
-          when PLAY_ACTION_REQUEST_CODE
-            unless @@table_information[match_id]
-              raise StandardError.new("Request to play in match #{match_id} doesn't exist!")
-            end
-            proxy = @@table_information[match_id][:proxy]
-            unless proxy
-              raise StandardError.new("Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists.")
-            end
-
-            action = retrieve_parameter_or_raise_exception(params, ACTION_KEY)
-            log __method__, {
-              match_id: match_id,
-              num_tables: @@table_information.length,
-              action: action
-            }
-
-            @agent_initializer.play!(action, match, proxy) do |players_at_the_table|
-              @message_server.publish(
-                REALTIME_CHANNEL,
-                {
-                  channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
-                }.to_json
-              )
-            end
-
-            if proxy.match_ended?
-              log __method__, msg: "Deleting background processes with match ID #{match.id}"
-              @@table_information.delete match.id
-
-              # @todo Dequeue
-            end
-          else
-            raise StandardError.new("Unrecognized request: #{request}")
-          end
-        end
+        do_request!(request, match_id, params)
       rescue => e
         handle_exception match_id, e
         Rusen.notify e # Send an email notification
+      end
+    end
+
+    protected
+
+    def do_request!(request, match_id, params)
+      case request
+      when START_MATCH_REQUEST_CODE
+        log(
+          __method__,
+          request: request,
+          match_id: match_id,
+          msg: 'Enqueuing match'
+        )
+
+        @@table_queue.enque! match_id, retrieve_parameter_or_raise_exception(params, OPTIONS_KEY)
+      when START_PROXY_REQUEST_CODE
+        match = match_instance(match_id)
+        @@agent_interface.start_proxy!(match) do |players_at_the_table|
+          @@match_communicator.match_updated! match
+        end
+      when PLAY_ACTION_REQUEST_CODE
+        unless @@table_queue.running_matches[match_id]
+          raise StandardError.new("Request to play in match #{match_id} doesn't exist!")
+        end
+        match = match_instance(match_id)
+        proxy = @@table_queue.running_matches[match_id][:proxy]
+        unless proxy
+          raise StandardError.new("Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists.")
+        end
+
+        action = retrieve_parameter_or_raise_exception(params, ACTION_KEY)
+        log __method__, {
+          match_id: match_id,
+          num_tables: @@table_queue.running_matches.length,
+          action: action
+        }
+
+        @@agent_interface.play!(action, match, proxy) do |players_at_the_table|
+          @@match_communicator.match_updated! match
+        end
+
+        if proxy.match_ended?
+          log __method__, msg: "Deleting background processes with match ID #{match.id}"
+
+          @@table_queue.match_ended! match.id
+        end
+      else
+        raise StandardError.new("Unrecognized request: #{request}")
       end
     end
   end

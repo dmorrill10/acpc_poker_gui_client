@@ -8,7 +8,7 @@ module ApplicationDefs
     end
   end
 
-  LOG_DIRECTORY = Rails.root.join('log') unless const_defined? :LOG_DIRECTORY
+  LOG_DIRECTORY = File.expand_path('../../log', __FILE__) unless const_defined? :LOG_DIRECTORY
 
   # Human opponent names map to nil
   def self.game_definitions

@@ -4,14 +4,14 @@ require 'mongoid'
 # is like using a sledgehammer as a fly swatter but it's fine for now.
 module PlayerActionsHelper
   def self.read_constants
-    File.read(Rails.root.join('app', 'constants', 'player_actions.json'))
+    File.read(File.expand_path('../../constants/player_actions.json', __FILE__))
   end
 
   JSON.parse(read_constants).each do |constant, val|
     PlayerActionsHelper.const_set(constant, val) unless const_defined? constant
   end
 
-  JSON.parse(File.read(Rails.root.join('app', 'constants', 'application.json'))).each do |constant, val|
+  JSON.parse(File.read(File.expand_path('../../constants/application.json', __FILE__))).each do |constant, val|
     PlayerActionsHelper.const_set(constant, val) unless const_defined? constant
   end
 

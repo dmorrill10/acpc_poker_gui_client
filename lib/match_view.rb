@@ -23,7 +23,7 @@ class MatchView < SimpleDelegator
 
     @slice_index = if slice_index
       s = slice_index.to_i
-      if s < 0 then s + 1 else s end
+      [if s < 0 then s + 1 else s end, @match.slices.length - 1].min
     else
       @match.slices.length - 1
     end - 1

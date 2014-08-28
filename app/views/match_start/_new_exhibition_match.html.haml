@@ -1,17 +1,17 @@
 - matches = matches_including_user
 - if matches.length > 0
   - match_id(matches.first.id)
-  :javascript
-    if (!Realtime.listeningForMatchToStart) {
-      Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}");
-    }
-  - if matches_to_rejoin && !matches_to_rejoin.empty?
-    :javascript
-      Realtime.onMatchHasStarted();
-      Realtime.forceUpdateState();
-  - else
-    :javascript
-      Realtime.controllerAction("#{enqueue_exhibition_match_url}");
+
+:javascript
+  var viewMatch = function(matchId) {
+    Realtime.listenForMatchToStart(matchId, "#{match_home_url}");
+    Realtime.onMatchHasStarted();
+    return Realtime.forceUpdateState();
+  };
+
+- rejoin_button_id = 'rejoin'
+- spectate_button_id_prefix = 'spectate-'
+
 .match_start
   .matches-in-progress
     %table.table.table-striped.table-bordered
@@ -31,7 +31,10 @@
                 - spectate_or_rejoin_label = if user_started_match?(m) then 'Rejoining' else 'Spectate' end
                 - spectate_button = {value: spectate_or_rejoin_label}
                 - spectate_button[:disabled] = true if user_started_match?(m)
+                - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
                 %input.btn.btn-secondary{spectate_button}
+                :javascript
+                  $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); });
         - min_num_rows_to_display = 20
         - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
           %tr
@@ -49,3 +52,12 @@
         - play_button_attributes[:value] = disabled_label
       .form-actions
         = f.submit play_button_attributes
+
+- if matches.length > 0
+  - if matches_to_rejoin && !matches_to_rejoin.empty?
+    :javascript
+      $("##{rejoin_button_id}").click();
+  - else
+    :javascript
+      Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}");
+      Realtime.controllerAction("#{enqueue_exhibition_match_url}");

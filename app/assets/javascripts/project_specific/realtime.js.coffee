@@ -83,6 +83,7 @@ root.Realtime =
     @listeningForMatchToStart = false
 
   listenForMatchToStart: (matchId, matchHomeUrl)->
+    return if @listeningForMatchToStart
     @matchId = matchId
     @matchHomeUrl = matchHomeUrl
     @listeningForMatchToStart = true

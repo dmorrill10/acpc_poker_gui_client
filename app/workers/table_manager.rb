@@ -168,14 +168,16 @@ module TableManager
   end
 
   class TableQueue
+    include SimpleLogging
     include MatchInterface
 
     attr_reader :running_matches
 
-    def initialize(match_communicator_, agent_interface_)
+    def initialize(match_communicator_, agent_interface_, logger_)
       @syncer = Mutex.new
       @match_communicator = match_communicator_
       @agent_interface = agent_interface_
+      @logger = logger_
       @matches_to_start = []
       @running_matches = {}
     end
@@ -185,46 +187,46 @@ module TableManager
     end
 
     def match_ended!(match_id)
-      @syncer.synchronize {
+      @syncer.synchronize do
+        log __method__, msg: "Deleting background processes with match ID #{match_id}"
         @@table_queue.running_matches.delete match.id
-
         dequeue_without_synchronization!
-      }
+      end
     end
 
     def enque!(match_id, dealer_options)
       raise StandardError.new("Match #{match_id} already started!") if @running_matches[match_id]
 
-      @syncer.synchronize {
+      @syncer.synchronize do
         @matches_to_start << {match_id: match_id, options: dealer_options}
 
         if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
           dequeue_without_synchronization!
         end
-      }
+      end
 
       self
     end
 
     def dequeue!
       @syncer.synchronize { dequeue_without_synchronization! }
+      self
     end
 
     def watch_queue!
       @queue_checking_thread = Thread.new { while(1) do sleep(20); check_queue! end }
+      self
     end
 
     def check_queue!
       # Clean up data from dead matches
-      # @table_information.each do |match_id, match_processes|
-      #   unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
-      #     log __method__, msg: "Deleting background processes with match ID #{match_id}"
-      #     @table_information.delete(match_id)
-      #   end
-      # end
-      # @todo Dequeue
-
-      # @todo Send message to update matches
+      @running_matches.each do |match_id, match_processes|
+        unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
+          Match.delete_match! match_id
+          @running_matches.match_ended!(match_id)
+        end
+      end
+      self
     end
 
     protected
@@ -388,7 +390,7 @@ module TableManager
 
       @@table_queue ||= nil
       unless @@table_queue
-        @@table_queue = TableQueue.new(@@match_communicator, @@agent_interface)
+        @@table_queue = TableQueue.new(@@match_communicator, @@agent_interface, @logger)
         @@table_queue.watch_queue!
       end
     end
@@ -481,11 +483,7 @@ module TableManager
           @@match_communicator.match_updated! match
         end
 
-        if proxy.match_ended?
-          log __method__, msg: "Deleting background processes with match ID #{match.id}"
-
-          @@table_queue.match_ended! match.id
-        end
+        @@table_queue.match_ended!(match.id) if proxy.match_ended?
       else
         raise StandardError.new("Unrecognized request: #{request}")
       end

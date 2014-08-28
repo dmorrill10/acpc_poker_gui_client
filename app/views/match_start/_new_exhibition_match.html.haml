@@ -4,6 +4,7 @@
       Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}");
     }
   - if matches_to_rejoin && !matches_to_rejoin.empty?
+    - match_id matches_to_rejoin.first.id
     :javascript
       Realtime.onMatchHasStarted();
       Realtime.forceUpdateState();

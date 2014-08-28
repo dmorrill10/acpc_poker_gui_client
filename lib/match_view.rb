@@ -21,7 +21,7 @@ class MatchView < SimpleDelegator
     @match = Match.find(match_id)
     super @match
 
-    @slice_index = (slice_index.to_i || @match.slices.length) - 1
+    @slice_index = if slice_index then slice_index.to_i else @match.slices.length - 1 end - 1
     next_slice!
   end
   def user_contributions_in_previous_rounds

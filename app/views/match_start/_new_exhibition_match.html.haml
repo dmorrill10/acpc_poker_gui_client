@@ -1,10 +1,11 @@
-- if user_already_in_match?
+- matches = matches_including_user
+- if matches.length > 0
+  - match_id(matches.first.id)
   :javascript
     if (!Realtime.listeningForMatchToStart) {
       Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}");
     }
   - if matches_to_rejoin && !matches_to_rejoin.empty?
-    - match_id matches_to_rejoin.first.id
     :javascript
       Realtime.onMatchHasStarted();
       Realtime.forceUpdateState();
@@ -43,7 +44,7 @@
     = form_for match, url: new_match_url, remote: true do |f|
       - disabled_label = "Waiting..."
       - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_progress < ApplicationHelper::MAX_NUM_MATCHES && !user_already_in_match? then "Play Match!" else "Play Match After #{num_matches_in_progress} Matches" end}
-      - if user_already_in_match?
+      - if matches.length > 0
         - play_button_attributes[:disabled] = 'disabled'
         - play_button_attributes[:value] = disabled_label
       .form-actions

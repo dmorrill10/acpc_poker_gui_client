@@ -68,9 +68,12 @@ root.Realtime =
     @updateMatchQueueUrl = updateMatchQueueUrl
     @socket.on @updateMatchQueueChannel, @updateMatchQueue
 
-  onPlayerAction: (message='')-> Realtime.updateState()
+  onPlayerAction: (message='')->
+    console.log "Realtime#onPlayerAction: message: #{message}"
+    Realtime.updateState()
 
   onMatchHasStarted: (message='')->
+    console.log "Realtime#onMatchHasStarted: message: #{message}"
     # Disconnect this method from its channel
     @socket.removeListener @playerActionChannel(), @onMatchHasStarted
     # Stop listening to queue updates

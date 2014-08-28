@@ -51,4 +51,8 @@ module ApplicationHelper
       }
     )
   end
+
+  def self.label_for_required(label)
+    "<abbr title='required'>*</abbr> #{label}".html_safe
+  end
 end

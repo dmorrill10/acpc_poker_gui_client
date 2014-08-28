@@ -76,7 +76,20 @@ class UserManagerController < ErrorManagerController
 end
 
 class MatchManagerController < UserManagerController
-  helper_method :match, :match_id, :match_slice_index, :user_started_match?, :spectating?
+  helper_method(
+    :match,
+    :match_id,
+    :match_slice_index,
+    :user_started_match?,
+    :spectating?,
+    :matches_to_join,
+    :seats_to_join,
+    :matches_to_rejoin,
+    :seats_to_rejoin,
+    :matches_including_user,
+    :user_already_in_match?,
+    :num_matches_in_progress
+  )
 
   protected
 
@@ -110,6 +123,55 @@ class MatchManagerController < UserManagerController
 
   def spectating?
     !user_started_match?(match)
+  end
+
+  def matches_to_join
+    @matches_to_join ||= Match.asc(:name).all.select do |m|
+      !m.name_from_user.match(/^_+$/) &&
+      m.slices.empty? &&
+      !m.human_opponent_seats(user.name).empty?
+    end
+  end
+  def seats_to_join
+    matches_to_join.inject({}) do |hash, lcl_match|
+      hash[lcl_match.name] = lcl_match.rejoinable_seats(user.name).sort
+      hash
+    end
+  end
+
+  def matches_to_rejoin
+    @matches_to_rejoin ||= Match.asc(:name).all.select do |m|
+      m.user_name == user_name &&
+      !m.name_from_user.match(/^_+$/) &&
+      !m.finished? &&
+      !m.slices.empty?
+    end
+  end
+  def seats_to_rejoin
+    matches_to_rejoin.sort_by{ |m| m.name }.inject({}) do |hash, lcl_match|
+      hash[lcl_match.name] = lcl_match.human_opponent_seats
+      hash[lcl_match.name] << lcl_match.seat unless hash[lcl_match.name].include?(lcl_match.seat)
+      hash[lcl_match.name].sort!
+      hash
+    end
+  end
+
+  def matches_including_user
+    begin
+      matches = Match.where(user_name: user_name)
+      matches.reject { |m| m.name_from_user.match(/^_+$/) || m.finished? }
+      matches
+    rescue
+      []
+    end
+  end
+
+  def user_already_in_match?
+    @user_is_already_in_match ||= matches_including_user.length > 0
+  end
+
+  def num_matches_in_progress
+    @num_matches_in_progress ||= Match.unfinished.length
   end
 end
 

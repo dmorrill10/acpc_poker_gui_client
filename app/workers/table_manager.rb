@@ -307,8 +307,6 @@ module TableManager
         log_directory: MATCH_LOG_DIRECTORY
       }
 
-      match_processes = {}
-
       # Start the dealer
       dealer_info = AcpcDealer::DealerRunner.start(
         dealer_arguments,

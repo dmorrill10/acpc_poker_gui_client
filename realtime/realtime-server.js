@@ -21,4 +21,13 @@ return io.on('connection', function(socket){
     var msg = ("message" in parsedMessage) ? parsedMessage.message : parsedMessage.channel
     socket.emit(parsedMessage.channel, msg);
   });
+
+  // @todo This doesn't seem to catch browser closes but I haven't tested
+  // enough to be sure. Need to catch browser close, then kill and delete
+  // any matches associated with the user. Probably need to send user's
+  // name upon connecting so that this server can pass that name to
+  // TableManager to kill and delete the match.
+  io.on('disconnect', function() {
+    console.log("realtime-server: Client disconnection");
+  });
 });

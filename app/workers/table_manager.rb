@@ -189,7 +189,7 @@ module TableManager
     def match_ended!(match_id)
       @syncer.synchronize do
         log __method__, msg: "Deleting background processes with match ID #{match_id}"
-        running_matches.delete match.id
+        running_matches.delete match_id
         dequeue_without_synchronization!
       end
     end
@@ -214,7 +214,7 @@ module TableManager
     end
 
     def watch_queue!
-      @queue_checking_thread = Thread.new { while(1) do sleep(20); check_queue! end }
+      @queue_checking_thread = Thread.new { loop do sleep(20); check_queue! end }
       self
     end
 
@@ -224,6 +224,11 @@ module TableManager
         unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
           Match.delete_match! match_id
           @running_matches.match_ended!(match_id)
+        end
+        @syncer.synchronize do
+          if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
+            dequeue_without_synchronization!
+          end
         end
       end
       self
@@ -250,6 +255,11 @@ module TableManager
       end
 
       options = match_info[:options]
+
+      log(
+        __method__,
+        msg: "Starting dealer for match #{match_id}"
+      )
 
       @running_matches[match_id] ||= {}
       @running_matches[match_id][:dealer] = @agent_interface.start_dealer!(

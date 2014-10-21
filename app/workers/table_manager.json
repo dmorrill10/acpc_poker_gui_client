@@ -2,6 +2,7 @@
   "START_MATCH_REQUEST_CODE": "dealer",
   "START_PROXY_REQUEST_CODE": "proxy",
   "PLAY_ACTION_REQUEST_CODE": "play",
+  "KILL_MATCH": "kill-match",
   "DELETE_IRRELEVANT_MATCHES_REQUEST_CODE": "delete_irrelevant_matches",
   "POKER_MANAGER": "TableManager",
   "PLAYER_ACTION_CHANNEL_PREFIX": "player-action-in-",

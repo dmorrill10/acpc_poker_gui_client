@@ -96,7 +96,7 @@ module TableManager
       Match.delete_match! match_id if match_id
     end
 
-    def try
+    def try(match_id)
       begin
         yield if block_given?
       rescue => e
@@ -115,13 +115,13 @@ module TableManager
     # @return [Match] The desired +Match+ instance.
     # @raise (see Match#find)
     def match_instance(match_id)
-      try { match = Match.find match_id }
+      try(match_id) { match = Match.find match_id }
     end
 
     # @param [Match] The +Match+ instance to save.
     # @raise (see Match#save)
     def save_match_instance!(match)
-      try { match.save }
+      try(match.id) { match.save }
     end
   end
 
@@ -189,7 +189,7 @@ module TableManager
     def match_ended!(match_id)
       @syncer.synchronize do
         log __method__, msg: "Deleting background processes with match ID #{match_id}"
-        @@table_queue.running_matches.delete match.id
+        running_matches.delete match.id
         dequeue_without_synchronization!
       end
     end
@@ -232,12 +232,22 @@ module TableManager
     protected
 
     def dequeue_without_synchronization!
-      return if @matches_to_start.empty?
+      return self if @matches_to_start.empty?
 
-      match_info = @matches_to_start.first
-
-      match_id = match_info[:match_id]
-      match = match_instance(match_id)
+      match_info = nil
+      match_id = nil
+      match = nil
+      loop do
+        match_info = @matches_to_start.shift
+        match_id = match_info[:match_id]
+        begin
+          match = match_instance(match_id)
+        rescue Mongoid::Errors::DocumentNotFound
+          return self if @matches_to_start.empty?
+        else
+          break
+        end
+      end
 
       options = match_info[:options]
 
@@ -444,6 +454,39 @@ module TableManager
       end
     end
 
+    def kill_match!(match_id)
+      log(
+        __method__,
+        match_id: match_id
+      )
+
+      if @@table_queue.running_matches[match_id]
+        log(
+          __method__,
+          pid: @@table_queue.running_matches[match_id][:dealer][:pid],
+          msg: 'Match is running'
+        )
+
+        if @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+          log(
+            __method__,
+            pid: @@table_queue.running_matches[match_id][:dealer][:pid],
+            process_exists: true,
+            msg: 'Match is running, attempting to kill'
+          )
+
+          Process.kill(
+            'TERM',
+            @@table_queue.running_matches[match_id][:dealer][:pid]
+          )
+          if @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+            raise StandardError.new("Dealer process #{@@table_queue.running_matches[match_id][:dealer][:pid]} associated with #{match_id} couldn't be killed!")
+          end
+        end
+        @@table_queue.match_ended!(match_id)
+      end
+    end
+
     protected
 
     def do_request!(request, match_id, params)
@@ -464,7 +507,7 @@ module TableManager
         end
       when PLAY_ACTION_REQUEST_CODE
         unless @@table_queue.running_matches[match_id]
-          raise StandardError.new("Request to play in match #{match_id} doesn't exist!")
+          raise StandardError.new("Request to play in match #{match_id} when it doesn't exist!")
         end
         match = match_instance(match_id)
         proxy = @@table_queue.running_matches[match_id][:proxy]
@@ -484,6 +527,8 @@ module TableManager
         end
 
         @@table_queue.match_ended!(match.id) if proxy.match_ended?
+      when KILL_MATCH
+        kill_match! match_id
       else
         raise StandardError.new("Unrecognized request: #{request}")
       end

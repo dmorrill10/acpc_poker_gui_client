@@ -207,9 +207,23 @@ class PlayerActionsController < MatchViewManagerController
   end
 
   def leave_match
-    # @todo Kill match on server and delete in DB
-    Match.delete_match! match_id
-    Rails.logger.ap("Deleted match #{match_id}")
+    Rails.logger.ap(
+      action: __method__,
+      was_spectating: spectating?,
+      user: user.name,
+      match_id: match_id,
+      match_user_name: match.user_name
+    )
+    unless spectating?
+      Match.delete_match! match_id
+      Rails.logger.ap("Deleted match #{match_id}")
+
+      TableManager::TableManagerWorker.perform_async(
+        TableManager::KILL_MATCH,
+        {TableManager::MATCH_ID_KEY => match_id}
+      )
+      clear_match_information!
+    end
 
     redirect_to root_path, remote: true
   end

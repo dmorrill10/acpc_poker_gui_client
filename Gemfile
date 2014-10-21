@@ -53,7 +53,7 @@ gem 'methadone'
 gem 'contextual_exceptions'
 
 # To run background process
-gem 'process_runner'
+gem 'process_runner', '~> 0.0'
 
 # For background process communication
 gem 'sidekiq'

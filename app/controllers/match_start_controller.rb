@@ -31,6 +31,8 @@ class MatchStartController < ApplicationController
       @alert_message = "Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}"
     end
 
+    clear_match_session! unless match_id && Match.where(id: match_id).exists?
+
     respond_to do |format|
       format.html {} # Render the default partial
       format.js do
@@ -59,6 +61,13 @@ class MatchStartController < ApplicationController
     ) if (
       error? do
         @match = Match.new(params[:match]).finish_starting!
+
+        Rails.logger.ap(
+          action: __method__,
+          user: user_name,
+          match_id: @match.id,
+          match_user_name: @match.user_name
+        )
 
         match_id(@match.id)
         match_slice_index(INITIAL_MATCH_SLICE_INDEX)
@@ -143,9 +152,13 @@ class MatchStartController < ApplicationController
 
   def enqueue_exhibition_match
     return reset_to_match_entry_view(
-      'Sorry, unable to finish creating a match instance, please try again.'
+      'Sorry, unable to enqueue match, please try again.'
     ) if (
       error? do
+        Rails.logger.ap(
+          action: __method__,
+          session: session
+        )
         self.class().start_dealer_and_players_on_server match_id
         return update_match_queue
       end
@@ -183,6 +196,10 @@ class MatchStartController < ApplicationController
   end
 
   def self.start_dealer_and_players_on_server(match_id_)
+    Rails.logger.ap(
+      action: __method__,
+      match_id: match_id_
+    )
     TableManager::TableManagerWorker.perform_async(
       TableManager::START_MATCH_REQUEST_CODE,
       {

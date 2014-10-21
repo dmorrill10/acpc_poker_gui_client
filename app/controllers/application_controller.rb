@@ -93,11 +93,31 @@ class MatchManagerController < UserManagerController
 
   protected
 
+  def clear_match_session!
+    session[TableManager::MATCH_ID_KEY] = nil
+    session[ApplicationHelper::MATCH_SLICE_SESSION_KEY] = nil
+  end
+
+  def clear_match_information!
+    @match = nil
+    @match_view = nil
+    clear_match_session!
+  end
+
   def match
-    if @match_view
+    @match = if @match_view
       @match_view.match
+    elsif @match
+      @match
+    elsif match_id
+      begin
+        Match.find match_id
+      rescue Mongoid::Errors::DocumentNotFound
+        clear_match_information!
+        Match.new
+      end
     else
-      @match ||= Match.new
+      Match.new
     end
   end
 

@@ -73,7 +73,7 @@ class Match
   def self.delete_match!(match_id)
     begin
       match = find match_id
-    rescue
+    rescue Mongoid::Errors::DocumentNotFound
     else
       match.delete
     end
@@ -170,8 +170,6 @@ class Match
     opponent_names.dup.insert seat-1, self.user_name
   end
   def every_bot(dealer_host)
-    ap "port_numbers.length: #{port_numbers.length}, player_names: #{player_names}, bot_opponent_ports: #{bot_opponent_ports}, ApplicationDefs.bots(game_definition_key, opponent_names).length: #{ApplicationDefs.bots(game_definition_key, opponent_names).length}"
-
     raise unless port_numbers.length == player_names.length ||
       bot_opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
 

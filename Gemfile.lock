@@ -155,7 +155,7 @@ GEM
     polyglot (0.3.3)
     pony (1.5)
       mail (> 2.0)
-    process_runner (0.0.2)
+    process_runner (0.0.3)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -290,7 +290,7 @@ DEPENDENCIES
   oily_png
   origin (~> 1.0.11)
   passenger (~> 4.0)
-  process_runner
+  process_runner (~> 0.0)
   rack (~> 1.4)
   rails (~> 3.2)
   rails_best_practices

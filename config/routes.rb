@@ -1,5 +1,6 @@
 AcpcPokerGuiClient::Application.routes.draw do
   # Routes for MatchStart:
+  match 'match_start/sign_in' => 'match_start#sign_in', :as => :sign_in
   match 'match_start/new' => 'match_start#new', :as => :new_match
   match 'match_start/rejoin' => 'match_start#rejoin', :as => :rejoin_match
   match 'match_start/join' => 'match_start#join', :as => :join_match

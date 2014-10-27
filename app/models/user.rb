@@ -103,6 +103,17 @@ class User
   end
 
   include_name
+  field :password_hash
+  field :password_salt
+
+  def encrypt_password!(password)
+    self.password_salt = BCrypt::Engine.generate_salt
+    self.password_hash = BCrypt::Engine.hash_secret(password, self.password_salt)
+    self
+  end
+  def authentic?(password)
+    self.password_hash == BCrypt::Engine.hash_secret(password, self.password_salt)
+  end
 
   def default_hotkeys
     Hotkey::DEFAULT_HOTKEYS

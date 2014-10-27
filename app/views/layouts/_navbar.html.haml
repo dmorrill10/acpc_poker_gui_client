@@ -5,4 +5,9 @@
       = render partial: partial if partial
       %li= help_link
       %li.user
-        %a= "<i class='icon-user'></i> #{user.name}".html_safe
+        - if match_id
+          %a= "<i class='icon-user'></i> #{user.name}".html_safe
+        - else
+          %a{data: {toggle: 'modal', target: "##{MatchStartHelper::SIGN_IN_ID}"}}= "<i class='icon-user'></i> CL #{user.name}".html_safe
+
+          = render partial: 'layouts/sign_in'

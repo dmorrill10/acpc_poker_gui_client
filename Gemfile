@@ -61,6 +61,9 @@ gem 'sidekiq'
 # To add bots without restarting the server
 gem 'require_reloader'
 
+# For password encryption
+gem 'bcrypt', '~> 3.1.5', require: "bcrypt"
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

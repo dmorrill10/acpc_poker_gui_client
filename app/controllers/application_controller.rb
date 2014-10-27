@@ -43,6 +43,7 @@ class UserManagerController < ErrorManagerController
 
   # @return [String] The currently signed in user name. Defaults to +User::DEFAULT_NAME+
   def user_name
+    return @user.name if @user
     name = begin
       ActionController::HttpAuthentication::Basic::user_name_and_password(
         request
@@ -52,17 +53,9 @@ class UserManagerController < ErrorManagerController
     end
   end
 
-  def user
-    return @user if @user
-    users = User.where name: user_name
-    @user = if users.empty?
-      u = User.new name: user_name
-      u.save!
-      u.reset_hotkeys!
-      u
-    else
-      @user = users.shift
-    end
+  def user(user_name_=nil)
+    return @user if user_name_.nil? && @user
+    @user = User.find_or_initialize_by name: (user_name_ || user_name)
   end
 
   def user_initialized?
@@ -72,6 +65,10 @@ class UserManagerController < ErrorManagerController
     rescue Mongoid::Errors
       false
     end
+  end
+
+  def reset_user
+    user User::DEFAULT_NAME
   end
 end
 

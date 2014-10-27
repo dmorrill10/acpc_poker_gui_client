@@ -18,6 +18,24 @@ class MatchStartController < ApplicationController
 
   INITIAL_MATCH_SLICE_INDEX = -1
 
+  def sign_in
+    if params[:user_name] && !params[:user_name].empty?
+      u = user(params[:user_name])
+      if params[:password] && !params[:password].empty?
+        if u.password_hash.nil?
+          u.encrypt_password! params[:password]
+        else
+          unless u.authentic?(params[:password])
+            u.delete
+            reset_user
+            return reset_to_match_entry_view("Incorrect password for #{params[:user_name]}!")
+          end
+        end
+      end
+    end
+    return reset_to_match_entry_view
+  end
+
   # Presents the main 'start a new game' view.
   def index
     begin

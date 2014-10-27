@@ -65,13 +65,12 @@ class Hotkey
     end
   end
 
-  # @todo Use the proper PlayerActionsHelper constants here
   HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK = {
     FOLD_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::FOLD_HTML_CLASS),
     PASS_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::PASS_HTML_CLASS),
     WAGER_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::WAGER_HTML_CLASS),
     NEXT_HAND_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::NEXT_HAND_ID),
-    LEAVE_MATCH_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::LEAVE_MATCH_BUTTON_HTML_CLASS)
+    LEAVE_MATCH_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::NAV_LEAVE_HTML_CLASS)
   }
   DEFAULT_HOTKEYS = {
     FOLD_LABEL => 'A',

@@ -82,9 +82,11 @@ root.Realtime =
     @socket.on @playerActionChannel(), @onPlayerAction
     @listeningForMatchToStart = false
 
-  listenForMatchToStart: (matchId, matchHomeUrl)->
+  listenForMatchToStart: (matchId, matchHomeUrl, leaveMatchUrl)->
     return if @listeningForMatchToStart
     @matchId = matchId
     @matchHomeUrl = matchHomeUrl
     @listeningForMatchToStart = true
+    window.onunload = (event)=>
+      @controllerAction leaveMatchUrl
     @socket.on @playerActionChannel(), @onMatchHasStarted

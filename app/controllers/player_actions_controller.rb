@@ -214,7 +214,7 @@ class PlayerActionsController < MatchViewManagerController
       match_id: match_id,
       match_user_name: match.user_name
     )
-    unless spectating?
+    unless spectating? || match_id.nil?
       Match.delete_match! match_id
       Rails.logger.ap("Deleted match #{match_id}")
 

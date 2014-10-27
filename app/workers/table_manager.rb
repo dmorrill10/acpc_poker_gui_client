@@ -189,7 +189,7 @@ module TableManager
     def match_ended!(match_id)
       @syncer.synchronize do
         log __method__, msg: "Deleting background processes with match ID #{match_id}"
-        running_matches.delete match_id
+        @running_matches.delete match_id
         dequeue_without_synchronization!
       end
     end
@@ -223,7 +223,7 @@ module TableManager
       @running_matches.each do |match_id, match_processes|
         unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
           Match.delete_match! match_id
-          @running_matches.match_ended!(match_id)
+          match_ended!(match_id)
         end
         @syncer.synchronize do
           if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
@@ -232,6 +232,12 @@ module TableManager
         end
       end
       self
+    end
+
+    def delete_from_queue!(match_id)
+      @syncer.synchronize do
+        @matches_to_start.delete_if { |m| m[:match_id] == match_id }
+      end
     end
 
     protected
@@ -487,11 +493,14 @@ module TableManager
             'TERM',
             @@table_queue.running_matches[match_id][:dealer][:pid]
           )
+          sleep 1 # Give the dealer a chance to exit
           if @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
             raise StandardError.new("Dealer process #{@@table_queue.running_matches[match_id][:dealer][:pid]} associated with #{match_id} couldn't be killed!")
           end
         end
         @@table_queue.match_ended!(match_id)
+      else
+        @@table_queue.delete_from_queue! match_id
       end
     end
 

@@ -1,10 +1,31 @@
+:javascript
+  // Ensure user name is non-empty
+  user_name_input = $('input#user_name');
+  user_name_input.keyup(function() {
+    current_user_name = user_name_input.val();
+    if (current_user_name.length > 0) {
+      $('.submit_user_name').attr("disabled", false);
+    }
+    else {
+      $('.submit_user_name').attr("disabled", true);
+    }
+  });
+
 .modal.hide.fade( tabindex='-1' role="dialog" aria-hidden="true" id="#{MatchStartHelper::SIGN_IN_ID}" class="#{MatchStartHelper::SIGN_IN_ID}")
-  = form_tag sign_in_url, remote: true, class: 'modal-form' do
+  = form_tag sign_in_url, remote: true, class: 'modal-form form-horizontal' do
     .modal-header
-      %button( type="button" class="close" data-dismiss="modal" aria-hidden="true" ) &times;
+      %h3 Sign-in
     .modal-body
+      .field.form-group
+        = label_tag :user_name, "User name", {class: 'control-label'}
+        .controls
+          = text_field_tag :user_name, '', {placeholder: 'Current or new user name'}
+      .field.form-group
+        = label_tag :password, "Password", {class: 'control-label'}
+        .controls
+          = password_field_tag :password, '', {placeholder: 'Optional password'}
     .modal-footer
       = link_to 'Cancel', '#', { class: 'btn cancel', data: { dismiss: "modal" } }
-      = submit_tag 'Sign-In', { class: 'btn btn-primary sign-in' }
+      = submit_tag 'Sign-In', { class: 'btn btn-primary submit_user_name', disabled: true }
   .modal-footer
     %p= "Submit a new user name and password (optional) to sign-up."

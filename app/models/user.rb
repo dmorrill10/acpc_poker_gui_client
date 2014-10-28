@@ -95,6 +95,8 @@ class User
 
   DEFAULT_NAME = 'Guest'
 
+  after_create :reset_hotkeys!
+
   def self.include_name
     field :name
     validates_presence_of :name
@@ -112,7 +114,10 @@ class User
     self
   end
   def authentic?(password)
-    self.password_hash == BCrypt::Engine.hash_secret(password, self.password_salt)
+    (
+      self.password_salt.nil? ||
+      self.password_hash == BCrypt::Engine.hash_secret(password, self.password_salt)
+    )
   end
 
   def default_hotkeys

@@ -21,17 +21,30 @@ class MatchStartController < ApplicationController
   def sign_in
     if params[:user_name] && !params[:user_name].empty?
       u = user(params[:user_name])
-      if params[:password] && !params[:password].empty?
-        if u.password_hash.nil?
-          u.encrypt_password! params[:password]
-        else
-          unless u.authentic?(params[:password])
-            u.delete
-            reset_user
-            return reset_to_match_entry_view("Incorrect password for #{params[:user_name]}!")
+
+      is_authentic = u.authentic?(params[:password])
+
+      Rails.logger.ap(
+        action: __method__,
+        user: u.name,
+        password: params[:password],
+        authentic?: is_authentic
+      )
+
+      if !is_authentic
+        reset_user
+        @alert_message = "Incorrect password for #{params[:user_name]}!"
+        return respond_to do |format|
+          format.js do
+            render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
           end
         end
+      elsif u.password_hash.nil? && params[:password] && !params[:password].empty?
+        # Add password if given
+        u.encrypt_password! params[:password]
       end
+      u.save
+      session[:user_name] = u.name
     end
     return reset_to_match_entry_view
   end

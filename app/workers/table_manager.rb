@@ -58,6 +58,7 @@ module IntegerAsProcessId
         false
       end
     end
+    def kill_process() Process.kill('TERM', self) end
   end
 end
 using IntegerAsProcessId
@@ -195,6 +196,8 @@ module TableManager
     end
 
     def enque!(match_id, dealer_options)
+      log __method__, match_id: match_id, running_matches: @running_matches
+
       raise StandardError.new("Match #{match_id} already started!") if @running_matches[match_id]
 
       @syncer.synchronize do
@@ -443,10 +446,37 @@ module TableManager
         when START_MATCH_REQUEST_CODE
           # @todo Put bots in json so this hacky module reloading doesn't need to be done?
           refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
-          refresh_module('ApplicationDefs', File.expand_path('../../../lib/application_defs.rb', __FILE__), 'application_defs')
+          refresh_module(
+            'ApplicationDefs',
+            File.expand_path('../../../lib/application_defs.rb', __FILE__),
+            'application_defs'
+          )
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
           log __method__, num_matches_before_deleting: Match.all.length
+
+          # Delete all matches that
+
+          # 1. Are stale
           Match.delete_irrelevant_matches!
+
+          # 2. That were running but are no longer
+          @@table_queue.running_matches.each do |match_id, match_info|
+            kill_match!(match_id) unless match_info[:dealer][:pid].process_exists?
+          end
+
+          # 3. That were running according to the database, but are not in the list of running matches
+          # @todo This appears to be killing *all* matches before they properly begin
+          Match.each do |match|
+            unless (
+              match.slices.empty? &&
+              @@table_queue.running_matches[match.id] &&
+              @@table_queue.running_matches[match.id][:dealer][:pid].process_exists?
+            )
+              Match.delete_match! match.id
+              kill_match! match.id
+            end
+          end
+
           log __method__, num_matches_after_deleting: Match.all.length
           return
         end
@@ -489,10 +519,8 @@ module TableManager
             msg: 'Match is running, attempting to kill'
           )
 
-          Process.kill(
-            'TERM',
-            @@table_queue.running_matches[match_id][:dealer][:pid]
-          )
+          @@table_queue.running_matches[match_id][:dealer][:pid].kill_process
+
           sleep 1 # Give the dealer a chance to exit
           if @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
             raise StandardError.new("Dealer process #{@@table_queue.running_matches[match_id][:dealer][:pid]} associated with #{match_id} couldn't be killed!")

@@ -94,6 +94,8 @@ end
 # Implements the actions in the main match view.
 class PlayerActionsController < MatchViewManagerController
   def index
+    match_id(params['match_id']) if params['match_id'] && !params['match_id'].empty?
+
     return reset_to_match_entry_view(
       "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
     ) if (

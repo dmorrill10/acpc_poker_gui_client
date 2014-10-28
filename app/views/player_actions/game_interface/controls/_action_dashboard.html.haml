@@ -27,7 +27,7 @@
         %button{fold_attributes}= fold_label
       .poker_actn_btn
         - pass_attributes = { class: PlayerActionsHelper::PASS_HTML_CLASS, type: 'submit', data: { disable_with: pass_action_button_label }}
-        - pass_attributes[:disabled] = 'disabled' unless user_must_act? || !spectating?
+        - pass_attributes[:disabled] = 'disabled' if !user_must_act? || spectating?
         %button{pass_attributes}= pass_action_button_label
       .poker_actn_btn
         - wager_attributes = { class: PlayerActionsHelper::WAGER_HTML_CLASS, type: 'submit', data: { disable_with: make_wager_button_label }}

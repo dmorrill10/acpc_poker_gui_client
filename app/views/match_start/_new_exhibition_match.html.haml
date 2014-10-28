@@ -6,7 +6,7 @@
   var viewMatch = function(matchId) {
     Realtime.listenForMatchToStart(matchId, "#{match_home_url}", "#{leave_match_url}");
     Realtime.onMatchHasStarted();
-    return Realtime.forceUpdateState();
+    return Realtime.controllerAction(Realtime.matchHomeUrl, {'match_id': matchId});
   };
 
 - rejoin_button_id = 'rejoin'

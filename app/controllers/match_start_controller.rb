@@ -44,7 +44,7 @@ class MatchStartController < ApplicationController
         u.encrypt_password! params[:password]
       end
       u.save
-      session[:user_name] = u.name
+      session[ApplicationHelper::USER_NAME_KEY] = u.name
     end
     return reset_to_match_entry_view
   end

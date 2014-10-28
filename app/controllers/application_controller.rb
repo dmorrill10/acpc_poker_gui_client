@@ -49,13 +49,15 @@ class UserManagerController < ErrorManagerController
         request
       ).first
     rescue NoMethodError # Occurs when no authentication has been done
-      session[:user_name] || User::DEFAULT_NAME
+      session[ApplicationHelper::USER_NAME_KEY] || User::DEFAULT_NAME
     end
   end
 
   def user(user_name_=nil)
     return @user if user_name_.nil? && @user
     @user = User.find_or_create_by name: (user_name_ || user_name)
+    session[ApplicationHelper::USER_NAME_KEY] = @user.name
+    @user
   end
 
   def user_initialized?

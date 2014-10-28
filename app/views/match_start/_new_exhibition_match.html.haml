@@ -30,7 +30,7 @@
               %form.spectate_form
                 - spectate_or_rejoin_label = if user_started_match?(m) then 'Rejoining' else 'Spectate' end
                 - spectate_button = {value: spectate_or_rejoin_label}
-                - spectate_button[:disabled] = true if user_started_match?(m)
+                - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
                 - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
                 %input.btn.btn-secondary{spectate_button}
                 :javascript

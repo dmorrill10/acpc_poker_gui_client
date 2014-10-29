@@ -1,18 +1,17 @@
-- matches = matches_including_user
-- if matches.length > 0
-  - match_id(matches.first.id)
-
-:javascript
-  var viewMatch = function(matchId) {
-    Realtime.listenForMatchToStart(matchId, "#{match_home_url}", "#{leave_match_url}");
-    Realtime.onMatchHasStarted();
-    return Realtime.controllerAction(Realtime.matchHomeUrl, {'match_id': matchId});
-  };
-
-- rejoin_button_id = 'rejoin'
-- spectate_button_id_prefix = 'spectate-'
-
 .match_start
+  - matches = matches_including_user
+  - if matches.length > 0
+    - match_id(matches.first.id)
+
+  :javascript
+    var viewMatch = function(matchId) {
+      Realtime.listenForMatchToStart(matchId);
+      return Realtime.onMatchHasStarted();
+    };
+
+  - rejoin_button_id = 'rejoin'
+  - spectate_button_id_prefix = 'spectate-'
+
   .matches-in-progress
     %table.table.table-striped.table-bordered
       %thead
@@ -26,9 +25,8 @@
             %td= m.user_name
             %td= if m.hand_number then "Hand #{m.hand_number + 1} / #{m.number_of_hands}" else '-----' end
             %td
-              / @todo Spectate form
               %form.spectate_form
-                - spectate_or_rejoin_label = if user_started_match?(m) then 'Rejoining' else 'Spectate' end
+                - spectate_or_rejoin_label = if user_started_match?(m) then 'Starting' else 'Spectate' end
                 - spectate_button = {value: spectate_or_rejoin_label}
                 - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
                 - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
@@ -53,11 +51,7 @@
       .form-actions
         = f.submit play_button_attributes
 
-- if matches.length > 0
-  - if matches_to_rejoin && !matches_to_rejoin.empty?
+  - if matches.length > 0
     :javascript
-      $("##{rejoin_button_id}").click();
-  - else
-    :javascript
-      Realtime.listenForMatchToStart("#{match_id}", "#{match_home_url}", "#{leave_match_url}");
+      Realtime.listenForMatchToStart("#{match_id}");
       Realtime.controllerAction("#{enqueue_exhibition_match_url}");

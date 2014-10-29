@@ -166,6 +166,15 @@ module TableManager
         }.to_json
       )
     end
+
+    def match_started!
+      @message_server.publish(
+        REALTIME_CHANNEL,
+        {
+          channel: "#{UPDATE_MATCH_QUEUE_CHANNEL}"
+        }.to_json
+      )
+    end
   end
 
   class TableQueue
@@ -282,6 +291,9 @@ module TableManager
       end
 
       @agent_interface.start_opponents!(opponents)
+
+      @match_communicator.match_started!
+
       @running_matches[match_id][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
         @match_communicator.match_updated! match
       end
@@ -467,13 +479,38 @@ module TableManager
           # 3. That were running according to the database, but are not in the list of running matches
           # @todo This appears to be killing *all* matches before they properly begin
           Match.each do |match|
-            unless (
-              match.slices.empty? &&
-              @@table_queue.running_matches[match.id] &&
-              @@table_queue.running_matches[match.id][:dealer][:pid].process_exists?
+            match_id = match.id.to_s
+
+            log(
+              __method__,
+              {
+                match_to_check: { id: match_id, name: match.name, num_slices: match.slices.length },
+                running?: @@table_queue.running_matches[match_id],
+                dealer_process: (
+                  if @@table_queue.running_matches[match_id]
+                    @@table_queue.running_matches[match_id][:dealer][:pid]
+                  else
+                    nil
+                  end
+                ),
+                dealer_process_exists?: (
+                  if @@table_queue.running_matches[match_id]
+                    @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+                  else
+                    false
+                  end
+                )
+              }
             )
-              Match.delete_match! match.id
-              kill_match! match.id
+
+            unless (
+              match.slices.empty? || (
+                @@table_queue.running_matches[match_id] &&
+                @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+              )
+            )
+              Match.delete_match! match_id
+              kill_match! match_id
             end
           end
 
@@ -522,7 +559,11 @@ module TableManager
           @@table_queue.running_matches[match_id][:dealer][:pid].kill_process
 
           sleep 1 # Give the dealer a chance to exit
-          if @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+          if (
+            @@table_queue.running_matches[match_id] &&
+            @@table_queue.running_matches[match_id][:dealer][:pid] &&
+            @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+          )
             raise StandardError.new("Dealer process #{@@table_queue.running_matches[match_id][:dealer][:pid]} associated with #{match_id} couldn't be killed!")
           end
         end

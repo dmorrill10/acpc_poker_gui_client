@@ -8,34 +8,46 @@ root.Realtime =
     realtimeConstantsUrl,
     tableManagerConstantsUrl,
     updateMatchQueueUrl,
-    landingUrl
+    landingUrl,
+    matchHomeUrl,
+    leaveMatchUrl
   )->
+    console.log 'Realtime#connect'
+
     @numUpdatesInQueue = 0
-    @updateMatchQueueUrl = '/'
-    @matchHomeUrl = '/'
+    @updateMatchQueueUrl = updateMatchQueueUrl
+    @matchHomeUrl = matchHomeUrl
+    @leaveMatchUrl = leaveMatchUrl
     @matchId = ''
-    @listeningForMatchToStart = false
+
+    @windowState = "opening"
 
     # Only start the app after a connection has been made
     onConnection = (socket)=>
-      @listenToMatchQueueUpdates updateMatchQueueUrl
-      @controllerAction landingUrl
+      console.log "Realtime#connect: onConnection: windowState: #{@windowState}"
+      if @windowState is "opening"
+        @leaveMatch()
+        @listenToMatchQueueUpdates()
+        @controllerAction landingUrl
 
     serverUrl = "http://#{document.location.hostname}"
     $.getJSON(realtimeConstantsUrl, (constants)=>
+      console.log 'Realtime#connect: $.getJSON(realtimeConstantsUrl): success'
+      # @todo This can maybe be @socket = io();
       @socket = io.connect("#{serverUrl}:#{constants.REALTIME_SERVER_PORT}")
       @socket.on 'connect', onConnection
     ).fail(=> # Fallback to default
-      console.log 'Unable to retrieve Realtime constants, falling back to default'
+      console.log 'Realtime#connect: $.getJSON(realtimeConstantsUrl): failure'
       @socket = io.connect("#{serverUrl}:5001")
       @socket.on 'connect', onConnection
     )
     $.getJSON(tableManagerConstantsUrl, (constants)=>
+      console.log 'Realtime#connect: $.getJSON(tableManagerConstantsUrl): success'
       @playerActionChannelPrefix = constants.PLAYER_ACTION_CHANNEL_PREFIX
       @playerCommentChannelPrefix = constants.PLAYER_COMMENT_CHANNEL_PREFIX
       @updateMatchQueueChannel = constants.UPDATE_MATCH_QUEUE_CHANNEL
     ).fail(=> # Fallback to default
-      console.log 'Unable to retrieve TableManager constants, falling back to default'
+      console.log 'Realtime#connect: $.getJSON(tableManagerConstantsUrl): failure'
       @playerActionChannelPrefix = "player-action-in-"
       @playerCommentChannelPrefix = "player-comment-in-"
       @updateMatchQueueChannel = 'update_queue_count'
@@ -45,28 +57,27 @@ root.Realtime =
   #================
   controllerAction: (urlArg, dataArg = {})->
     $.ajax({type: "POST", url: urlArg, data: dataArg, dataType: 'script'})
-  updateMatchQueue: (message='')-> @controllerAction @updateMatchQueueUrl
+  updateMatchQueue: (message='')->
+    console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
+    @controllerAction @updateMatchQueueUrl if @windowState is "open"
   forceUpdateState: ()-> @controllerAction @matchHomeUrl
   updateState: ()->
-    if @numUpdatesInQueue > 0
-      return @numUpdatesInQueue += 1
+    return @numUpdatesInQueue += 1 if @numUpdatesInQueue > 0
     @forceUpdateState()
     @numUpdatesInQueue += 1
   finishedUpdating: (update = true)->
     return false unless @numUpdatesInQueue > 0
     @numUpdatesInQueue -= 1
-    if @numUpdatesInQueue > 0
-      @forceUpdateState() if update
-  startMatch: (url, optionArgs = '')->
-    @controllerAction url, {options: optionArgs}
+    @forceUpdateState() if @numUpdatesInQueue > 0 && update
+  startMatch: (url, optionArgs = '')-> @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
 
   # From Node.js server
   #====================
-  listenToMatchQueueUpdates: (updateMatchQueueUrl)->
-    @updateMatchQueueUrl = updateMatchQueueUrl
-    @socket.on @updateMatchQueueChannel, @updateMatchQueue
+  listenToMatchQueueUpdates: ()->
+    console.log "Realtime#listenToMatchQueueUpdates: @updateMatchQueueChannel: #{@updateMatchQueueChannel}"
+    @socket.on @updateMatchQueueChannel, => @updateMatchQueue()
 
   onPlayerAction: (message='')->
     console.log "Realtime#onPlayerAction: message: #{message}"
@@ -74,19 +85,21 @@ root.Realtime =
 
   onMatchHasStarted: (message='')->
     console.log "Realtime#onMatchHasStarted: message: #{message}"
-    # Disconnect this method from its channel
-    @socket.removeListener @playerActionChannel(), @onMatchHasStarted
-    # Stop listening to queue updates
-    @socket.removeListener @updateMatchQueueChannel, @updateMatchQueue
-    # Connect new method to this channel
-    @socket.on @playerActionChannel(), @onPlayerAction
-    @listeningForMatchToStart = false
+    @socket.removeAllListeners @playerActionChannel()
+    @socket.on @playerActionChannel(), => @onPlayerAction()
+    @windowState = "match"
+    @updateState()
 
-  listenForMatchToStart: (matchId, matchHomeUrl, leaveMatchUrl)->
-    return if @listeningForMatchToStart
+  listenForMatchToStart: (matchId)->
+    console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"
+    return if @windowState is "waiting"
     @matchId = matchId
-    @matchHomeUrl = matchHomeUrl
-    @listeningForMatchToStart = true
-    window.onunload = (event)=>
-      @controllerAction leaveMatchUrl
-    @socket.on @playerActionChannel(), @onMatchHasStarted
+    window.onunload = (event)=> @controllerAction @leaveMatchUrl
+    @socket.once @playerActionChannel(), => @onMatchHasStarted()
+    @windowState = "waiting"
+
+  # From Rails server
+  #==================
+  leaveMatch: ->
+    @windowState = "open"
+    @matchId = ""

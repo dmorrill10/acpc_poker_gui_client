@@ -1,3 +1,8 @@
+:javascript
+  $(".#{PlayerActionsHelper::NAV_LEAVE_HTML_CLASS}").bind("click", function(event) {
+    Realtime.leaveMatch();
+  });
+
 = render partial: game_interface_partial('index')
 = render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
 = render partial: hud_partial('index')

@@ -167,7 +167,7 @@ module TableManager
       )
     end
 
-    def match_started!
+    def update_match_queue!
       @message_server.publish(
         REALTIME_CHANNEL,
         {
@@ -292,11 +292,11 @@ module TableManager
 
       @agent_interface.start_opponents!(opponents)
 
-      @match_communicator.match_started!
-
       @running_matches[match_id][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
         @match_communicator.match_updated! match
       end
+
+      @match_communicator.update_match_queue!
     end
   end
 
@@ -464,16 +464,21 @@ module TableManager
             'application_defs'
           )
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-          log __method__, num_matches_before_deleting: Match.all.length
+          num_matches_before_deleting = Match.all.length
+          log __method__, num_matches_before_deleting: num_matches_before_deleting
 
           # Delete all matches that
 
           # 1. Are stale
           Match.delete_irrelevant_matches!
+          if Match.all.length != num_matches_before_deleting
+            @@match_communicator.update_match_queue!
+          end
 
           # 2. That were running but are no longer
           @@table_queue.running_matches.each do |match_id, match_info|
             kill_match!(match_id) unless match_info[:dealer][:pid].process_exists?
+            @@match_communicator.update_match_queue!
           end
 
           # 3. That were running according to the database, but are not in the list of running matches
@@ -511,10 +516,12 @@ module TableManager
             )
               Match.delete_match! match_id
               kill_match! match_id
+              @@match_communicator.update_match_queue!
             end
           end
 
           log __method__, num_matches_after_deleting: Match.all.length
+
           return
         end
 
@@ -610,11 +617,18 @@ module TableManager
 
         @@agent_interface.play!(action, match, proxy) do |players_at_the_table|
           @@match_communicator.match_updated! match
+          if players_at_the_table.match_state.first_state_of_first_round?
+            @@match_communicator.update_match_queue!
+          end
         end
 
-        @@table_queue.match_ended!(match.id) if proxy.match_ended?
+        if proxy.match_ended?
+          @@table_queue.match_ended!(match.id)
+          @@match_communicator.update_match_queue!
+        end
       when KILL_MATCH
         kill_match! match_id
+        @@match_communicator.update_match_queue!
       else
         raise StandardError.new("Unrecognized request: #{request}")
       end

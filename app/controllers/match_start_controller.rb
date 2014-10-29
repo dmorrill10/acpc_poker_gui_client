@@ -103,6 +103,8 @@ class MatchStartController < ApplicationController
         match_id(@match.id)
         match_slice_index(INITIAL_MATCH_SLICE_INDEX)
 
+        @enque_match = true;
+
         return update_match_queue
       end
     )

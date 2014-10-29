@@ -37,7 +37,7 @@ class MatchView < SimpleDelegator
   def slice() slices[@slice_index] end
   def next_slice!
     @slice_index += 1
-    max_retries = 100
+    max_retries = 20
     retries = 0
     while @slice_index >= slices.length do
       sleep(0.1)

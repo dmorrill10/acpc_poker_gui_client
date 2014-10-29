@@ -12,14 +12,14 @@ var Redis = require('redis');
 messageSubscriptionClients = {}
 
 return io.on('connection', function(socket){
-  console.log("realtime-server: New connection");
+  console.log("realtime-server: New connection: " + socket.id);
 
-  messageSubscriptionClients[socket] = Redis.createClient();
-  messageSubscriptionClients[socket].subscribe(config.REALTIME_CHANNEL);
+  messageSubscriptionClients[socket.id] = Redis.createClient();
+  messageSubscriptionClients[socket.id].subscribe(config.REALTIME_CHANNEL);
 
   // From background processor
-  messageSubscriptionClients[socket].on('message', function(channel, message){
-    console.log("realtime-server: Alerting view: " + message);
+  messageSubscriptionClients[socket.id].on('message', function(channel, message){
+    console.log("realtime-server: Alerting " + socket.id + ": " + message);
 
     var parsedMessage = JSON.parse(message);
     var msg = ("message" in parsedMessage) ? parsedMessage.message : parsedMessage.channel
@@ -28,9 +28,9 @@ return io.on('connection', function(socket){
 
   // For logging
   socket.on('disconnect', function(e){
-    console.log('realtime-server: User disconnected: ' + e.toString());
+    console.log('realtime-server: ' + socket.id + ' disconnected: ' + e.toString());
 
-    messageSubscriptionClients[socket].quit();
-    delete messageSubscriptionClients[socket];
+    messageSubscriptionClients[socket.id].quit();
+    delete messageSubscriptionClients[socket.id];
   });
 });

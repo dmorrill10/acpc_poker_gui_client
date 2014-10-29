@@ -4,6 +4,14 @@ root.Realtime =
   playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@matchId}"
   playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@matchId}"
 
+
+  alreadySubscribed: (e)->
+    @socket._callbacks[e]? and @socket._callbacks[e].length > 0 and @socket._callbacks[e][0]?
+
+  unsubscribe: (e)->
+    console.log "Realtime#unsubscribe: e: #{e}"
+    @socket.removeAllListeners e
+
   connect: (
     realtimeConstantsUrl,
     tableManagerConstantsUrl,
@@ -26,14 +34,14 @@ root.Realtime =
     onConnection = (socket)=>
       console.log "Realtime#connect: onConnection: windowState: #{@windowState}"
       if @windowState is "opening"
-        @leaveMatch()
+        @windowState = "open"
+        @matchId = ""
         @listenToMatchQueueUpdates()
         @controllerAction landingUrl
 
     serverUrl = "http://#{document.location.hostname}"
     $.getJSON(realtimeConstantsUrl, (constants)=>
       console.log 'Realtime#connect: $.getJSON(realtimeConstantsUrl): success'
-      # @todo This can maybe be @socket = io();
       @socket = io.connect("#{serverUrl}:#{constants.REALTIME_SERVER_PORT}")
       @socket.on 'connect', onConnection
     ).fail(=> # Fallback to default
@@ -60,12 +68,16 @@ root.Realtime =
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
     @controllerAction @updateMatchQueueUrl if @windowState is "open"
-  forceUpdateState: ()-> @controllerAction @matchHomeUrl
+  forceUpdateState: ()->
+    console.log "Realtime#forceUpdateState"
+    @controllerAction @matchHomeUrl, {match_id: @matchId}
   updateState: ()->
+    console.log "Realtime#updateState: numUpdatesInQueue: #{@numUpdatesInQueue}"
     return @numUpdatesInQueue += 1 if @numUpdatesInQueue > 0
     @forceUpdateState()
     @numUpdatesInQueue += 1
   finishedUpdating: (update = true)->
+    console.log "Realtime#finishedUpdating: @numUpdatesInQueue: #{@numUpdatesInQueue}"
     return false unless @numUpdatesInQueue > 0
     @numUpdatesInQueue -= 1
     @forceUpdateState() if @numUpdatesInQueue > 0 && update
@@ -77,7 +89,7 @@ root.Realtime =
   #====================
   listenToMatchQueueUpdates: ()->
     console.log "Realtime#listenToMatchQueueUpdates: @updateMatchQueueChannel: #{@updateMatchQueueChannel}"
-    @socket.on @updateMatchQueueChannel, => @updateMatchQueue()
+    @socket.on @updateMatchQueueChannel, (msg)=> @updateMatchQueue(msg)
 
   onPlayerAction: (message='')->
     console.log "Realtime#onPlayerAction: message: #{message}"
@@ -85,8 +97,10 @@ root.Realtime =
 
   onMatchHasStarted: (message='')->
     console.log "Realtime#onMatchHasStarted: message: #{message}"
-    @socket.removeAllListeners @playerActionChannel()
-    @socket.on @playerActionChannel(), => @onPlayerAction()
+    return if @windowState is "match"
+
+    @unsubscribe @playerActionChannel()
+    @socket.on(@playerActionChannel(), (msg)=> @onPlayerAction(msg)) unless @alreadySubscribed(@playerActionChannel())
     @windowState = "match"
     @updateState()
 
@@ -95,11 +109,19 @@ root.Realtime =
     return if @windowState is "waiting"
     @matchId = matchId
     window.onunload = (event)=> @controllerAction @leaveMatchUrl
-    @socket.once @playerActionChannel(), => @onMatchHasStarted()
+
+    @unsubscribe @updateMatchQueueChannel
+    @unsubscribe @playerActionChannel()
+    @socket.on @playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
     @windowState = "waiting"
 
   # From Rails server
   #==================
   leaveMatch: ->
+    console.log "Realtime#leaveMatch: @windowState: #{@windowState}"
+    return if @windowState isnt "match"
+
+    @unsubscribe @playerActionChannel()
     @windowState = "open"
     @matchId = ""
+    @listenToMatchQueueUpdates()

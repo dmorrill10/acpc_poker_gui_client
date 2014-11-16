@@ -200,7 +200,6 @@ module TableManager
       @syncer.synchronize do
         log __method__, msg: "Deleting background processes with match ID #{match_id}"
         @running_matches.delete match_id
-        dequeue_without_synchronization!
       end
     end
 
@@ -237,10 +236,10 @@ module TableManager
           Match.delete_match! match_id
           match_ended!(match_id)
         end
-        @syncer.synchronize do
-          if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
-            dequeue_without_synchronization!
-          end
+      end
+      @syncer.synchronize do
+        if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
+          dequeue_without_synchronization!
         end
       end
       self
@@ -280,9 +279,20 @@ module TableManager
       )
 
       @running_matches[match_id] ||= {}
+
+      log(
+        __method__,
+        msg: "Added #{match_id} list of running matches"
+      )
+
       @running_matches[match_id][:dealer] = @agent_interface.start_dealer!(
         options,
         match
+      )
+
+      log(
+        __method__,
+        msg: "Dealer started for #{match_id} with pid #{@running_matches[match_id][:dealer][:pid]}"
       )
 
       opponents = []
@@ -444,6 +454,11 @@ module TableManager
       log __method__, msg: "RELOADED #{module_constant}"
     end
 
+    def check_queue_and_alert_views!
+      @@table_queue.check_queue!
+      @@match_communicator.update_match_queue!
+    end
+
     def perform(request, params=nil)
       begin
         log(
@@ -472,13 +487,12 @@ module TableManager
           # 1. Are stale
           Match.delete_irrelevant_matches!
           if Match.all.length != num_matches_before_deleting
-            @@match_communicator.update_match_queue!
+            check_queue_and_alert_views!
           end
 
           # 2. That were running but are no longer
           @@table_queue.running_matches.each do |match_id, match_info|
             kill_match!(match_id) unless match_info[:dealer][:pid].process_exists?
-            @@match_communicator.update_match_queue!
           end
 
           # 3. That were running according to the database, but are not in the list of running matches
@@ -516,9 +530,10 @@ module TableManager
             )
               Match.delete_match! match_id
               kill_match! match_id
-              @@match_communicator.update_match_queue!
             end
           end
+
+          check_queue_and_alert_views!
 
           log __method__, num_matches_after_deleting: Match.all.length
 
@@ -593,6 +608,7 @@ module TableManager
         )
 
         @@table_queue.enque! match_id, retrieve_parameter_or_raise_exception(params, OPTIONS_KEY)
+        @@match_communicator.update_match_queue!
       when START_PROXY_REQUEST_CODE
         match = match_instance(match_id)
         @@agent_interface.start_proxy!(match) do |players_at_the_table|
@@ -624,11 +640,11 @@ module TableManager
 
         if proxy.match_ended?
           @@table_queue.match_ended!(match.id)
-          @@match_communicator.update_match_queue!
+          check_queue_and_alert_views!
         end
       when KILL_MATCH
         kill_match! match_id
-        @@match_communicator.update_match_queue!
+        check_queue_and_alert_views!
       else
         raise StandardError.new("Unrecognized request: #{request}")
       end

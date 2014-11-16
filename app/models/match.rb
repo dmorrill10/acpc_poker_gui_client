@@ -31,6 +31,9 @@ class Match
   def self.unfinished
     all.select { |match| !match.finished? }
   end
+  def self.started_and_unfinished
+    all.select { |match| match.started? && !match.finished? }
+  end
   def self.include_name
     field :name
     validates_presence_of :name
@@ -130,6 +133,9 @@ class Match
   end
   def no_limit?
     @is_no_limit ||= game_def.betting_type == AcpcPokerTypes::GameDefinition::BETTING_TYPES[:nolimit]
+  end
+  def started?
+    !self.slices.empty?
   end
   def finished?
     !slices.empty? && (

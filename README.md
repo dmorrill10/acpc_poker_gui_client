@@ -1,8 +1,8 @@
 ACPC Poker Gui Client
 ======================
-The [Annual Computer Poker Competition][ACPC homepage] Poker Gui Client provides a graphical user interface with which people may play poker games against automated agents. It is still under development, but currently supports two-player limit and no-limit Texas Hold'em, and has the potential to support three-player as well.
+The [Annual Computer Poker Competition][ACPC homepage] Poker Gui Client provides a graphical user interface with which people may play poker games against automated agents. It supports two-player and three-player limit and no-limit Texas Hold'em, as well as three-player Kuhn. It can support any game supported by the [ACPC Dealer][ACPC competition server] as well.
 
-This application is built with *Ruby and Rails*.
+This application is built with *Ruby and Rails* and *Node.js*.
 
 More details
 ----------------
@@ -24,7 +24,7 @@ Contributing
 See the [issue tracker](https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open) for currently known issues, or to log new ones.
 
 ### Tests
-Run `rspec` in the project's root directory to run its tests. When making changes to the code that you'd like to have pulled into this project, please be sure to add tests as best you can. 
+Run `rspec` in the project's root directory to run its tests. When making changes to the code that you'd like to have pulled into this project, please be sure to add tests as best you can.
 
 ### To contribute code
 1. Fork this repo
@@ -33,9 +33,13 @@ Run `rspec` in the project's root directory to run its tests. When making change
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
 
-Copyright
----------
-Copyright &copy; 2011-2013 by the Computer Poker Research Group, University of Alberta. See [LICENSE](docs/LICENSE.md) for details.
+
+Credit and Copyright
+--------------------
+Copyright &copy; 2011-2014 Dustin Morrill. See [LICENSE](docs/LICENSE.md) for details.
+
+Developed with support from [Dr. Duane Szafron](http://webdocs.cs.ualberta.ca/~duane/), [Dr. Michael Bowling](http://webdocs.cs.ualberta.ca/~bowling/), [Natural Sciences and Engineering Research Council of Canada (NSERC)][NSERC], and the [Annual Computer Poker Competition][ACPC homepage].
+
 
 Further resources
 ------------------
@@ -85,6 +89,7 @@ Further resources
 [Markdown]: http://daringfireball.net/projects/markdown/
 [MongoDB downloads]: http://www.mongodb.org/downloads
 [MongoDB homepage]: http://www.mongodb.org/
+[NSERC]: http://www.nserc-crsng.gc.ca/
 [Phusion Passenger homepage]: http://www.modrails.com/
 [Programming Ruby]: http://www.ruby-doc.org/docs/ProgrammingRuby/
 [RDoc]: http://rdoc.sourceforge.net/

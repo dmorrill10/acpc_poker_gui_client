@@ -8,7 +8,8 @@
 :javascript
   var viewMatch = function(matchId) {
     Realtime.listenForMatchToStart(matchId);
-    return Realtime.onMatchHasStarted();
+    Realtime.onMatchHasStarted();
+    return Realtime.spectate();
   };
 
 - rejoin_button_id = 'rejoin'
@@ -48,7 +49,7 @@
     - num_matches_in_queue = Match.unfinished.length
     - num_matches_before_user_can_play = num_matches_in_queue - ApplicationHelper::MAX_NUM_MATCHES + 1
     - match_or_matches = if num_matches_before_user_can_play == 1 then "Match" else "Matches" end
-    - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_queue < ApplicationHelper::MAX_NUM_MATCHES && !user_already_in_match? then "Play Match!" else "Play Match After #{num_matches_before_user_can_play} #{match_or_matches}" end}
+    - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_queue < ApplicationHelper::MAX_NUM_MATCHES && matches.empty? then "Play Match!" else "Play Match After #{num_matches_before_user_can_play} #{match_or_matches}" end}
     - if matches.length > 0
       - play_button_attributes[:disabled] = 'disabled'
       - play_button_attributes[:value] = disabled_label

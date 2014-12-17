@@ -26,6 +26,12 @@ return io.on('connection', function(socket){
     socket.emit(parsedMessage.channel, msg);
   });
 
+  socket.on(config.NEXT_HAND, function (message) {
+    console.log('realtime-server: ' + socket.id + ': ' + config.NEXT_HAND + ': ' + msg.toString());
+
+    socket.emit(config.SPECTATE_NEXT_HAND_CHANNEL + JSON.parse(message).matchId);
+  });
+
   // For logging
   socket.on('disconnect', function(e){
     console.log('realtime-server: ' + socket.id + ' disconnected: ' + e.toString());

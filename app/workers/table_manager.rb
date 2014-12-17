@@ -47,6 +47,7 @@ module SymbolToEnglishExtension
   end
 end
 using SymbolToEnglishExtension
+
 # @todo Move into process_runner
 module IntegerAsProcessId
   refine Integer do
@@ -62,6 +63,18 @@ module IntegerAsProcessId
   end
 end
 using IntegerAsProcessId
+
+# @todo Move into acpc_dealer
+module AcpcDealer
+  def self.dealer_running?(match_process_hash)
+    (
+      match_process_hash[:dealer] &&
+      match_process_hash[:dealer][:pid] &&
+      match_process_hash[:dealer][:pid].process_exists?
+    )
+  end
+end
+
 
 module TableManager
   THIS_MACHINE = Socket.gethostname
@@ -123,6 +136,7 @@ module TableManager
     # @raise (see Match#save)
     def save_match_instance!(match)
       try(match.id) { match.save }
+      self
     end
   end
 
@@ -165,6 +179,7 @@ module TableManager
           channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
         }.to_json
       )
+      self
     end
 
     def update_match_queue!
@@ -174,6 +189,7 @@ module TableManager
           channel: "#{UPDATE_MATCH_QUEUE_CHANNEL}"
         }.to_json
       )
+      self
     end
   end
 
@@ -182,6 +198,8 @@ module TableManager
     include MatchInterface
 
     attr_reader :running_matches
+
+    QUEUE_CHECK_INTERVAL = 20 # seconds
 
     def initialize(match_communicator_, agent_interface_, logger_)
       @syncer = Mutex.new
@@ -201,6 +219,7 @@ module TableManager
         log __method__, msg: "Deleting background processes with match ID #{match_id}"
         @running_matches.delete match_id
       end
+      self
     end
 
     def enque!(match_id, dealer_options)
@@ -225,14 +244,14 @@ module TableManager
     end
 
     def watch_queue!
-      @queue_checking_thread = Thread.new { loop do sleep(20); check_queue! end }
+      @queue_checking_thread = Thread.new { loop do sleep(QUEUE_CHECK_INTERVAL); check_queue! end }
       self
     end
 
     def check_queue!
       # Clean up data from dead matches
       @running_matches.each do |match_id, match_processes|
-        unless match_processes[:dealer] && match_processes[:dealer][:pid] && match_processes[:dealer][:pid].process_exists?
+        unless AcpcDealer::dealer_running?(match_processes)
           Match.delete_match! match_id
           match_ended!(match_id)
         end
@@ -249,6 +268,7 @@ module TableManager
       @syncer.synchronize do
         @matches_to_start.delete_if { |m| m[:match_id] == match_id }
       end
+      self
     end
 
     protected
@@ -307,6 +327,7 @@ module TableManager
       end
 
       @match_communicator.update_match_queue!
+      self
     end
   end
 
@@ -459,6 +480,60 @@ module TableManager
       @@match_communicator.update_match_queue!
     end
 
+    def delete_irrelevant_matches!
+      num_matches_before_deleting = Match.all.length
+      log __method__, num_matches_before_deleting: num_matches_before_deleting
+
+      Match.delete_irrelevant_matches!
+      if Match.all.length != num_matches_before_deleting
+        check_queue_and_alert_views!
+      end
+    end
+
+    def delete_started_matches_where_the_dealer_has_died!
+      @@table_queue.running_matches.each do |match_id, match_info|
+        kill_match!(match_id) unless AcpcDealer::dealer_running?(match_info)
+      end
+    end
+
+    def delete_started_matches_that_are_not_running!
+      Match.each do |match|
+        match_id = match.id.to_s
+
+        log(
+          __method__,
+          {
+            match_to_check: { id: match_id, name: match.name, num_slices: match.slices.length },
+            running?: @@table_queue.running_matches[match_id],
+            dealer_process: (
+              if @@table_queue.running_matches[match_id]
+                @@table_queue.running_matches[match_id][:dealer][:pid]
+              else
+                nil
+              end
+            ),
+            dealer_process_exists?: (
+              if @@table_queue.running_matches[match_id]
+                AcpcDealer::dealer_running? @@table_queue.running_matches[match_id]
+              else
+                false
+              end
+            )
+          }
+        )
+
+        unless (
+          match.slices.empty? || (
+            @@table_queue.running_matches[match_id] &&
+            AcpcDealer::dealer_running?(@@table_queue.running_matches[match_id])
+          )
+        )
+          Match.delete_match! match_id
+          kill_match! match_id
+        end
+      end
+    end
+
     def perform(request, params=nil)
       begin
         log(
@@ -479,59 +554,9 @@ module TableManager
             'application_defs'
           )
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-          num_matches_before_deleting = Match.all.length
-          log __method__, num_matches_before_deleting: num_matches_before_deleting
-
-          # Delete all matches that
-
-          # 1. Are stale
-          Match.delete_irrelevant_matches!
-          if Match.all.length != num_matches_before_deleting
-            check_queue_and_alert_views!
-          end
-
-          # 2. That were running but are no longer
-          @@table_queue.running_matches.each do |match_id, match_info|
-            kill_match!(match_id) unless match_info[:dealer][:pid].process_exists?
-          end
-
-          # 3. That were running according to the database, but are not in the list of running matches
-          # @todo This appears to be killing *all* matches before they properly begin
-          Match.each do |match|
-            match_id = match.id.to_s
-
-            log(
-              __method__,
-              {
-                match_to_check: { id: match_id, name: match.name, num_slices: match.slices.length },
-                running?: @@table_queue.running_matches[match_id],
-                dealer_process: (
-                  if @@table_queue.running_matches[match_id]
-                    @@table_queue.running_matches[match_id][:dealer][:pid]
-                  else
-                    nil
-                  end
-                ),
-                dealer_process_exists?: (
-                  if @@table_queue.running_matches[match_id]
-                    @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
-                  else
-                    false
-                  end
-                )
-              }
-            )
-
-            unless (
-              match.slices.empty? || (
-                @@table_queue.running_matches[match_id] &&
-                @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
-              )
-            )
-              Match.delete_match! match_id
-              kill_match! match_id
-            end
-          end
+          delete_irrelevant_matches!
+          delete_started_matches_where_the_dealer_has_died!
+          delete_started_matches_that_are_not_running!
 
           check_queue_and_alert_views!
 
@@ -563,30 +588,36 @@ module TableManager
         match_id: match_id
       )
 
-      if @@table_queue.running_matches[match_id]
+      match_info = @@table_queue.running_matches[match_id]
+
+      if match_info
         log(
           __method__,
-          pid: @@table_queue.running_matches[match_id][:dealer][:pid],
+          pid: match_info[:dealer][:pid],
           msg: 'Match is running'
         )
 
-        if @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+        if AcpcDealer::dealer_running? match_info
           log(
             __method__,
-            pid: @@table_queue.running_matches[match_id][:dealer][:pid],
+            pid: match_info[:dealer][:pid],
             process_exists: true,
             msg: 'Match is running, attempting to kill'
           )
 
-          @@table_queue.running_matches[match_id][:dealer][:pid].kill_process
+          match_info[:dealer][:pid].kill_process
 
           sleep 1 # Give the dealer a chance to exit
           if (
-            @@table_queue.running_matches[match_id] &&
-            @@table_queue.running_matches[match_id][:dealer][:pid] &&
-            @@table_queue.running_matches[match_id][:dealer][:pid].process_exists?
+            match_info &&
+            AcpcDealer::dealer_running?(match_info)
           )
-            raise StandardError.new("Dealer process #{@@table_queue.running_matches[match_id][:dealer][:pid]} associated with #{match_id} couldn't be killed!")
+            raise(
+              StandardError.new(
+                "Dealer process #{match_info[:dealer][:pid]}
+                associated with #{match_id} couldn't be killed!"
+              )
+            )
           end
         end
         @@table_queue.match_ended!(match_id)

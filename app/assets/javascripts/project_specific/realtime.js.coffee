@@ -3,6 +3,7 @@ root = exports ? this
 root.Realtime =
   playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@matchId}"
   playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@matchId}"
+  spectateNextHandChannel: ()-> "#{@spectateNextHandChannelPrefix}#{@matchId}"
 
 
   alreadySubscribed: (e)->
@@ -18,7 +19,8 @@ root.Realtime =
     updateMatchQueueUrl,
     landingUrl,
     matchHomeUrl,
-    leaveMatchUrl
+    leaveMatchUrl,
+    nextHandUrl
   )->
     console.log 'Realtime#connect'
 
@@ -26,6 +28,7 @@ root.Realtime =
     @updateMatchQueueUrl = updateMatchQueueUrl
     @matchHomeUrl = matchHomeUrl
     @leaveMatchUrl = leaveMatchUrl
+    @nextHandUrl = nextHandUrl
     @matchId = ''
 
     @windowState = "opening"
@@ -54,11 +57,15 @@ root.Realtime =
       @playerActionChannelPrefix = constants.PLAYER_ACTION_CHANNEL_PREFIX
       @playerCommentChannelPrefix = constants.PLAYER_COMMENT_CHANNEL_PREFIX
       @updateMatchQueueChannel = constants.UPDATE_MATCH_QUEUE_CHANNEL
+      @spectateNextHandChannelPrefix = constants.SPECTATE_NEXT_HAND_CHANNEL
+      @nextHandCode = constants.NEXT_HAND
     ).fail(=> # Fallback to default
       console.log 'Realtime#connect: $.getJSON(tableManagerConstantsUrl): failure'
       @playerActionChannelPrefix = "player-action-in-"
       @playerCommentChannelPrefix = "player-comment-in-"
       @updateMatchQueueChannel = 'update_queue_count'
+      @spectateNextHandChannelPrefix = 'spectate-next-hand-in-'
+      @nextHandCode = 'next-hand'
     )
 
   # To Rails server
@@ -84,6 +91,10 @@ root.Realtime =
   startMatch: (url, optionArgs = '')-> @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
+  nextHand: ->
+    console.log "Realtime#nextHand"
+    @socket.send @nextHandCode, { matchId: @matchId }
+    @controllerAction @nextHandUrl
 
   # From Node.js server
   #====================
@@ -125,3 +136,12 @@ root.Realtime =
     @windowState = "open"
     @matchId = ""
     @listenToMatchQueueUpdates()
+    @stopSpectating()
+
+  stopSpectating: ->
+    console.log "Realtime#stopSpectating"
+    @unsubscribe @spectateNextHandChannel()
+
+  spectate: ->
+    console.log "Realtime#spectate: #{@spectateNextHandChannel()}"
+    @socket.on @spectateNextHandChannel(), (msg)=> @nextHand()

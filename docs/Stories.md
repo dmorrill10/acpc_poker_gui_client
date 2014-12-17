@@ -28,17 +28,30 @@ What are the connection breaking conditions?
 
 
 When will a match be saved to be rejoined?
-------------------------------------------
 
 
 How long will matches be available to be rejoined?
---------------------------------------------------
-- For 24 hours?
+
 
 When will a match be considered complete and ended?
 ---------------------------------------------------
 - When the browser tab is closed
 - When the user leaves the match through the "Leave Match" function
+
+
+What are the possible points of failure in the app?
+---------------------------------------------------
+- Insufficient data is transfered from browser to the server to continue
+- Insufficient data is present in the session to continue
+- A process cannot be started in the background
+- A process in the background dies
+- Data is deleted before it should be
+- The server is overloaded and can no longer respond properly
+
+
+---
+I want a method that goes from the client to the server, but web apps aren't organized like that. They transition based on user interaction or messages from the realtime server.
+---
 
 
 General App

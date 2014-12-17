@@ -4,7 +4,8 @@
       = button_tag PlayerActionsHelper::LEAVE_MATCH_LABEL, data: { disable_with: PlayerActionsHelper::LEAVE_MATCH_LABEL }, class: PlayerActionsHelper::LEAVE_MATCH_BUTTON_HTML_CLASS
   - elsif next_hand_button_visible?
     .meta_action
-      %button{ class: PlayerActionsHelper::NEXT_HAND_ID, data: { disable_with: PlayerActionsHelper::NEXT_HAND_LABEL } }= PlayerActionsHelper::NEXT_HAND_LABEL
+      - next_hand_attributes = { class: PlayerActionsHelper::NEXT_HAND_ID, data: { disable_with: PlayerActionsHelper::NEXT_HAND_LABEL } }
+      %button{next_hand_attributes}= PlayerActionsHelper::NEXT_HAND_LABEL
   - else
     .action_modification_tools
       - if match_view.no_limit?

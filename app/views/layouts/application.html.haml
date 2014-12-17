@@ -14,10 +14,10 @@
         "#{update_match_queue_url}",
         "#{root_url}",
         "#{match_home_url}",
-        "#{leave_match_url}"
+        "#{leave_match_url}",
+        "#{update_match_url}"
       );
   %body
     .container
-      / @todo Use these ruby constants in sass as well through https://github.com/vigetlabs/sass-json-vars
       %div{class: ApplicationHelper::APP_VIEW_HTML_CLASS}
         = yield

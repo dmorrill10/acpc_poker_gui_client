@@ -176,10 +176,10 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_including_user
-    begin
+    @matches_including_user ||= begin
       matches = Match.where(user_name: user_name)
-      matches.reject { |m| m.name_from_user.match(/^_+$/) || m.finished? }
-      matches
+      matches.reject { |m| m.name_from_user.match(/^_+$/) }
+      Match.started_and_unfinished matches
     rescue
       []
     end

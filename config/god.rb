@@ -1,7 +1,5 @@
 # run with: god -c config/god.rb
 
-require_relative '../app/models/match'
-
 GOD_RAILS_ROOT = File.expand_path("../..", __FILE__)
 God.pid_file_directory = "#{GOD_RAILS_ROOT}/tmp/pids"
 
@@ -25,12 +23,12 @@ def watch(name)
 
     w.restart_if do |restart|
       restart.condition(:memory_usage) do |c|
-        c.above = 1.gigabytes
+        c.above = 2.gigabytes
         c.times = [3, 5] # 3 out of 5 intervals
       end
 
       restart.condition(:cpu_usage) do |c|
-        c.above = 99.percent
+        c.above = 100.percent
         c.times = 15
       end
     end
@@ -49,36 +47,6 @@ def watch(name)
   end
 end
 
-def delete_matches_older_than!(lifespan)
-  # These are needed to monitor the Match database and they must be done after
-  #  ensuring that the database (mongod in this case) is running
-  require "#{GOD_RAILS_ROOT}/lib/database_config"
-  require "#{GOD_RAILS_ROOT}/app/models/match"
-
-  Match.delete_matches_older_than! lifespan
-end
-
-def keep_match_database_tidy
-  God.watch do |w|
-    w.name = 'clean_match_database'
-    w.dir = "#{GOD_RAILS_ROOT}/log"
-    w.log = "#{GOD_RAILS_ROOT}/log/#{w.name}.log"
-    w.env = {"RAILS_ROOT" => GOD_RAILS_ROOT, "RAILS_ENV" => "production"}
-
-    w.interval = 1.day
-
-    # Attempt to delete old Matches every day, but
-    #  if the database isn't up and an exception is raised,
-    #  ignore it and try again tomorrow.
-    w.start = lambda do
-      begin
-        delete_matches_older_than!(match_lifespan)
-      rescue
-      end
-    end
-  end
-end
-
 watch('mongod') do |w|
   w.start = "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
 end
@@ -88,7 +56,10 @@ watch('redis') do |w|
 end
 
 watch('worker') do |w|
-  w.start = "bundle exec sidekiq -r #{GOD_RAILS_ROOT}"
+  w.start = "bundle exec sidekiq -r #{GOD_RAILS_ROOT} -L #{GOD_RAILS_ROOT}/log/sidekiq.log -t 1"
 end
 
-keep_match_database_tidy
+watch('node') do |w|
+  w.dir = "#{GOD_RAILS_ROOT}/realtime"
+  w.start = "node ."
+end

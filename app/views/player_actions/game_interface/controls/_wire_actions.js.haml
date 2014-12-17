@@ -1,6 +1,6 @@
 :javascript
   function nextHand() {
-    return Realtime.controllerAction("#{update_match_url}");
+    return Realtime.nextHand();
   };
   function submitAction(action) {
     return Realtime.playAction("#{play_action_url}", action);

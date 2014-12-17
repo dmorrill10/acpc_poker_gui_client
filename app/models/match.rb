@@ -31,8 +31,8 @@ class Match
   def self.unfinished
     all.select { |match| !match.finished? }
   end
-  def self.started_and_unfinished
-    all.select { |match| match.started? && !match.finished? }
+  def self.started_and_unfinished(matches=all)
+    matches.select { |match| match.started? && !match.finished? }
   end
   def self.include_name
     field :name
@@ -70,7 +70,10 @@ class Match
   end
   def self.delete_matches_older_than!(lifespan)
     expired(lifespan).delete_all
-
+    self
+  end
+  def self.delete_finished_matches!
+    finished.each { |m| m.delete }
     self
   end
   def self.delete_match!(match_id)
@@ -80,12 +83,11 @@ class Match
     else
       match.delete
     end
-
     self
   end
-  def self.match_lifespan() 1.hour end
+  def self.match_lifespan() 1.day end
   def self.delete_irrelevant_matches!
-    finished.each { |m| m.delete }
+    delete_finished_matches!
     delete_matches_older_than! match_lifespan
   end
 

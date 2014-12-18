@@ -1,15 +1,21 @@
+:javascript
+  Realtime.finishedUpdating();
+
 = render partial: game_interface_partial('index')
 = render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
 = render partial: hud_partial('index')
 
-- if next_hand_button_visible?
-  :javascript
-    Realtime.finishedUpdating(false);
-- elsif stale_slice?
-  :javascript
-    if (!Realtime.finishedUpdating()) {
-      Realtime.forceUpdateState();
-    }
-- else
-  :javascript
-    Realtime.finishedUpdating();
+- if !next_hand_button_visible?
+  - if ((match.slices.length - 1) - match.last_slice_viewed) > 0
+    :javascript
+      if (Realtime.updateQueueLength == 0) {
+        Realtime.updateQueueLength += 1;
+      }
+      Realtime.updateState();
+  - else
+    :javascript
+      // There may be an update from the backend since the previous
+      // request read from the database, check if another update is necessary.
+      if (Realtime.updateQueueLength > 0) {
+        Realtime.updateState();
+      }

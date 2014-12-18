@@ -27,9 +27,9 @@ return io.on('connection', function(socket){
   });
 
   socket.on(config.NEXT_HAND, function (message) {
-    console.log('realtime-server: ' + socket.id + ': ' + config.NEXT_HAND + ': ' + msg.toString());
+    console.log('realtime-server: Alert from ' + socket.id + ': ' + config.SPECTATE_NEXT_HAND_CHANNEL + message.matchId);
 
-    socket.emit(config.SPECTATE_NEXT_HAND_CHANNEL + JSON.parse(message).matchId);
+    socket.broadcast.emit(config.SPECTATE_NEXT_HAND_CHANNEL + message.matchId);
   });
 
   // For logging

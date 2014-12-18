@@ -9,6 +9,5 @@
   "RENDER_NOTHING_JS": "shared/render_nothing",
   "NEW_MATCH_PARTIAL": "match_start/index",
   "ISSUE_TRACKER": "https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open",
-  "MATCH_SLICE_SESSION_KEY": "match_slice_index",
   "USER_NAME_KEY": "user_name"
 }

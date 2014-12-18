@@ -1,3 +1,4 @@
 .game_interface
   = render partial: poker_table_partial('index')
+  -# unless spectating? # @todo How can this be done properly?
   = render partial: poker_controls_partial('index'), locals: {is_no_limit: match_view.no_limit?}

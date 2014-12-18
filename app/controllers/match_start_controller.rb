@@ -16,8 +16,6 @@ class MatchStartController < ApplicationController
   include ApplicationHelper
   include MatchStartHelper
 
-  INITIAL_MATCH_SLICE_INDEX = -1
-
   def sign_in
     if params[:user_name] && !params[:user_name].empty?
       u = user(params[:user_name])
@@ -101,7 +99,6 @@ class MatchStartController < ApplicationController
         )
 
         match_id(@match.id)
-        match_slice_index(INITIAL_MATCH_SLICE_INDEX)
 
         @enque_match = true;
 
@@ -125,7 +122,6 @@ class MatchStartController < ApplicationController
         @match = opponent_users_match.copy_for_next_human_player user.name, seat
 
         match_id(@match.id)
-        match_slice_index(INITIAL_MATCH_SLICE_INDEX)
 
         wait_for_match_to_start TableManager::START_PROXY_REQUEST_CODE
       end
@@ -144,7 +140,6 @@ class MatchStartController < ApplicationController
         raise unless @match
 
         match_id(@match.id)
-        match_slice_index(@match.slices.length - 2)
 
         wait_for_match_to_start
       end

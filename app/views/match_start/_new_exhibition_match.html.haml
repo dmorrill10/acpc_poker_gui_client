@@ -8,8 +8,7 @@
 :javascript
   var viewMatch = function(matchId) {
     Realtime.listenForMatchToStart(matchId);
-    Realtime.onMatchHasStarted();
-    return Realtime.spectate();
+    return Realtime.onMatchHasStarted();
   };
 
 - rejoin_button_id = 'rejoin'
@@ -34,8 +33,12 @@
               - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
               - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
               %input.btn.btn-secondary{spectate_button}
-              :javascript
-                $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); });
+              - if user_started_match?(m)
+                :javascript
+                  $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); });
+              - else
+                :javascript
+                  $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); Realtime.spectate(); });
       - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
         %tr
           %td

@@ -78,7 +78,6 @@ class MatchManagerController < UserManagerController
   helper_method(
     :match,
     :match_id,
-    :match_slice_index,
     :user_started_match?,
     :spectating?,
     :matches_to_join,
@@ -94,7 +93,6 @@ class MatchManagerController < UserManagerController
 
   def clear_match_session!
     session[TableManager::MATCH_ID_KEY] = nil
-    session[ApplicationHelper::MATCH_SLICE_SESSION_KEY] = nil
   end
 
   def clear_match_information!
@@ -125,14 +123,6 @@ class MatchManagerController < UserManagerController
       session[TableManager::MATCH_ID_KEY] = new_id.to_s
     else
       session[TableManager::MATCH_ID_KEY]
-    end
-  end
-
-  def match_slice_index(new_index=nil)
-    if new_index
-      session[ApplicationHelper::MATCH_SLICE_SESSION_KEY] = new_index.to_i
-    else
-      session[ApplicationHelper::MATCH_SLICE_SESSION_KEY]
     end
   end
 

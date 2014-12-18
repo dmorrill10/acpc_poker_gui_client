@@ -24,7 +24,8 @@ root.Realtime =
   )->
     console.log 'Realtime#connect'
 
-    @numUpdatesInQueue = 0
+    @updateQueueLength = 0
+    @inProcessOfUpdating = false
     @updateMatchQueueUrl = updateMatchQueueUrl
     @matchHomeUrl = matchHomeUrl
     @leaveMatchUrl = leaveMatchUrl
@@ -45,10 +46,14 @@ root.Realtime =
     serverUrl = "http://#{document.location.hostname}"
     $.getJSON(realtimeConstantsUrl, (constants)=>
       console.log 'Realtime#connect: $.getJSON(realtimeConstantsUrl): success'
+      @nextHandCode = constants.NEXT_HAND
+      @spectateNextHandChannelPrefix = constants.SPECTATE_NEXT_HAND_CHANNEL
       @socket = io.connect("#{serverUrl}:#{constants.REALTIME_SERVER_PORT}")
       @socket.on 'connect', onConnection
     ).fail(=> # Fallback to default
       console.log 'Realtime#connect: $.getJSON(realtimeConstantsUrl): failure'
+      @nextHandCode = constants.NEXT_HAND
+      @spectateNextHandChannelPrefix = 'spectate-next-hand-in-'
       @socket = io.connect("#{serverUrl}:5001")
       @socket.on 'connect', onConnection
     )
@@ -57,15 +62,11 @@ root.Realtime =
       @playerActionChannelPrefix = constants.PLAYER_ACTION_CHANNEL_PREFIX
       @playerCommentChannelPrefix = constants.PLAYER_COMMENT_CHANNEL_PREFIX
       @updateMatchQueueChannel = constants.UPDATE_MATCH_QUEUE_CHANNEL
-      @spectateNextHandChannelPrefix = constants.SPECTATE_NEXT_HAND_CHANNEL
-      @nextHandCode = constants.NEXT_HAND
     ).fail(=> # Fallback to default
       console.log 'Realtime#connect: $.getJSON(tableManagerConstantsUrl): failure'
       @playerActionChannelPrefix = "player-action-in-"
       @playerCommentChannelPrefix = "player-comment-in-"
       @updateMatchQueueChannel = 'update_queue_count'
-      @spectateNextHandChannelPrefix = 'spectate-next-hand-in-'
-      @nextHandCode = 'next-hand'
     )
 
   # To Rails server
@@ -75,26 +76,29 @@ root.Realtime =
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
     @controllerAction @updateMatchQueueUrl if @windowState is "open"
-  forceUpdateState: ()->
-    console.log "Realtime#forceUpdateState"
-    @controllerAction @matchHomeUrl, {match_id: @matchId}
-  updateState: ()->
-    console.log "Realtime#updateState: numUpdatesInQueue: #{@numUpdatesInQueue}"
-    return @numUpdatesInQueue += 1 if @numUpdatesInQueue > 0
-    @forceUpdateState()
-    @numUpdatesInQueue += 1
-  finishedUpdating: (update = true)->
-    console.log "Realtime#finishedUpdating: @numUpdatesInQueue: #{@numUpdatesInQueue}"
-    return false unless @numUpdatesInQueue > 0
-    @numUpdatesInQueue -= 1
-    @forceUpdateState() if @numUpdatesInQueue > 0 && update
   startMatch: (url, optionArgs = '')-> @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
   nextHand: ->
     console.log "Realtime#nextHand"
-    @socket.send @nextHandCode, { matchId: @matchId }
+    @socket.emit @nextHandCode, { matchId: @matchId }
     @controllerAction @nextHandUrl
+
+  forceUpdateState: ()->
+    console.log "Realtime#forceUpdateState"
+    @controllerAction @matchHomeUrl, {match_id: @matchId}
+  updateState: ->
+    console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
+    return this if @inProcessOfUpdating
+    @forceUpdateState()
+    @inProcessOfUpdating = true
+  finishedUpdating: ->
+    console.log "Realtime#finishedUpdating: @inProcessOfUpdating: #{@inProcessOfUpdating}"
+    @inProcessOfUpdating = false
+    @updateQueueLength -= 1 unless @updateQueueLength == 0
+  enqueueUpdate: ->
+    @updateQueueLength += 1
+    @updateState() unless @inProcessOfUpdating
 
   # From Node.js server
   #====================
@@ -104,7 +108,7 @@ root.Realtime =
 
   onPlayerAction: (message='')->
     console.log "Realtime#onPlayerAction: message: #{message}"
-    Realtime.updateState()
+    @enqueueUpdate()
 
   onMatchHasStarted: (message='')->
     console.log "Realtime#onMatchHasStarted: message: #{message}"
@@ -133,10 +137,10 @@ root.Realtime =
     return if @windowState isnt "match"
 
     @unsubscribe @playerActionChannel()
+    @stopSpectating()
     @windowState = "open"
     @matchId = ""
     @listenToMatchQueueUpdates()
-    @stopSpectating()
 
   stopSpectating: ->
     console.log "Realtime#stopSpectating"
@@ -144,4 +148,4 @@ root.Realtime =
 
   spectate: ->
     console.log "Realtime#spectate: #{@spectateNextHandChannel()}"
-    @socket.on @spectateNextHandChannel(), (msg)=> @nextHand()
+    @socket.on @spectateNextHandChannel(), (msg)=> @controllerAction(@nextHandUrl)

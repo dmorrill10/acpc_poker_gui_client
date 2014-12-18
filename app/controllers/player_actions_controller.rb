@@ -27,7 +27,7 @@ class MatchViewManagerController < ApplicationController
   def match_view() @match_view end
 
   def stale_slice?
-    match_slice_index < (match_view.slices.length - 1)
+    match_view.last_slice_viewed < (match_view.slices.length - 1)
   end
 
   def player_role_id(player_seat)
@@ -88,6 +88,18 @@ class MatchViewManagerController < ApplicationController
     label += ' to' if match_view.no_limit?
     label
   end
+  def update_match_view!
+    begin
+      match_view.next_slice!
+    rescue MatchView::UnableToFindNextSlice => e
+      Rails.logger.ap method: __method__, match_slice: match_view.slice_index, message: e.message
+      # Render the last slice
+    end
+    unless spectating?
+      match.last_slice_viewed = match_view.slice_index
+      match.save!
+    end
+  end
 end
 
 # Controller for the main game view where the table and actions are presented to the player.
@@ -100,8 +112,7 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        match_slice_index(0) unless match_slice_index
-        @match_view = MatchView.new match_id, match_slice_index
+        @match_view = MatchView.new match_id
 
         Rails.logger.ap action: __method__, hand_ended: @match_view.hand_ended?
 
@@ -121,7 +132,7 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem continuing match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        @match_view ||= MatchView.new match_id, match_slice_index
+        @match_view ||= MatchView.new match_id
 
         Rails.logger.ap(
           action: __method__,
@@ -130,7 +141,7 @@ class PlayerActionsController < MatchViewManagerController
         )
 
         begin
-          @match_view.next_slice!
+          update_match_view!
         rescue => e
           Rails.logger.ap(
             action: __method__,
@@ -235,11 +246,8 @@ class PlayerActionsController < MatchViewManagerController
   def my_helper() PlayerActionsHelper end
 
   # Replaces the page contents with an updated game view
-  def replace_page_contents_with_updated_game_view(
-    slice_index=match_slice_index
-  )
-    @match_view ||= MatchView.new(match_id, slice_index)
-    match_slice_index(@match_view.slice_index)
+  def replace_page_contents_with_updated_game_view
+    @match_view ||= MatchView.new(match_id)
     replace_page_contents(
       replacement_partial: 'player_actions/index',
       html_element: html_element_name_to_class(

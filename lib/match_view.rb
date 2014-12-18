@@ -5,8 +5,14 @@ require 'acpc_poker_types/match_state'
 require 'acpc_poker_types/game_definition'
 require 'acpc_poker_types/hand'
 
+require 'contextual_exceptions'
+using ContextualExceptions::ClassRefinement
+
 class MatchView < SimpleDelegator
   include AcpcPokerTypes
+
+  exceptions :unable_to_find_next_slice
+
   attr_reader :match, :slice_index
 
   def self.chip_contributions_in_previous_rounds(player, round)
@@ -23,9 +29,9 @@ class MatchView < SimpleDelegator
 
     @slice_index = if slice_index
       s = slice_index.to_i
-      [if s < 0 then s + 1 else s end, @match.slices.length - 1].min
+      [if s < 0 then 0 else s end, @match.last_slice_viewed].min
     else
-      @match.slices.length - 1
+      @match.last_slice_viewed
     end - 1
 
     next_slice!
@@ -35,20 +41,24 @@ class MatchView < SimpleDelegator
   end
   def state() @state ||= MatchState.parse slice.state_string end
   def slice() slices[@slice_index] end
-  def next_slice!
+  def next_slice!(max_retries = 0)
     @slice_index += 1
-    max_retries = 20
     retries = 0
+    if @slice_index >= slices.length && max_retries < 1
+      @slice_index -= 1
+      return self
+    end
     while @slice_index >= slices.length do
       sleep(0.1)
       @match = Match.find(@match.id)
       __setobj__ @match
       if retries >= max_retries
         @slice_index -= 1
-        raise "Unable to find next match slice after #{retries} retries"
+        raise UnableToFindNextSlice.new("Unable to find next match slice after #{retries} retries")
       end
       retries += 1
     end
+    self
   end
   # zero indexed
   def users_seat() @users_seat ||= @match.seat - 1 end

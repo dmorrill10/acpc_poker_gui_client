@@ -1,7 +1,5 @@
 Exhibition App
 ==============
-Upon reaching the landing page, the user must see a table with all currently active matches (*Active Match Table*). Beside each match must be a button to interact with that match. If the match is associated with the user, the button must allow the user to rejoin the match. Otherwise, the button must allow the user to spectate another player's match.
-
 The *Active Match Table* must
 - show all active matches
 - have a button associated with each match
@@ -27,16 +25,65 @@ What are the connection breaking conditions?
     - Kills match
 
 
-When will a match be saved to be rejoined?
+Landing Page
+------------
+
+### Active Match Table
+
+Given the user is on the landing page,
+the user must see a table listing all currently active matches (*Active Match Table*).
+
+Given the user is on the landing page,
+when a match has been initialized but before it has been started,
+its entry in Active Match Table must show
+    1. the user associated,
+    2. an active spectate button if the user is not playing in the match or an inactive button otherwise
+
+Given the user is on the landing page,
+when a match has been initialized and after it has been started,
+its entry in Active Match Table must show
+    1. the user associated,
+    2. an active spectate button if the user is not playing in the match or an inactive button otherwise
+    3. the ratio of completed hands
+
+Given the user is on the landing page,
+when a match is started by any user including itself,
+the user's Active Match Table must update.
+
+Given the user is on the landing page,
+when a hand is finished by any user,
+the user's Active Match Table must update.
+
+Given the user is on the landing page,
+when a match is finished any user,
+the user's Active Match Table must update.
 
 
-How long will matches be available to be rejoined?
+Match Table
+-----------
+
+### Timeout
+
+Given the user is playing in a match,
+when the user fails to act within 60 seconds,
+then
+    1. A pop-up must tell the user that they have been timed out
+    2. The user must be returned to the landing page
+
+Given the user is playing in a match,
+the user must see a countdown of the time remaining to play before timeout.
+
+The user timeout must be shorter than the actual match lifespan.
+
+
+
 
 
 When will a match be considered complete and ended?
 ---------------------------------------------------
 - When the browser tab is closed
 - When the user leaves the match through the "Leave Match" function
+- When the user times out
 
 
 What are the possible points of failure in the app?

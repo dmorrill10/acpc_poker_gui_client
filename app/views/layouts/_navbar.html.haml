@@ -1,13 +1,14 @@
-.navbar
-  .navbar-inner
-    = link_to ApplicationHelper::APP_NAME, root_url, class: 'brand'
-    %ul.nav
-      = render partial: partial if partial
-      %li= help_link
-      %li.user
-        - if match_id
-          %a= "<i class='icon-user'></i> #{user.name}".html_safe
-        - else
-          %a{class: 'user-sign-in', data: {toggle: 'modal', target: "##{MatchStartHelper::SIGN_IN_ID}"}}= "<i class='icon-user'></i> #{user.name}".html_safe
-
-          = render partial: 'layouts/sign_in'
+%nav.navbar.navbar-default{ role: 'navigation' }
+  .container-fluid
+    .collapse.navbar-collapse
+      .navbar-header
+        = link_to ApplicationHelper::APP_NAME, root_url, class: ['brand', 'navbar-brand']
+      %ul.nav.navbar-nav.navbar-right
+        = render partial: partial if partial
+        %li= help_link
+        %li.user
+          - if match_id
+            %a= "<span class='glyphicon glyphicon-user'></span> #{user.name}".html_safe
+          - else
+            %a{class: 'user-sign-in', data: {toggle: 'modal', target: "##{MatchStartHelper::SIGN_IN_ID}"}}= "<span class='glyphicon glyphicon-user'></span> #{user.name}".html_safe
+            = render partial: 'layouts/sign_in'

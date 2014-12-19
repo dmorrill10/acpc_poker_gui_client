@@ -123,17 +123,22 @@ root.Realtime =
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
     @matchId = matchId
-    window.onunload = (event)=> @controllerAction @leaveMatchUrl
+    window.onunload = (event)=> @leaveMatch()
 
     @unsubscribe @updateMatchQueueChannel
     @unsubscribe @playerActionChannel()
     @socket.on @playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
     @windowState = "waiting"
 
+  leaveMatch: ->
+    return if @windowState isnt "match"
+    @controllerAction @leaveMatchUrl
+    @resetState()
+
   # From Rails server
   #==================
-  leaveMatch: ->
-    console.log "Realtime#leaveMatch: @windowState: #{@windowState}"
+  resetState: ->
+    console.log "Realtime#resetState: @windowState: #{@windowState}"
     return if @windowState isnt "match"
 
     @unsubscribe @playerActionChannel()

@@ -70,11 +70,14 @@ group :assets do
   # JavaScript library
   gem 'jquery-ui-rails'
 
-  gem 'sass-rails'
+  gem 'sass-rails', '>= 3.2'
+  gem "bootstrap-sass", '~> 3.3.1'
+  # Recommended by Bootstrap for adding browser vendor prefixes automatically
+  gem 'autoprefixer-rails'
+  gem 'zen-grids'
+
   gem 'coffee-rails'
   gem 'uglifier'
-  gem "bootstrap-sass-rails"
-  gem 'zen-grids'
 
   # compass uses this for sprites
   gem 'chunky_png'

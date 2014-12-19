@@ -1,19 +1,19 @@
 - classes ||= []
 - footer_partial ||= nil
 - custom_hotkeys_partial ||= nil
-%table.table.table-striped{ class: classes, role: 'menu'}
+%table.table.table-striped.hotkey-table{ class: classes, role: 'menu'}
   %thead
     %tr
-      %th Action
-      %th Key
+      %th.col-md-6 Action
+      %th.col-md-4 Key
   %tbody
     - user.hotkeys.each do |hotkey|
       - next if hotkey.wager_hotkey?
       - label = hotkey.action
       - key = hotkey.key
       %tr
-        %td= label
-        %td= right_column.call(label, key.to_s.capitalize)
+        %td.col-md-6= label
+        %td.col-md-4= right_column.call(label, key.to_s.capitalize)
     - if match_view.no_limit?
       %tr
         %th{colspan: 2} Wagers
@@ -22,8 +22,8 @@
         - label = hotkey.action
         - key = hotkey.key
         %tr
-          %td= label
-          %td= right_column.call(label, key.to_s.capitalize)
+          %td.col-md-6= label
+          %td.col-md-4= right_column.call(label, key.to_s.capitalize)
       - if custom_hotkeys_partial
         = render partial: custom_hotkeys_partial
   - if footer_partial

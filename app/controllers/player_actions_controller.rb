@@ -189,10 +189,14 @@ class PlayerActionsController < MatchViewManagerController
         )
 
         hotkey_hash = params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_ID]
-        params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_AMOUNT_KEY].zip(
-          params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_KEYS_HASH_KEY]
-        ).each do |amount, key|
-          hotkey_hash[Hotkey.wager_hotkey_label(amount.to_f)] = key
+
+        # @todo Update this in master
+        if params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_AMOUNT_KEY]
+          params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_AMOUNT_KEY].zip(
+            params[PlayerActionsHelper::CUSTOMIZE_HOTKEYS_KEYS_HASH_KEY]
+          ).each do |amount, key|
+            hotkey_hash[Hotkey.wager_hotkey_label(amount.to_f)] = key
+          end
         end
 
         begin

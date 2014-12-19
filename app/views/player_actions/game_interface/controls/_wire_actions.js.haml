@@ -1,8 +1,10 @@
 :javascript
   function nextHand() {
+    Timer.clear();
     return Realtime.nextHand();
   };
   function submitAction(action) {
+    Timer.clear();
     return Realtime.playAction("#{play_action_url}", action);
   };
   $(".#{PlayerActionsHelper::FOLD_HTML_CLASS}").click(function() {

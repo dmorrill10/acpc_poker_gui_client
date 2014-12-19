@@ -2,6 +2,8 @@
 //  Base
 //-------------------------------------
 
+@import "compass/css3/border-radius"
+
 html
   font-size: rem($base-fontSize)
   height: 100%
@@ -15,8 +17,9 @@ body
   line-height: $base-lineHeight
   height: 100%
 
-.container
-  height: 100%
+  .container
+    height: 100%
+    padding: 0
 
 footer
   text-align: center
@@ -27,6 +30,10 @@ footer
 
 .navbar
   margin: 0
+  +border-radius(0,0)
+  .nav
+    .user-sign-in
+      cursor: pointer
 
 .loading
   cursor: wait
@@ -53,14 +60,9 @@ footer
   font-weight: 900
   color: $triad-color-3
 .btn-primary
-  +buttonBackground($triad-color-1-light, $triad-color-1-dark)
+  +pretty_button(#FFFFFF, $triad-color-1-light, $triad-color-1-dark)
 .btn-info
-  +buttonBackground(lighten($triad-color-3, 10%), darken($triad-color-3, 10%))
-.navbar
-  .nav
-    float: right
-    .user-sign-in
-      cursor: pointer
+  +pretty_button(#FFFFFF, lighten($triad-color-3, 10%), darken($triad-color-3, 10%))
 
 
 // ----- Block Content ----- //

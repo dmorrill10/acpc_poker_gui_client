@@ -1,14 +1,5 @@
 Exhibition App
 ==============
-The *Active Match Table* must
-- show all active matches
-- have a button associated with each match
-    - rejoin if it is the user's match
-    - spectate otherwise
-- update for all users whenever
-    - a match is started,
-    - a match is finished,
-    - a hand finishes.
 
 What are the connection breaking conditions?
 - Web server death
@@ -29,6 +20,16 @@ Landing Page
 ------------
 
 ### Active Match Table
+
+The *Active Match Table* must
+- show all active matches
+- have a button associated with each match
+    - rejoin if it is the user's match
+    - spectate otherwise
+- update for all users whenever
+    - a match is started,
+    - a match is finished,
+    - a hand finishes.
 
 Given the user is on the landing page,
 the user must see a table listing all currently active matches (*Active Match Table*).

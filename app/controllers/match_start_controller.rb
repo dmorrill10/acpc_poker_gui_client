@@ -73,7 +73,7 @@ class MatchStartController < ApplicationController
   def new
     seed = Match.new_random_seed
     seat = Match.new_random_seat(2)
-    match_name = "#{user_name}.#{NUM_HANDS_PER_MATCH}h.#{seed}r.#{seat}s"
+    match_name = Match.new_name user_name
 
     params[:match] = {
       opponent_names: [ApplicationHelper::EXHIBITION_BOT_NAME],

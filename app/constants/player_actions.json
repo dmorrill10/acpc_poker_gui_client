@@ -19,5 +19,6 @@
   "FOLD_LABEL": "Fold",
   "DEALER_BUTTON_HTML_CLASS": "dealer_button",
   "NEXT_HAND_LABEL": "Next Hand",
-  "NEXT_HAND_ID": "next_hand_id"
+  "NEXT_HAND_ID": "next_hand_id",
+  "ACTION_TIMEOUT": 60
 }

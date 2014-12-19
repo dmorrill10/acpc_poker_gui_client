@@ -18,6 +18,27 @@ class Match
   scope :expired, ->(lifespan) do
     where(:updated_at.lt => (Time.new - lifespan))
   end
+
+  def self.nowAsString
+    Time.now.strftime('%b%-d_%Y-at-%-H:%-M:%-S')
+  end
+
+  def self.new_name(
+    user_name,
+    game_def_key: nil,
+    num_hands: nil,
+    seed: nil,
+    seat: nil,
+    time: true
+  )
+    name = "#{user_name}"
+    name += ".#{game_def_key}" if game_def_key
+    name += ".#{num_hands}h" if num_hands
+    name += ".#{seat}s" if seat
+    name += ".#{seed}r" if seed
+    name += ".#{nowAsString}" if time
+    name
+  end
   def self.new_random_seed
     random_float = rand
     random_int = (random_float * 10**random_float.to_s.length).to_i
@@ -85,7 +106,7 @@ class Match
     end
     self
   end
-  def self.match_lifespan() 1.day end
+  def self.match_lifespan() 5.minutes end
   def self.delete_irrelevant_matches!
     delete_finished_matches!
     delete_matches_older_than! match_lifespan

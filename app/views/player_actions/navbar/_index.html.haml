@@ -2,7 +2,7 @@
 :javascript
   $('.modal-backdrop').remove();
   $('.customize').click(function() {
-    $('.nav').after("#{customize_hotkeys}");
+    $('.app').after("#{customize_hotkeys}");
     $("##{PlayerActionsHelper::CUSTOMIZE_HOTKEYS_ID}").on('hidden', function() {
       $("##{PlayerActionsHelper::CUSTOMIZE_HOTKEYS_ID}").remove();
     });

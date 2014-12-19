@@ -1,5 +1,21 @@
+:javascript
+  Timer.clear();
+  function afterEachSecond() {
+    timeRemaining = parseInt($('.time-remaining').text());
+    if (timeRemaining <= 0) {
+      alert('The match has timed out.');
+      Realtime.leaveMatch();
+    }
+    else {
+      $('.time-remaining').text(timeRemaining - 1);
+      Timer.start(afterEachSecond);
+    }
+  };
+  Timer.start(afterEachSecond);
+
 .chip_balances
-  %h5.match_name= "#{match_view.match.name} <span class=\"right\">#{match_view.state.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
+  .panel-heading
+    .match_name= "#{match_view.match.name} <span class=\"right\">#{match_view.state.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
   %table.table.table-striped
     %thead
       %tr
@@ -10,3 +26,6 @@
         %tr
           %td= "#{player['name']}"
           %td= "#{player['chip_balance'].to_f}"
+.timeout
+  .panel-heading
+    %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT

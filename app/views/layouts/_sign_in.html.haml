@@ -15,7 +15,7 @@
   .modal-dialog
     .modal-content
       .modal-header
-        = close_button("modal").html_safe
+        = ApplicationHelper::close_button("modal").html_safe
         %h3.modal-title Sign-in
       .modal-body
         = form_tag sign_in_url, remote: true, class: 'form-horizontal', role: 'form' do

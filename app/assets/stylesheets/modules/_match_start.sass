@@ -1,27 +1,31 @@
 .match_start
-  +zen-grid-container
+  @extend %centerHorizontally
+  @extend %centerVertically
 
   $match_start_num_grid_items: 12
 
-  $match_start_height: 780px
-  height: $match_start_height
+  // $match_start_height: 780px
+  // height: $match_start_height
 
   background-color: white
+
+  $l-match_start-padding: 20px
+
+  // Magically makes the box expand to its contents
+  overflow: auto
+
   .matches-in-progress
-    +parent_grid(10)
-    +zen-grid-item($match_start_num_grid_items / 2, 1)
+    // $matches-in-progress_height: $match_start_height
+    // $matches-in-progress_width: 600px
 
-    $matches-in-progress_height: $match_start_height
-    $matches-in-progress_width: 600px
-
-    padding: 20px
-
-    width: $matches-in-progress_width
-    height: $matches-in-progress_height
+    //width: $matches-in-progress_width
+    //height: $matches-in-progress_height
 
     $matches-in-progress_font-size: 12px
     font-size: $matches-in-progress_font-size
     overflow: auto
+
+    padding: $l-match_start-padding
 
     .right
       float: right
@@ -29,7 +33,7 @@
     .table
       margin-bottom: 0
 
-      $spectate_button_width: 50px
+      // $spectate_button_width: 50px
       tr
         th
           text-align: center
@@ -39,28 +43,21 @@
           text-align: center
           padding: 2px
         td:first-child
-          width: ($matches-in-progress_width - $spectate_button_width)/2.0
+      //    width: ($matches-in-progress_width - $spectate_button_width)/2.0
         td:first-child + td
-          width: ($matches-in-progress_width - $spectate_button_width)/2.0
+        //  width: ($matches-in-progress_width - $spectate_button_width)/2.0
         td:first-child + td + td
           form
             width: auto
             margin: 0
           input
-            width: $spectate_button_width
+            // width: $spectate_button_width
             font-size: $matches-in-progress_font-size - 2
   .play_button_box
-    +parent_grid(10)
-    +zen-grid-item($match_start_num_grid_items / 2, $match_start_num_grid_items / 2)
-
     $play_button_box_height: 100px
 
-    margin-left: 600px
-    padding-top: 100px
+    padding: $l-match_start-padding
 
-    width: auto
-    position: relative
-    display: inline-block
     form
       padding: 0
       margin: 0
@@ -72,5 +69,5 @@
         height: auto
         width: auto
     .btn
-      font-size: 20px
+      font-size: rem(20px)
       height: $play_button_box_height

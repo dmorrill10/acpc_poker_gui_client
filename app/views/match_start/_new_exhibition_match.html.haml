@@ -15,50 +15,53 @@
 - rejoin_button_id = 'rejoin'
 - spectate_button_id_prefix = 'spectate-'
 
-.matches-in-progress
-  %table.table.table-striped.table-bordered
-    %thead
-      %tr
-        %th Matches in Progress
-        %th= "#{num_matches_in_progress} / #{ApplicationHelper::MAX_NUM_MATCHES}"
-        %th
-    %tbody
-      - Match.asc(:name).started_and_unfinished.each do |m|
+.col-sm-6
+  .matches-in-progress
+    %table.table.table-striped.table-bordered
+      %thead
         %tr
-          %td= m.user_name
-          %td= "Hand #{m.hand_number + 1} / #{m.number_of_hands}"
-          %td
-            %form.spectate_form
-              - spectate_or_rejoin_label = if user_started_match?(m) then '...' else 'Spectate' end
-              - spectate_button = {value: spectate_or_rejoin_label}
-              - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
-              - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
-              %input.btn.btn-secondary{spectate_button}
-              - if user_started_match?(m)
-                :javascript
-                  $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); });
-              - else
-                :javascript
-                  $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); Realtime.spectate(); });
-      - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
-        %tr
-          %td
-          %td
-          %td
-            %form.spectate_form
-              %input.btn.btn-secondary{disabled: true, value: 'Spectate'}
-.play_button_box
-  = form_for match, url: new_match_url, remote: true do |f|
-    - disabled_label = "Waiting..."
-    - num_matches_in_queue = Match.unfinished.length
-    - num_matches_before_user_can_play = num_matches_in_queue - ApplicationHelper::MAX_NUM_MATCHES + 1
-    - match_or_matches = if num_matches_before_user_can_play == 1 then "Match" else "Matches" end
-    - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_queue < ApplicationHelper::MAX_NUM_MATCHES && matches.empty? then "Play Match!" else "Play Match After #{num_matches_before_user_can_play} #{match_or_matches}" end}
-    - if matches.length > 0
-      - play_button_attributes[:disabled] = 'disabled'
-      - play_button_attributes[:value] = disabled_label
-    .form-actions
-      = f.submit play_button_attributes
+          %th Matches in Progress
+          %th= "#{num_matches_in_progress} / #{ApplicationHelper::MAX_NUM_MATCHES}"
+          %th
+      %tbody
+        - Match.asc(:name).started_and_unfinished.each do |m|
+          %tr
+            %td= m.user_name
+            %td= "Hand #{m.hand_number + 1} / #{m.number_of_hands}"
+            %td
+              %form.spectate_form
+                - spectate_or_rejoin_label = if user_started_match?(m) then '...' else 'Spectate' end
+                - spectate_button = {value: spectate_or_rejoin_label}
+                - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
+                - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
+                %input.btn.btn-secondary{spectate_button}
+                - if user_started_match?(m)
+                  :javascript
+                    $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); });
+                - else
+                  :javascript
+                    $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); Realtime.spectate(); });
+        - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
+          %tr
+            %td
+            %td
+            %td
+              %form.spectate_form
+                %input.btn.btn-secondary{disabled: true, value: 'Spectate'}
+.col-sm-offset-2
+.col-sm-4
+  .play_button_box
+    = form_for match, url: new_match_url, remote: true do |f|
+      - disabled_label = "Waiting..."
+      - num_matches_in_queue = Match.unfinished.length
+      - num_matches_before_user_can_play = num_matches_in_queue - ApplicationHelper::MAX_NUM_MATCHES + 1
+      - match_or_matches = if num_matches_before_user_can_play == 1 then "Match" else "Matches" end
+      - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_queue < ApplicationHelper::MAX_NUM_MATCHES && matches.empty? then "Play Match!" else "Play Match After #{num_matches_before_user_can_play} #{match_or_matches}" end}
+      - if matches.length > 0
+        - play_button_attributes[:disabled] = 'disabled'
+        - play_button_attributes[:value] = disabled_label
+      .form-actions
+        = f.submit play_button_attributes
 
 - if @enque_match
   :javascript

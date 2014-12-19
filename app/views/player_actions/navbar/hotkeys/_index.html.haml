@@ -4,7 +4,7 @@
     .modal-content
       = form_tag update_hotkeys_url, remote: true, class: 'modal-form' do
         .modal-header
-          = close_button("modal").html_safe
+          = ApplicationHelper::close_button("modal").html_safe
           %h3= customize_hotkeys_dialog_label
         .modal-body
           = render partial: hotkeys_partial('table'), locals: { right_column: ->(label, key) { hotkey_field_tag(label, key) }, custom_hotkeys_partial: hotkeys_partial('add_custom_wagers') }

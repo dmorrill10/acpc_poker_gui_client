@@ -53,7 +53,7 @@ module ApplicationHelper
   end
 
   # @input [String] dismiss_element Element type to dismiss, such as "alert" or "modal"
-  def close_button(dismiss_element)
+  def self.close_button(dismiss_element)
     "<button type='button' class='close' data-dismiss='#{dismiss_element}'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button>"
   end
   def self.label_for_required(label)

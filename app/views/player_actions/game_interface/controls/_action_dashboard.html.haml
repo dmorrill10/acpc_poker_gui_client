@@ -5,6 +5,7 @@
   - elsif next_hand_button_visible?
     .meta_action
       - next_hand_attributes = { class: PlayerActionsHelper::NEXT_HAND_ID, data: { disable_with: PlayerActionsHelper::NEXT_HAND_LABEL } }
+      - next_hand_attributes[:disabled] = 'disabled' if spectating?
       %button{next_hand_attributes}= PlayerActionsHelper::NEXT_HAND_LABEL
   - else
     .action_modification_tools

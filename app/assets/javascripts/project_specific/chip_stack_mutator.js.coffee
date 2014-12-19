@@ -2,7 +2,7 @@ root = exports ? this
 
 root.ChipStackMutator =
   adjustAmountFontSizeOf: (chipStack) ->
-    innerRing = $(chipStack).find('.inner_ring')
+    innerRing = $(chipStack)
     amountBox = $(chipStack).find('.amount')
     textSpan = $("<span>").text(amountBox.text()).appendTo("body")
     widthRatio = innerRing.width()/textSpan.width()

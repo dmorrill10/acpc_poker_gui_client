@@ -1,3 +1,5 @@
+@import compass/css3/box-shadow
+
 $background_color: #000
 
 $default_radius: 5px
@@ -118,8 +120,10 @@ $original-zen-column-count: $zen-column-count
   border-radius: circular_border_radius()
 
 %raisedBorder
-  border-style: outset
-  border-width: $l-raisedBorder-border-width
+  //+box-shadow(0.3em 0.3em 0.9em black)
+  +box-shadow($l-raisedBorder-border-width $l-raisedBorder-border-width (3 * $l-raisedBorder-border-width) black)
+  // border-style: outset
+  // border-width:
 
 %autoAdjustedHorizontalMargins
   margin-left: auto

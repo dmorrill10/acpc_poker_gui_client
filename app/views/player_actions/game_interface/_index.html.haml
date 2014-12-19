@@ -1,4 +1,11 @@
 .game_interface
   = render partial: poker_table_partial('index')
-  -# unless spectating? # @todo How can this be done properly?
-  = render partial: poker_controls_partial('index'), locals: {is_no_limit: match_view.no_limit?}
+
+  = render partial: poker_controls_partial('wire_actions')
+  :javascript
+    // Must come before change in focus code and as late into loading the page as possible
+    // to make sure the window fits exactly as expected.
+    GameInterface.adjustScale();
+
+  - unless spectating?
+    = render partial: poker_controls_partial('index'), locals: {is_no_limit: match_view.no_limit?}

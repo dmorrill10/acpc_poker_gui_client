@@ -481,18 +481,14 @@ module TableManager
     end
 
     def delete_irrelevant_matches!
-      num_matches_before_deleting = Match.all.length
-      log __method__, num_matches_before_deleting: num_matches_before_deleting
-
       Match.delete_irrelevant_matches!
-      if Match.all.length != num_matches_before_deleting
-        check_queue_and_alert_views!
-      end
     end
 
-    def delete_started_matches_where_the_dealer_has_died!
+    def delete_started_matches_where_the_dealer_has_died_or_not_persisted!
       @@table_queue.running_matches.each do |match_id, match_info|
-        kill_match!(match_id) unless AcpcDealer::dealer_running?(match_info)
+        unless (AcpcDealer::dealer_running?(match_info) && Match.id_exists?(match_id))
+          kill_match!(match_id)
+        end
       end
     end
 
@@ -555,8 +551,8 @@ module TableManager
           )
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
           delete_irrelevant_matches!
-          delete_started_matches_where_the_dealer_has_died!
           delete_started_matches_that_are_not_running!
+          delete_started_matches_where_the_dealer_has_died_or_not_persisted!
 
           check_queue_and_alert_views!
 

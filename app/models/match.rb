@@ -19,6 +19,15 @@ class Match
     where(:updated_at.lt => (Time.new - lifespan))
   end
 
+  def self.id_exists?(match_id)
+    begin
+      self.find(match_id)
+      true
+    rescue Mongoid::Errors::DocumentNotFound
+      false
+    end
+  end
+
   def self.nowAsString
     Time.now.strftime('%b%-d_%Y-at-%-H:%-M:%-S')
   end

@@ -10,6 +10,8 @@ $l-player-column-count: 3
   +zen-grid-item(2, $position)
   +zen-grid-container
 
+  $held_player_information-chip_color: saturate($triad-color-2-dark, 100%)
+
   .held_player_information
     +parent_grid($l-player-column-count)
     +zen-grid-item($l-player-column-count, 1)
@@ -39,10 +41,10 @@ $l-player-column-count: 3
       +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
       +zen-grid-item(2, 4)
       .chip_stack
-        +chip_stack($triad-color-2-dark)
+        +chip_stack($held_player_information-chip_color)
   &.acting_player
     .held_player_information
-      +soft_edges(saturate(lighten($triad-color-2-dark, $base-color-spread), 100%))
+      +soft_edges(saturate(lighten($held_player_information-chip_color, $base-color-spread), 100%))
   .outer_player_information
     +parent_grid($l-player-column-count)
     +zen-grid-item($l-player-column-count, 1)
@@ -79,8 +81,8 @@ $l-player-column-count: 3
     .stack_added_to_pot
       @extend %stack_associated_with_pot
       .chip_stack
-        +chip_stack(mix($triad-color-2-dark, $l-poker_table-pot-color, 30%))
+        +chip_stack(mix($held_player_information-chip_color, $l-poker_table-pot-color, 30%))
     .stack_taken_from_pot
       @extend %stack_associated_with_pot
       .chip_stack
-        +chip_stack(mix($triad-color-2-dark, $l-poker_table-pot-color, 70%))
+        +chip_stack(mix($held_player_information-chip_color, $l-poker_table-pot-color, 70%))

@@ -283,7 +283,7 @@ module TableManager
         match_info = @matches_to_start.shift
         match_id = match_info[:match_id]
         begin
-          match = match_instance(match_id)
+          match = Match.find match_id
         rescue Mongoid::Errors::DocumentNotFound
           return self if @matches_to_start.empty?
         else
@@ -481,12 +481,31 @@ module TableManager
     end
 
     def delete_irrelevant_matches!
+      log(
+        __method__,
+        {
+          num_matches_before_deleteing: Match.all.length
+        }
+      )
       Match.delete_irrelevant_matches!
+      log(
+        __method__,
+        {
+          num_matches_after_deleteing: Match.all.length
+        }
+      )
     end
 
     def delete_started_matches_where_the_dealer_has_died_or_not_persisted!
       @@table_queue.running_matches.each do |match_id, match_info|
         unless (AcpcDealer::dealer_running?(match_info) && Match.id_exists?(match_id))
+          log(
+            __method__,
+            {
+              match_id_being_killed: match_id
+            }
+          )
+
           kill_match!(match_id)
         end
       end
@@ -637,11 +656,25 @@ module TableManager
         @@table_queue.enque! match_id, retrieve_parameter_or_raise_exception(params, OPTIONS_KEY)
         @@match_communicator.update_match_queue!
       when START_PROXY_REQUEST_CODE
+        log(
+          __method__,
+          request: request,
+          match_id: match_id,
+          msg: 'Starting proxy'
+        )
+
         match = match_instance(match_id)
         @@agent_interface.start_proxy!(match) do |players_at_the_table|
           @@match_communicator.match_updated! match
         end
       when PLAY_ACTION_REQUEST_CODE
+        log(
+          __method__,
+          request: request,
+          match_id: match_id,
+          msg: 'Taking action'
+        )
+
         unless @@table_queue.running_matches[match_id]
           raise StandardError.new("Request to play in match #{match_id} when it doesn't exist!")
         end

@@ -48,7 +48,12 @@ def watch(name)
 end
 
 watch('mongod') do |w|
-  w.start = "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
+  vendor_mongod = "#{MONGODB_ROOT}/bin/mongod"
+  w.start = if File.exists?(vendor_mongod)
+    "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
+  else
+    "mongod --dbpath #{GOD_RAILS_ROOT}/db"
+  end
 end
 
 watch('redis') do |w|

@@ -169,7 +169,7 @@ class MatchManagerController < UserManagerController
     @matches_including_user ||= begin
       matches = Match.where(user_name: user_name)
       matches.reject { |m| m.name_from_user.match(/^_+$/) }
-      Match.started_and_unfinished matches
+      Match.unfinished matches
     rescue
       []
     end
@@ -180,7 +180,7 @@ class MatchManagerController < UserManagerController
   end
 
   def num_matches_in_progress
-    @num_matches_in_progress ||= Match.started_and_unfinished.length
+    @num_matches_in_progress ||= Match.unfinished.length
   end
 end
 

@@ -58,8 +58,8 @@ class Match
   def self.finished
     all.select { |match| match.finished? }
   end
-  def self.unfinished
-    all.select { |match| !match.finished? }
+  def self.unfinished(matches=all)
+    matches.select { |match| !match.finished? }
   end
   def self.started_and_unfinished(matches=all)
     matches.select { |match| match.started? && !match.finished? }

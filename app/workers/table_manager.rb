@@ -692,13 +692,34 @@ module TableManager
         }
 
         @@agent_interface.play!(action, match, proxy) do |players_at_the_table|
+          log __method__, {
+            match_id: match_id,
+            action: action,
+            msg: "Updating match"
+          }
           @@match_communicator.match_updated! match
           if players_at_the_table.match_state.first_state_of_first_round?
+            log __method__, {
+              match_id: match_id,
+              action: action,
+              msg: "Updating match"
+            }
             @@match_communicator.update_match_queue!
           end
         end
 
+        log __method__, {
+          match_id: match_id,
+          action: action,
+          msg: "Finished taking action"
+        }
+
         if proxy.match_ended?
+          log __method__, {
+            match_id: match_id,
+            action: action,
+            msg: "Match is ended"
+          }
           @@table_queue.match_ended!(match.id)
           check_queue_and_alert_views!
         end

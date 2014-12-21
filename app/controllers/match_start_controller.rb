@@ -71,6 +71,8 @@ class MatchStartController < ApplicationController
   end
 
   def new
+    return render_js(RENDER_NOTHING_JS) if user.name == User::DEFAULT_NAME
+
     seed = Match.new_random_seed
     seat = Match.new_random_seat(2)
     match_name = Match.new_name user_name
@@ -179,6 +181,7 @@ class MatchStartController < ApplicationController
   end
 
   def enqueue_exhibition_match
+    return render_js(RENDER_NOTHING_JS) if user.name == User::DEFAULT_NAME
     return reset_to_match_entry_view(
       'Sorry, unable to enqueue match, please try again.'
     ) if (

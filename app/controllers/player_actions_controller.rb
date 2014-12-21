@@ -241,8 +241,7 @@ class PlayerActionsController < MatchViewManagerController
       )
       clear_match_information!
     end
-
-    redirect_to root_path, remote: true
+    reset_to_match_entry_view
   end
 
   protected

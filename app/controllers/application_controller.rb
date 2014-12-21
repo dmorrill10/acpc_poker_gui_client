@@ -224,29 +224,29 @@ class ApplicationController < MatchManagerController
       html_element: @html_element
     }.awesome_inspect)
 
+    render_js ApplicationHelper::REPLACE_CONTENTS_JS
+  end
+
+  def render_js(js_partial)
     if (
       error? do
         respond_to do |format|
           format.js do
-            render ApplicationHelper::REPLACE_CONTENTS_JS, formats: [:js]
+            render js_partial, formats: [:js]
           end
         end
       end
     )
       @alert_message ||= "Unable to update the page, #{self.class.report_error_request_message}"
-      if replacement_partial == ApplicationHelper::NEW_MATCH_PARTIAL
-        return(redirect_to(root_path, remote: true))
+      if js_partial == ApplicationHelper::NEW_MATCH_PARTIAL
+        return redirect_to(root_path, remote: true)
       else
-        return reset_to_match_entry_view
+        return replace_page_contents(replacement_partial: ApplicationHelper::NEW_MATCH_PARTIAL)
       end
     end
   end
 
   def reset_to_match_entry_view(alert_message=@alert_message)
-    replace_page_contents(
-      replacement_partial: ApplicationHelper::NEW_MATCH_PARTIAL,
-      alert_message: alert_message,
-      html_element: app_html_element
-    )
+    render_js ApplicationHelper::RENDER_MATCH_ENTRY_JS
   end
 end

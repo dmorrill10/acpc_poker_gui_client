@@ -13,6 +13,14 @@ root.Realtime =
     console.log "Realtime#unsubscribe: e: #{e}"
     @socket.removeAllListeners e
 
+  showMatchEntryPage: ->
+    console.log "Realtime#showMatchEntryPage"
+
+    @windowState = "open"
+    @matchId = ""
+    @listenToMatchQueueUpdates()
+    @controllerAction @landingUrl
+
   connect: (
     realtimeConstantsUrl,
     tableManagerConstantsUrl,
@@ -27,6 +35,7 @@ root.Realtime =
     @updateQueueLength = 0
     @inProcessOfUpdating = false
     @updateMatchQueueUrl = updateMatchQueueUrl
+    @landingUrl = landingUrl
     @matchHomeUrl = matchHomeUrl
     @leaveMatchUrl = leaveMatchUrl
     @nextHandUrl = nextHandUrl
@@ -37,11 +46,7 @@ root.Realtime =
     # Only start the app after a connection has been made
     onConnection = (socket)=>
       console.log "Realtime#connect: onConnection: windowState: #{@windowState}"
-      if @windowState is "opening"
-        @windowState = "open"
-        @matchId = ""
-        @listenToMatchQueueUpdates()
-        @controllerAction landingUrl
+      @showMatchEntryPage() if @windowState is "opening"
 
     serverUrl = "http://#{document.location.hostname}"
     $.getJSON(realtimeConstantsUrl, (constants)=>
@@ -132,21 +137,13 @@ root.Realtime =
 
   leaveMatch: ->
     return if @windowState isnt "match"
-    @controllerAction @leaveMatchUrl
-    @resetState()
-
-  # From Rails server
-  #==================
-  resetState: ->
-    console.log "Realtime#resetState: @windowState: #{@windowState}"
-    return if @windowState isnt "match"
 
     @unsubscribe @playerActionChannel()
     @stopSpectating()
-    @windowState = "open"
-    @matchId = ""
-    @listenToMatchQueueUpdates()
+    @controllerAction @leaveMatchUrl
 
+  # From Rails server
+  #==================
   stopSpectating: ->
     console.log "Realtime#stopSpectating"
     @unsubscribe @spectateNextHandChannel()

@@ -44,12 +44,16 @@ class UserManagerController < ErrorManagerController
   # @return [String] The currently signed in user name. Defaults to +User::DEFAULT_NAME+
   def user_name
     return @user.name if @user
-    name = begin
+    session[ApplicationHelper::USER_NAME_KEY] || User::DEFAULT_NAME
+  end
+
+  def user_name_from_htaccess
+    begin
       ActionController::HttpAuthentication::Basic::user_name_and_password(
         request
       ).first
     rescue NoMethodError # Occurs when no authentication has been done
-      session[ApplicationHelper::USER_NAME_KEY] || User::DEFAULT_NAME
+      nil
     end
   end
 

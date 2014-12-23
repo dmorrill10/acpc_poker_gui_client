@@ -10,6 +10,8 @@
    $light_color: lighten($color, $card_color_variation_amount);
    @include background-image(linear-gradient(top, $light_color, $dark_color));
    background-image: -ms-linear-gradient(top, $light_color, $dark_color);
+   background-color: $light-color;
+   background-style: solid;
 
    .suit {
       color: darken($color, $card_color_variation_amount);

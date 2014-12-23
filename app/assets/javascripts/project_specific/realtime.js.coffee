@@ -16,6 +16,8 @@ root.Realtime =
   showMatchEntryPage: ->
     console.log "Realtime#showMatchEntryPage"
 
+    @unsubscribe @playerActionChannel()
+    @stopSpectating()
     @windowState = "open"
     @matchId = ""
     @listenToMatchQueueUpdates()
@@ -137,9 +139,6 @@ root.Realtime =
 
   leaveMatch: ->
     return if @windowState isnt "match"
-
-    @unsubscribe @playerActionChannel()
-    @stopSpectating()
     @controllerAction @leaveMatchUrl
 
   # From Rails server

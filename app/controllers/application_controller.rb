@@ -90,7 +90,8 @@ class MatchManagerController < UserManagerController
     :seats_to_rejoin,
     :matches_including_user,
     :user_already_in_match?,
-    :num_matches_in_progress
+    :num_matches_in_progress,
+    :started_and_unfinished_matches
   )
 
   protected
@@ -184,8 +185,12 @@ class MatchManagerController < UserManagerController
     @user_is_already_in_match ||= matches_including_user.length > 0
   end
 
+  def started_and_unfinished_matches
+    @started_and_unfinished_matches ||= Match.asc(:name).started_and_unfinished
+  end
+
   def num_matches_in_progress
-    @num_matches_in_progress ||= Match.unfinished.length
+    @num_matches_in_progress ||= started_and_unfinished_matches.length
   end
 end
 

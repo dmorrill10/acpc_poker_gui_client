@@ -23,7 +23,7 @@
           %th= "#{num_matches_in_progress} / #{ApplicationHelper::MAX_NUM_MATCHES}"
           %th
       %tbody
-        - Match.asc(:name).unfinished.each do |m|
+        - started_and_unfinished_matches.each do |m|
           %tr
             %td= m.user_name
             - hn = if m.hand_number then m.hand_number else 0 end

@@ -102,7 +102,7 @@ class MatchStartController < ApplicationController
 
         match_id(@match.id)
 
-        @enque_match = true;
+        @enque_match = true
 
         return update_match_queue
       end

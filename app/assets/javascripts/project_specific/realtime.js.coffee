@@ -82,7 +82,7 @@ root.Realtime =
     $.ajax({type: "POST", url: urlArg, data: dataArg, dataType: 'script'})
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
-    @controllerAction @updateMatchQueueUrl if @windowState is "open"
+    @controllerAction @updateMatchQueueUrl if @windowState is "open" or 'waiting'
   startMatch: (url, optionArgs = '')-> @controllerAction url, {options: optionArgs}
   startProxy: (url)-> @controllerAction url
   playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
@@ -121,7 +121,9 @@ root.Realtime =
     console.log "Realtime#onMatchHasStarted: message: #{message}"
     return if @windowState is "match"
 
+    @unsubscribe @updateMatchQueueChannel
     @unsubscribe @playerActionChannel()
+    window.onunload = (event)=> @leaveMatch()
     @socket.on(@playerActionChannel(), (msg)=> @onPlayerAction(msg)) unless @alreadySubscribed(@playerActionChannel())
     @windowState = "match"
     @updateState()
@@ -130,9 +132,7 @@ root.Realtime =
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
     @matchId = matchId
-    window.onunload = (event)=> @leaveMatch()
 
-    @unsubscribe @updateMatchQueueChannel
     @unsubscribe @playerActionChannel()
     @socket.on @playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
     @windowState = "waiting"

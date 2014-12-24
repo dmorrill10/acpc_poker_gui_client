@@ -115,7 +115,7 @@ class Match
     end
     self
   end
-  def self.match_lifespan() 5.minutes end
+  def self.match_lifespan() 2.minutes end
   def self.delete_irrelevant_matches!
     delete_finished_matches!
     delete_matches_older_than! match_lifespan

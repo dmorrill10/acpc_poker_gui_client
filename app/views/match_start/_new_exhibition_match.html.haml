@@ -71,7 +71,7 @@
 - if @enque_match
   :javascript
     Realtime.listenForMatchToStart("#{match_id}");
-    Realtime.controllerAction("#{enqueue_exhibition_match_url}");
+    AjaxCommunicator.sendGet("#{enqueue_exhibition_match_url}");
 - elsif matches.length > 0 && matches_to_rejoin && !matches_to_rejoin.empty?
   :javascript
     $("##{rejoin_button_id}").click();

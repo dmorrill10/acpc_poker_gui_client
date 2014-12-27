@@ -10,6 +10,7 @@
 //= require bootstrap-sprockets
 //= require rails.validations
 //= require rails.validations.simple_form
+//= require project_specific/ajax_communicator.js.coffee
 //= require_tree .
 
 function isBlank(str) {

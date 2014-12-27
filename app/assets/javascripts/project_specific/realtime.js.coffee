@@ -21,7 +21,7 @@ root.Realtime =
     @windowState = "open"
     @matchId = ""
     @listenToMatchQueueUpdates()
-    @controllerAction @landingUrl
+    AjaxCommunicator.sendGet @landingUrl
 
   connect: (
     realtimeConstantsUrl,
@@ -78,22 +78,20 @@ root.Realtime =
 
   # To Rails server
   #================
-  controllerAction: (urlArg, dataArg = {})->
-    $.ajax({type: "POST", url: urlArg, data: dataArg, dataType: 'script'})
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
-    @controllerAction @updateMatchQueueUrl if @windowState is "open" or 'waiting'
-  startMatch: (url, optionArgs = '')-> @controllerAction url, {options: optionArgs}
-  startProxy: (url)-> @controllerAction url
-  playAction: (url, actionArg)-> @controllerAction url, {poker_action: actionArg}
+    AjaxCommunicator.sendGet @updateMatchQueueUrl if @windowState is "open" or 'waiting'
+  startMatch: (url, optionArgs = '')-> AjaxCommunicator.sendPost url, {options: optionArgs}
+  startProxy: (url)-> AjaxCommunicator.sendPost url
+  playAction: (url, actionArg)-> AjaxCommunicator.sendPost url, {poker_action: actionArg}
   nextHand: ->
     console.log "Realtime#nextHand"
     @socket.emit @nextHandCode, { matchId: @matchId }
-    @controllerAction @nextHandUrl
+    AjaxCommunicator.sendGet @nextHandUrl
 
   forceUpdateState: ()->
     console.log "Realtime#forceUpdateState"
-    @controllerAction @matchHomeUrl, {match_id: @matchId}
+    AjaxCommunicator.sendPost @matchHomeUrl, {match_id: @matchId}
   updateState: ->
     console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
     return this if @inProcessOfUpdating
@@ -139,7 +137,7 @@ root.Realtime =
 
   leaveMatch: ->
     return if @windowState isnt "match"
-    @controllerAction @leaveMatchUrl
+    AjaxCommunicator.sendPost @leaveMatchUrl
 
   # From Rails server
   #==================
@@ -149,4 +147,4 @@ root.Realtime =
 
   spectate: ->
     console.log "Realtime#spectate: #{@spectateNextHandChannel()}"
-    @socket.on @spectateNextHandChannel(), (msg)=> @controllerAction(@nextHandUrl)
+    @socket.on @spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(@nextHandUrl)

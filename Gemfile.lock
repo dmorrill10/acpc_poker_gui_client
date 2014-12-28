@@ -123,6 +123,9 @@ GEM
     jquery-ui-rails (4.0.4)
       jquery-rails
       railties (>= 3.1.0)
+    js-routes (0.9.9)
+      railties (>= 3.2)
+      sprockets-rails
     json (1.8.1)
     kramdown (1.1.0)
     mail (2.5.4)
@@ -240,6 +243,8 @@ GEM
       multi_json (~> 1.0)
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
+    sprockets-rails (0.0.1)
+      sprockets (>= 1.0.2)
     thin (1.5.1)
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
@@ -287,6 +292,7 @@ DEPENDENCIES
   haml (~> 3.1)
   jquery-rails (~> 2.2)
   jquery-ui-rails
+  js-routes
   kramdown
   meta_request
   methadone

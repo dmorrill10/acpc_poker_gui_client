@@ -23,26 +23,15 @@ root.Realtime =
     @listenToMatchQueueUpdates()
     AjaxCommunicator.sendGet @landingUrl
 
-  connect: (
-    realtimeConstantsUrl,
-    tableManagerConstantsUrl,
-    updateMatchQueueUrl,
-    landingUrl,
-    matchHomeUrl,
-    leaveMatchUrl,
-    nextHandUrl
-  )->
+  connect: ()->
     console.log 'Realtime#connect'
 
-    @updateQueueLength = 0
-    @inProcessOfUpdating = false
-    @updateMatchQueueUrl = updateMatchQueueUrl
-    @landingUrl = landingUrl
-    @matchHomeUrl = matchHomeUrl
-    @leaveMatchUrl = leaveMatchUrl
-    @nextHandUrl = nextHandUrl
-    @matchId = ''
+    @updateQueue = new CounterQueue
 
+    console.log "Realtime#connect: @updateQueue: #{@updateQueue}"
+
+    @inProcessOfUpdating = false
+    @matchId = ''
     @windowState = "opening"
 
     # Only start the app after a connection has been made
@@ -51,26 +40,26 @@ root.Realtime =
       @showMatchEntryPage() if @windowState is "opening"
 
     serverUrl = "http://#{document.location.hostname}"
-    $.getJSON(realtimeConstantsUrl, (constants)=>
-      console.log 'Realtime#connect: $.getJSON(realtimeConstantsUrl): success'
+    $.getJSON(Routes.realtime_constants_path(), (constants)=>
+      console.log 'Realtime#connect: $.getJSON(Routes.realtime_constants_path()): success'
       @nextHandCode = constants.NEXT_HAND
       @spectateNextHandChannelPrefix = constants.SPECTATE_NEXT_HAND_CHANNEL
       @socket = io.connect("#{serverUrl}:#{constants.REALTIME_SERVER_PORT}")
       @socket.on 'connect', onConnection
     ).fail(=> # Fallback to default
-      console.log 'Realtime#connect: $.getJSON(realtimeConstantsUrl): failure'
+      console.log 'Realtime#connect: $.getJSON(Routes.realtime_constants_path()): failure'
       @nextHandCode = constants.NEXT_HAND
       @spectateNextHandChannelPrefix = 'spectate-next-hand-in-'
       @socket = io.connect("#{serverUrl}:5001")
       @socket.on 'connect', onConnection
     )
-    $.getJSON(tableManagerConstantsUrl, (constants)=>
-      console.log 'Realtime#connect: $.getJSON(tableManagerConstantsUrl): success'
+    $.getJSON(Routes.table_manager_constants_path(), (constants)=>
+      console.log 'Realtime#connect: $.getJSON(Routes.table_manager_constants_path()): success'
       @playerActionChannelPrefix = constants.PLAYER_ACTION_CHANNEL_PREFIX
       @playerCommentChannelPrefix = constants.PLAYER_COMMENT_CHANNEL_PREFIX
       @updateMatchQueueChannel = constants.UPDATE_MATCH_QUEUE_CHANNEL
     ).fail(=> # Fallback to default
-      console.log 'Realtime#connect: $.getJSON(tableManagerConstantsUrl): failure'
+      console.log 'Realtime#connect: $.getJSON(Routes.table_manager_constants_path()): failure'
       @playerActionChannelPrefix = "player-action-in-"
       @playerCommentChannelPrefix = "player-comment-in-"
       @updateMatchQueueChannel = 'update_queue_count'
@@ -80,30 +69,35 @@ root.Realtime =
   #================
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
-    AjaxCommunicator.sendGet @updateMatchQueueUrl if @windowState is "open" or 'waiting'
-  startMatch: (url, optionArgs = '')-> AjaxCommunicator.sendPost url, {options: optionArgs}
-  startProxy: (url)-> AjaxCommunicator.sendPost url
-  playAction: (url, actionArg)-> AjaxCommunicator.sendPost url, {poker_action: actionArg}
+    AjaxCommunicator.sendGet Routes.update_match_queue_path() if @windowState is "open" or 'waiting'
+  playAction: (actionArg)->
+    console.log "GameplayManager#updateMatchQueue: actionArg: #{actionArg}, @windowState: #{@windowState}"
+    if @windowState is 'match'
+      AjaxCommunicator.sendPost Routes.play_action_path(), {poker_action: actionArg}
   nextHand: ->
     console.log "Realtime#nextHand"
-    @socket.emit @nextHandCode, { matchId: @matchId }
-    AjaxCommunicator.sendGet @nextHandUrl
+    if @windowState is 'match'
+      @socket.emit @nextHandCode, { matchId: @matchId }
+      AjaxCommunicator.sendGet Routes.update_match_path()
 
   forceUpdateState: ()->
     console.log "Realtime#forceUpdateState"
-    AjaxCommunicator.sendPost @matchHomeUrl, {match_id: @matchId}
+    if @windowState is 'match'
+      AjaxCommunicator.sendPost Routes.match_home_path(), {match_id: @matchId}
   updateState: ->
     console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    return this if @inProcessOfUpdating
-    @forceUpdateState()
-    @inProcessOfUpdating = true
+    if @windowState is 'match' and not @inProcessOfUpdating
+      @forceUpdateState()
+      @inProcessOfUpdating = true
   finishedUpdating: ->
     console.log "Realtime#finishedUpdating: @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    @inProcessOfUpdating = false
-    @updateQueueLength -= 1 unless @updateQueueLength == 0
+    if @windowState is 'match'
+      @inProcessOfUpdating = false
+      @updateQueue.pop()
   enqueueUpdate: ->
-    @updateQueueLength += 1
-    @updateState() unless @inProcessOfUpdating
+    if @windowState is 'match'
+      @updateQueue.push()
+      @updateState() unless @inProcessOfUpdating
 
   # From Node.js server
   #====================
@@ -136,8 +130,8 @@ root.Realtime =
     @windowState = "waiting"
 
   leaveMatch: ->
-    return if @windowState isnt "match"
-    AjaxCommunicator.sendPost @leaveMatchUrl
+    if @windowState is "match"
+      AjaxCommunicator.sendPost Routes.leave_match_path()
 
   # From Rails server
   #==================
@@ -147,4 +141,4 @@ root.Realtime =
 
   spectate: ->
     console.log "Realtime#spectate: #{@spectateNextHandChannel()}"
-    @socket.on @spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(@nextHandUrl)
+    @socket.on @spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(Routes.update_match_path())

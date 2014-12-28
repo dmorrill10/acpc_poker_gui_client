@@ -5,7 +5,7 @@
   };
   function submitAction(action) {
     Timer.clear();
-    return Realtime.playAction("#{play_action_url}", action);
+    return Realtime.playAction(action);
   };
   $(".#{PlayerActionsHelper::FOLD_HTML_CLASS}").click(function() {
     return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}");

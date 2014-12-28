@@ -8,14 +8,14 @@
 - if !next_hand_button_visible?
   - if ((match.slices.length - 1) - match.last_slice_viewed) > 0
     :javascript
-      if (Realtime.updateQueueLength == 0) {
-        Realtime.updateQueueLength += 1;
+      if (Realtime.updateQueue.isEmpty()) {
+        Realtime.updateQueue.push();
       }
       Realtime.updateState();
   - else
     :javascript
       // There may be an update from the backend since the previous
       // request read from the database, check if another update is necessary.
-      if (Realtime.updateQueueLength > 0) {
+      if (!Realtime.updateQueue.isEmpty()) {
         Realtime.updateState();
       }

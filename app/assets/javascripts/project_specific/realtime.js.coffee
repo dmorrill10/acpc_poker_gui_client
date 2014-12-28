@@ -1,9 +1,63 @@
 root = exports ? this
 
+class TableManager
+  @constants:
+    {
+      PLAYER_ACTION_CHANNEL_PREFIX: "player-action-in-",
+      PLAYER_COMMENT_CHANNEL_PREFIX: "player-comment-in-",
+      UPDATE_MATCH_QUEUE_CHANNEL: 'update_queue_count'
+    }
+
+root.TableManager = TableManager
+
 class Realtime
-  playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@matchId}"
-  playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@matchId}"
-  spectateNextHandChannel: ()-> "#{@spectateNextHandChannelPrefix}#{@matchId}"
+  @connection: null
+  @constants:
+    {
+      NEXT_HAND: 'next-hand',
+      SPECTATE_NEXT_HAND_CHANNEL: 'spectate-next-hand-in-',
+      REALTIME_SERVER_PORT: 4162
+    }
+
+  @connect: ()->
+    console.log 'Realtime::connect'
+    unless @connection?
+      @connection = new Realtime
+    @connection
+
+  constructor: ()->
+    console.log 'Realtime#constructor'
+
+    @updateQueue = new CounterQueue
+
+    console.log "Realtime#constructor: @updateQueue: #{@updateQueue}"
+
+    @inProcessOfUpdating = false
+    @matchWindow = null
+    @windowState = "opening"
+
+    # Only start the app after a connection has been made
+    onConnection = (socket)=>
+      console.log "Realtime#constructor: onConnection: windowState: #{@windowState}"
+      @showMatchEntryPage() if @windowState is "opening"
+
+    serverUrl = "http://#{document.location.hostname}"
+    $.getJSON(Routes.realtime_constants_path(), (constants)=>
+      console.log 'Realtime#constructor: $.getJSON(Routes.realtime_constants_path()): success'
+      @constructor.constants = constants
+      @socket = io.connect("#{serverUrl}:#{constants.REALTIME_SERVER_PORT}")
+      @socket.on 'connect', onConnection
+    ).fail(=> # Fallback to default
+      console.log 'Realtime#constructor: $.getJSON(Routes.realtime_constants_path()): failure'
+      @socket = io.connect("#{serverUrl}:#{@constructor.constants.REALTIME_SERVER_PORT}")
+      @socket.on 'connect', onConnection
+    )
+    $.getJSON(Routes.table_manager_constants_path(), (constants)=>
+      console.log 'Realtime#constructor: $.getJSON(Routes.table_manager_constants_path()): success'
+      TableManager.constants = constants
+    ).fail(=> # Fallback to default
+      console.log 'Realtime#constructor: $.getJSON(Routes.table_manager_constants_path()): failure'
+    )
 
   alreadySubscribed: (e)->
     @socket._callbacks[e]? and @socket._callbacks[e].length > 0 and @socket._callbacks[e][0]?
@@ -15,58 +69,13 @@ class Realtime
   showMatchEntryPage: ->
     console.log "Realtime#showMatchEntryPage"
 
-    @unsubscribe @playerActionChannel()
+    if @matchWindow?
+      @unsubscribe @matchWindow.playerActionChannel()
     @stopSpectating()
     @windowState = "open"
-    @matchId = ""
+    @matchWindow = null
     @listenToMatchQueueUpdates()
     AjaxCommunicator.sendGet Routes.root_path()
-
-  @connect: ()->
-    console.log 'Realtime::connect'
-    new Realtime
-
-  constructor: ()->
-    console.log 'Realtime#connect'
-
-    @updateQueue = new CounterQueue
-
-    console.log "Realtime#connect: @updateQueue: #{@updateQueue}"
-
-    @inProcessOfUpdating = false
-    @matchId = ''
-    @windowState = "opening"
-
-    # Only start the app after a connection has been made
-    onConnection = (socket)=>
-      console.log "Realtime#connect: onConnection: windowState: #{@windowState}"
-      @showMatchEntryPage() if @windowState is "opening"
-
-    serverUrl = "http://#{document.location.hostname}"
-    $.getJSON(Routes.realtime_constants_path(), (constants)=>
-      console.log 'Realtime#connect: $.getJSON(Routes.realtime_constants_path()): success'
-      @nextHandCode = constants.NEXT_HAND
-      @spectateNextHandChannelPrefix = constants.SPECTATE_NEXT_HAND_CHANNEL
-      @socket = io.connect("#{serverUrl}:#{constants.REALTIME_SERVER_PORT}")
-      @socket.on 'connect', onConnection
-    ).fail(=> # Fallback to default
-      console.log 'Realtime#connect: $.getJSON(Routes.realtime_constants_path()): failure'
-      @nextHandCode = constants.NEXT_HAND
-      @spectateNextHandChannelPrefix = 'spectate-next-hand-in-'
-      @socket = io.connect("#{serverUrl}:5001")
-      @socket.on 'connect', onConnection
-    )
-    $.getJSON(Routes.table_manager_constants_path(), (constants)=>
-      console.log 'Realtime#connect: $.getJSON(Routes.table_manager_constants_path()): success'
-      @playerActionChannelPrefix = constants.PLAYER_ACTION_CHANNEL_PREFIX
-      @playerCommentChannelPrefix = constants.PLAYER_COMMENT_CHANNEL_PREFIX
-      @updateMatchQueueChannel = constants.UPDATE_MATCH_QUEUE_CHANNEL
-    ).fail(=> # Fallback to default
-      console.log 'Realtime#connect: $.getJSON(Routes.table_manager_constants_path()): failure'
-      @playerActionChannelPrefix = "player-action-in-"
-      @playerCommentChannelPrefix = "player-comment-in-"
-      @updateMatchQueueChannel = 'update_queue_count'
-    )
 
   # To Rails server
   #================
@@ -79,34 +88,33 @@ class Realtime
       AjaxCommunicator.sendPost Routes.play_action_path(), {poker_action: actionArg}
   nextHand: ->
     console.log "Realtime#nextHand"
-    if @windowState is 'match'
-      @socket.emit @nextHandCode, { matchId: @matchId }
+    if @matchWindow?
+      @socket.emit @constructor.constants.NEXT_HAND, { matchId: @matchWindow.matchId }
       AjaxCommunicator.sendGet Routes.update_match_path()
 
   forceUpdateState: ()->
-    console.log "Realtime#forceUpdateState"
-    if @windowState is 'match'
-      AjaxCommunicator.sendPost Routes.match_home_path(), {match_id: @matchId}
+    console.log "Realtime#forceUpdateState: @matchWindow?: #{@matchWindow}"
+    if @matchWindow?
+      AjaxCommunicator.sendPost Routes.match_home_path(), {match_id: @matchWindow.matchId}
   updateState: ->
     console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    if @windowState is 'match' and not @inProcessOfUpdating
+    unless @inProcessOfUpdating
       @forceUpdateState()
       @inProcessOfUpdating = true
   finishedUpdating: ->
     console.log "Realtime#finishedUpdating: @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    if @windowState is 'match'
-      @inProcessOfUpdating = false
-      @updateQueue.pop()
+    @inProcessOfUpdating = false
+    @updateQueue.pop()
   enqueueUpdate: ->
-    if @windowState is 'match'
-      @updateQueue.push()
-      @updateState() unless @inProcessOfUpdating
+    console.log "Realtime#enqueueUpdate"
+    @updateQueue.push()
+    @updateState()
 
   # From Node.js server
   #====================
   listenToMatchQueueUpdates: ()->
-    console.log "Realtime#listenToMatchQueueUpdates: @updateMatchQueueChannel: #{@updateMatchQueueChannel}"
-    @socket.on @updateMatchQueueChannel, (msg)=> @updateMatchQueue(msg)
+    console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
+    @socket.on TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL, (msg)=> @updateMatchQueue(msg)
 
   onPlayerAction: (message='')->
     console.log "Realtime#onPlayerAction: message: #{message}"
@@ -116,20 +124,22 @@ class Realtime
     console.log "Realtime#onMatchHasStarted: message: #{message}"
     return if @windowState is "match"
 
-    @unsubscribe @updateMatchQueueChannel
-    @unsubscribe @playerActionChannel()
+    @unsubscribe TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL
+
+    # @todo @matchWindow must be defined
+    @unsubscribe @matchWindow.playerActionChannel()
     window.onunload = (event)=> @leaveMatch()
-    @socket.on(@playerActionChannel(), (msg)=> @onPlayerAction(msg)) unless @alreadySubscribed(@playerActionChannel())
+    @socket.on(@matchWindow.playerActionChannel(), (msg)=> @onPlayerAction(msg)) unless @alreadySubscribed(@matchWindow.playerActionChannel())
     @windowState = "match"
     @updateState()
 
   listenForMatchToStart: (matchId)->
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
-    @matchId = matchId
+    @matchWindow = new MatchWindow(matchId)
 
-    @unsubscribe @playerActionChannel()
-    @socket.on @playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
+    @unsubscribe @matchWindow.playerActionChannel()
+    @socket.on @matchWindow.playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
     @windowState = "waiting"
 
   leaveMatch: ->
@@ -140,10 +150,13 @@ class Realtime
   #==================
   stopSpectating: ->
     console.log "Realtime#stopSpectating"
-    @unsubscribe @spectateNextHandChannel()
+    if @matchWindow?
+      @unsubscribe @matchWindow.spectateNextHandChannel()
 
   spectate: ->
-    console.log "Realtime#spectate: #{@spectateNextHandChannel()}"
-    @socket.on @spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(Routes.update_match_path())
+    console.log "Realtime#spectate"
+    if @matchWindow?
+      console.log "Realtime#spectate: channel: #{@matchWindow.spectateNextHandChannel()}"
+      @socket.on @matchWindow.spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(Routes.update_match_path())
 
 root.Realtime = Realtime

@@ -1,5 +1,5 @@
 :javascript
-  Realtime.finishedUpdating();
+  rt.finishedUpdating();
 
 = render partial: game_interface_partial('index')
 = render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
@@ -8,14 +8,14 @@
 - if !next_hand_button_visible?
   - if ((match.slices.length - 1) - match.last_slice_viewed) > 0
     :javascript
-      if (Realtime.updateQueue.isEmpty()) {
-        Realtime.updateQueue.push();
+      if (rt.updateQueue.isEmpty()) {
+        rt.updateQueue.push();
       }
-      Realtime.updateState();
+      rt.updateState();
   - else
     :javascript
       // There may be an update from the backend since the previous
       // request read from the database, check if another update is necessary.
-      if (!Realtime.updateQueue.isEmpty()) {
-        Realtime.updateState();
+      if (!rt.updateQueue.isEmpty()) {
+        rt.updateState();
       }

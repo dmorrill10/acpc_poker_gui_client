@@ -10,15 +10,7 @@
     = favicon_link_tag 'favicon.ico'
     = yield(:head)
     :javascript
-      Realtime.connect(
-        "#{realtime_constants_url}",
-        "#{table_manager_constants_url}",
-        "#{update_match_queue_url}",
-        "#{root_url}",
-        "#{match_home_url}",
-        "#{leave_match_url}",
-        "#{update_match_url}"
-      );
+      rt = Realtime.connect();
   %body
     .container
       %div{class: ApplicationHelper::APP_VIEW_HTML_CLASS}

@@ -1,10 +1,9 @@
 root = exports ? this
 
-root.Realtime =
+class Realtime
   playerActionChannel: ()-> "#{@playerActionChannelPrefix}#{@matchId}"
   playerCommentChannel: ()-> "#{@playerCommentChannelPrefix}#{@matchId}"
   spectateNextHandChannel: ()-> "#{@spectateNextHandChannelPrefix}#{@matchId}"
-
 
   alreadySubscribed: (e)->
     @socket._callbacks[e]? and @socket._callbacks[e].length > 0 and @socket._callbacks[e][0]?
@@ -21,9 +20,13 @@ root.Realtime =
     @windowState = "open"
     @matchId = ""
     @listenToMatchQueueUpdates()
-    AjaxCommunicator.sendGet @landingUrl
+    AjaxCommunicator.sendGet Routes.root_path()
 
-  connect: ()->
+  @connect: ()->
+    console.log 'Realtime::connect'
+    new Realtime
+
+  constructor: ()->
     console.log 'Realtime#connect'
 
     @updateQueue = new CounterQueue
@@ -142,3 +145,5 @@ root.Realtime =
   spectate: ->
     console.log "Realtime#spectate: #{@spectateNextHandChannel()}"
     @socket.on @spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(Routes.update_match_path())
+
+root.Realtime = Realtime

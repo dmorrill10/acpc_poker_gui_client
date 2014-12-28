@@ -1,13 +1,13 @@
 - case @request_code
 - when TableManager::START_MATCH_REQUEST_CODE
   :javascript
-    Realtime.startMatch("#{start_dealer_and_players_url}");
+    rt.startMatch("#{start_dealer_and_players_url}");
 - when TableManager::START_PROXY_REQUEST_CODE
   :javascript
-    Realtime.startProxy("#{start_proxy_url}");
+    rt.startProxy("#{start_proxy_url}");
 - else
   :javascript
-    Realtime.forceUpdateState();
+    rt.forceUpdateState();
 
 .poker
   = render partial: "layouts/navbar", locals: { partial: nil }

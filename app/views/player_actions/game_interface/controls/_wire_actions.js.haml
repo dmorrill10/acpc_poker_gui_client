@@ -1,11 +1,11 @@
 :javascript
   function nextHand() {
     Timer.clear();
-    return Realtime.nextHand();
+    return rt.nextHand();
   };
   function submitAction(action) {
     Timer.clear();
-    return Realtime.playAction(action);
+    return rt.playAction(action);
   };
   $(".#{PlayerActionsHelper::FOLD_HTML_CLASS}").click(function() {
     return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}");

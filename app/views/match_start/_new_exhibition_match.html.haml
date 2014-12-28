@@ -7,8 +7,8 @@
 
 :javascript
   var viewMatch = function(matchId) {
-    Realtime.listenForMatchToStart(matchId);
-    return Realtime.onMatchHasStarted();
+    rt.listenForMatchToStart(matchId);
+    return rt.onMatchHasStarted();
   };
 
 - rejoin_button_id = 'rejoin'
@@ -42,7 +42,7 @@
                   :javascript
                     $("##{spectate_button[:id]}").click(function() {
                       viewMatch("#{m.id.to_s}");
-                      Realtime.spectate();
+                      rt.spectate();
                     });
         - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
           %tr
@@ -70,7 +70,7 @@
 
 - if @enque_match
   :javascript
-    Realtime.listenForMatchToStart("#{match_id}");
+    rt.listenForMatchToStart("#{match_id}");
     AjaxCommunicator.sendGet("#{enqueue_exhibition_match_url}");
 - elsif matches.length > 0 && matches_to_rejoin && !matches_to_rejoin.empty?
   :javascript

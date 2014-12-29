@@ -32,6 +32,13 @@ return io.on('connection', function(socket){
     socket.broadcast.emit(config.SPECTATE_NEXT_HAND_CHANNEL + message.matchId);
   });
 
+  socket.on(config.PLAYER_COMMENT, function (data) {
+    console.log(
+      'realtime-server: Alert from ' + socket.id + ': {' + data.matchId + ", " + data.user + ", " + data.message + "}. Emitting on " + config.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId);
+
+    socket.broadcast.emit(config.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId, {user: data.user, message: data.message});
+  });
+
   // For logging
   socket.on('disconnect', function(e){
     console.log('realtime-server: ' + socket.id + ' disconnected: ' + e.toString());

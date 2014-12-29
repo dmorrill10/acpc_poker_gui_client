@@ -27,13 +27,10 @@
 
     padding: $l-match_start-padding
 
-    .right
-      float: right
-      margin-left: 8px
     .table
       margin-bottom: 0
 
-      // $spectate_button_width: 50px
+      $spectate_button_width: 80px
       tr
         th
           text-align: center
@@ -44,16 +41,12 @@
           text-align: center
           padding: 2px
           min-width: 80px
-        td:first-child
-      //    width: ($matches-in-progress_width - $spectate_button_width)/2.0
-        td:first-child + td
-        //  width: ($matches-in-progress_width - $spectate_button_width)/2.0
         td:first-child + td + td
           form
             width: auto
             margin: 0
           input
-            // width: $spectate_button_width
+            width: $spectate_button_width
             font-size: $matches-in-progress_font-size - 2
   .play_button_box
     $play_button_box_height: 100px

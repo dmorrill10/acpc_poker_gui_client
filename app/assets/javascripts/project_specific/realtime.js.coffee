@@ -4,7 +4,6 @@ class TableManager
   @constants:
     {
       PLAYER_ACTION_CHANNEL_PREFIX: "player-action-in-",
-      PLAYER_COMMENT_CHANNEL_PREFIX: "player-comment-in-",
       UPDATE_MATCH_QUEUE_CHANNEL: 'update_queue_count'
     }
 
@@ -15,7 +14,9 @@ class Realtime
   @constants:
     {
       NEXT_HAND: 'next-hand',
+      PLAYER_COMMENT: "player-comment",
       SPECTATE_NEXT_HAND_CHANNEL: 'spectate-next-hand-in-',
+      PLAYER_COMMENT_CHANNEL_PREFIX: "player-comment-in-",
       REALTIME_SERVER_PORT: 4162
     }
 
@@ -33,7 +34,7 @@ class Realtime
     console.log "Realtime#constructor: @updateQueue: #{@updateQueue}"
 
     @inProcessOfUpdating = false
-    @matchWindow = null
+    @matchWindow = MatchWindow.close()
     @windowState = "opening"
 
     # Only start the app after a connection has been made
@@ -69,11 +70,8 @@ class Realtime
   showMatchEntryPage: ->
     console.log "Realtime#showMatchEntryPage"
 
-    if @matchWindow?
-      @unsubscribe @matchWindow.playerActionChannel()
-    @stopSpectating()
+    @resetState()
     @windowState = "open"
-    @matchWindow = null
     @listenToMatchQueueUpdates()
     AjaxCommunicator.sendGet Routes.root_path()
 
@@ -91,6 +89,18 @@ class Realtime
     if @matchWindow?
       @socket.emit @constructor.constants.NEXT_HAND, { matchId: @matchWindow.matchId }
       AjaxCommunicator.sendGet Routes.update_match_path()
+
+  emitChatMessage: (user, msg)->
+    console.log "Realtime#emitChatMessage"
+    if @matchWindow?
+      @socket.emit(
+        @constructor.constants.PLAYER_COMMENT,
+        {
+          matchId: @matchWindow.matchId,
+          user: user,
+          message: msg
+        }
+      )
 
   forceUpdateState: ()->
     console.log "Realtime#forceUpdateState: @matchWindow?: #{@matchWindow}"
@@ -110,8 +120,6 @@ class Realtime
     @updateQueue.push()
     @updateState()
 
-  # From Node.js server
-  #====================
   listenToMatchQueueUpdates: ()->
     console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
     @socket.on TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL, (msg)=> @updateMatchQueue(msg)
@@ -119,6 +127,10 @@ class Realtime
   onPlayerAction: (message='')->
     console.log "Realtime#onPlayerAction: message: #{message}"
     @enqueueUpdate()
+
+  onPlayerComment: (data='')->
+    console.log "Realtime#onPlayerComment: data: #{data}"
+    Chat.chatBox.addMessage data.user, data.message
 
   onMatchHasStarted: (message='')->
     console.log "Realtime#onMatchHasStarted: message: #{message}"
@@ -128,15 +140,20 @@ class Realtime
 
     # @todo @matchWindow must be defined
     @unsubscribe @matchWindow.playerActionChannel()
+
     window.onunload = (event)=> @leaveMatch()
-    @socket.on(@matchWindow.playerActionChannel(), (msg)=> @onPlayerAction(msg)) unless @alreadySubscribed(@matchWindow.playerActionChannel())
+
+    unless @alreadySubscribed(@matchWindow.playerActionChannel())
+      @socket.on(@matchWindow.playerActionChannel(), (msg)=> @onPlayerAction(msg))
+    @socket.on(@matchWindow.playerCommentChannel(), (msg)=> @onPlayerComment(msg))
+
     @windowState = "match"
     @updateState()
 
   listenForMatchToStart: (matchId)->
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
-    @matchWindow = new MatchWindow(matchId)
+    @matchWindow = MatchWindow.init(matchId)
 
     @unsubscribe @matchWindow.playerActionChannel()
     @socket.on @matchWindow.playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
@@ -144,10 +161,17 @@ class Realtime
 
   leaveMatch: ->
     if @windowState is "match"
+      @resetState()
       AjaxCommunicator.sendPost Routes.leave_match_path()
 
-  # From Rails server
-  #==================
+  resetState: ->
+    if @matchWindow?
+      @unsubscribe @matchWindow.playerActionChannel()
+      @unsubscribe @matchWindow.playerCommentChannel()
+    @stopSpectating()
+    @matchWindow = MatchWindow.close()
+    Chat.close()
+
   stopSpectating: ->
     console.log "Realtime#stopSpectating"
     if @matchWindow?

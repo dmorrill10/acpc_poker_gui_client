@@ -12,6 +12,12 @@
     }
   };
   Timer.start(afterEachSecond);
+  Chat.init(
+    '#chat-box',
+    "#{user.name}",
+    function(id, user, msg) {
+      Realtime.connection.emitChatMessage(user, msg);
+  });
 
 .chip_balances
   .panel-heading
@@ -29,3 +35,4 @@
 .timeout
   .panel-heading
     %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT
+#chat-box

@@ -9,8 +9,7 @@
   +zen-grid-item($l-poker_table-column-count, 1)
   +zen-nested-container
 
-  $light_background_color: lighten($c-action_dashboard-background-color, $base-color-spread)
-  +soft_edges($light_background_color)
+  +soft_edges($c-action_dashboard-background-color)
   +contrasted($c-action_dashboard-background-color)
 
   $l-action_dashboard-height: 150px
@@ -48,6 +47,7 @@
     +zen-clear
 
     list-style: none
+    margin: 0
 
     $num_actions: 3
     .poker_actn_btn

@@ -6,12 +6,12 @@
 
 .poker_table
   @include zen-grid-container
-  @include soft_edges($triad-color-2-dark, 100%, 500px 500px 500px 500px)
+  @include soft_edges($triad-color-2-dark, $l-poker_table-border-width, 500px 500px 500px 500px)
   +contrasted($l-poker_table-background-color)
 
   background-image: image-url('nick_morrill/small_felt.jpg')
 
-  height: 452px
+  height: $l-poker_table-height
 
   *
     white-space: normal

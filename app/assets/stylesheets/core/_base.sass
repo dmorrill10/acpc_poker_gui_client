@@ -21,14 +21,6 @@ body
     height: 100%
     padding: 0
 
-footer
-  text-align: center
-  margin-top: 50px
-  a
-    color: $triad-color-1-dark
-    &:hover, &:focus
-      color: darken($triad-color-1-dark, $base-color-spread)
-
 .navbar
   margin: 0
   +border-radius(0,0)
@@ -50,7 +42,8 @@ footer
   font-size: rem($base-fontSize * 0.75)
   color: $base-deemphasized-text-color
 .license
-  font-size: rem($base-fontSize * 0.75)
+  font-size: rem($base-fontSize)
+  margin: 0
 .form-horizontal
   select
     font-size: rem($base-fontSize * 0.9)
@@ -60,11 +53,6 @@ footer
   line-height: 1
   font-weight: 900
   color: $triad-color-3
-.btn-primary
-  +pretty_button(#FFFFFF, $triad-color-1-light, $triad-color-1-dark)
-.btn-info
-  +pretty_button(#FFFFFF, lighten($triad-color-3, 10%), darken($triad-color-3, 10%))
-
 
 // ----- Block Content ----- //
 

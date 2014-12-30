@@ -2,7 +2,7 @@
 @import '../poker_table/poker_table-defs'
 
 =poker-action-button($color)
-  +pretty_button(white, $color, darken($color, 10%))
+  +pretty_button(white, desaturate($color, 30%), darken($color, 10%))
 
 .action_dashboard
   +parent_grid($l-poker_table-column-count)

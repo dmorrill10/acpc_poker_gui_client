@@ -36,7 +36,8 @@ Run `rspec` in the project's root directory to run its tests. When making change
 
 Credit and Copyright
 --------------------
-Copyright &copy; 2011-2014 Dustin Morrill. See [LICENSE](docs/LICENSE.md) for details.
+Copyright &copy; 2011-2015 [Dustin Morrill](https://github.com/dmorrill10/). See [LICENSE](docs/LICENSE.md) for details.
+Chip background and table felt images by [Nicholas Morrill](http://imakethingspretty.ca/), licensed under [Creative Commons Attribution 3.0 Unported License](http://creativecommons.org/licenses/by/3.0/).
 
 Developed with support from [Dr. Duane Szafron](http://webdocs.cs.ualberta.ca/~duane/), [Dr. Michael Bowling](http://webdocs.cs.ualberta.ca/~bowling/), [Natural Sciences and Engineering Research Council of Canada (NSERC)][NSERC], and the [Annual Computer Poker Competition][ACPC homepage].
 

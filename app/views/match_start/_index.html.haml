@@ -3,6 +3,8 @@
 
 .poker
   = render partial: 'layouts/navbar', locals: { partial: nil }
-  .match_start
-    = render partial: 'match_start/new_exhibition_match'
-  = render partial: MatchStartHelper::FOOTER
+  .panel.panel-default
+    .match_start.panel-body
+      = render partial: 'match_start/new_exhibition_match'
+    .panel-footer
+      = render partial: MatchStartHelper::FOOTER

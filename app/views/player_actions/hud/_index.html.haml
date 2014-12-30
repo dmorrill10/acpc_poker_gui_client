@@ -1,24 +1,3 @@
-:javascript
-  Timer.clear();
-  function afterEachSecond() {
-    timeRemaining = parseInt($('.time-remaining').text());
-    if (timeRemaining <= 0) {
-      alert('The match has timed out.');
-      rt.leaveMatch();
-    }
-    else {
-      $('.time-remaining').text(timeRemaining - 1);
-      Timer.start(afterEachSecond);
-    }
-  };
-  Timer.start(afterEachSecond);
-  Chat.init(
-    '#chat-box',
-    "#{user.name}",
-    function(id, user, msg) {
-      Realtime.connection.emitChatMessage(user, msg);
-  });
-
 .chip_balances
   .panel-heading
     .match_name= "#{match_view.match.name} <span class=\"right\">#{match_view.state.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
@@ -32,8 +11,30 @@
         %tr
           %td= "#{player['name']}"
           %td= "#{player['chip_balance'].to_f}"
-.timeout
-  .panel-heading
-    %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT
-- if ApplicationHelper::ENABLE_CHAT
+- if action_timeout_enabled?
+  .timeout
+    .panel-heading
+      %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT
+  :javascript
+    Timer.clear();
+    function afterEachSecond() {
+      timeRemaining = parseInt($('.time-remaining').text());
+      if (timeRemaining <= 0) {
+        alert('The match has timed out.');
+        rt.leaveMatch();
+      }
+      else {
+        $('.time-remaining').text(timeRemaining - 1);
+        Timer.start(afterEachSecond);
+      }
+    };
+    Timer.start(afterEachSecond);
+- if PlayerActionsHelper::ENABLE_CHAT
   #chat-box
+  :javascript
+    Chat.init(
+      '#chat-box',
+      "#{user.name}",
+      function(id, user, msg) {
+        Realtime.connection.emitChatMessage(user, msg);
+    });

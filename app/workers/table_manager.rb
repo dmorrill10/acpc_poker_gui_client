@@ -182,6 +182,18 @@ module TableManager
       self
     end
 
+    def match_comment!(match, comment)
+      @message_server.publish(
+        REALTIME_CHANNEL,
+        {
+          message: comment,
+          matchId: "#{match.id.to_s}",
+          # player: ???? @todo
+        }.to_json
+      )
+      self
+    end
+
     def update_match_queue!
       @message_server.publish(
         REALTIME_CHANNEL,

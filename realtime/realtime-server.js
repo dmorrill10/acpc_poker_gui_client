@@ -21,6 +21,7 @@ return io.on('connection', function(socket){
   messageSubscriptionClients[socket.id].on('message', function(channel, message){
     console.log("realtime-server: Alerting " + socket.id + ": " + message);
 
+    // @todo Catch messages from the dealer
     var parsedMessage = JSON.parse(message);
     var msg = ("message" in parsedMessage) ? parsedMessage.message : parsedMessage.channel
     socket.emit(parsedMessage.channel, msg);
@@ -36,6 +37,7 @@ return io.on('connection', function(socket){
     console.log(
       'realtime-server: Alert from ' + socket.id + ': {' + data.matchId + ", " + data.user + ", " + data.message + "}. Emitting on " + config.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId);
 
+    // To spectators
     socket.broadcast.emit(config.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId, {user: data.user, message: data.message});
   });
 

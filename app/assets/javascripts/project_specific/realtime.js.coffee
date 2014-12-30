@@ -143,8 +143,7 @@ class Realtime
 
     window.onunload = (event)=> @leaveMatch()
 
-    unless @alreadySubscribed(@matchWindow.playerActionChannel())
-      @socket.on(@matchWindow.playerActionChannel(), (msg)=> @onPlayerAction(msg))
+    @socket.on(@matchWindow.playerActionChannel(), (msg)=> @onPlayerAction(msg))
     @socket.on(@matchWindow.playerCommentChannel(), (msg)=> @onPlayerComment(msg))
 
     @windowState = "match"

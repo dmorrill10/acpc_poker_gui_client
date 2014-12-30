@@ -22,16 +22,16 @@
             .ui_slider
         .wager_amount-num_field= number_field_tag :modifier, match_view.minimum_wager_to.to_i, min: match_view.minimum_wager_to.to_i, max: match_view.all_in.to_i, step: match_view.match.game_def.min_wagers[match_view.state.round].to_i, disabled: wager_disabled?
     .actions
-      .poker_actn_btn
+      .poker_actn_btn.fold-action
         - fold_label = 'Fold'
         - fold_attributes = { class: PlayerActionsHelper::FOLD_HTML_CLASS, type: 'submit', data: { disable_with: fold_label }}
         - fold_attributes[:disabled] = 'disabled' if fold_disabled?
         %button{fold_attributes}= fold_label
-      .poker_actn_btn
+      .poker_actn_btn.pass-action
         - pass_attributes = { class: PlayerActionsHelper::PASS_HTML_CLASS, type: 'submit', data: { disable_with: pass_action_button_label }}
         - pass_attributes[:disabled] = 'disabled' if !user_must_act? || spectating?
         %button{pass_attributes}= pass_action_button_label
-      .poker_actn_btn
+      .poker_actn_btn.wager-action
         - wager_attributes = { class: PlayerActionsHelper::WAGER_HTML_CLASS, type: 'submit', data: { disable_with: make_wager_button_label }}
         - wager_attributes[:disabled] = 'disabled' if wager_disabled?
         %button{wager_attributes}= make_wager_button_label

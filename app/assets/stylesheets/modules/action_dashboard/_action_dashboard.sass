@@ -1,6 +1,9 @@
 @import 'action_dashboard-defs'
 @import '../poker_table/poker_table-defs'
 
+=poker-action-button($color)
+  +pretty_button(white, $color, darken($color, 10%))
+
 .action_dashboard
   +parent_grid($l-poker_table-column-count)
   +zen-grid-item($l-poker_table-column-count, 1)
@@ -65,6 +68,12 @@
         height: $l-poker_actn_btn-height - 2 * $default_border_width
 
         font-size: ($base-fontSize - 4) * 2
+    button.fold
+      +poker-action-button(red)
+    button.pass
+      +poker-action-button(blue)
+    button.wager
+      +poker-action-button(green)
   &.limit
     height: $l-poker_actn_btn-height
     .meta_action

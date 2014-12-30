@@ -35,4 +35,5 @@
 .timeout
   .panel-heading
     %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT
-#chat-box
+- if ApplicationHelper::ENABLE_CHAT
+  #chat-box

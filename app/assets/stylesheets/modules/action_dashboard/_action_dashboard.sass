@@ -47,10 +47,11 @@
     +zen-nested-container
     +zen-clear
 
+    list-style: none
+
     $num_actions: 3
     .poker_actn_btn
       +parent_grid($num_actions)
-
     @for $n from 1 through $num_actions
       .poker_actn_btn:nth-child(#{$num_actions}n+#{$n})
         +zen-grid-item(1, $n)
@@ -68,12 +69,20 @@
         height: $l-poker_actn_btn-height - 2 * $default_border_width
 
         font-size: ($base-fontSize - 4) * 2
-    button.fold
-      +poker-action-button(red)
-    button.pass
-      +poker-action-button(blue)
-    button.wager
-      +poker-action-button(green)
+
+      button.fold
+        +poker-action-button(red)
+      button.pass
+        +poker-action-button(blue)
+      button.wager
+        +poker-action-button(green)
+
+    .poker_actn_btn:first-child
+      padding-left: 0
+      padding-right: $zen-gutter-width
+    .poker_actn_btn:first-child + .poker_actn_btn + .poker_actn_btn
+      padding-left: $zen-gutter-width
+      padding-right: 0
   &.limit
     height: $l-poker_actn_btn-height
     .meta_action

@@ -72,12 +72,16 @@ class Hotkey
     NEXT_HAND_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::NEXT_HAND_ID),
     LEAVE_MATCH_LABEL => PlayerActionsHelper.html_element_name_to_class(PlayerActionsHelper::NAV_LEAVE_HTML_CLASS)
   }
-  DEFAULT_HOTKEYS = {
+  META_HOTKEYS = {
+    NEXT_HAND_LABEL => 'F',
+    LEAVE_MATCH_LABEL => 'Q'
+  }
+  LIMIT_HOTKEYS = {
     FOLD_LABEL => 'A',
     PASS_LABEL => 'S',
-    WAGER_LABEL => 'D',
-    NEXT_HAND_LABEL => 'F',
-    LEAVE_MATCH_LABEL => 'Q',
+    WAGER_LABEL => 'D'
+  }
+  NO_LIMIT_HOTKEYS = {
     MIN_WAGER_LABEL => 'Z',
     ALL_IN_WAGER_LABEL => 'N',
     wager_hotkey_label(1/2.to_f) => 'X',

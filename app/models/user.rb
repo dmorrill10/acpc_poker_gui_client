@@ -12,7 +12,7 @@ module Hotkeys
     end
   end
 
-  # Redefine this to set application specific defaults
+  # Re-define this to set application specific defaults
   # @return [Hash<String, String>] Hash of function-key pairs
   def default_hotkeys() {} end
 
@@ -87,7 +87,7 @@ module Hotkeys
   end
 end
 
-class User
+class UserBase
   include Mongoid::Document
   include Hotkeys
 
@@ -121,6 +121,12 @@ class User
   end
 
   def default_hotkeys
-    Hotkey::DEFAULT_HOTKEYS
+    Hotkey::META_HOTKEYS.merge Hotkey::LIMIT_HOTKEYS
+  end
+end
+
+class UserNoLimit < UserBase
+  def default_hotkeys
+    super.merge Hotkey::NO_LIMIT_HOTKEYS
   end
 end

@@ -2,8 +2,8 @@ root = exports ? this
 
 root.ActionDashboard =
   disableButtonsOnClick: ->
-    $('button').click(->
-      $('button').not('.leave-btn').not('.close').not('.cancel').attr("disabled", true)
+    $('button').not('.close').not('.cancel').not('.navbar-toggle').click(->
+      $('button').not('.leave-btn').not('.close').not('.cancel').not('.navbar-toggle').attr("disabled", true)
     )
   illogicalWagerSize: (wager_to_amount_over_round)->
     !wager_to_amount_over_round or isNaN(wager_to_amount_over_round)

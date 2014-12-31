@@ -41,16 +41,17 @@
     @include zen-nested-container
     @include zen-clear
 
-    margin-top: $original-zen-gutter-width
-    margin-bottom: $original-zen-gutter-width
-
-    height: $card_height
+    $l-community_information-height: $card_height + 2 * $original-zen-gutter-width
+    height: $l-community_information-height
 
     $l-community_information-column-count: 14
     .board_cards
       @include parent_grid($l-community_information-column-count)
       @include zen-grid-item(7, 1)
       @include cards(5)
+
+      padding-top: $original-zen-gutter-width
+      padding-bottom: $original-zen-gutter-width
 
       .card_set
         float: right
@@ -61,13 +62,16 @@
       .chip_stack
         @include chip_stack($l-poker_table-pot-color)
         @extend %centerHorizontally
+
+      padding-top: $original-zen-gutter-width
+      padding-bottom: $original-zen-gutter-width
     .summary_information
       @include parent_grid($l-community_information-column-count)
       @include zen-grid-item(5, 10)
 
       $c-summary_information-font-size: ($base-fontSize - 4) * 2
       $c-summary_information-line-height: 1.5
-      @include align_center_vertically($c-summary_information-font-size * $c-summary_information-line-height, $card_height)
 
-      line-height: $c-summary_information-line-height
       font-size: $c-summary_information-font-size
+      overflow-y: auto
+      height: $l-community_information-height

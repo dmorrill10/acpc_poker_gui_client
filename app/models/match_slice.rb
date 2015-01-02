@@ -23,6 +23,7 @@ class MatchSlice
   field :is_users_turn_to_act, type: Boolean
   field :legal_actions, type: Array
   field :amount_to_call, type: Integer
+  field :messages, type: Array
 
   def self.from_players_at_the_table!(patt, match_has_ended, match)
     match.slices.create!(

@@ -14,12 +14,21 @@
 - rejoin_button_id = 'rejoin'
 - spectate_button_id_prefix = 'spectate-'
 
+.col-sm-12
+  .intro-message.panel.panel-success
+    .panel-heading
+      %h3.panel-title Welcome!
+    .panel-body
+      %p If this is your first time here, play a match by signing-in with a new user name. Sign-in by clicking on the current user name in the navigation bar. Or, if you would rather watch another person play a match, click on a Spectate button in the table below.
+
 .col-sm-6
-  .matches-in-progress
+  .matches-in-progress.panel.panel-success
+    .panel-heading
+      %h3.panel-title Matches in Progress
     %table.table.table-striped.table-bordered
       %thead
         %tr
-          %th Matches in Progress
+          %th Player
           %th= "#{num_matches_in_progress} / #{ApplicationHelper::MAX_NUM_MATCHES}"
           %th
       %tbody
@@ -58,7 +67,7 @@
       - disabled_label = "Waiting..."
       - num_matches_in_queue = Match.unfinished.length
       - num_matches_before_user_can_play = num_matches_in_queue - ApplicationHelper::MAX_NUM_MATCHES + 1
-      - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-primary', value: if num_matches_in_queue < ApplicationHelper::MAX_NUM_MATCHES && matches.empty? then "Play Match!" else "Enqueue match (#{num_matches_before_user_can_play} in line)" end}
+      - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-success', value: if num_matches_in_queue < ApplicationHelper::MAX_NUM_MATCHES && matches.empty? then "Play Match!" else "Enqueue match (#{num_matches_before_user_can_play} in line)" end}
       - if matches.length > 0 || @enqueue_match
         - play_button_attributes[:disabled] = 'disabled'
         - play_button_attributes[:value] = disabled_label

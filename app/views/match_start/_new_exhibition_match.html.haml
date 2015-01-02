@@ -43,7 +43,7 @@
                 - spectate_button = {value: spectate_or_rejoin_label}
                 - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
                 - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
-                %input.btn.btn-secondary{spectate_button}
+                %input.btn.btn-success{spectate_button}
                 - if user_started_match?(m)
                   :javascript
                     $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); });
@@ -59,7 +59,7 @@
             %td
             %td
               %form.spectate_form
-                %input.btn.btn-secondary{disabled: true, value: 'Spectate'}
+                %input.btn.btn-success{disabled: true, value: 'Spectate'}
 .col-sm-offset-2
 .col-sm-4
   .play_button_box

@@ -4,7 +4,6 @@
   - if hand_ended && player['winnings'] > 0
     .stack_taken_from_pot
       = render partial: poker_table_partial('chip_stack'), locals: { amount: player['winnings'].floor }
-  - elsif !hand_ended && player['chip_contributions'].length > round
-    - if player['chip_contributions'][round] > 0
-      .stack_added_to_pot
-        = render partial: poker_table_partial('chip_stack'), locals: { amount: player['chip_contributions'][round].to_i }
+  - elsif !hand_ended && player['chip_contributions'].length > round && player['chip_contributions'][round] > 0
+    .stack_added_to_pot
+      = render partial: poker_table_partial('chip_stack'), locals: { amount: player['chip_contributions'][round].to_i }

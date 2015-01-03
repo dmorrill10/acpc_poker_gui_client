@@ -8,12 +8,13 @@
 :javascript
   var viewMatch = function(matchId) {
     rt.listenForMatchToStart(matchId);
+    rt.loadPreviousMessages = true;
+    rt.matchSliceIndex = null;
     return rt.onMatchHasStarted();
   };
 
 - rejoin_button_id = 'rejoin'
 - spectate_button_id_prefix = 'spectate-'
-
 .col-sm-12
   .intro-message.panel.panel-success
     .panel-heading

@@ -9,6 +9,15 @@ class TableManager
 
 root.TableManager = TableManager
 
+class SummaryInformationManager
+  constructor: ()->
+    @savedSummaryInfo = $('.summary_information').html()
+
+  update: ()->
+    $('.summary_information').prepend(@savedSummaryInfo)
+    summaryInfo = document.getElementById('summary_information')
+    summaryInfo.scrollTop = summaryInfo.scrollHeight
+
 class Realtime
   @connection: null
   @constants:
@@ -36,6 +45,9 @@ class Realtime
     @inProcessOfUpdating = false
     @matchWindow = MatchWindow.close()
     @windowState = "opening"
+    @summaryInfoManager = null
+    @loadPreviousMessages = false
+    @matchSliceIndex = null
 
     # Only start the app after a connection has been made
     onConnection = (socket)=>
@@ -88,7 +100,7 @@ class Realtime
     console.log "Realtime#nextHand"
     if @matchWindow?
       @socket.emit @constructor.constants.NEXT_HAND, { matchId: @matchWindow.matchId }
-      AjaxCommunicator.sendGet Routes.update_match_path()
+      @reloadNextHand()
 
   emitChatMessage: (user, msg)->
     console.log "Realtime#emitChatMessage"
@@ -105,20 +117,37 @@ class Realtime
   forceUpdateState: ()->
     console.log "Realtime#forceUpdateState: @matchWindow?: #{@matchWindow}"
     if @matchWindow?
-      AjaxCommunicator.sendPost Routes.match_home_path(), {match_id: @matchWindow.matchId}
+      params = {match_id: @matchWindow.matchId}
+      if @loadPreviousMessages
+        params['load_previous_messages'] = @loadPreviousMessages
+        @loadPreviousMessages = false
+      if @matchSliceIndex?
+        params['match_slice_index'] = @matchSliceIndex
+      AjaxCommunicator.sendPost Routes.match_home_path(), params
+  reloadPlayerActionView: (reloadMethod)->
+    @summaryInfoManager = new SummaryInformationManager
+    reloadMethod()
   updateState: ->
     console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
     unless @inProcessOfUpdating
-      @forceUpdateState()
+      @reloadPlayerActionView(=> @forceUpdateState())
       @inProcessOfUpdating = true
-  finishedUpdating: ->
-    console.log "Realtime#finishedUpdating: @inProcessOfUpdating: #{@inProcessOfUpdating}"
+  finishedUpdating: (matchSliceIndex = null)->
+    console.log "Realtime#finishedUpdating: matchSliceIndex: #{matchSliceIndex}, @inProcessOfUpdating: #{@inProcessOfUpdating}"
+    @matchSliceIndex = matchSliceIndex
     @inProcessOfUpdating = false
     @updateQueue.pop()
+    if @summaryInfoManager?
+      @summaryInfoManager.update()
   enqueueUpdate: ->
     console.log "Realtime#enqueueUpdate"
     @updateQueue.push()
     @updateState()
+  reloadNextHand: ->
+    params = {}
+    if @matchSliceIndex?
+      params.match_slice_index = @matchSliceIndex
+    @reloadPlayerActionView(=> AjaxCommunicator.sendPost(Routes.update_match_path(), params))
 
   listenToMatchQueueUpdates: ()->
     console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
@@ -153,6 +182,7 @@ class Realtime
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
     @matchWindow = MatchWindow.init(matchId)
+    @matchSliceIndex = 0
 
     @unsubscribe @matchWindow.playerActionChannel()
     @socket.on @matchWindow.playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
@@ -170,6 +200,7 @@ class Realtime
     @stopSpectating()
     @matchWindow = MatchWindow.close()
     Chat.close()
+    @matchSliceIndex = null
 
   stopSpectating: ->
     console.log "Realtime#stopSpectating"
@@ -180,6 +211,6 @@ class Realtime
     console.log "Realtime#spectate"
     if @matchWindow?
       console.log "Realtime#spectate: channel: #{@matchWindow.spectateNextHandChannel()}"
-      @socket.on @matchWindow.spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(Routes.update_match_path())
+      @socket.on @matchWindow.spectateNextHandChannel(), (msg)=> @reloadNextHand()
 
 root.Realtime = Realtime

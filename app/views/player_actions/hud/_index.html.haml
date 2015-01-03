@@ -11,24 +11,33 @@
         %tr
           %td= "#{player['name']}"
           %td= "#{player['chip_balance'].to_f}"
-- if action_timeout_enabled?
-  .timeout
-    .panel-heading
-      %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT
-  :javascript
-    Timer.clear();
-    function afterEachSecond() {
-      timeRemaining = parseInt($('.time-remaining').text());
-      if (timeRemaining <= 0) {
-        alert('The match has timed out.');
-        rt.leaveMatch();
-      }
-      else {
-        $('.time-remaining').text(timeRemaining - 1);
-        Timer.start(afterEachSecond);
-      }
-    };
-    Timer.start(afterEachSecond);
+.row
+  - if action_timeout_enabled?
+    .timeout
+      .panel-heading
+        %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT
+    :javascript
+      Timer.clear();
+      function afterEachSecond() {
+        timeRemaining = parseInt($('.time-remaining').text());
+        if (timeRemaining <= 0) {
+          alert('The match has timed out.');
+          rt.leaveMatch();
+        }
+        else {
+          $('.time-remaining').text(timeRemaining - 1);
+          Timer.start(afterEachSecond);
+        }
+      };
+      Timer.start(afterEachSecond);
+.row
+  %ul.summary_information#summary_information.list-group
+    - if match_view.messages_to_display
+      - match_view.messages_to_display.each do |m|
+        -if m
+          %li.list-group-item= m.gsub(/^\s*(\w)(\w*)(\s*)/) { if match.player_names.include?($1 + $2) then $1 else $1.upcase end + $2 + $3 }
+    - if match_view.match_ended?
+      %li.list-group-item The match has ended, thanks for playing!
 - if PlayerActionsHelper::ENABLE_CHAT
   #chat-box
   :javascript

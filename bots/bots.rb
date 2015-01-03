@@ -40,6 +40,7 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
         DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false},
         'ExamplePlayer' => {runner: AcpcDealer::EXAMPLE_PLAYERS[2][:limit], requires_special_port: false}
+        'AlwaysRaise' => {runner: File.join(BOT_DIR, 'agent_scripts', 'raise_bot'), requires_special_port: false}
       },
       num_players: 2
     },

@@ -1,0 +1,18 @@
+@import 'hud'
+
+.summary_information
+  @extend %hud
+
+  float: right
+
+  $c-summary_information-font-size: $base-fontSize
+
+  font-size: $c-summary_information-font-size
+  overflow-y: auto
+  height: 4 * $card_height
+  width: 5 * $card_height
+
+  .list-group-item
+    font-size: $c-summary_information-font-size
+    padding-top: $original-zen-gutter-width / 2.0
+    padding-bottom: $original-zen-gutter-width / 2.0

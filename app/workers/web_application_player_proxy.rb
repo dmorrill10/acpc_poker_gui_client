@@ -1,4 +1,5 @@
 require 'acpc_poker_player_proxy'
+require 'acpc_poker_types'
 
 require_relative '../../lib/database_config'
 require_relative '../models/match'
@@ -15,6 +16,7 @@ using ContextualExceptions::ClassRefinement
 # A proxy player for the web poker application.
 class WebApplicationPlayerProxy
   include SimpleLogging
+  include AcpcPokerTypes
 
   exceptions :unable_to_create_match_slice
 
@@ -106,6 +108,139 @@ class WebApplicationPlayerProxy
         match_ended?,
         @match
       )
+
+      new_slice = @match.slices.last
+      new_slice.messages = []
+
+      ms = players_at_the_table.match_state
+
+      log(
+        __method__,
+        {
+          first_state_of_first_round?: ms.first_state_of_first_round?
+        }
+      )
+
+      if ms.first_state_of_first_round?
+        new_slice.messages << hand_dealt_description(
+          @match.player_names,
+          ms.hand_number + 1,
+          players_at_the_table.game_def,
+          @match.number_of_hands
+        )
+      end
+
+      last_action = ms.betting_sequence(
+        players_at_the_table.game_def
+      ).flatten.last
+
+      log(
+        __method__,
+        {
+          last_action: last_action
+        }
+      )
+
+      if last_action
+        last_actor = @match.player_names[
+          @match.slices[-2].seat_next_to_act
+        ]
+
+        log(
+          __method__,
+          {
+            last_actor: last_actor
+          }
+        )
+
+        case last_action.to_acpc_character
+        when PokerAction::CHECK
+          new_slice.messages << check_description(
+            last_actor
+          )
+        when PokerAction::CALL
+          new_slice.messages << call_description(
+            last_actor,
+            last_action
+          )
+        when PokerAction::BET
+          new_slice.messages << bet_description(
+            last_actor,
+            last_action
+          )
+        when PokerAction::RAISE
+          new_slice.messages << if @match.no_limit?
+            no_limit_raise_description(
+              last_actor,
+              last_action,
+              @match.slices[-2].amount_to_call
+            )
+          else
+            limit_raise_description(
+              last_actor,
+              last_action,
+              ms.players(players_at_the_table.game_def).num_wagers(ms.round) - 1,
+              players_at_the_table.game_def.max_number_of_wagers[ms.round]
+            )
+          end
+        when PokerAction::FOLD
+          new_slice.messages << fold_description(
+            last_actor
+          )
+        end
+      end
+
+      log(
+        __method__,
+        {
+          hand_ended?: players_at_the_table.hand_ended?
+        }
+      )
+
+      if players_at_the_table.hand_ended?
+        log(
+          __method__,
+          {
+            reached_showdown?: ms.reached_showdown?
+          }
+        )
+
+        if ms.reached_showdown?
+          players_at_the_table.players.each_with_index do |player, i|
+            hd = PileOfCards.new(
+              player.hand +
+              ms.community_cards.flatten
+            ).to_poker_hand_description
+            new_slice.messages << "#{@match.player_names[i]} shows #{hd}"
+          end
+        end
+        winning_players = new_slice.players.select do |player|
+          player['winnings'] > 0
+        end
+        if winning_players.length > 1
+          new_slice.messages << split_pot_description(
+            winning_players.map { |player| player['name'] },
+            ms.pot(players_at_the_table.game_def)
+          )
+        else
+          winnings = winning_players.first['winnings']
+          if winnings.to_i == winnings
+            winnings = winnings.to_i
+          end
+          chip_balance = winning_players.first['chip_balance']
+          if chip_balance.to_i == chip_balance
+            chip_balance = chip_balance.to_i
+          end
+
+          new_slice.messages << hand_win_description(
+            winning_players.first['name'],
+            winnings,
+            chip_balance - winnings
+          )
+        end
+      end
+
+      new_slice.save!
 
       # Since creating a new slice doesn't "update" the match for some reason
       @match.update_attribute(:updated_at, Time.now)

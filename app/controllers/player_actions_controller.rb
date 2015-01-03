@@ -90,9 +90,26 @@ class MatchViewManagerController < ApplicationController
   end
   def update_match_view!
     begin
+      Rails.logger.ap(
+        {
+          method: __method__,
+          match_slice: match_view.slice_index,
+          messages_to_display: match_view.messages_to_display,
+          message: "Before #next_slice!"
+        }
+      )
       match_view.next_slice!
+      Rails.logger.ap(
+        {
+          method: __method__,
+          match_slice: match_view.slice_index,
+          messages_to_display: match_view.messages_to_display,
+          message: "After #next_slice!"
+        }
+      )
     rescue MatchView::UnableToFindNextSlice => e
       Rails.logger.ap method: __method__, match_slice: match_view.slice_index, message: e.message
+      match_view.messages_to_display = []
       # Render the last slice
     end
     unless spectating?
@@ -112,12 +129,12 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        @match_view = MatchView.new match_id
+        @match_view = MatchView.new match_id, params['match_slice_index'], params['load_previous_messages']
 
         Rails.logger.ap action: __method__, hand_ended: @match_view.hand_ended?
 
         return (
-          if @match_view.hand_ended?
+          if @match_view.hand_ended? || params['load_previous_messages']
             replace_page_contents_with_updated_game_view
           else
             update_match
@@ -132,7 +149,7 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem continuing match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        @match_view ||= MatchView.new match_id
+        @match_view ||= MatchView.new match_id, params['match_slice_index']
 
         Rails.logger.ap(
           action: __method__,
@@ -233,7 +250,7 @@ class PlayerActionsController < MatchViewManagerController
     )
     unless spectating? || match_id.nil?
       Match.delete_match! match_id
-      Rails.logger.ap("Deleted match #{match_id}")
+      Rails.logger.ap(action: __method__, message: "Deleted match #{match_id}")
 
       TableManager::TableManagerWorker.perform_async(
         TableManager::KILL_MATCH,

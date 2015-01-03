@@ -208,7 +208,7 @@ class WebApplicationPlayerProxy
         if ms.reached_showdown?
           players_at_the_table.players.each_with_index do |player, i|
             hd = PileOfCards.new(
-              player.hand_player.hand +
+              player.hand +
               ms.community_cards.flatten
             ).to_poker_hand_description
             new_slice.messages << "#{@match.player_names[i]} shows #{hd}"

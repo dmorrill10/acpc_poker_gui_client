@@ -1,3 +1,4 @@
+/* Dustin Morrill's modification of
 /*
  * Copyright 2010, Wen Pu (dexterpu at gmail dot com)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -20,7 +21,7 @@
             title: null, // title of the chatbox
             user: null, // can be anything associated with this chatbox
             hidden: false,
-            offset: 0, // relative to right edge of the browser window
+            offset: 0, // relative to left edge of the browser window
             width: 300, // width of the chatbox
             messageSent: function(id, user, msg) {
                 // override this
@@ -250,7 +251,7 @@
             this.uiChatboxInputBox.css("width", (width - 18) + "px");
         },
         _position: function(offset) {
-            this.uiChatbox.css("right", offset);
+            this.uiChatbox.css("left", offset);
         }
     });
 }(jQuery));

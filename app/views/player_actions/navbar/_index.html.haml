@@ -9,6 +9,6 @@
   });
 %li.dropdown
   %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
-  = render partial: hotkeys_partial('table'), locals: { classes: ['dropdown-menu', 'dropdown_table'], right_column: ->(label, key) { key }, footer_partial: hotkeys_partial('dropdown_footer') }
+  = render partial: hotkeys_partial('table'), locals: { classes: ['dropdown-menu'], right_column: ->(label, key) { key }, footer_partial: hotkeys_partial('dropdown_footer') }
 %li
   = link_to PlayerActionsHelper::LEAVE_MATCH_LABEL, leave_match_url, {remote: true, class: PlayerActionsHelper::NAV_LEAVE_HTML_CLASS, data: { confirm:  PlayerActionsHelper::LEAVE_MATCH_CONFIRMATION_MESSAGE, disable_with: PlayerActionsHelper::LEAVE_MATCH_LABEL }}

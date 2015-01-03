@@ -209,6 +209,11 @@ class Match
   def player_names
     opponent_names.dup.insert seat-1, self.user_name
   end
+  def bot_special_port_requirements
+    ApplicationDefs.bots(game_definition_key, opponent_names).map do |bot|
+      bot[:requires_special_port]
+    end
+  end
   def every_bot(dealer_host)
     raise unless port_numbers.length == player_names.length ||
       bot_opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
@@ -216,16 +221,16 @@ class Match
     bot_opponent_ports.zip(
       ApplicationDefs.bots(game_definition_key, opponent_names)
     ).each do |port_num, bot|
-      if bot.is_a?(Class)
+      if bot[:runner].is_a?(Class)
         bot_argument_hash = {
           port_number: port_num,
           server: dealer_host,
           game_def: game_definition_file_name
         }
 
-        yield bot.run_command(bot_argument_hash).split(' ')
+        yield bot[:runner].run_command(bot_argument_hash).split(' ')
       else # bot is a script that takes a host name and port in that order
-        yield [bot, dealer_host, port_num]
+        yield [bot[:runner], dealer_host, port_num]
       end
     end
   end

@@ -13,7 +13,7 @@
           .form-group
             .modal-footer
               = link_to 'Cancel', '#', { class: 'btn cancel', data: { dismiss: "modal" } }
-              = submit_tag 'Save', { class: 'btn btn-primary save-hotkeys' }
+              = submit_tag 'Save', { class: 'btn btn-success save-hotkeys' }
       .modal-footer
         = form_tag reset_hotkeys_url, remote: true do
           = submit_tag 'Reset to Default', { class: 'btn btn-info reset_hotkeys', data: { confirm: 'Are you sure you want to reset all your hotkeys to their default values?' } }

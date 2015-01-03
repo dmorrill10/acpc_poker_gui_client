@@ -182,18 +182,6 @@ module TableManager
       self
     end
 
-    def match_comment!(match, comment)
-      @message_server.publish(
-        REALTIME_CHANNEL,
-        {
-          message: comment,
-          matchId: "#{match.id.to_s}",
-          # player: ???? @todo
-        }.to_json
-      )
-      self
-    end
-
     def update_match_queue!
       @message_server.publish(
         REALTIME_CHANNEL,
@@ -224,6 +212,23 @@ module TableManager
 
     def length
       @matches_to_start.length
+    end
+
+    def ports_in_use
+      @running_matches.values.inject([]) do |ports, m|
+        if m[:dealer] && m[:dealer][:port_numbers]
+          ports += m[:dealer][:port_numbers]
+        end
+        ports
+      end
+    end
+
+    def available_special_ports
+      if TableManager::SPECIAL_PORTS_TO_DEALER
+        TableManager::SPECIAL_PORTS_TO_DEALER - ports_in_use
+      else
+        []
+      end
     end
 
     def match_ended!(match_id)
@@ -307,19 +312,34 @@ module TableManager
 
       log(
         __method__,
-        msg: "Starting dealer for match #{match_id}"
+        msg: "Starting dealer for match #{match_id}",
+        options: options
       )
 
       @running_matches[match_id] ||= {}
 
+      special_port_requirements = match.bot_special_port_requirements
+
+      # Add user's port
+      special_port_requirements.insert(match.seat - 1, false)
+
+      available_ports_ = available_special_ports
+      ports_to_be_used = special_port_requirements.map do |r|
+        if r then available_ports_.pop else 0 end
+      end
+
       log(
         __method__,
-        msg: "Added #{match_id} list of running matches"
+        msg: "Added #{match_id} list of running matches",
+        available_special_ports: available_special_ports,
+        special_port_requirements: special_port_requirements,
+        :'ports_to_be_used_(zero_for_random)' => ports_to_be_used
       )
 
       @running_matches[match_id][:dealer] = @agent_interface.start_dealer!(
         options,
-        match
+        match,
+        ports_to_be_used
       )
 
       log(
@@ -353,7 +373,7 @@ module TableManager
     end
 
     # @return [Hash<Symbol, Object>] The dealer information
-    def start_dealer!(options, match)
+    def start_dealer!(options, match, port_numbers=nil)
       log __method__, options: options
 
       dealer_arguments = {
@@ -368,13 +388,15 @@ module TableManager
       log __method__, {
         match_id: match.id,
         dealer_arguments: dealer_arguments,
-        log_directory: MATCH_LOG_DIRECTORY
+        log_directory: MATCH_LOG_DIRECTORY,
+        port_numbers: port_numbers
       }
 
       # Start the dealer
       dealer_info = AcpcDealer::DealerRunner.start(
         dealer_arguments,
-        MATCH_LOG_DIRECTORY
+        MATCH_LOG_DIRECTORY,
+        port_numbers
       )
 
       # Store the port numbers in the database so the web app can access them
@@ -666,7 +688,10 @@ module TableManager
           msg: 'Enqueuing match'
         )
 
-        @@table_queue.enque! match_id, retrieve_parameter_or_raise_exception(params, OPTIONS_KEY)
+        @@table_queue.enque!(
+          match_id,
+          retrieve_parameter_or_raise_exception(params, OPTIONS_KEY)
+        )
         @@match_communicator.update_match_queue!
       when START_PROXY_REQUEST_CODE
         log(

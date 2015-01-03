@@ -23,8 +23,8 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        DEFAULT_BOT_NAME => RunTestingBot,
-        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:nolimit]
+        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false},
+        'ExamplePlayer' => {runner: AcpcDealer::EXAMPLE_PLAYERS[2][:nolimit], requires_special_port: false}
       },
       num_players: 2
     },
@@ -38,8 +38,8 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        DEFAULT_BOT_NAME => RunTestingBot,
-        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:limit]
+        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false},
+        'ExamplePlayer' => {runner: AcpcDealer::EXAMPLE_PLAYERS[2][:limit], requires_special_port: false}
       },
       num_players: 2
     },
@@ -53,7 +53,7 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        DEFAULT_BOT_NAME => RunTestingBot
+        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false},
       },
       num_players: 2
     },
@@ -67,9 +67,7 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        DEFAULT_BOT_NAME => RunTestingBot,
-        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[3][:nolimit],
-        'Tester2' => File.join(BOT_DIR, 'agent_scripts/testing_bot'),
+        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false}
       },
       num_players: 3
     },
@@ -83,9 +81,7 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        DEFAULT_BOT_NAME => RunTestingBot,
-        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[3][:limit],
-        'Tester2' => File.join(BOT_DIR, 'agent_scripts/testing_bot')
+        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false}
       },
       num_players: 3
     },
@@ -99,11 +95,7 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        'SF1Equilibrium' => AcpcDealer::EXAMPLE_PLAYERS[3][:kuhn_sf1],
-        'SF2Equilibrium' => AcpcDealer::EXAMPLE_PLAYERS[3][:kuhn_sf2],
-        'SF3Equilibrium' => AcpcDealer::EXAMPLE_PLAYERS[3][:kuhn_sf3],
-        DEFAULT_BOT_NAME => RunTestingBot,
-        'Tester2' => File.join(BOT_DIR, 'agent_scripts/testing_bot'),
+        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false}
       },
       num_players: 3
     }

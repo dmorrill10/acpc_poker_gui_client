@@ -1,5 +1,5 @@
 :javascript
-  rt.finishedUpdating();
+  rt.finishedUpdating("#{match_view.slice_index}");
 
 = render partial: game_interface_partial('index')
 = render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}

@@ -13,7 +13,8 @@ class MatchView < SimpleDelegator
 
   exceptions :unable_to_find_next_slice
 
-  attr_reader :match, :slice_index
+  attr_reader :match, :slice_index, :messages_to_display
+  attr_writer :messages_to_display
 
   def self.chip_contributions_in_previous_rounds(player, round)
     if round > 0
@@ -23,9 +24,11 @@ class MatchView < SimpleDelegator
     end
   end
 
-  def initialize(match_id, slice_index=nil)
+  def initialize(match_id, slice_index = nil, load_previous_messages = false)
     @match = Match.find(match_id)
     super @match
+
+    @messages_to_display = []
 
     @slice_index = if slice_index
       s = slice_index.to_i
@@ -34,7 +37,12 @@ class MatchView < SimpleDelegator
       @match.last_slice_viewed
     end - 1
 
-    next_slice!
+    begin
+      next_slice!
+    rescue MatchView::UnableToFindNextSlice
+    end
+
+    load_previous_messages! if load_previous_messages
   end
   def user_contributions_in_previous_rounds
     self.class.chip_contributions_in_previous_rounds(user, state.round)
@@ -42,22 +50,8 @@ class MatchView < SimpleDelegator
   def state() @state ||= MatchState.parse slice.state_string end
   def slice() slices[@slice_index] end
   def next_slice!(max_retries = 0)
-    @slice_index += 1
-    retries = 0
-    if @slice_index >= slices.length && max_retries < 1
-      @slice_index -= 1
-      return self
-    end
-    while @slice_index >= slices.length do
-      sleep(0.1)
-      @match = Match.find(@match.id)
-      __setobj__ @match
-      if retries >= max_retries
-        @slice_index -= 1
-        raise UnableToFindNextSlice.new("Unable to find next match slice after #{retries} retries")
-      end
-      retries += 1
-    end
+    next_slice_without_updating_messages! max_retries
+    @messages_to_display = slice.messages
     self
   end
   # zero indexed
@@ -155,11 +149,38 @@ class MatchView < SimpleDelegator
     @betting_type_label
   end
 
+  def load_previous_messages!(index = @slice_index)
+    @messages_to_display = slices[0...index].inject([]) do |messages, s|
+      messages += s.messages
+    end + @messages_to_display
+    self
+  end
+
   private
 
   def compute_opponents
     opp = players.dup
     opp.delete_at(users_seat)
     opp
+  end
+
+  def next_slice_without_updating_messages!(max_retries = 0)
+    @slice_index += 1
+    retries = 0
+    if @slice_index >= slices.length && max_retries < 1
+      @slice_index -= 1
+      raise UnableToFindNextSlice.new("Unable to find next match slice after #{retries} retries")
+    end
+    while @slice_index >= slices.length do
+      sleep(0.1)
+      @match = Match.find(@match.id)
+      __setobj__ @match
+      if retries >= max_retries
+        @slice_index -= 1
+        raise UnableToFindNextSlice.new("Unable to find next match slice after #{retries} retries")
+      end
+      retries += 1
+    end
+    self
   end
 end

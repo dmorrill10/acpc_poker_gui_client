@@ -8,6 +8,8 @@
 :javascript
   var viewMatch = function(matchId) {
     rt.listenForMatchToStart(matchId);
+    rt.loadPreviousMessages = true;
+    rt.matchSliceIndex = null;
     return rt.onMatchHasStarted();
   };
 

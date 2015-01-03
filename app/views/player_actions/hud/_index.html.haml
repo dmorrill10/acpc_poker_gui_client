@@ -32,9 +32,10 @@
       Timer.start(afterEachSecond);
 .row
   %ul.summary_information#summary_information.list-group
-    -# @todo Need to show previous messages too
-    - match_view.slice.messages.each do |m|
-      %li.list-group-item= m.gsub(/^\s*(\w)/) { $1.upcase }
+    - if match_view.messages_to_display
+      - match_view.messages_to_display.each do |m|
+        -if m
+          %li.list-group-item= m.gsub(/^\s*(\w)(\w*)(\s*)/) { if match.player_names.include?($1 + $2) then $1 else $1.upcase end + $2 + $3 }
     - if match_view.match_ended?
       %li.list-group-item The match has ended, thanks for playing!
 - if PlayerActionsHelper::ENABLE_CHAT

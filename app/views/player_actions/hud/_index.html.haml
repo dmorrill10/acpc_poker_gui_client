@@ -31,7 +31,7 @@
       };
       Timer.start(afterEachSecond);
 .row
-  %ul.summary_information.list-group
+  %ul.summary_information#summary_information.list-group
     -# @todo Need to show previous messages too
     - match_view.slice.messages.each do |m|
       %li.list-group-item= m.gsub(/^\s*(\w)/) { $1.upcase }

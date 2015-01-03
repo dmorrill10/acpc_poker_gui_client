@@ -39,6 +39,7 @@ module Bots
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
         DEFAULT_BOT_NAME => RunTestingBot,
+        'AlwaysRaise' => File.join(BOT_DIR, 'agent_scripts', 'raise_bot'),
         'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:limit]
       },
       num_players: 2

@@ -1,0 +1,5 @@
+#!/bin/bash
+# Thanks to http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in for this
+agent_scripts_dir=$( cd "$( dirname "$0" )" && pwd )
+
+$agent_scripts_dir/raise_bot.rb $2 $1

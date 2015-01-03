@@ -9,6 +9,15 @@ class TableManager
 
 root.TableManager = TableManager
 
+class SummaryInformationManager
+  constructor: ()->
+    @savedSummaryInfo = $('.summary_information').html()
+
+  update: ()->
+    $('.summary_information').prepend(@savedSummaryInfo)
+    summaryInfo = document.getElementById('summary_information')
+    summaryInfo.scrollTop = summaryInfo.scrollHeight
+
 class Realtime
   @connection: null
   @constants:
@@ -36,6 +45,7 @@ class Realtime
     @inProcessOfUpdating = false
     @matchWindow = MatchWindow.close()
     @windowState = "opening"
+    @summaryInfoManager = null
 
     # Only start the app after a connection has been made
     onConnection = (socket)=>
@@ -88,7 +98,7 @@ class Realtime
     console.log "Realtime#nextHand"
     if @matchWindow?
       @socket.emit @constructor.constants.NEXT_HAND, { matchId: @matchWindow.matchId }
-      AjaxCommunicator.sendGet Routes.update_match_path()
+      @reloadNextHand()
 
   emitChatMessage: (user, msg)->
     console.log "Realtime#emitChatMessage"
@@ -106,19 +116,26 @@ class Realtime
     console.log "Realtime#forceUpdateState: @matchWindow?: #{@matchWindow}"
     if @matchWindow?
       AjaxCommunicator.sendPost Routes.match_home_path(), {match_id: @matchWindow.matchId}
+  reloadPlayerActionView: (reloadMethod)->
+    @summaryInfoManager = new SummaryInformationManager
+    reloadMethod()
   updateState: ->
     console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
     unless @inProcessOfUpdating
-      @forceUpdateState()
+      @reloadPlayerActionView(=> @forceUpdateState())
       @inProcessOfUpdating = true
   finishedUpdating: ->
     console.log "Realtime#finishedUpdating: @inProcessOfUpdating: #{@inProcessOfUpdating}"
     @inProcessOfUpdating = false
     @updateQueue.pop()
+    if @summaryInfoManager?
+      @summaryInfoManager.update()
   enqueueUpdate: ->
     console.log "Realtime#enqueueUpdate"
     @updateQueue.push()
     @updateState()
+  reloadNextHand: ->
+    @reloadPlayerActionView(=> AjaxCommunicator.sendGet(Routes.update_match_path()))
 
   listenToMatchQueueUpdates: ()->
     console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
@@ -180,6 +197,6 @@ class Realtime
     console.log "Realtime#spectate"
     if @matchWindow?
       console.log "Realtime#spectate: channel: #{@matchWindow.spectateNextHandChannel()}"
-      @socket.on @matchWindow.spectateNextHandChannel(), (msg)=> AjaxCommunicator.sendGet(Routes.update_match_path())
+      @socket.on @matchWindow.spectateNextHandChannel(), (msg)=> @reloadNextHand()
 
 root.Realtime = Realtime

@@ -65,11 +65,14 @@ p
 // ----- Inline Content ----- //
 
 a
-  color: $base-link-color
   text-decoration: none
-  text-shadow: 0 1px 0 white
   &:hover, &:focus
-    color: #212121
     text-decoration: none
   img
     border: none
+
+a.btn
+  @extend button
+
+a.btn.btn-success
+  @extend .btn-success

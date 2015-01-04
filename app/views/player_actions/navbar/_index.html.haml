@@ -7,8 +7,23 @@
       $("##{PlayerActionsHelper::CUSTOMIZE_HOTKEYS_ID}").remove();
     });
   });
+  $("#leave-match-confirmation").on('shown.bs.modal', function() {
+    $('a.confirm-leave').focus();
+  });
 %li.dropdown
   %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
   = render partial: hotkeys_partial('table'), locals: { classes: ['dropdown-menu'], right_column: ->(label, key) { key }, footer_partial: hotkeys_partial('dropdown_footer') }
 %li
-  = link_to PlayerActionsHelper::LEAVE_MATCH_LABEL, leave_match_url, {remote: true, class: PlayerActionsHelper::NAV_LEAVE_HTML_CLASS, data: { confirm:  PlayerActionsHelper::LEAVE_MATCH_CONFIRMATION_MESSAGE, disable_with: PlayerActionsHelper::LEAVE_MATCH_LABEL }}
+  %a{class: PlayerActionsHelper::NAV_LEAVE_HTML_CLASS, role: 'button', href: '#', data: { toggle: 'modal', target: '#leave-match-confirmation', disable_with: PlayerActionsHelper::LEAVE_MATCH_LABEL }}= PlayerActionsHelper::LEAVE_MATCH_LABEL
+
+#leave-match-confirmation.modal.fade{tabindex: -1, role: 'dialog', aria: {labelledby: "leaveMatchConfirmation", hidden: true}}
+  .modal-dialog
+    .modal-content
+      .modal-header
+        = ApplicationHelper::close_button("modal").html_safe
+        %h3.modal-title= "Leave the match?"
+      .modal-body
+        %p Are you sure you want to leave and end the match?
+      .modal-footer
+        %button.btn.btn-default.cancel{type: "button",  data: {dismiss: "modal"}} Cancel
+        %a.btn.btn-success.confirm-leave{type: "button",  href: "#{leave_match_path}", data: {remote: true}} Leave

@@ -12,7 +12,7 @@
           %td= "#{player['name']}"
           %td= "#{player['chip_balance'].to_f}"
 .row
-  - if action_timeout_enabled?
+  - if action_timeout_enabled? && !match_view.match_ended?
     .timeout
       .panel-heading
         %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT

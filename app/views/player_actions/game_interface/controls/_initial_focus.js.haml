@@ -1,7 +1,7 @@
 - if match_view.match_ended?
   :javascript
     $(".#{PlayerActionsHelper::LEAVE_MATCH_BUTTON_HTML_CLASS}").click(function() {
-      return $(".#{PlayerActionsHelper::NAV_LEAVE_HTML_CLASS}").click();
+      return rt.leaveMatch();
     })
     $(".#{PlayerActionsHelper::LEAVE_MATCH_BUTTON_HTML_CLASS}").focus();
 - elsif next_hand_button_visible?

@@ -123,6 +123,30 @@ module TableManager
   module MatchInterface
     include GracefulErrorHandling
 
+    def delete_irrelevant_matches!
+      log(
+        __method__,
+        {
+          num_matches_before_deleteing: Match.all.length
+        }
+      )
+      Match.delete_irrelevant_matches!
+      Match.started_and_unfinished.each do |m|
+        if (
+          m.updated_at < (Time.new - TableManager::MATCH_LIFESPAN_S) &&
+          m.all_slices_viewed?
+        )
+          m.delete
+        end
+      end
+      log(
+        __method__,
+        {
+          num_matches_after_deleteing: Match.all.length
+        }
+      )
+    end
+
     protected
 
     # @param [String] match_id The ID of the +Match+ instance to retrieve.
@@ -261,7 +285,13 @@ module TableManager
     end
 
     def watch_queue!
-      @queue_checking_thread = Thread.new { loop do sleep(QUEUE_CHECK_INTERVAL); check_queue! end }
+      @queue_checking_thread = Thread.new do
+        loop do
+          sleep QUEUE_CHECK_INTERVAL
+          delete_irrelevant_matches!
+          check_queue!
+        end
+      end
       self
     end
 
@@ -269,7 +299,12 @@ module TableManager
       # Clean up data from dead matches
       @running_matches.each do |match_id, match_processes|
         unless AcpcDealer::dealer_running?(match_processes)
-          Match.delete_match! match_id
+          begin
+            match = Match.find match_id
+          rescue Mongoid::Errors::DocumentNotFound
+          else
+            match.delete if match.all_slices_viewed?
+          end
           match_ended!(match_id)
         end
       end
@@ -513,25 +548,6 @@ module TableManager
     def check_queue_and_alert_views!
       @@table_queue.check_queue!
       @@match_communicator.update_match_queue!
-    end
-
-    def delete_irrelevant_matches!
-      log(
-        __method__,
-        {
-          num_matches_before_deleteing: Match.all.length
-        }
-      )
-      Match.delete_irrelevant_matches!
-      Match.started_and_unfinished.each do |m|
-        m.delete if m.updated_at < (Time.new - TableManager::MATCH_LIFESPAN_S)
-      end
-      log(
-        __method__,
-        {
-          num_matches_after_deleteing: Match.all.length
-        }
-      )
     end
 
     def delete_started_matches_where_the_dealer_has_died_or_not_persisted!

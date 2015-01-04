@@ -103,7 +103,9 @@ class Match
     self
   end
   def self.delete_finished_matches!
-    finished.each { |m| m.delete }
+    finished.each do |m|
+      m.delete if m.all_slices_viewed?
+    end
     self
   end
   def self.delete_match!(match_id)
@@ -154,6 +156,9 @@ class Match
   include_opponent_names
   include_seat
 
+  def all_slices_viewed?
+    self.last_slice_viewed >= (self.slices.length - 1)
+  end
   def game_def
     @game_def ||= AcpcPokerTypes::GameDefinition.new(self.game_def_hash)
   end

@@ -21,8 +21,8 @@
       function afterEachSecond() {
         timeRemaining = parseInt($('.time-remaining').text());
         if (timeRemaining <= 0) {
-          alert('The match has timed out.');
           rt.leaveMatch();
+          alert('The match has timed out.');
         }
         else {
           $('.time-remaining').text(timeRemaining - 1);

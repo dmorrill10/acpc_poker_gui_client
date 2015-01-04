@@ -91,7 +91,7 @@ class Realtime
   #================
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
-    AjaxCommunicator.sendGet Routes.update_match_queue_path() if @windowState is "open" or 'waiting'
+    AjaxCommunicator.sendGet Routes.update_match_queue_path() if @windowState is "open" or @windowState is 'waiting'
   playAction: (actionArg)->
     console.log "GameplayManager#updateMatchQueue: actionArg: #{actionArg}, @windowState: #{@windowState}"
     if @windowState is 'match'
@@ -151,7 +151,8 @@ class Realtime
 
   listenToMatchQueueUpdates: ()->
     console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
-    @socket.on TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL, (msg)=> @updateMatchQueue(msg)
+    unless @alreadySubscribed(TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL)
+      @socket.on TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL, (msg)=> @updateMatchQueue(msg)
 
   onPlayerAction: (message='')->
     console.log "Realtime#onPlayerAction: message: #{message}"
@@ -201,6 +202,7 @@ class Realtime
     @matchWindow = MatchWindow.close()
     Chat.close()
     @matchSliceIndex = null
+    @listenToMatchQueueUpdates()
 
   stopSpectating: ->
     console.log "Realtime#stopSpectating"

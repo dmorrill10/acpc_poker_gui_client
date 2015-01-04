@@ -176,7 +176,7 @@ class Realtime
     @socket.on(@matchWindow.playerCommentChannel(), (msg)=> @onPlayerComment(msg))
 
     @windowState = "match"
-    @updateState()
+    @enqueueUpdate()
 
   listenForMatchToStart: (matchId)->
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"

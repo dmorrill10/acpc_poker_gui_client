@@ -15,12 +15,6 @@
   overflow: auto
 
   .matches-in-progress
-    // $matches-in-progress_height: $match_start_height
-    // $matches-in-progress_width: 600px
-
-    //width: $matches-in-progress_width
-    //height: $matches-in-progress_height
-
     $matches-in-progress_font-size: 12px
     font-size: $matches-in-progress_font-size
     overflow: auto
@@ -66,3 +60,8 @@
     .btn
       font-size: rem(20px)
       height: $play_button_box_height
+  //.play_button_box:disabled
+  // @todo Replace these rules with a general abstraction
+  // -webkit-animation:loading 0.5s infinite alternate 0s
+  // -moz-animation:loading 0.5s infinite alternate 0s
+  // -ms-animation:loading 0.5s infinite alternate 0s

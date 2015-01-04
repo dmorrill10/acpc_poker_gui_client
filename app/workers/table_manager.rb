@@ -217,7 +217,7 @@ module TableManager
     def ports_in_use
       @running_matches.values.inject([]) do |ports, m|
         if m[:dealer] && m[:dealer][:port_numbers]
-          ports += m[:dealer][:port_numbers]
+          m[:dealer][:port_numbers].each { |n| ports << n.to_i }
         end
         ports
       end

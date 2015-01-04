@@ -202,6 +202,7 @@ class Realtime
     @matchWindow = MatchWindow.close()
     Chat.close()
     @matchSliceIndex = null
+    @inProcessOfUpdating = false
     @listenToMatchQueueUpdates()
 
   stopSpectating: ->

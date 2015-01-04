@@ -523,6 +523,9 @@ module TableManager
         }
       )
       Match.delete_irrelevant_matches!
+      Match.started_and_unfinished.each do |m|
+        m.delete if m.updated_at < (Time.new - TableManager::MATCH_LIFESPAN_S)
+      end
       log(
         __method__,
         {

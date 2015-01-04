@@ -7,7 +7,7 @@ class Chat
     if @chatBox?
       @chatBox.closeIfNotFunctional()
     unless @chatBox?
-      @chatBox = new Chat('#chat-box', userName, onSentMessage)
+      @chatBox = new Chat(userName, onSentMessage)
     console.log "Chat::init: Returning: @chatBox?: #{@chatBox?}"
     @chatBox
   @close: ()->
@@ -16,21 +16,22 @@ class Chat
       @chatBox.close()
     @chatBox = null
 
+  @intialElementId: 'chat-box'
   @titlebarClass: '.ui-chatbox-titlebar'
   @badgeHtml: (numNewMessages)->
     "<span class=badge>#{numNewMessages}</span>"
 
-  constructor: (chatElement, userName, onSentMessage)->
-    @chatElement = chatElement
+  constructor: (userName, onSentMessage)->
+    @chatElement = "##{@constructor.intialElementId}"
     @numNewMessages = 0
     onCreate = (event, ui)=>
       console.log 'Chat#new: onCreate'
       @containerElement().focusin(=> @clearBadge())
       @toggle()
       console.log 'Chat#new: onCreate: Returning'
-    $(chatElement).chatbox(
+    @box().chatbox(
       {
-        id: chatElement,
+        id: @chatElement,
         user: userName,
         title: "Chat",
         hidden: true,
@@ -122,5 +123,7 @@ class Chat
       @removeHtmlElement()
   removeHtmlElement: ->
     @containerElement().remove()
+    if @box().length < 1
+      $('body').append("<div id='#{@constructor.intialElementId}'></div>")
 
 root.Chat = Chat

@@ -48,6 +48,7 @@ class Realtime
     @summaryInfoManager = null
     @loadPreviousMessages = false
     @matchSliceIndex = null
+    @userName = null
 
     # Only start the app after a connection has been made
     onConnection = (socket)=>
@@ -79,13 +80,13 @@ class Realtime
     console.log "Realtime#unsubscribe: e: #{e}"
     @socket.removeAllListeners e
 
-  showMatchEntryPage: ->
-    console.log "Realtime#showMatchEntryPage"
+  showMatchEntryPage: (alertMessage = null)->
+    console.log "Realtime#showMatchEntryPage: alertMessage: #{alertMessage}"
 
     @resetState()
     @windowState = "open"
     @listenToMatchQueueUpdates()
-    AjaxCommunicator.sendGet Routes.root_path()
+    AjaxCommunicator.sendPost Routes.root_path(), {alert_message: alertMessage}
 
   # To Rails server
   #================
@@ -177,22 +178,30 @@ class Realtime
     @socket.on(@matchWindow.playerCommentChannel(), (msg)=> @onPlayerComment(msg))
 
     @windowState = "match"
+
+    Chat.init(
+      @userName,
+      (id, user, msg)=>
+        @emitChatMessage user, msg
+    )
+
     @enqueueUpdate()
 
-  listenForMatchToStart: (matchId)->
-    console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, @windowState: #{@windowState}"
+  listenForMatchToStart: (matchId, userName)->
+    console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, userName: #{userName}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
     @matchWindow = MatchWindow.init(matchId)
     @matchSliceIndex = 0
+    @userName = userName
 
     @unsubscribe @matchWindow.playerActionChannel()
     @socket.on @matchWindow.playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
     @windowState = "waiting"
 
-  leaveMatch: ->
+  leaveMatch: (alertMessage = null)->
     if @windowState is "match"
       @resetState()
-      AjaxCommunicator.sendPost Routes.leave_match_path()
+      AjaxCommunicator.sendPost Routes.leave_match_path(), {alert_message: alertMessage}
 
   resetState: ->
     if @matchWindow?
@@ -203,6 +212,7 @@ class Realtime
     Chat.close()
     @matchSliceIndex = null
     @inProcessOfUpdating = false
+    @userName = null
     @listenToMatchQueueUpdates()
 
   stopSpectating: ->

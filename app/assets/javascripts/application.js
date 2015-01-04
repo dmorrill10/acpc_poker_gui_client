@@ -6,7 +6,10 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery.ui.core
 //= require jquery.ui.slider
+//= require jquery.ui.widget
+//= require jquery.ui.effect
 //= require bootstrap-sprockets
 //= require rails.validations
 //= require rails.validations.simple_form

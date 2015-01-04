@@ -12,5 +12,6 @@
   "ISSUE_TRACKER": "https://github.com/dmorrill10/acpc_poker_gui_client/issues?state=open",
   "USER_NAME_KEY": "user_name",
   "TOGGLE_NAV_TEXT": "Toggle navigation",
-  "ENABLE_NO_LIMIT_HOTKEYS": false
+  "ENABLE_NO_LIMIT_HOTKEYS": false,
+  "ENABLE_CHAT": true
 }

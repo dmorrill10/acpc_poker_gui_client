@@ -2,36 +2,125 @@ root = exports ? this
 
 class Chat
   @chatBox: null
-  @init: (chatElement, userName, onSentMessage)->
+  @init: (userName, onSentMessage)->
+    console.log "Chat::init: @chatBox?: #{@chatBox?}"
+    if @chatBox?
+      @chatBox.closeIfNotFunctional()
     unless @chatBox?
-      @chatBox = new Chat(chatElement, userName, onSentMessage)
+      @chatBox = new Chat('#chat-box', userName, onSentMessage)
+    console.log "Chat::init: Returning: @chatBox?: #{@chatBox?}"
     @chatBox
   @close: ()->
+    console.log "Chat::close: @chatBox?: #{@chatBox?}"
     if @chatBox?
       @chatBox.close()
     @chatBox = null
 
+  @titlebarClass: '.ui-chatbox-titlebar'
+  @badgeHtml: (numNewMessages)->
+    "<span class=badge>#{numNewMessages}</span>"
+
   constructor: (chatElement, userName, onSentMessage)->
-    @box = $(chatElement).chatbox(
+    @chatElement = chatElement
+    @numNewMessages = 0
+    onCreate = (event, ui)=>
+      console.log 'Chat#new: onCreate'
+      @containerElement().focusin(=> @clearBadge())
+      @toggle()
+      console.log 'Chat#new: onCreate: Returning'
+    $(chatElement).chatbox(
       {
         id: chatElement,
         user: userName,
         title: "Chat",
         hidden: true,
+        create: onCreate,
         messageSent: (id, user, msg)=>
           onSentMessage id, user, msg
           @addMessage user, msg
       }
     )
-    @toggle()
+
+  containerElement: ->
+    $('.ui-chatbox')
+
+  isFocused: ->
+    $("#{@constructor.titlebarClass}.ui-state-focus").length > 0
+
+  box: ->
+    $(@chatElement)
+
+  clearBadge: ->
+    console.log "Chat#clearBadge: @newMessagesBadge()?: #{@newMessagesBadge().length > 0}"
+    if @newMessagesBadge().length > 0
+      @newMessagesBadge().remove()
+      @numNewMessages = 0
+
+  badgeHtml: ->
+    @constructor.badgeHtml @numNewMessages
+
+  inputBox: ->
+    $('.ui-chatbox-input-box')
+
+  titlebar: ->
+    $(@constructor.titlebarClass)
+
+  newMessagesBadge: ->
+    $("#{@constructor.titlebarClass} > .badge")
+
+  isShrunk: ->
+    $('.ui-chatbox-content').css('display') is 'none'
+
+  newMessagesPresent: ->
+    @newMessagesBadge().length > 0
 
   addMessage: (user, message)->
-    @box.chatbox("option", "boxManager").addMsg(user, message)
+    console.log "Chat#addMessage: user: #{user}, message: #{message}, @isFocused(): #{@isFocused()}"
+    try
+      @box().chatbox("option", "boxManager").addMsg(user, message)
+    catch ignoredError
+      console.log("Chat#toggleOpenClose ignoredError: #{ignoredError}")
+      @constructor.close()
+    finally
+      unless @isFocused()
+        console.log "Chat#addMessage: @numNewMessages: #{@numNewMessages}, @newMessagesPresent(): #{@newMessagesPresent()}"
+        @numNewMessages += 1
+        if @newMessagesPresent()
+          @newMessagesBadge().html @numNewMessages
+        else
+          @titlebar().append @badgeHtml()
 
   toggleOpenClose: ->
-    @box.chatbox('option', 'boxManager').toggleBox()
+    try
+      @box().chatbox('option', 'boxManager').toggleBox()
+    catch ignoredError
+      console.log("Chat#toggleOpenClose ignoredError: #{ignoredError}")
+      @constructor.close()
 
-  toggle: -> @box.chatbox('toggleContent')
-  close: -> $('.ui-chatbox').remove()
+  widget: ->
+    try
+      @box().chatbox('widget')
+    catch ignoredError
+      console.log("Chat#widget ignoredError: #{ignoredError}")
+      @constructor.close()
+
+  closeIfNotFunctional: ->
+    @widget()
+
+  toggle: ->
+    try
+      @box().chatbox('toggleContent')
+    catch ignoredError
+      console.log("Chat#toggle ignoredError: #{ignoredError}")
+      @constructor.close()
+  close: ->
+    try
+      @box().chatbox('destroy')
+    catch ignoredError
+      console.log("Chat#close ignoredError: #{ignoredError}")
+    finally
+      @removeHtmlElement()
+  removeHtmlElement: ->
+    @containerElement().remove()
 
 root.Chat = Chat

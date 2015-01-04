@@ -62,6 +62,13 @@ class MatchStartController < ApplicationController
 
     clear_match_session! unless match_id && Match.where(id: match_id).exists?
 
+    @alert_message = params['alert_message'] if params['alert_message'] && !params['alert_message'].empty?
+
+    Rails.logger.ap(
+      action: __method__,
+      alert_message: @alert_message
+    )
+
     respond_to do |format|
       format.html {} # Render the default partial
       format.js do

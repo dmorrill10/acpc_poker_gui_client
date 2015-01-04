@@ -21,8 +21,12 @@
       function afterEachSecond() {
         timeRemaining = parseInt($('.time-remaining').text());
         if (timeRemaining <= 0) {
-          rt.leaveMatch();
-          alert('The match has timed out.');
+          if ("#{spectating?}" === "true") {
+            alert('The match has timed out.');
+          }
+          else {
+            rt.leaveMatch('The match has timed out.');
+          }
         }
         else {
           $('.time-remaining').text(timeRemaining - 1);
@@ -38,12 +42,3 @@
           %li.list-group-item= m.gsub(/^\s*(\w)(\w*)(\s*)/) { if match.player_names.include?($1 + $2) then $1 else $1.upcase end + $2 + $3 }
     - if match_view.match_ended?
       %li.list-group-item The match has ended, thanks for playing!
-- if PlayerActionsHelper::ENABLE_CHAT
-  #chat-box
-  :javascript
-    Chat.init(
-      '#chat-box',
-      "#{user.name}",
-      function(id, user, msg) {
-        Realtime.connection.emitChatMessage(user, msg);
-    });

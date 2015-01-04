@@ -258,6 +258,11 @@ class PlayerActionsController < MatchViewManagerController
       )
       clear_match_information!
     end
+    @alert_message = params['alert_message'] if params['alert_message'] && !params['alert_message'].empty?
+    Rails.logger.ap(
+      action: __method__,
+      alert_message: @alert_message
+    )
     reset_to_match_entry_view
   end
 

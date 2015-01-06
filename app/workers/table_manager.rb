@@ -197,6 +197,7 @@ module TableManager
     end
 
     def match_updated!(match)
+      sleep ACTION_DELAY_S if ACTION_DELAY_S > 0
       @message_server.publish(
         REALTIME_CHANNEL,
         {

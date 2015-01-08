@@ -28,6 +28,7 @@ class Match
     end
   end
 
+  # @todo Fix naming
   def self.nowAsString
     Time.now.strftime('%b%-d_%Y-at-%-H:%-M:%-S')
   end
@@ -117,7 +118,7 @@ class Match
     end
     self
   end
-  def self.match_lifespan() -1 end
+  def self.match_lifespan() 10.minutes end
   def self.delete_irrelevant_matches!
     delete_finished_matches!
     delete_matches_older_than!(match_lifespan) if match_lifespan > 0
@@ -158,6 +159,19 @@ class Match
 
   def all_slices_viewed?
     self.last_slice_viewed >= (self.slices.length - 1)
+  end
+  def all_slices_up_to_hand_end_viewed?
+    (self.slices.length - 1).downto(0).each do |slice_index|
+      slice = self.slices[slice_index]
+      if slice.hand_has_ended
+        if self.last_slice_viewed >= slice_index
+          return true
+        else
+          return false
+        end
+      end
+    end
+    return all_slices_viewed?
   end
   def game_def
     @game_def ||= AcpcPokerTypes::GameDefinition.new(self.game_def_hash)

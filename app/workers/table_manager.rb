@@ -123,18 +123,19 @@ module TableManager
   module MatchInterface
     include GracefulErrorHandling
 
-    def delete_irrelevant_matches!
+    def delete_irrelevant_matches?
+      num_matches_before_deleteing = Match.all.length
       log(
         __method__,
         {
-          num_matches_before_deleteing: Match.all.length
+          num_matches_before_deleteing: num_matches_before_deleteing
         }
       )
       Match.delete_irrelevant_matches!
       Match.started_and_unfinished.each do |m|
         if (
           m.updated_at < (Time.new - TableManager::MATCH_LIFESPAN_S) &&
-          m.all_slices_viewed?
+          m.all_slices_up_to_hand_end_viewed?
         )
           m.delete
         end
@@ -145,6 +146,7 @@ module TableManager
           num_matches_after_deleteing: Match.all.length
         }
       )
+      num_matches_before_deleteing - Match.all.length > 0
     end
 
     protected
@@ -289,7 +291,7 @@ module TableManager
       @queue_checking_thread = Thread.new do
         loop do
           sleep QUEUE_CHECK_INTERVAL
-          delete_irrelevant_matches!
+          @match_communicator.update_match_queue! if delete_irrelevant_matches?
           check_queue!
         end
       end
@@ -304,9 +306,11 @@ module TableManager
             match = Match.find match_id
           rescue Mongoid::Errors::DocumentNotFound
           else
-            match.delete if match.all_slices_viewed?
+            match.delete if match.all_slices_up_to_hand_end_viewed?
+            @match_communicator.update_match_queue!
           end
           match_ended!(match_id)
+          @match_communicator.update_match_queue!
         end
       end
       @syncer.synchronize do
@@ -624,7 +628,7 @@ module TableManager
             'application_defs'
           )
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-          delete_irrelevant_matches!
+          delete_irrelevant_matches?
           delete_started_matches_that_are_not_running!
           delete_started_matches_where_the_dealer_has_died_or_not_persisted!
 

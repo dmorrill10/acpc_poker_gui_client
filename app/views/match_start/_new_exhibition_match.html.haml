@@ -80,6 +80,7 @@
         .form-actions
           = f.submit play_button_attributes
 
+
 - if @enque_match
   :javascript
     rt.listenForMatchToStart("#{match_id}", "#{user.name}");
@@ -87,3 +88,10 @@
 - elsif matches.length > 0 && matches_to_rejoin && !matches_to_rejoin.empty?
   :javascript
     $("##{rejoin_button_id}").click();
+- if @enque_match || matches.length > 0
+  :javascript
+    setTimeout(function(){
+        rt.checkForEnquedMatch();
+      },
+      10000
+    );

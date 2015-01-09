@@ -6,9 +6,9 @@ class AjaxCommunicator
     $.ajax({type: type, url: urlArg, data: dataArg, dataType: 'script'})
   @sendPost: (urlArg, dataArg = {})->
     console.log "AjaxCommunicator#sendPost: urlArg: #{urlArg}, dataArg: #{dataArg}"
-    @send('POST', urlArg, dataArg)
+    $.ajax({type: 'POST', url: urlArg, data: dataArg, dataType: 'script'})
   @sendGet: (urlArg)->
     console.log "AjaxCommunicator#sendGet: urlArg: #{urlArg}"
-    @send('GET', urlArg)
+    $.ajax({type: 'GET', url: urlArg, dataType: 'script'})
 
 root.AjaxCommunicator = AjaxCommunicator

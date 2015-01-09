@@ -227,12 +227,12 @@ class ApplicationController < MatchManagerController
     @alert_message = alert_message
     @html_element = html_element || app_html_element
 
-    Rails.logger.fatal({
+    Rails.logger.ap({
       method: __method__,
       replacement_partial: @replacement_partial,
       alert_message: @alert_message,
       html_element: @html_element
-    }.awesome_inspect)
+    })
 
     render_js ApplicationHelper::REPLACE_CONTENTS_JS
   end
@@ -258,5 +258,13 @@ class ApplicationController < MatchManagerController
 
   def reset_to_match_entry_view(alert_message=@alert_message)
     render_js ApplicationHelper::RENDER_MATCH_ENTRY_JS
+  end
+
+  def clear_nonexistant_match
+    if match_id && !Match.id_exists?(match_id)
+      clear_match_information!
+      Rails.logger.ap({method: __method__})
+      raise
+    end
   end
 end

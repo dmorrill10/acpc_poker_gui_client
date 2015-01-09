@@ -54,13 +54,12 @@ class MatchStartController < ApplicationController
         TableManager::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
       )
     rescue # Quiet any errors
+      clear_nonexistant_match
     end
 
     unless user_initialized?
       @alert_message = "Unable to set default hotkeys for #{user.name}, #{self.class.report_error_request_message}"
     end
-
-    clear_match_session! unless match_id && Match.where(id: match_id).exists?
 
     @alert_message = params['alert_message'] if params['alert_message'] && !params['alert_message'].empty?
 
@@ -197,6 +196,7 @@ class MatchStartController < ApplicationController
           action: __method__,
           session: session
         )
+        clear_nonexistant_match
         self.class().start_dealer_and_players_on_server match_id
         return update_match_queue
       end

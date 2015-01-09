@@ -20,12 +20,7 @@ class Match
   end
 
   def self.id_exists?(match_id)
-    begin
-      self.find(match_id)
-      true
-    rescue Mongoid::Errors::DocumentNotFound
-      false
-    end
+    Match.where(id: match_id).exists?
   end
 
   # @todo Fix naming

@@ -6,7 +6,7 @@
 = render partial: hud_partial('index')
 
 - if !next_hand_button_visible?
-  - if ((match.slices.length - 1) - match.last_slice_viewed) > 0
+  - if (match.slices.length - 1) > match_view.slice_index
     :javascript
       if (rt.updateQueue.isEmpty()) {
         rt.updateQueue.push();

@@ -13,7 +13,7 @@ class MatchView < SimpleDelegator
 
   exceptions :unable_to_find_next_slice
 
-  attr_reader :match, :slice_index, :messages_to_display
+  attr_reader :match, :slice_index, :messages_to_display, :given_slice_index
   attr_writer :messages_to_display
 
   def self.chip_contributions_in_previous_rounds(player, round)
@@ -30,9 +30,11 @@ class MatchView < SimpleDelegator
 
     @messages_to_display = []
 
+    @given_slice_index = nil
+
     @slice_index = if slice_index
       s = slice_index.to_i
-      [if s < 0 then 0 else s end, @match.last_slice_viewed].min
+      @given_slice_index = [if s < 0 then 0 else s end, @match.last_slice_viewed].min
     else
       @match.last_slice_viewed
     end - 1
@@ -41,6 +43,8 @@ class MatchView < SimpleDelegator
       next_slice!
     rescue MatchView::UnableToFindNextSlice
     end
+
+    @loaded_previous_messages_ = false
 
     load_previous_messages! if load_previous_messages
   end
@@ -153,7 +157,12 @@ class MatchView < SimpleDelegator
     @messages_to_display = slices[0...index].inject([]) do |messages, s|
       messages += s.messages
     end + @messages_to_display
+    @loaded_previous_messages_ = true
     self
+  end
+
+  def loaded_previous_messages?
+    @loaded_previous_messages_
   end
 
   private

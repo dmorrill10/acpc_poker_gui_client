@@ -9,16 +9,14 @@ var io = require('socket.io')(config.REALTIME_SERVER_PORT);
 
 var Redis = require('redis');
 
-messageSubscriptionClients = {}
+messageSubscriptionClient = Redis.createClient();
+messageSubscriptionClient.subscribe(config.REALTIME_CHANNEL);
 
 return io.on('connection', function(socket){
   console.log("realtime-server: New connection: " + socket.id);
 
-  messageSubscriptionClients[socket.id] = Redis.createClient();
-  messageSubscriptionClients[socket.id].subscribe(config.REALTIME_CHANNEL);
-
   // From background processor
-  messageSubscriptionClients[socket.id].on('message', function(channel, message){
+  messageSubscriptionClient.on('message', function(channel, message){
     console.log("realtime-server: Alerting " + socket.id + ": " + message);
 
     // @todo Catch messages from the dealer
@@ -39,13 +37,5 @@ return io.on('connection', function(socket){
 
     // To spectators
     socket.broadcast.emit(config.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId, {user: data.user, message: data.message});
-  });
-
-  // For logging
-  socket.on('disconnect', function(e){
-    console.log('realtime-server: ' + socket.id + ' disconnected: ' + e.toString());
-
-    messageSubscriptionClients[socket.id].quit();
-    delete messageSubscriptionClients[socket.id];
   });
 });

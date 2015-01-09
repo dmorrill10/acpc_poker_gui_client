@@ -53,7 +53,12 @@ class Realtime
     # Only start the app after a connection has been made
     onConnection = (socket)=>
       console.log "Realtime#constructor: onConnection: windowState: #{@windowState}"
-      @showMatchEntryPage() if @windowState is "opening"
+      @loadPreviousMessages = false
+      if @windowState is "opening" or @windowState is 'waiting'
+        @showMatchEntryPage()
+      else if @windowState is "match"
+        @updateQueue.push() if @updateQueue.isEmpty()
+        @updateState()
 
     serverUrl = "http://#{document.location.hostname}"
     $.getJSON(Routes.realtime_constants_path(), (constants)=>
@@ -87,6 +92,13 @@ class Realtime
     @windowState = "open"
     @listenToMatchQueueUpdates()
     AjaxCommunicator.sendPost Routes.root_path(), {alert_message: alertMessage}
+
+  checkForEnquedMatch: ->
+    console.log "Realtime#checkForEnquedMatch: @windowState: #{@windowState}"
+    if @windowState isnt "match"
+      @loadPreviousMessages = true
+      @matchSliceIndex = null
+      @onMatchHasStarted()
 
   # To Rails server
   #================
@@ -124,6 +136,7 @@ class Realtime
         @loadPreviousMessages = false
       if @matchSliceIndex?
         params['match_slice_index'] = @matchSliceIndex
+        @matchSliceIndex = null
       AjaxCommunicator.sendPost Routes.match_home_path(), params
   reloadPlayerActionView: (reloadMethod)->
     @summaryInfoManager = new SummaryInformationManager
@@ -135,7 +148,10 @@ class Realtime
       @inProcessOfUpdating = true
   finishedUpdating: (matchSliceIndex = null)->
     console.log "Realtime#finishedUpdating: matchSliceIndex: #{matchSliceIndex}, @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    @matchSliceIndex = matchSliceIndex
+    if matchSliceIndex?
+      @matchSliceIndex = parseInt(matchSliceIndex, 10)
+    else
+      @matchSliceIndex = null
     @inProcessOfUpdating = false
     @updateQueue.pop()
     if @summaryInfoManager?
@@ -147,7 +163,8 @@ class Realtime
   reloadNextHand: ->
     params = {}
     if @matchSliceIndex?
-      params.match_slice_index = @matchSliceIndex
+      params['match_slice_index'] = @matchSliceIndex
+      @matchSliceIndex = null
     @reloadPlayerActionView(=> AjaxCommunicator.sendPost(Routes.update_match_path(), params))
 
   listenToMatchQueueUpdates: ()->
@@ -191,7 +208,7 @@ class Realtime
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, userName: #{userName}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
     @matchWindow = MatchWindow.init(matchId)
-    @matchSliceIndex = 0
+    @matchSliceIndex = -1
     @userName = userName
 
     @unsubscribe @matchWindow.playerActionChannel()

@@ -152,6 +152,7 @@ class Realtime
       @matchSliceIndex = parseInt(matchSliceIndex, 10)
     else
       @matchSliceIndex = null
+    @loadPreviousMessages = false
     @inProcessOfUpdating = false
     @updateQueue.pop()
     if @summaryInfoManager?

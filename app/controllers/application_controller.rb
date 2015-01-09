@@ -97,7 +97,7 @@ class MatchManagerController < UserManagerController
   protected
 
   def clear_match_session!
-    session[TableManager::MATCH_ID_KEY] = nil
+    session.delete TableManager::MATCH_ID_KEY
     @enque_match = false
   end
 
@@ -266,5 +266,10 @@ class ApplicationController < MatchManagerController
       Rails.logger.ap({method: __method__})
       raise
     end
+  end
+
+  def clear_nonessential_session
+    clear_match_information!
+    session.delete 'match_slice_index'
   end
 end

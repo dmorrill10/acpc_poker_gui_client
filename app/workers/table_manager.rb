@@ -300,20 +300,21 @@ module TableManager
 
     def check_queue!
       # Clean up data from dead matches
-      @running_matches.each do |match_id, match_processes|
-        unless AcpcDealer::dealer_running?(match_processes)
-          begin
-            match = Match.find match_id
-          rescue Mongoid::Errors::DocumentNotFound
-          else
-            match.delete if match.all_slices_up_to_hand_end_viewed?
+      @syncer.synchronize do
+        @running_matches.each do |match_id, match_processes|
+          unless AcpcDealer::dealer_running?(match_processes)
+            begin
+              match = Match.find match_id
+            rescue Mongoid::Errors::DocumentNotFound
+            else
+              match.delete if match.all_slices_up_to_hand_end_viewed?
+              @match_communicator.update_match_queue!
+            end
+            match_ended!(match_id)
             @match_communicator.update_match_queue!
           end
-          match_ended!(match_id)
-          @match_communicator.update_match_queue!
         end
-      end
-      @syncer.synchronize do
+
         if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
           dequeue_without_synchronization!
         end
@@ -347,6 +348,7 @@ module TableManager
           break
         end
       end
+      return self unless match_id
 
       options = match_info[:options]
 
@@ -662,9 +664,11 @@ module TableManager
         match_id: match_id
       )
 
+      return unless match_id
+
       match_info = @@table_queue.running_matches[match_id]
 
-      if match_info
+      if match_info && match_info[:dealer]
         log(
           __method__,
           pid: match_info[:dealer][:pid],

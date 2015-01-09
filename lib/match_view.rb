@@ -32,17 +32,23 @@ class MatchView < SimpleDelegator
 
     @given_slice_index = nil
 
-    @slice_index = if slice_index
-      s = slice_index.to_i
-      @given_slice_index = [if s < 0 then 0 else s end, @match.last_slice_viewed].min
-    else
-      @match.last_slice_viewed
-    end - 1
+    @slice_index = [
+      0,
+      [
+        (
+          if slice_index
+            @given_slice_index = [slice_index.to_i, @match.last_slice_viewed].min
+          else
+            @match.last_slice_viewed
+          end
+        ),
+        @match.slices.length - 1
+      ].min
+    ].max
 
-    begin
-      next_slice!
-    rescue MatchView::UnableToFindNextSlice
-    end
+    raise "Illegal slice index: #{@slice_index}" unless @slice_index >= 0 && @slice_index <= (@match.slices.length - 1)
+
+    @messages_to_display = slice.messages
 
     @loaded_previous_messages_ = false
 
@@ -55,6 +61,7 @@ class MatchView < SimpleDelegator
   def slice() slices[@slice_index] end
   def next_slice!(max_retries = 0)
     next_slice_without_updating_messages! max_retries
+    raise "Illegal slice index: #{@slice_index}" unless @slice_index >= 0 && @slice_index <= (@match.slices.length - 1)
     @messages_to_display = slice.messages
     self
   end

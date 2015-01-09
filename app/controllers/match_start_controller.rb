@@ -43,6 +43,7 @@ class MatchStartController < ApplicationController
       end
       u.save
       session[ApplicationHelper::USER_NAME_KEY] = u.name
+      return redirect_to root_path
     end
     return reset_to_match_entry_view
   end
@@ -53,8 +54,8 @@ class MatchStartController < ApplicationController
       TableManager::TableManagerWorker.perform_async(
         TableManager::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
       )
+      clear_nonessential_session
     rescue # Quiet any errors
-      clear_nonexistant_match
     end
 
     unless user_initialized?

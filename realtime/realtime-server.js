@@ -16,14 +16,14 @@ return io.on('connection', function(socket){
   console.log("realtime-server: New connection: " + socket.id);
 
   // From background processor
-  messageSubscriptionClient.on('message', function(channel, message){
+  var onRedisMessage = function(channel, message){
     console.log("realtime-server: Alerting " + socket.id + ": " + message);
 
-    // @todo Catch messages from the dealer
     var parsedMessage = JSON.parse(message);
-    var msg = ("message" in parsedMessage) ? parsedMessage.message : parsedMessage.channel
+    var msg = ("message" in parsedMessage) ? parsedMessage.message : parsedMessage.channel;
     socket.emit(parsedMessage.channel, msg);
-  });
+  };
+  messageSubscriptionClient.addListener('message', onRedisMessage);
 
   socket.on(config.NEXT_HAND, function (message) {
     console.log('realtime-server: Alert from ' + socket.id + ': ' + config.SPECTATE_NEXT_HAND_CHANNEL + message.matchId);
@@ -37,5 +37,10 @@ return io.on('connection', function(socket){
 
     // To spectators
     socket.broadcast.emit(config.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId, {user: data.user, message: data.message});
+  });
+  socket.on('disconnect', function(e){
+    console.log('realtime-server: ' + socket.id + ' disconnected: ' + e.toString());
+
+    messageSubscriptionClient.removeListener('message', onRedisMessage);
   });
 });

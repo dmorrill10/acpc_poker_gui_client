@@ -154,7 +154,8 @@ class PlayerActionsController < MatchViewManagerController
             if !spectating? && @match_view.slice_index > @match_view.match.last_slice_viewed
               @match_view.match.last_slice_viewed = @match_view.slice_index
               @match_view.match.save!
-            elsif last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
+            end
+            if last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
               @match_view.messages_to_display = []
             end
             replace_page_contents_with_updated_game_view
@@ -179,14 +180,20 @@ class PlayerActionsController < MatchViewManagerController
         Rails.logger.ap(
           action: __method__,
           last_slice_viewed: last_slice_viewed,
+          slice_index: @match_view.slice_index,
           num_slices: @match_view.slices.length
         )
 
         last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
 
-        if @match_view.slice_index < (@match_view.slices.length - 1)
+        if @match_view.slice_index < (@match_view.slices.length - 1) && @match_view.slice_index <= last_slice_viewed
           update_match_view!
-        elsif last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
+        elsif @match_view.slice_index > @match_view.last_slice_viewed && !spectating?
+          match.last_slice_viewed = match_view.slice_index
+          match.save!
+        end
+
+        if last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
           @match_view.messages_to_display = []
         end
 

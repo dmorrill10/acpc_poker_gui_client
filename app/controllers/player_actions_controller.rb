@@ -137,7 +137,20 @@ end
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
 class PlayerActionsController < MatchViewManagerController
+  before_filter :abort_if_too_many_requests
+
+  def abort_if_too_many_requests
+    if session['num_requests'] && session['num_requests'].to_i > 100
+      Rails.logger.ap method: __method__, too_many_repeat_requests: session['num_requests']
+      session['num_requests'] = 0
+      clear_match_information!
+      return redirect_to root_path
+    end
+  end
+
   def index
+    session['num_requests'] ||= 0
+    session['num_requests'] += 1
     return reset_to_match_entry_view(
       "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
@@ -168,6 +181,8 @@ class PlayerActionsController < MatchViewManagerController
   end
 
   def update_match
+    session['num_requests'] ||= 0
+    session['num_requests'] += 1
     return reset_to_match_entry_view(
       "Sorry, there was a problem continuing match #{match_id}, #{self.class.report_error_request_message}."
     ) if (
@@ -195,6 +210,10 @@ class PlayerActionsController < MatchViewManagerController
 
         if last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
           @match_view.messages_to_display = []
+        end
+
+        if @match_view.slice_index > last_slice_viewed
+          session['num_requests'] = 0
         end
 
         Rails.logger.ap(

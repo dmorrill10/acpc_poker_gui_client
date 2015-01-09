@@ -259,10 +259,8 @@ module TableManager
     end
 
     def match_ended!(match_id)
-      @syncer.synchronize do
-        log __method__, msg: "Deleting background processes with match ID #{match_id}"
-        @running_matches.delete match_id
-      end
+      log __method__, msg: "Deleting background processes with match ID #{match_id}"
+      @running_matches.delete match_id
       self
     end
 
@@ -698,7 +696,9 @@ module TableManager
             )
           end
         end
-        @@table_queue.match_ended!(match_id)
+        @syncer.synchronize do
+          @@table_queue.match_ended!(match_id)
+        end
       else
         @@table_queue.delete_from_queue! match_id
       end
@@ -786,7 +786,9 @@ module TableManager
             action: action,
             msg: "Match is ended"
           }
-          @@table_queue.match_ended!(match.id)
+          @syncer.synchronize do
+            @@table_queue.match_ended!(match.id)
+          end
           check_queue_and_alert_views!
         end
       when KILL_MATCH

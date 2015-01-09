@@ -99,6 +99,7 @@ class MatchManagerController < UserManagerController
   def clear_match_session!
     session.delete TableManager::MATCH_ID_KEY
     @enque_match = false
+    session['num_requests'] = 0
   end
 
   def clear_match_information!

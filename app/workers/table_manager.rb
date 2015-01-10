@@ -702,9 +702,7 @@ module TableManager
             )
           end
         end
-        @syncer.synchronize do
-          @@table_queue.match_ended!(match_id)
-        end
+        @@table_queue.match_ended!(match_id)
       else
         @@table_queue.delete_from_queue! match_id
       end

@@ -1,5 +1,3 @@
-assert = require 'cassert'
-
 Winston = require 'winston'
 
 Path = require('path')
@@ -47,42 +45,42 @@ startRealtimeServer = ->
 startRealtimeServer()
 
 
-debug = ->
-  LoadContext =
-    name: "myplugin"
-    description: "Some description here"
-    setup: (context)->
-      Winston.log 'info', 'LoadContext::setup'
-    preStart: (context)->
-      Winston.log 'info', 'LoadContext::preStart'
-      global.Path = Path
-      global.Util = Util
-      global.TableManager = TableManager
-      global.Redis = Redis
-      global.Realtime = Realtime
-      global.SocketIo = SocketIo
-    postStart: (context)->
-      Winston.log 'info', 'LoadContext::postStart'
+# debug = ->
+#   LoadContext =
+#     name: "myplugin"
+#     description: "Some description here"
+#     setup: (context)->
+#       Winston.log 'info', 'LoadContext::setup'
+#     preStart: (context)->
+#       Winston.log 'info', 'LoadContext::preStart'
+#       global.Path = Path
+#       global.Util = Util
+#       global.TableManager = TableManager
+#       global.Redis = Redis
+#       global.Realtime = Realtime
+#       global.SocketIo = SocketIo
+#     postStart: (context)->
+#       Winston.log 'info', 'LoadContext::postStart'
 
-  class Debugger
-    constructor: ->
-      @nesh = require('nesh')
+#   class Debugger
+#     constructor: ->
+#       @nesh = require('nesh')
 
-      @opts = {
-        welcome: '',
-        prompt: 'debug> ',
-        useColors: true,
-        useGlobal: true
-      }
+#       @opts = {
+#         welcome: '',
+#         prompt: 'debug> ',
+#         useColors: true,
+#         useGlobal: true
+#       }
 
-      # Load user configuration
-      @nesh.config.load()
+#       # Load user configuration
+#       @nesh.config.load()
 
-      # Load CoffeeScript
-      @nesh.loadLanguage('coffee')
+#       # Load CoffeeScript
+#       @nesh.loadLanguage('coffee')
 
-      @nesh.loadPlugin LoadContext, (err) =>
-        # Start the REPL
-        @nesh.start @opts, (err)=>
-          @nesh.log.error(err) if err
-  new Debugger
+#       @nesh.loadPlugin LoadContext, (err) =>
+#         # Start the REPL
+#         @nesh.start @opts, (err)=>
+#           @nesh.log.error(err) if err
+#   new Debugger

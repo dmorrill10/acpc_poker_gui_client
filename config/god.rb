@@ -66,5 +66,5 @@ end
 
 watch('node') do |w|
   w.dir = "#{GOD_RAILS_ROOT}/realtime"
-  w.start = "node ."
+  w.start = "node_modules/coffee-script/bin/coffee realtime-server.coffee"
 end

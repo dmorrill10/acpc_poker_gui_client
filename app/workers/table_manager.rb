@@ -211,7 +211,7 @@ module TableManager
 
     def update_match_queue!
       @message_server.publish(
-        REALTIME_CHANNEL,
+        UPDATE_MATCH_QUEUE_CHANNEL,
         {
           channel: "#{UPDATE_MATCH_QUEUE_CHANNEL}"
         }.to_json
@@ -260,7 +260,13 @@ module TableManager
 
     def match_ended!(match_id)
       log __method__, msg: "Deleting background processes with match ID #{match_id}"
-      @running_matches.delete match_id
+      if @syncer.owned?
+        @running_matches.delete match_id
+      else
+        @syncer.synchronize do
+          @running_matches.delete match_id
+        end
+      end
       self
     end
 
@@ -786,9 +792,7 @@ module TableManager
             action: action,
             msg: "Match is ended"
           }
-          @syncer.synchronize do
-            @@table_queue.match_ended!(match.id)
-          end
+          @@table_queue.match_ended!(match.id)
           check_queue_and_alert_views!
         end
       when KILL_MATCH

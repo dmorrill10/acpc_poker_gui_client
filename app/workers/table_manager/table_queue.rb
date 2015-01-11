@@ -97,7 +97,7 @@ module TableManager
 
       begin
         match = Match.find match_id
-        match.delete! if match.all_slices_up_to_hand_end_viewed?
+        match.delete if match.all_slices_up_to_hand_end_viewed?
       rescue Mongoid::Errors::DocumentNotFound
       end
 

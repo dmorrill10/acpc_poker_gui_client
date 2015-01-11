@@ -3,10 +3,6 @@ require_relative '../../models/match'
 
 require_relative 'graceful_error_handling'
 
-require_relative '../../../lib/simple_logging'
-using SimpleLogging::MessageFormatting
-
-
 module TableManager
   module MatchInterface
     include GracefulErrorHandling

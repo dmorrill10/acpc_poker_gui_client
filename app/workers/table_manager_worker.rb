@@ -17,7 +17,7 @@ module TableManager
     include MatchInterface
     include ParamRetrieval
 
-    MAINTANENCE_INTERVAL = 60 # seconds
+    MAINTENANCE_INTERVAL = 60 # seconds
 
     def initialize(logger_)
       @logger = logger_
@@ -33,9 +33,18 @@ module TableManager
 
     def maintain!
       @thread = Thread.new do
+        @logger = Logger.from_file_name(
+          File.join(
+            ApplicationDefs::LOG_DIRECTORY,
+            'table_manager.maintenance.log'
+          )
+        ).with_metadata!
         loop do
-          sleep MAINTANENCE_INTERVAL
+          log __method__, msg: "Going to sleep"
+          sleep MAINTENANCE_INTERVAL
+          log __method__, msg: "Starting maintenance"
           clean_up_matches!
+          log __method__, msg: "Finished maintenance"
         end
       end
       log(__method__, {started_thread: @thread})
@@ -59,7 +68,6 @@ module TableManager
       @syncer.synchronize do
         if (
           @table_queue.changeInNumberOfRunningMatches? do
-            @agent_interface.delete_irrelevant_matches!
             @table_queue.check_queue!
           end
         )

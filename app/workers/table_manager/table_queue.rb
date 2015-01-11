@@ -88,6 +88,7 @@ module TableManager
     end
 
     def delete_matches!
+      delete_irrelevant_matches!
       delete_irrelevant_running_matches!
       delete_matches_not_in_memory!
     end

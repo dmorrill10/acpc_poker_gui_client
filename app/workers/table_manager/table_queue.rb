@@ -279,7 +279,7 @@ module TableManager
       @agent_interface.start_opponents!(opponents)
 
       @running_matches[match_id][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
-        @match_communicator.match_updated! match
+        @match_communicator.match_updated! match_id
       end
       self
     end

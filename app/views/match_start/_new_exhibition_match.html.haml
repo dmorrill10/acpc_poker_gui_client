@@ -1,15 +1,12 @@
-:javascript
-  Timer.clear();
-
 - matches = matches_including_user
 - if matches.length > 0
   - match_id(matches.first.id)
 
 :javascript
-  var viewMatch = function(matchId) {
+  var viewMatch = function(matchId, lastViewedSliceIndex) {
     rt.listenForMatchToStart(matchId, "#{user.name}");
     rt.loadPreviousMessages = true;
-    rt.matchSliceIndex = null;
+    rt.matchWindow.matchSliceIndex = parseInt(lastViewedSliceIndex, 10);
     return rt.onMatchHasStarted();
   };
 
@@ -49,11 +46,13 @@
                   %input.btn.btn-success{spectate_button}
                   - if user_started_match?(m)
                     :javascript
-                      $("##{spectate_button[:id]}").click(function() { viewMatch("#{m.id.to_s}"); });
+                      $("##{spectate_button[:id]}").click(function() {
+                        viewMatch("#{m.id.to_s}", "#{m.last_slice_viewed}");
+                      });
                   - else
                     :javascript
                       $("##{spectate_button[:id]}").click(function() {
-                        viewMatch("#{m.id.to_s}");
+                        viewMatch("#{m.id.to_s}", "#{m.last_slice_viewed}");
                         rt.spectate();
                       });
           - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
@@ -91,7 +90,7 @@
 - if @enque_match || matches.length > 0
   :javascript
     setTimeout(function(){
-        rt.checkForEnquedMatch();
+        rt.checkForEnquedMatch("#{match_id}", "#{user.name}");
       },
-      2000
+      5000
     );

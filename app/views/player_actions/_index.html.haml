@@ -19,3 +19,19 @@
       if (!rt.updateQueue.isEmpty()) {
         rt.updateState();
       }
+    - if !match_view.users_turn_to_act?
+      :javascript
+        if (rt.updateQueue.isEmpty()) {
+          setTimeout(function(){
+              rt.checkForNextSlice();
+            },
+            10000
+          );
+        }
+- elsif spectating?
+  :javascript
+    setTimeout(function(){
+        rt.checkForNextSlice();
+      },
+      5000
+    );

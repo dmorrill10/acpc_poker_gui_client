@@ -23,22 +23,24 @@ startRealtimeServer = ->
 
   onRedisMessage = (channel, message)->
     Winston.log('info', "onRedisMessage: Message \"#{message}\" on #{channel}. Alerting all sockets")
-    parsedMessage = JSON.parse(message)
-    msg = if ("message" in parsedMessage) then parsedMessage.message else parsedMessage.channel
-    socketIoServer.sockets.emit parsedMessage.channel, msg
+    data = JSON.parse(message)
+    socketIoServer.sockets.in(data.room).emit data.channel
   updateMatchQueueClient.on(Redis.MESSAGE_CHANNEL, onRedisMessage)
   updateFromPlayerActionClient.on(Redis.MESSAGE_CHANNEL, onRedisMessage)
 
   onConnection = (socket)->
     Winston.log 'info', "onConnection: New connection: #{socket.id}"
 
-    socket.on Realtime.NEXT_HAND, (message)->
-      Winston.log('info', 'realtime-server: Alert from ' + socket.id + ': ' + Realtime.SPECTATE_NEXT_HAND_CHANNEL + message.matchId)
-      socket.broadcast.emit Realtime.SPECTATE_NEXT_HAND_CHANNEL + message.matchId
+    socket.on Realtime.NEXT_HAND, (data)->
+      Winston.log('info', 'realtime-server: Alert from ' + socket.id + ': ' + Realtime.SPECTATE_NEXT_HAND_CHANNEL + data.matchId)
+      socket.broadcast.to(data.matchId).emit Realtime.SPECTATE_NEXT_HAND_CHANNEL + data.matchId
     socket.on Realtime.PLAYER_COMMENT, (data)->
       Winston.log 'info', "SocketIo.on::#{Realtime.PLAYER_COMMENT}: Alert from " + socket.id + ': {' + data.matchId + ", " + data.user + ", " + data.message + "}. Emitting on " + Realtime.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId
       # To spectators
-      socket.broadcast.emit Realtime.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId, {user: data.user, message: data.message}
+      socket.broadcast.to(data.matchId).emit Realtime.PLAYER_COMMENT_CHANNEL_PREFIX + data.matchId, {user: data.user, message: data.message}
+    socket.on 'join', (data)-> socket.join(data.room)
+    socket.on 'leave', (data)-> socket.leave(data.room)
+
 
   socketIoServer.on 'connection', onConnection
 

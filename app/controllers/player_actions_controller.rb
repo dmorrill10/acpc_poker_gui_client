@@ -156,7 +156,14 @@ class PlayerActionsController < MatchViewManagerController
     ) if (
       error? do
         update_match_id_if_necessary
-        @match_view = MatchView.new match_id, params['match_slice_index'], params['load_previous_messages']
+        begin
+          @match_view = MatchView.new match_id, params['match_slice_index'], params['load_previous_messages']
+        rescue => e
+          if @match_view.slice_index < 1
+            Match.delete_match! match_id
+          end
+          raise e
+        end
 
         last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
 
@@ -164,14 +171,14 @@ class PlayerActionsController < MatchViewManagerController
 
         return (
           if @match_view.hand_ended?
-            if !spectating? && @match_view.slice_index > @match_view.match.last_slice_viewed
-              @match_view.match.last_slice_viewed = @match_view.slice_index
-              @match_view.match.save!
-            end
             if last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
               @match_view.messages_to_display = []
             end
-            replace_page_contents_with_updated_game_view
+            if spectating? && @match_view.last_slice_viewed > @match_view.slice_index
+              update_match
+            else
+              replace_page_contents_with_updated_game_view
+            end
           else
             update_match
           end
@@ -188,7 +195,14 @@ class PlayerActionsController < MatchViewManagerController
     ) if (
       error? do
         update_match_id_if_necessary
-        @match_view ||= MatchView.new match_id, params['match_slice_index']
+        begin
+          @match_view ||= MatchView.new match_id, params['match_slice_index']
+        rescue => e
+          if @match_view.slice_index < 1
+            Match.delete_match! match_id
+          end
+          raise e
+        end
 
         last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
 

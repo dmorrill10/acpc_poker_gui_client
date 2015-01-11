@@ -1,10 +1,10 @@
 :javascript
   function nextHand() {
-    Timer.clear();
+    rt.matchWindow.timer.clear();
     return rt.nextHand();
   };
   function submitAction(action) {
-    Timer.clear();
+    rt.matchWindow.timer.clear();
     return rt.playAction(action);
   };
   $(".#{PlayerActionsHelper::FOLD_HTML_CLASS}").click(function() {

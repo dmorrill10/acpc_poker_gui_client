@@ -43,11 +43,10 @@ class Realtime
     console.log "Realtime#constructor: @updateQueue: #{@updateQueue}"
 
     @inProcessOfUpdating = false
-    @matchWindow = MatchWindow.close()
+    @matchWindow = null
     @windowState = "opening"
     @summaryInfoManager = null
     @loadPreviousMessages = false
-    @matchSliceIndex = null
     @userName = null
 
     # Only start the app after a connection has been made
@@ -87,21 +86,33 @@ class Realtime
 
   showMatchEntryPage: (alertMessage = null)->
     console.log "Realtime#showMatchEntryPage: alertMessage: #{alertMessage}"
-
     @resetState()
-    @windowState = "open"
-    @listenToMatchQueueUpdates()
     AjaxCommunicator.sendPost Routes.root_path(), {alert_message: alertMessage}
 
-  checkForEnquedMatch: ->
+  checkForEnquedMatch: (matchId, userName)->
     console.log "Realtime#checkForEnquedMatch: @windowState: #{@windowState}"
     if @windowState isnt "match"
       @loadPreviousMessages = true
-      @matchSliceIndex = null
+      @beforeMatch(matchId, userName)
       @onMatchHasStarted()
 
-  # To Rails server
-  #================
+  checkForNextSlice: ->
+    console.log "Realtime#checkForNextSlice: @windowState: #{@windowState}"
+    if @windowState is "match"
+      unless @inProcessOfUpdating
+        if @updateQueue.isEmpty()
+          @enqueueUpdate()
+        else
+          @updateState()
+
+  checkForNextSliceAtEndOfHand: ->
+    console.log "Realtime#checkForNextSliceAtEndOfHand: @windowState: #{@windowState}"
+    if @windowState is "match"
+      unless @inProcessOfUpdating
+        if @updateQueue.isEmpty()
+          @updateQueue.push
+        @reloadNextHand()
+
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
     AjaxCommunicator.sendGet Routes.update_match_queue_path() if @windowState is "open" or @windowState is 'waiting'
@@ -134,9 +145,7 @@ class Realtime
       if @loadPreviousMessages
         params['load_previous_messages'] = @loadPreviousMessages
         @loadPreviousMessages = false
-      if @matchSliceIndex?
-        params['match_slice_index'] = @matchSliceIndex
-        @matchSliceIndex = null
+      params['match_slice_index'] = @matchWindow.matchSliceIndex
       AjaxCommunicator.sendPost Routes.match_home_path(), params
   reloadPlayerActionView: (reloadMethod)->
     @summaryInfoManager = new SummaryInformationManager
@@ -144,34 +153,45 @@ class Realtime
   updateState: ->
     console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
     unless @inProcessOfUpdating
-      @reloadPlayerActionView(=> @forceUpdateState())
       @inProcessOfUpdating = true
-  finishedUpdating: (matchSliceIndex = null)->
-    console.log "Realtime#finishedUpdating: matchSliceIndex: #{matchSliceIndex}, @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    if matchSliceIndex?
-      @matchSliceIndex = parseInt(matchSliceIndex, 10)
+      @matchWindow.timer.pause() if @matchWindow?
+      @reloadPlayerActionView(=> @forceUpdateState())
+  startTimer: ->
+    console.log "Realtime#startTimer: @matchWindow?: #{@matchWindow?}"
+    if @matchWindow?
+      onTimeout = =>
+        if @matchWindow.isSpectating
+          alert('The match has timed out.')
+        else
+          @leaveMatch('The match has timed out.')
+      @matchWindow.timer.startForPlayer onTimeout
+  finishedUpdating: (matchSliceIndex)->
+    console.log "Realtime#finishedUpdating: matchSliceIndex: #{matchSliceIndex}, @matchWindow.matchSliceIndex: #{@matchWindow.matchSliceIndex}, @inProcessOfUpdating: #{@inProcessOfUpdating}"
+    nextSliceIndex = parseInt(matchSliceIndex, 10)
+    if nextSliceIndex > @matchWindow.matchSliceIndex or not @matchWindow.timer.isCounting()
+      @startTimer()
     else
-      @matchSliceIndex = null
+      @matchWindow.timer.resume()
     @loadPreviousMessages = false
     @inProcessOfUpdating = false
     @updateQueue.pop()
     if @summaryInfoManager?
       @summaryInfoManager.update()
+    @matchWindow.matchSliceIndex = nextSliceIndex
   enqueueUpdate: ->
     console.log "Realtime#enqueueUpdate"
     @updateQueue.push()
     @updateState()
   reloadNextHand: ->
-    params = {}
-    if @matchSliceIndex?
-      params['match_slice_index'] = @matchSliceIndex
-      @matchSliceIndex = null
-    @reloadPlayerActionView(=> AjaxCommunicator.sendPost(Routes.update_match_path(), params))
+    if @matchWindow?
+      params = { match_slice_index: @matchWindow.matchSliceIndex }
+      @reloadPlayerActionView(=> AjaxCommunicator.sendPost(Routes.update_match_path(), params))
 
   listenToMatchQueueUpdates: ()->
     console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
     unless @alreadySubscribed(TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL)
       @socket.on TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL, (msg)=> @updateMatchQueue(msg)
+      @socket.emit 'join', { room: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL }
 
   onPlayerAction: (message='')->
     console.log "Realtime#onPlayerAction: message: #{message}"
@@ -186,8 +206,8 @@ class Realtime
     return if @windowState is "match"
 
     @unsubscribe TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL
+    @socket.emit 'leave', { room: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL }
 
-    # @todo @matchWindow must be defined
     @unsubscribe @matchWindow.playerActionChannel()
 
     window.onunload = (event)=> @leaveMatch()
@@ -203,18 +223,24 @@ class Realtime
         @emitChatMessage user, msg
     )
 
+    @startTimer() if @matchWindow.isSpectating
+
     @enqueueUpdate()
+
+  beforeMatch: (matchId, userName)->
+    @matchWindow.close() if @matchWindow?
+    @matchWindow = new MatchWindow(matchId)
+    @userName = userName
+    @windowState = "waiting"
 
   listenForMatchToStart: (matchId, userName)->
     console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, userName: #{userName}, @windowState: #{@windowState}"
     return if @windowState is "waiting"
-    @matchWindow = MatchWindow.init(matchId)
-    @matchSliceIndex = -1
-    @userName = userName
 
+    @beforeMatch matchId, userName
     @unsubscribe @matchWindow.playerActionChannel()
     @socket.on @matchWindow.playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
-    @windowState = "waiting"
+    @socket.emit 'join', { room: matchId }
 
   leaveMatch: (alertMessage = null)->
     if @windowState is "match"
@@ -225,13 +251,14 @@ class Realtime
     if @matchWindow?
       @unsubscribe @matchWindow.playerActionChannel()
       @unsubscribe @matchWindow.playerCommentChannel()
-    @stopSpectating()
-    @matchWindow = MatchWindow.close()
+      @socket.emit 'leave', { room: @matchWindow.matchId }
+      @stopSpectating()
+      @matchWindow = @matchWindow.close()
     Chat.close()
-    @matchSliceIndex = null
     @inProcessOfUpdating = false
     @userName = null
     @listenToMatchQueueUpdates()
+    @windowState = 'open'
 
   stopSpectating: ->
     console.log "Realtime#stopSpectating"
@@ -242,6 +269,7 @@ class Realtime
     console.log "Realtime#spectate"
     if @matchWindow?
       console.log "Realtime#spectate: channel: #{@matchWindow.spectateNextHandChannel()}"
+      @matchWindow.isSpectating = true
       @socket.on @matchWindow.spectateNextHandChannel(), (msg)=> @reloadNextHand()
 
 root.Realtime = Realtime

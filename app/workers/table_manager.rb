@@ -203,6 +203,7 @@ module TableManager
       @message_server.publish(
         REALTIME_CHANNEL,
         {
+          room: match.id.to_s,
           channel: "#{PLAYER_ACTION_CHANNEL_PREFIX}#{match.id.to_s}"
         }.to_json
       )
@@ -213,7 +214,8 @@ module TableManager
       @message_server.publish(
         UPDATE_MATCH_QUEUE_CHANNEL,
         {
-          channel: "#{UPDATE_MATCH_QUEUE_CHANNEL}"
+          room: UPDATE_MATCH_QUEUE_CHANNEL,
+          channel: UPDATE_MATCH_QUEUE_CHANNEL
         }.to_json
       )
       self

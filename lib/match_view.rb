@@ -62,7 +62,11 @@ class MatchView < SimpleDelegator
   def next_slice!(max_retries = 0)
     next_slice_without_updating_messages! max_retries
     raise "Illegal slice index: #{@slice_index}" unless @slice_index >= 0 && @slice_index <= (@match.slices.length - 1)
-    @messages_to_display = slice.messages
+    if loaded_previous_messages?
+      @messages_to_display += slice.messages
+    else
+      @messages_to_display = slice.messages
+    end
     self
   end
   # zero indexed

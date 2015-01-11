@@ -16,24 +16,6 @@
     .timeout
       .panel-heading
         %h1.time-remaining= PlayerActionsHelper::ACTION_TIMEOUT
-    :javascript
-      Timer.clear();
-      function afterEachSecond() {
-        timeRemaining = parseInt($('.time-remaining').text());
-        if (timeRemaining <= 0) {
-          if ("#{spectating?}" === "true") {
-            alert('The match has timed out.');
-          }
-          else {
-            rt.leaveMatch('The match has timed out.');
-          }
-        }
-        else {
-          $('.time-remaining').text(timeRemaining - 1);
-          Timer.start(afterEachSecond);
-        }
-      };
-      Timer.start(afterEachSecond);
 .row
   %ul.summary_information#summary_information.list-group
     - if match_view.messages_to_display

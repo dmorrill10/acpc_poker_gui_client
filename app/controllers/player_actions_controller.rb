@@ -1,5 +1,3 @@
-# Local modules
-require 'application_defs'
 require 'application_helper'
 require 'acpc_poker_types/seat'
 require 'match'
@@ -156,21 +154,16 @@ class PlayerActionsController < MatchViewManagerController
     ) if (
       error? do
         update_match_id_if_necessary
-        begin
-          @match_view = MatchView.new match_id, params['match_slice_index'], params['load_previous_messages']
-        rescue => e
-          if @match_view.slice_index < 1
-            Match.delete_match! match_id
-          end
-          raise e
-        end
+        @match_view = MatchView.new match_id, params['match_slice_index'], params['load_previous_messages']
 
         last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
 
         Rails.logger.ap action: __method__, hand_ended: @match_view.hand_ended?, last_slice_viewed: last_slice_viewed
 
         return (
-          if @match_view.hand_ended?
+          if @match_view.match_ended?
+            render nothing: true
+          elsif @match_view.hand_ended?
             if last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
               @match_view.messages_to_display = []
             end
@@ -195,14 +188,7 @@ class PlayerActionsController < MatchViewManagerController
     ) if (
       error? do
         update_match_id_if_necessary
-        begin
-          @match_view ||= MatchView.new match_id, params['match_slice_index']
-        rescue => e
-          if @match_view.slice_index < 1
-            Match.delete_match! match_id
-          end
-          raise e
-        end
+        @match_view ||= MatchView.new match_id, params['match_slice_index']
 
         last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
 
@@ -247,7 +233,7 @@ class PlayerActionsController < MatchViewManagerController
     ) if (
       error? do
         update_match_id_if_necessary
-        TableManager::TableManagerWorker.perform_async(
+        TableManager::Worker.perform_async(
           TableManager::PLAY_ACTION_REQUEST_CODE,
           {
             TableManager::MATCH_ID_KEY => match_id,
@@ -316,7 +302,7 @@ class PlayerActionsController < MatchViewManagerController
       Match.delete_match! match_id
       Rails.logger.ap(action: __method__, message: "Deleted match #{match_id}")
 
-      TableManager::TableManagerWorker.perform_async(
+      TableManager::Worker.perform_async(
         TableManager::KILL_MATCH,
         {TableManager::MATCH_ID_KEY => match_id}
       )

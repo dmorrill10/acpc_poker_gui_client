@@ -5,33 +5,34 @@
 = render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
 = render partial: hud_partial('index')
 
-- if !next_hand_button_visible?
-  - if (match.slices.length - 1) > match_view.slice_index
-    :javascript
-      if (rt.updateQueue.isEmpty()) {
-        rt.updateQueue.push();
-      }
-      rt.updateState();
-  - else
-    :javascript
-      // There may be an update from the backend since the previous
-      // request read from the database, check if another update is necessary.
-      if (!rt.updateQueue.isEmpty()) {
-        rt.updateState();
-      }
-    - if !match_view.users_turn_to_act?
+- unless match_view.match_ended?
+  - if !next_hand_button_visible?
+    - if (match.slices.length - 1) > match_view.slice_index
       :javascript
         if (rt.updateQueue.isEmpty()) {
-          setTimeout(function(){
-              rt.checkForNextSlice();
-            },
-            10000
-          );
+          rt.updateQueue.push();
         }
-- elsif spectating?
-  :javascript
-    setTimeout(function(){
-        rt.checkForNextSlice();
-      },
-      5000
-    );
+        rt.updateState();
+    - else
+      :javascript
+        // There may be an update from the backend since the previous
+        // request read from the database, check if another update is necessary.
+        if (!rt.updateQueue.isEmpty()) {
+          rt.updateState();
+        }
+      - if !match_view.users_turn_to_act?
+        :javascript
+          if (rt.updateQueue.isEmpty()) {
+            setTimeout(function(){
+                rt.checkForNextSlice();
+              },
+              10000
+            );
+          }
+  - elsif spectating?
+    :javascript
+      setTimeout(function(){
+          rt.checkForNextSlice();
+        },
+        5000
+      );

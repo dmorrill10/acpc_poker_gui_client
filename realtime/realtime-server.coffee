@@ -3,7 +3,7 @@ Winston = require 'winston'
 Path = require('path')
 Path.APP_Dir = Path.dirname(require.main.filename)
 
-TableManager = require(Path.APP_Dir + '/../app/workers/table_manager')
+TableManager = require(Path.APP_Dir + '/../app/workers/table_manager/table_manager.json')
 
 Redis = require('redis')
 Redis.MESSAGE_CHANNEL = 'message'

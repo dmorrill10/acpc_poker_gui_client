@@ -1,6 +1,3 @@
-require_relative '../../lib/application_defs'
-require_relative '../workers/table_manager'
-
 class ErrorManagerController < ActionController::Base
   protect_from_forgery
   before_filter :log_session

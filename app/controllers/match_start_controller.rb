@@ -1,14 +1,5 @@
-
-# System
-require 'socket'
-
-# Local modules
-require 'application_defs'
 require 'application_helper'
-
-# Local classes
 require 'match'
-require_relative '../workers/table_manager'
 
 # Controller for the 'start a new game' view.
 class MatchStartController < ApplicationController
@@ -51,7 +42,7 @@ class MatchStartController < ApplicationController
   # Presents the main 'start a new game' view.
   def index
     begin
-      TableManager::TableManagerWorker.perform_async(
+      TableManager::Worker.perform_async(
         TableManager::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
       )
       clear_nonessential_session
@@ -171,7 +162,7 @@ class MatchStartController < ApplicationController
       'Sorry, unable to start the dealer and players, please try again or join a match already in progress.'
     ) if (
       error? do
-        TableManager::TableManagerWorker.perform_async(
+        TableManager::Worker.perform_async(
           TableManager::START_PROXY_REQUEST_CODE,
           TableManager::MATCH_ID_KEY => match_id
         )
@@ -239,7 +230,7 @@ class MatchStartController < ApplicationController
       action: __method__,
       match_id: match_id_
     )
-    TableManager::TableManagerWorker.perform_async(
+    TableManager::Worker.perform_async(
       TableManager::START_MATCH_REQUEST_CODE,
       {
         TableManager::MATCH_ID_KEY => match_id_,

@@ -9,6 +9,20 @@ class MatchStartController < ApplicationController
 
   def sign_in
     if params[:user_name] && !params[:user_name].empty?
+      # @todo Check over all bots as well
+      if ApplicationHelper::EXHIBITION_BOT_NAME == params[:user_name]
+        @alert_message = "Sorry, \"#{ApplicationHelper::EXHIBITION_BOT_NAME}\" is a reserved name. Please choose another user name."
+        begin
+          User.find_by(name: ApplicationHelper::EXHIBITION_BOT_NAME).delete
+        rescue Mongoid::Errors::DocumentNotFound
+        end
+        return respond_to do |format|
+          format.js do
+            render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
+          end
+        end
+      end
+
       u = user(params[:user_name])
 
       is_authentic = u.authentic?(params[:password])
@@ -44,6 +58,16 @@ class MatchStartController < ApplicationController
     begin
       clear_nonessential_session
     rescue # Quiet any errors
+    end
+
+    # @todo Check over all bots as well
+    if ApplicationHelper::EXHIBITION_BOT_NAME == user_name
+      @alert_message = "Sorry, \"#{ApplicationHelper::EXHIBITION_BOT_NAME}\" is a reserved name. Please choose another user name."
+      session[ApplicationHelper::USER_NAME_KEY] = User::DEFAULT_NAME
+      begin
+        User.find_by(name: ApplicationHelper::EXHIBITION_BOT_NAME).delete
+      rescue Mongoid::Errors::DocumentNotFound
+      end
     end
 
     unless user_initialized?

@@ -229,8 +229,10 @@ class Match
     end
   end
   def every_bot(dealer_host)
-    raise unless port_numbers.length == player_names.length ||
+    raise unless (
+      port_numbers.length == player_names.length ||
       bot_opponent_ports.length == ApplicationDefs.bots(game_definition_key, opponent_names).length
+    )
 
     bot_opponent_ports.zip(
       ApplicationDefs.bots(game_definition_key, opponent_names)

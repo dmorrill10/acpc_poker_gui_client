@@ -66,6 +66,11 @@ module TableManager
       match.port_numbers = dealer_info[:port_numbers]
       save_match_instance! match
 
+      log __method__, {
+        match_id: match.id,
+        saved_port_numbers: match.port_numbers
+      }
+
       dealer_info
     end
 

@@ -92,7 +92,7 @@ class Realtime
     @setTimeout(onTimeout, period)
 
   beforeMatchHeartbeat: (period, match_id, user_name)->
-    onTimeout = => @checkForEnquedMatch()
+    onTimeout = => @checkForEnquedMatch(match_id, user_name)
     @setTimeout(onTimeout, period)
 
   alreadySubscribed: (e)->

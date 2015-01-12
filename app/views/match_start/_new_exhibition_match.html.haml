@@ -89,8 +89,4 @@
     $("##{rejoin_button_id}").click();
 - if @enque_match || matches.length > 0
   :javascript
-    setTimeout(function(){
-        rt.checkForEnquedMatch("#{match_id}", "#{user.name}");
-      },
-      5000
-    );
+    rt.beforeMatchHeartbeat(5000, "#{match_id}", "#{user.name}");

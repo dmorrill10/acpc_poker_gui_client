@@ -48,6 +48,7 @@ class Realtime
     @summaryInfoManager = null
     @loadPreviousMessages = false
     @userName = null
+    @timeoutId = null
 
     # Only start the app after a connection has been made
     onConnection = (socket)=>
@@ -76,6 +77,23 @@ class Realtime
     ).fail(=> # Fallback to default
       console.log 'Realtime#constructor: $.getJSON(Routes.table_manager_constants_path()): failure'
     )
+
+  clearTimeout: ->
+    if @timeoutId?
+      clearTimeout @timeoutId
+      @timeoutId = null
+
+  setTimeout: (fn, period)->
+    @clearTimeout()
+    @timeoutId = setTimeout(fn, period)
+
+  inMatchHeartbeat: (period)->
+    onTimeout = => @checkForNextSlice()
+    @setTimeout(onTimeout, period)
+
+  beforeMatchHeartbeat: (period, match_id, user_name)->
+    onTimeout = => @checkForEnquedMatch()
+    @setTimeout(onTimeout, period)
 
   alreadySubscribed: (e)->
     @socket._callbacks[e]? and @socket._callbacks[e].length > 0 and @socket._callbacks[e][0]?
@@ -167,6 +185,7 @@ class Realtime
       @matchWindow.timer.startForPlayer onTimeout
   finishedUpdating: (matchSliceIndex)->
     console.log "Realtime#finishedUpdating: matchSliceIndex: #{matchSliceIndex}, @matchWindow.matchSliceIndex: #{@matchWindow.matchSliceIndex}, @inProcessOfUpdating: #{@inProcessOfUpdating}"
+    @clearTimeout()
     nextSliceIndex = parseInt(matchSliceIndex, 10)
     if nextSliceIndex > @matchWindow.matchSliceIndex or not @matchWindow.timer.isCounting()
       @startTimer()
@@ -254,6 +273,7 @@ class Realtime
       @socket.emit 'leave', { room: @matchWindow.matchId }
       @stopSpectating()
       @matchWindow = @matchWindow.close()
+    @clearTimeout()
     Chat.close()
     @inProcessOfUpdating = false
     @userName = null

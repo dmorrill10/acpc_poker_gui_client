@@ -43,9 +43,12 @@ module SimpleLogging
   def logger(stream = STDOUT)
     @logger ||= Logger.new(stream)
   end
-  def log(method, variables = nil, msg_type = Logger::Severity::INFO)
+  def log_with(logger_, method, variables = nil, msg_type = Logger::Severity::INFO)
     msg = "#{self.class}: #{method}"
     msg << ": #{variables.awesome_inspect}" if variables
-    logger.log(msg_type, msg)
+    logger_.log(msg_type, msg)
+  end
+  def log(method, variables = nil, msg_type = Logger::Severity::INFO)
+    log_with(logger, method, variables, msg_type)
   end
 end

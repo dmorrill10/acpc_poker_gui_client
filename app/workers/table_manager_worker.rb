@@ -33,23 +33,23 @@ module TableManager
 
     def maintain!
       @thread = Thread.new do
-        @logger = Logger.from_file_name(
+        maintenance_logger = Logger.from_file_name(
           File.join(
             ApplicationDefs::LOG_DIRECTORY,
             'table_manager.maintenance.log'
           )
         ).with_metadata!
         loop do
-          log __method__, msg: "Going to sleep"
+          log_with maintenance_logger, __method__, msg: "Going to sleep"
           sleep MAINTENANCE_INTERVAL
-          log __method__, msg: "Starting maintenance"
+          log_with maintenance_logger, __method__, msg: "Starting maintenance"
           begin
             clean_up_matches!
           rescue => e
             handle_exception nil, e
             Rusen.notify e # Send an email notification
           end
-          log __method__, msg: "Finished maintenance"
+          log_with maintenance_logger, __method__, msg: "Finished maintenance"
         end
       end
       log(__method__, {started_thread: @thread})

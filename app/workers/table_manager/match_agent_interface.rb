@@ -70,6 +70,8 @@ module TableManager
     end
 
     def start_opponents!(bot_start_commands)
+      log __method__
+
       bot_start_commands.each do |bot_start_command|
         start_opponent! bot_start_command
       end
@@ -78,14 +80,20 @@ module TableManager
     end
 
     def start_opponent!(bot_start_command)
+      log(
+        __method__,
+        {
+          bot_start_command_parameters: bot_start_command,
+          command_to_be_run: bot_start_command.join(' ')
+        }
+      )
       pid = Timeout::timeout(1) do
         ProcessRunner.go(bot_start_command)
       end
       log(
         __method__,
         {
-          bot_start_command_parameters: bot_start_command,
-          command_to_be_run: bot_start_command.join(' '),
+          bot_started?: true,
           pid: pid
         }
       )

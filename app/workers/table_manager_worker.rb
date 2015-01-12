@@ -112,15 +112,17 @@ module TableManager
       }
       @syncer.synchronize do
         unless @table_queue.running_matches[match_id]
+          @table_queue.kill_match!(match.id)
           raise StandardError.new(
-            "Request to play in match #{match_id} when it doesn't exist!"
+            "Request to play in match #{match_id} when it doesn't exist! Killed match."
           )
         end
         match = match_instance(match_id)
         proxy = @table_queue.running_matches[match_id][:proxy]
         unless proxy
+          @table_queue.kill_match!(match.id)
           raise StandardError.new(
-            "Ignoring request to play in match #{match_id} in seat #{match.seat} when no such proxy exists."
+            "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match."
           )
         end
 

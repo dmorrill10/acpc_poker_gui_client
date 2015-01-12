@@ -49,16 +49,18 @@ module AcpcDealer
 
   # Thanks to joast and Chris Rice
   # (http://stackoverflow.com/questions/517219/ruby-see-if-a-port-is-open)
-  # for this
-  def self.port_open?(port, ip = 'localhost')
+  # for this (modified)
+  def self.port_available?(port, ip = 'localhost')
     begin
       Timeout::timeout(1) do
         begin
           s = TCPSocket.new(ip, port)
           s.close
-          return true
-        rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
           return false
+        rescue Errno::EHOSTUNREACH
+          return false
+        rescue Errno::ECONNREFUSED
+          return true
         end
       end
     rescue Timeout::Error

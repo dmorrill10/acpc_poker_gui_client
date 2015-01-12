@@ -275,7 +275,7 @@ module TableManager
       ports_to_be_used = special_port_requirements.map do |r|
         if r
           port = available_ports_.pop
-          while !AcpcDealer::port_open?(port)
+          while !AcpcDealer::port_available?(port)
             if available_ports_.empty?
               raise StandardError.new("None of the special ports (#{available_special_ports}) are open")
             end

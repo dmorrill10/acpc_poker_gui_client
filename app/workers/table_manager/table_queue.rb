@@ -304,9 +304,17 @@ module TableManager
         ports_to_be_used
       )
 
+      begin
+        match = Match.find match_id
+      rescue Mongoid::Errors::DocumentNotFound => e
+        kill_match! match_id
+        raise e
+      end
+
       log(
         __method__,
-        msg: "Dealer started for #{match_id} with pid #{@running_matches[match_id][:dealer][:pid]}"
+        msg: "Dealer started for #{match_id} with pid #{@running_matches[match_id][:dealer][:pid]}",
+        ports: match.port_numbers
       )
 
       opponents = []

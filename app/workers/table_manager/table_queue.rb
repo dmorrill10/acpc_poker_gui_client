@@ -314,6 +314,11 @@ module TableManager
         opponents << bot_command
       end
 
+      if opponents.empty?
+        kill_match! match_id
+        raise StandardError.new("No opponents found to start for #{match_id}! Killed match.")
+      end
+
       @agent_interface.start_opponents!(opponents)
 
       log(__method__, msg: "Opponents started for #{match_id}")

@@ -70,7 +70,7 @@ module TableManager
     end
 
     def start_opponents!(bot_start_commands)
-      log __method__
+      log __method__, num_opponents: bot_start_commands.length
 
       bot_start_commands.each do |bot_start_command|
         start_opponent! bot_start_command

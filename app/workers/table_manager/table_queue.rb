@@ -29,10 +29,15 @@ module TableManager
 
     attr_reader :running_matches
 
-    def initialize(match_communicator_, agent_interface_, logger_)
+    def initialize(match_communicator_, agent_interface_)
       @match_communicator = match_communicator_
       @agent_interface = agent_interface_
-      @logger = logger_
+      @logger = Logger.from_file_name(
+        File.join(
+          ApplicationDefs::LOG_DIRECTORY,
+          'table_manager.queue.log'
+        )
+      ).with_metadata!
       @matches_to_start = []
       @running_matches = {}
     end
@@ -79,7 +84,11 @@ module TableManager
     end
 
     def check_queue!
+      log __method__
+
       kill_matches!
+
+      log __method__, {num_running_matches: @running_matches.length, num_matches_to_start: @matches_to_start.length}
 
       if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
         dequeue!
@@ -117,19 +126,28 @@ module TableManager
         )
 
         if AcpcDealer::dealer_running? match_info
-          log(
-            __method__,
-            pid: match_info[:dealer][:pid],
-            process_exists: true,
-            msg: 'Match is running, attempting to kill'
-          )
-
           match_info[:dealer][:pid].kill_process
 
           sleep 1 # Give the dealer a chance to exit
+
+          log(
+            __method__,
+            pid: match_info[:dealer][:pid],
+            msg: 'After TERM signal',
+            dealer_still_running?: AcpcDealer::dealer_running?(match_info)
+          )
+
           if AcpcDealer::dealer_running?(match_info)
             match_info[:dealer][:pid].force_kill_process
             sleep 1
+
+            log(
+              __method__,
+              pid: match_info[:dealer][:pid],
+              msg: 'After KILL signal',
+              dealer_still_running?: AcpcDealer::dealer_running?(match_info)
+            )
+
             if AcpcDealer::dealer_running?(match_info)
               raise(
                 StandardError.new(
@@ -139,6 +157,7 @@ module TableManager
               )
             end
           end
+          log __method__, match_id: match_id, msg: 'Match successfully killed'
         end
       end
     end
@@ -215,6 +234,10 @@ module TableManager
     end
 
     def dequeue!
+      log(
+        __method__,
+        num_matches_to_start: @matches_to_start.length
+      )
       return self if @matches_to_start.empty?
 
       match_info = nil

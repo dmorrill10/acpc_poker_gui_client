@@ -21,10 +21,10 @@ module TableManager
 
     def initialize(logger_)
       @logger = logger_
-      @agent_interface = MatchAgentInterface.new(@logger)
+      @agent_interface = MatchAgentInterface.new
       @match_communicator = MatchCommunicator.new
 
-      @table_queue = TableQueue.new(@match_communicator, @agent_interface, @logger)
+      @table_queue = TableQueue.new(@match_communicator, @agent_interface)
 
       @syncer = Mutex.new
 
@@ -43,7 +43,12 @@ module TableManager
           log __method__, msg: "Going to sleep"
           sleep MAINTENANCE_INTERVAL
           log __method__, msg: "Starting maintenance"
-          clean_up_matches!
+          begin
+            clean_up_matches!
+          rescue => e
+            handle_exception nil, e
+            Rusen.notify e # Send an email notification
+          end
           log __method__, msg: "Finished maintenance"
         end
       end
@@ -100,6 +105,11 @@ module TableManager
     end
 
     def play_action!(match_id, action)
+      log __method__, {
+        match_id: match_id,
+        action: action,
+        running?: !@table_queue.running_matches[match_id].nil?
+      }
       @syncer.synchronize do
         unless @table_queue.running_matches[match_id]
           raise StandardError.new(
@@ -114,12 +124,6 @@ module TableManager
           )
         end
 
-        log __method__, {
-          match_id: match_id,
-          num_tables: @table_queue.running_matches.length,
-          action: action
-        }
-
         @agent_interface.play!(action, match, proxy) do |players_at_the_table|
           @match_communicator.match_updated! match_id
           if players_at_the_table.match_state.first_state_of_first_round?
@@ -127,18 +131,7 @@ module TableManager
           end
         end
 
-        log __method__, {
-          match_id: match_id,
-          action: action,
-          msg: "Finished taking action"
-        }
-
         if proxy.match_ended?
-          log __method__, {
-            match_id: match_id,
-            action: action,
-            msg: "Match is ended"
-          }
           @table_queue.kill_match!(match.id)
           @table_queue.check_queue!
           @match_communicator.update_match_queue!
@@ -183,6 +176,7 @@ module TableManager
 
     # Called by Rails controller through Sidekiq
     def perform(request, params=nil)
+      match_id = nil
       begin
         log(__method__, {request: request, params: params})
 

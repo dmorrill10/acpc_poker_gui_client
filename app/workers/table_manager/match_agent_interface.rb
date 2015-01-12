@@ -21,8 +21,13 @@ module TableManager
     include SimpleLogging
     include MatchInterface
 
-    def initialize(logger_)
-      @logger = logger_
+    def initialize
+      @logger = Logger.from_file_name(
+        File.join(
+          ApplicationDefs::LOG_DIRECTORY,
+          'table_manager.mai.log'
+        )
+      ).with_metadata!
     end
 
     # @return [Hash<Symbol, Object>] The dealer information

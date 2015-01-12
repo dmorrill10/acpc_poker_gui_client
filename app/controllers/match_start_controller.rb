@@ -42,9 +42,6 @@ class MatchStartController < ApplicationController
   # Presents the main 'start a new game' view.
   def index
     begin
-      TableManager::Worker.perform_async(
-        TableManager::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-      )
       clear_nonessential_session
     rescue # Quiet any errors
     end

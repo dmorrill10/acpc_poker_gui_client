@@ -14,6 +14,9 @@ require_relative 'match_interface'
 require_relative '../../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
+# In case the dealer or another process fails
+# to start properly
+require 'timeout'
 
 module TableManager
   class MatchAgentInterface
@@ -51,11 +54,13 @@ module TableManager
       }
 
       # Start the dealer
-      dealer_info = AcpcDealer::DealerRunner.start(
-        dealer_arguments,
-        MATCH_LOG_DIRECTORY,
-        port_numbers
-      )
+      dealer_info = Timeout::timeout(1) do
+        AcpcDealer::DealerRunner.start(
+          dealer_arguments,
+          MATCH_LOG_DIRECTORY,
+          port_numbers
+        )
+      end
 
       # Store the port numbers in the database so the web app can access them
       match.port_numbers = dealer_info[:port_numbers]
@@ -73,7 +78,9 @@ module TableManager
     end
 
     def start_opponent!(bot_start_command)
-      pid = ProcessRunner.go(bot_start_command)
+      pid = Timeout::timeout(1) do
+        ProcessRunner.go(bot_start_command)
+      end
       log(
         __method__,
         {

@@ -1,14 +1,5 @@
 root = exports ? this
 
-class TableManager
-  @constants:
-    {
-      PLAYER_ACTION_CHANNEL_PREFIX: "player-action-in-",
-      UPDATE_MATCH_QUEUE_CHANNEL: 'update_queue_count'
-    }
-
-root.TableManager = TableManager
-
 class SummaryInformationManager
   constructor: ()->
     @savedSummaryInfo = $('.summary_information').html()
@@ -18,16 +9,60 @@ class SummaryInformationManager
     summaryInfo = document.getElementById('summary_information')
     summaryInfo.scrollTop = summaryInfo.scrollHeight
 
+class SubWindow
+  constructor: (poller)->
+    @poller = poller
+    @poller.start()
+  close: ->
+    @poller.stop()
+    null
+
+class PollingWindow
+  constructor: (pollingSubWindow)->
+    @subWindow = pollingSubWindow
+  replace: (newPollingSubWindow)->
+    @subWindow.close()
+    @subWindow = newPollingSubWindow
+
+class MatchStartWindow extends PollingWindow
+  class MatchQueueUpdateWindow extends SubWindow
+    class MatchQueueUpdatePoller extends Poller
+      constructor: ->
+        pollTo = =>
+          AjaxCommunicator.get Routes.update_match_queue_path()
+        @poller = new Poller(pollTo, 2000)
+    constructor: -> super(new MatchQueueUpdatePoller)
+
+  class WaitingForMatchWindow extends SubWindow
+    class WaitingForMatchPoller extends Poller
+      constructor: (matchId, sliceIndex)->
+        pollTo = =>
+          AjaxCommunicator.post Routes.match_home_path(), {match_id: matchId, slice_index: sliceIndex}
+        @poller = new Poller(pollTo, 2000)
+    constructor: -> super(new WaitingForMatchPoller)
+
+  constructor: (matchId, sliceIndex)->
+    console.log 'MatchStartWindow#constructor'
+    @userName = null
+    super(new MatchQueueUpdateWindow(matchId, sliceIndex))
+
+  waitForMatchToStart: (matchId, sliceIndex)->
+    replace(new WaitingForMatchWindow(matchId, sliceIndex))
+
+class PlayerActionsWindow
+  constructor: ()->
+    console.log 'PlayerActionsWindow#constructor'
+
+    @inProcessOfUpdating = false
+    @matchWindow = null
+    @windowState = "opening"
+    @summaryInfoManager = null
+    @loadPreviousMessages = false
+    @userName = null
+    @pollTimer = Timer.new
+
 class Realtime
   @connection: null
-  @constants:
-    {
-      NEXT_HAND: 'next-hand',
-      PLAYER_COMMENT: "player-comment",
-      SPECTATE_NEXT_HAND_CHANNEL: 'spectate-next-hand-in-',
-      PLAYER_COMMENT_CHANNEL_PREFIX: "player-comment-in-",
-      REALTIME_SERVER_PORT: 4162
-    }
 
   @connect: ()->
     console.log 'Realtime::connect'
@@ -38,54 +73,17 @@ class Realtime
   constructor: ()->
     console.log 'Realtime#constructor'
 
-    @updateQueue = new CounterQueue
-
-    console.log "Realtime#constructor: @updateQueue: #{@updateQueue}"
-
     @inProcessOfUpdating = false
     @matchWindow = null
     @windowState = "opening"
     @summaryInfoManager = null
     @loadPreviousMessages = false
     @userName = null
-    @timeoutId = null
-
-    # Only start the app after a connection has been made
-    onConnection = (socket)=>
-      console.log "Realtime#constructor: onConnection: windowState: #{@windowState}"
-      @loadPreviousMessages = false
-      if @windowState is "opening" or @windowState is 'waiting'
-        @showMatchEntryPage()
-      else if @windowState is "match"
-        @updateQueue.push() if @updateQueue.isEmpty()
-        @updateState()
-
-    serverUrl = "http://#{document.location.hostname}"
-    $.getJSON(Routes.realtime_constants_path(), (constants)=>
-      console.log 'Realtime#constructor: $.getJSON(Routes.realtime_constants_path()): success'
-      @constructor.constants = constants
-      @socket = io.connect("#{serverUrl}:#{constants.REALTIME_SERVER_PORT}")
-      @socket.on 'connect', onConnection
-    ).fail(=> # Fallback to default
-      console.log 'Realtime#constructor: $.getJSON(Routes.realtime_constants_path()): failure'
-      @socket = io.connect("#{serverUrl}:#{@constructor.constants.REALTIME_SERVER_PORT}")
-      @socket.on 'connect', onConnection
-    )
-    $.getJSON(Routes.table_manager_constants_path(), (constants)=>
-      console.log 'Realtime#constructor: $.getJSON(Routes.table_manager_constants_path()): success'
-      TableManager.constants = constants
-    ).fail(=> # Fallback to default
-      console.log 'Realtime#constructor: $.getJSON(Routes.table_manager_constants_path()): failure'
-    )
-
-  clearTimeout: ->
-    if @timeoutId?
-      clearTimeout @timeoutId
-      @timeoutId = null
+    @pollTimer = Timer.new
 
   setTimeout: (fn, period)->
-    @clearTimeout()
-    @timeoutId = setTimeout(fn, period)
+    @pollTimer.clear()
+    @pollTimer.start(fn, period)
 
   inMatchHeartbeat: (period)->
     onTimeout = => @checkForNextSlice()
@@ -94,13 +92,6 @@ class Realtime
   beforeMatchHeartbeat: (period, match_id, user_name)->
     onTimeout = => @checkForEnquedMatch(match_id, user_name)
     @setTimeout(onTimeout, period)
-
-  alreadySubscribed: (e)->
-    @socket._callbacks[e]? and @socket._callbacks[e].length > 0 and @socket._callbacks[e][0]?
-
-  unsubscribe: (e)->
-    console.log "Realtime#unsubscribe: e: #{e}"
-    @socket.removeAllListeners e
 
   showMatchEntryPage: (alertMessage = null)->
     console.log "Realtime#showMatchEntryPage: alertMessage: #{alertMessage}"
@@ -116,28 +107,19 @@ class Realtime
 
   checkForNextSlice: ->
     console.log "Realtime#checkForNextSlice: @windowState: #{@windowState}"
-    if @windowState is "match"
-      unless @inProcessOfUpdating
-        if @updateQueue.isEmpty()
-          @enqueueUpdate()
-        else
-          @updateState()
+    if @windowState is "match" and not @inProcessOfUpdating
+      @updateState()
 
   checkForNextSliceAtEndOfHand: ->
     console.log "Realtime#checkForNextSliceAtEndOfHand: @windowState: #{@windowState}"
     if @windowState is "match"
       unless @inProcessOfUpdating
-        if @updateQueue.isEmpty()
-          @updateQueue.push
         @reloadNextHand()
 
   updateMatchQueue: (message='')->
     console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
     AjaxCommunicator.sendGet Routes.update_match_queue_path() if @windowState is "open" or @windowState is 'waiting'
-  playAction: (actionArg)->
-    console.log "GameplayManager#updateMatchQueue: actionArg: #{actionArg}, @windowState: #{@windowState}"
-    if @windowState is 'match'
-      AjaxCommunicator.sendPost Routes.play_action_path(), {poker_action: actionArg}
+
   nextHand: ->
     console.log "Realtime#nextHand"
     if @matchWindow?
@@ -147,14 +129,14 @@ class Realtime
   emitChatMessage: (user, msg)->
     console.log "Realtime#emitChatMessage"
     if @matchWindow?
-      @socket.emit(
-        @constructor.constants.PLAYER_COMMENT,
-        {
-          matchId: @matchWindow.matchId,
-          user: user,
-          message: msg
-        }
-      )
+      # @socket.emit(
+      #   @constructor.constants.PLAYER_COMMENT,
+      #   {
+      #     matchId: @matchWindow.matchId,
+      #     user: user,
+      #     message: msg
+      #   }
+      # )
 
   forceUpdateState: ()->
     console.log "Realtime#forceUpdateState: @matchWindow?: #{@matchWindow}"
@@ -174,8 +156,8 @@ class Realtime
       @inProcessOfUpdating = true
       @matchWindow.timer.pause() if @matchWindow?
       @reloadPlayerActionView(=> @forceUpdateState())
-  startTimer: ->
-    console.log "Realtime#startTimer: @matchWindow?: #{@matchWindow?}"
+  startActionTimer: ->
+    console.log "Realtime#startActionTimer: @matchWindow?: #{@matchWindow?}"
     if @matchWindow?
       onTimeout = =>
         if @matchWindow.isSpectating
@@ -188,19 +170,15 @@ class Realtime
     @clearTimeout()
     nextSliceIndex = parseInt(matchSliceIndex, 10)
     if nextSliceIndex > @matchWindow.matchSliceIndex or not @matchWindow.timer.isCounting()
-      @startTimer()
+      @startActionTimer()
     else
       @matchWindow.timer.resume()
     @loadPreviousMessages = false
     @inProcessOfUpdating = false
-    @updateQueue.pop()
     if @summaryInfoManager?
       @summaryInfoManager.update()
     @matchWindow.matchSliceIndex = nextSliceIndex
-  enqueueUpdate: ->
-    console.log "Realtime#enqueueUpdate"
-    @updateQueue.push()
-    @updateState()
+
   reloadNextHand: ->
     if @matchWindow?
       params = { match_slice_index: @matchWindow.matchSliceIndex }
@@ -209,12 +187,8 @@ class Realtime
   listenToMatchQueueUpdates: ()->
     console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
     unless @alreadySubscribed(TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL)
-      @socket.on TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL, (msg)=> @updateMatchQueue(msg)
-      @socket.emit 'join', { room: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL }
-
-  onPlayerAction: (message='')->
-    console.log "Realtime#onPlayerAction: message: #{message}"
-    @enqueueUpdate()
+      checkForMatchQueueUpdates = => AjaxCommunicator.sendGet Routes.root_path()
+      @timer.start(checkForMatchQueueUpdates, 2000)
 
   onPlayerComment: (data='')->
     console.log "Realtime#onPlayerComment: data: #{data}"
@@ -242,7 +216,7 @@ class Realtime
         @emitChatMessage user, msg
     )
 
-    @startTimer() if @matchWindow.isSpectating
+    @startActionTimer() if @matchWindow.isSpectating
 
     @enqueueUpdate()
 

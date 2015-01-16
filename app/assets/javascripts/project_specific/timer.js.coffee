@@ -4,18 +4,34 @@ class Timer
   constructor: ->
     @timeoutId = null
   isCounting: -> @timeoutId?
+  clear: ()->
+    if @timeoutId?
+      clearTimeout(@timeoutId)
+      @timeoutId = null
+  start: (fn, period)->
+    @timeoutId = setTimeout(fn, period)
+
+root.Timer = Timer
+
+class Poller
+  constructor: (pollTo, period)->
+    @pollTo = pollTo
+    @period = period
+    @timer = Timer
+  stop: -> @timer.clear()
+  start: ->
+    @timer.start(@pollTo, @period)
+
+root.Poller = Poller
+
+class ActionTimer extends Timer
   getTimeRemaining: ->
     parseInt($('.time-remaining').text(), 10)
   setTimeRemaining: (timeRemaining)->
     return if !timeRemaining? || isNaN(timeRemaining)
     timeRemaining = 0 if timeRemaining < 0
     $('.time-remaining').text(timeRemaining)
-  clear: ()->
-    if @timeoutId?
-      clearTimeout(@timeoutId)
-      @timeoutId = null
-  start: (fn)->
-    @timeoutId = setTimeout(fn, 1000)
+  start: (fn)-> @timer.start(fn, 1000)
   afterEachSecond: (onTimeout)->
     timeRemaining = @getTimeRemaining()
     if timeRemaining?
@@ -34,4 +50,4 @@ class Timer
   resume: ->
     @setTimeRemaining @timeRemaining
 
-root.Timer = Timer
+root.ActionTimer = ActionTimer

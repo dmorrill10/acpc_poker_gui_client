@@ -1,7 +1,0 @@
-{
-  "REALTIME_SERVER_PORT": 4162,
-  "NEXT_HAND": "next-hand",
-  "PLAYER_COMMENT": "player-comment",
-  "SPECTATE_NEXT_HAND_CHANNEL": "spectate-next-hand-in-",
-  "PLAYER_COMMENT_CHANNEL_PREFIX": "player-comment-in-"
-}

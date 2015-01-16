@@ -13,38 +13,28 @@ class Timer
 
 root.Timer = Timer
 
-class Poller
-  constructor: (pollTo, period)->
-    @pollTo = pollTo
-    @period = period
-    @timer = Timer
-  stop: -> @timer.clear()
-  start: ->
-    @timer.start(@pollTo, @period)
-
-root.Poller = Poller
-
 class ActionTimer extends Timer
+  constructor: (@onTimeout)-> super()
   getTimeRemaining: ->
     parseInt($('.time-remaining').text(), 10)
   setTimeRemaining: (timeRemaining)->
     return if !timeRemaining? || isNaN(timeRemaining)
     timeRemaining = 0 if timeRemaining < 0
     $('.time-remaining').text(timeRemaining)
-  start: (fn)-> @timer.start(fn, 1000)
-  afterEachSecond: (onTimeout)->
+  start: -> super(@onTimeout, 1000)
+  afterEachSecond: ->
     timeRemaining = @getTimeRemaining()
     if timeRemaining?
       if timeRemaining <= 0
-        onTimeout()
+        @onTimeout()
       else
         @setTimeRemaining timeRemaining - 1
-        @start(=> @afterEachSecond(onTimeout))
+        @start(=> @afterEachSecond(@onTimeout))
     else
-      @start(=> @afterEachSecond(onTimeout))
-  startForPlayer: (onTimeout)->
+      @start(=> @afterEachSecond(@onTimeout))
+  startForPlayer: ->
     @clear()
-    @start(=> @afterEachSecond(onTimeout))
+    @start(=> @afterEachSecond(@onTimeout))
   pause: ->
     @timeRemaining = @getTimeRemaining()
   resume: ->

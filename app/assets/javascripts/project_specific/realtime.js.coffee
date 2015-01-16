@@ -1,269 +1,204 @@
 root = exports ? this
 
-class SummaryInformationManager
-  constructor: ()->
-    @savedSummaryInfo = $('.summary_information').html()
+class WindowManager
+  class Poller
+    constructor: (pollFn, period)->
+      @pollFn = pollFn
+      @period = period
+      @timer = Timer
+    stop: -> @timer.clear()
+    start: ->
+      @timer.start(@pollFn, @period)
 
-  update: ()->
-    $('.summary_information').prepend(@savedSummaryInfo)
-    summaryInfo = document.getElementById('summary_information')
-    summaryInfo.scrollTop = summaryInfo.scrollHeight
+  class SubWindow
+    constructor: (poller)->
+      @poller = poller
+      @poller.start()
+    close: ->
+      @poller.stop()
+      null
 
-class SubWindow
-  constructor: (poller)->
-    @poller = poller
-    @poller.start()
-  close: ->
-    @poller.stop()
-    null
+  class PollingWindow
+    constructor: (pollingSubWindow)->
+      @subWindow = pollingSubWindow
+    replace: (newPollingSubWindow)->
+      @subWindow.close()
+      @subWindow = newPollingSubWindow
+    close: ->
+      @subWindow.close()
 
-class PollingWindow
-  constructor: (pollingSubWindow)->
-    @subWindow = pollingSubWindow
-  replace: (newPollingSubWindow)->
-    @subWindow.close()
-    @subWindow = newPollingSubWindow
+  class MatchStartWindow extends PollingWindow
+    class MatchQueueUpdateWindow extends SubWindow
+      class MatchQueueUpdatePoller extends Poller
+        @PERIOD: 2000
+        constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
 
-class MatchStartWindow extends PollingWindow
-  class MatchQueueUpdateWindow extends SubWindow
-    class MatchQueueUpdatePoller extends Poller
       constructor: ->
-        pollTo = =>
-          AjaxCommunicator.get Routes.update_match_queue_path()
-        @poller = new Poller(pollTo, 2000)
-    constructor: -> super(new MatchQueueUpdatePoller)
+        super(new MatchQueueUpdatePoller(=> AjaxCommunicator.get Routes.update_match_queue_path()))
 
-  class WaitingForMatchWindow extends SubWindow
-    class WaitingForMatchPoller extends Poller
-      constructor: (matchId, sliceIndex)->
-        pollTo = =>
-          AjaxCommunicator.post Routes.match_home_path(), {match_id: matchId, slice_index: sliceIndex}
-        @poller = new Poller(pollTo, 2000)
-    constructor: -> super(new WaitingForMatchPoller)
+    class WaitingForMatchWindow extends SubWindow
+      class WaitingForMatchPoller extends Poller
+        @PERIOD: 2000
+        constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
 
-  constructor: (matchId, sliceIndex)->
-    console.log 'MatchStartWindow#constructor'
-    @userName = null
-    super(new MatchQueueUpdateWindow(matchId, sliceIndex))
+      constructor: (matchId, matchSliceIndex)->
+        super(
+          new WaitingForMatchPoller(
+            => AjaxCommunicator.post Routes.match_home_path(),
+            {match_id: matchId, match_slice_index: matchSliceIndex, load_previous_messages: true}
+          )
+        )
 
-  waitForMatchToStart: (matchId, sliceIndex)->
-    replace(new WaitingForMatchWindow(matchId, sliceIndex))
+    constructor: (alertMessage=null)->
+      console.log 'MatchStartWindow#constructor'
+      @showMatchEntryPage alertMessage
+      super(new MatchQueueUpdateWindow)
 
-class PlayerActionsWindow
-  constructor: ()->
-    console.log 'PlayerActionsWindow#constructor'
+    waitForMatchToStart: (@matchId, @matchSliceIndex)->
+      replace(new WaitingForMatchWindow(@matchId, @matchSliceIndex))
 
-    @inProcessOfUpdating = false
-    @matchWindow = null
-    @windowState = "opening"
-    @summaryInfoManager = null
-    @loadPreviousMessages = false
-    @userName = null
-    @pollTimer = Timer.new
+    showMatchEntryPage: (alertMessage = null)->
+      console.log "Realtime#showMatchEntryPage: alertMessage: #{alertMessage}"
+      @resetState()
+      if alertMessage?
+        AjaxCommunicator.sendPost Routes.root_path(), {alert_message: alertMessage}
+      else
+        AjaxCommunicator.sendGet Routes.root_path()
 
-class Realtime
-  @connection: null
 
-  @connect: ()->
-    console.log 'Realtime::connect'
-    unless @connection?
-      @connection = new Realtime
-    @connection
+  class PlayerActionsWindow extends PollingWindow
+    class MatchSliceWindow extends SubWindow
+      class SummaryInformationManager
+        constructor: ()->
+          @savedSummaryInfo = $('.summary_information').html()
 
-  constructor: ()->
-    console.log 'Realtime#constructor'
+        update: ()->
+          $('.summary_information').prepend(@savedSummaryInfo)
+          summaryInfo = document.getElementById('summary_information')
+          summaryInfo.scrollTop = summaryInfo.scrollHeight
 
-    @inProcessOfUpdating = false
-    @matchWindow = null
-    @windowState = "opening"
-    @summaryInfoManager = null
-    @loadPreviousMessages = false
-    @userName = null
-    @pollTimer = Timer.new
+      class MatchSliceWindowPoller extends Poller
+        @PERIOD: 500
+        constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
 
-  setTimeout: (fn, period)->
-    @pollTimer.clear()
-    @pollTimer.start(fn, period)
+      constructor: (@matchId, @matchSliceIndex, onActionTimeout)->
+        @isSpectating = false
+        @timer = new ActionTimer onActionTimeout
+        super(new MatchSliceWindowPoller(=> @updateState()))
 
-  inMatchHeartbeat: (period)->
-    onTimeout = => @checkForNextSlice()
-    @setTimeout(onTimeout, period)
+      close: ->
+        @timer.clear()
+        super()
 
-  beforeMatchHeartbeat: (period, match_id, user_name)->
-    onTimeout = => @checkForEnquedMatch(match_id, user_name)
-    @setTimeout(onTimeout, period)
+      matchData: -> {match_id: @matchId, match_slice_index: @matchSliceIndex}
 
-  showMatchEntryPage: (alertMessage = null)->
-    console.log "Realtime#showMatchEntryPage: alertMessage: #{alertMessage}"
-    @resetState()
-    AjaxCommunicator.sendPost Routes.root_path(), {alert_message: alertMessage}
+      updateState: ->
+        console.log "MatchSliceWindowPoller#updateState"
+        @matchWindow.timer.pause()
+        @_reload(=> @_updateState())
+      playAction: (actionArg)->
+        params = @matchData()
+        params.poker_action = actionArg
+        AjaxCommunicator.sendPost(Routes.play_action_path(), params)
+      nextHand: ->
+        @_reload(=> AjaxCommunicator.sendPost(Routes.update_match_path(), @matchData()))
+      finishUpdating: (matchSliceIndexString)->
+        nextSliceIndex = parseInt(matchSliceIndexString, 10)
+        if nextSliceIndex > @matchSliceIndex or not @timer.isCounting()
+          @timer.start()
+        else
+          @timer.resume()
+        @summaryInfoManager.update()
+        @matchSliceIndex = nextSliceIndex
 
-  checkForEnquedMatch: (matchId, userName)->
-    console.log "Realtime#checkForEnquedMatch: @windowState: #{@windowState}"
-    if @windowState isnt "match"
-      @loadPreviousMessages = true
-      @beforeMatch(matchId, userName)
-      @onMatchHasStarted()
+      _reload: (reloadMethod)->
+        @summaryInfoManager = new SummaryInformationManager
+        reloadMethod()
 
-  checkForNextSlice: ->
-    console.log "Realtime#checkForNextSlice: @windowState: #{@windowState}"
-    if @windowState is "match" and not @inProcessOfUpdating
-      @updateState()
+      _updateState: ()->
+        console.log "MatchSliceWindowPoller#forceUpdateState"
+        AjaxCommunicator.sendPost Routes.match_home_path(), @matchData
 
-  checkForNextSliceAtEndOfHand: ->
-    console.log "Realtime#checkForNextSliceAtEndOfHand: @windowState: #{@windowState}"
-    if @windowState is "match"
-      unless @inProcessOfUpdating
-        @reloadNextHand()
+    constructor: (matchId, matchSliceIndex, onActionTimeout)->
+      console.log "PlayerActionsWindow#constructor: matchId: #{matchId}, matchSliceIndex: #{matchSliceIndex}"
+      super(new MatchSliceWindow(matchId, matchSliceIndex, onActionTimeout))
 
-  updateMatchQueue: (message='')->
-    console.log "Realtime#updateMatchQueue: message: #{message}, @windowState: #{@windowState}"
-    AjaxCommunicator.sendGet Routes.update_match_queue_path() if @windowState is "open" or @windowState is 'waiting'
+    nextHand: -> @subWindow.nextHand()
+    playAction: (actionArg)-> @subWindow.playAction actionArg
+
+    finishUpdating: (matchSliceIndexString)->
+      @subWindow.finishUpdating matchSliceIndexString
+
+    emitChatMessage: (user, msg)->
+      console.log "Realtime#emitChatMessage"
+        # @socket.emit(
+        #   @constructor.constants.PLAYER_COMMENT,
+        #   {
+        #     matchId: @matchWindow.matchId,
+        #     user: user,
+        #     message: msg
+        #   }
+        # )
+
+    onPlayerComment: (data='')->
+      console.log "Realtime#onPlayerComment: data: #{data}"
+      # Chat.chatBox.addMessage data.user, data.message
+
+  constructor: ->
+    @window = new MatchStartWindow
+
+  waitForMatchToStart: (matchId, matchSliceIndex)->
+    if 'waitForMatchToStart' of @window
+      @window.waitForMatchToStart matchId, matchSliceIndex
+    else
+      console.log("WindowManager#waitForMatchToStart: WARNING: Called when @window is not a MatchStartWindow!")
+
+  showMatchEntryPage: (alertMessage=null)->
+    @window.close()
+    @window = new MatchStartWindow(alertMessage)
 
   nextHand: ->
-    console.log "Realtime#nextHand"
-    if @matchWindow?
-      @socket.emit @constructor.constants.NEXT_HAND, { matchId: @matchWindow.matchId }
-      @reloadNextHand()
-
-  emitChatMessage: (user, msg)->
-    console.log "Realtime#emitChatMessage"
-    if @matchWindow?
-      # @socket.emit(
-      #   @constructor.constants.PLAYER_COMMENT,
-      #   {
-      #     matchId: @matchWindow.matchId,
-      #     user: user,
-      #     message: msg
-      #   }
-      # )
-
-  forceUpdateState: ()->
-    console.log "Realtime#forceUpdateState: @matchWindow?: #{@matchWindow}"
-    if @matchWindow?
-      params = {match_id: @matchWindow.matchId}
-      if @loadPreviousMessages
-        params['load_previous_messages'] = @loadPreviousMessages
-        @loadPreviousMessages = false
-      params['match_slice_index'] = @matchWindow.matchSliceIndex
-      AjaxCommunicator.sendPost Routes.match_home_path(), params
-  reloadPlayerActionView: (reloadMethod)->
-    @summaryInfoManager = new SummaryInformationManager
-    reloadMethod()
-  updateState: ->
-    console.log "Realtime#updateState: @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    unless @inProcessOfUpdating
-      @inProcessOfUpdating = true
-      @matchWindow.timer.pause() if @matchWindow?
-      @reloadPlayerActionView(=> @forceUpdateState())
-  startActionTimer: ->
-    console.log "Realtime#startActionTimer: @matchWindow?: #{@matchWindow?}"
-    if @matchWindow?
-      onTimeout = =>
-        if @matchWindow.isSpectating
-          alert('The match has timed out.')
-        else
-          @leaveMatch('The match has timed out.')
-      @matchWindow.timer.startForPlayer onTimeout
-  finishedUpdating: (matchSliceIndex)->
-    console.log "Realtime#finishedUpdating: matchSliceIndex: #{matchSliceIndex}, @matchWindow.matchSliceIndex: #{@matchWindow.matchSliceIndex}, @inProcessOfUpdating: #{@inProcessOfUpdating}"
-    @clearTimeout()
-    nextSliceIndex = parseInt(matchSliceIndex, 10)
-    if nextSliceIndex > @matchWindow.matchSliceIndex or not @matchWindow.timer.isCounting()
-      @startActionTimer()
+    console.log "WindowManager#nextHand"
+    if 'nextHand' of @window
+      @window.nextHand()
     else
-      @matchWindow.timer.resume()
-    @loadPreviousMessages = false
-    @inProcessOfUpdating = false
-    if @summaryInfoManager?
-      @summaryInfoManager.update()
-    @matchWindow.matchSliceIndex = nextSliceIndex
+      console.log("WindowManager#nextHand: WARNING: Called when @window is not a PlayerActionsWindow!")
 
-  reloadNextHand: ->
-    if @matchWindow?
-      params = { match_slice_index: @matchWindow.matchSliceIndex }
-      @reloadPlayerActionView(=> AjaxCommunicator.sendPost(Routes.update_match_path(), params))
+  playAction: (actionArg)->
+    console.log "WindowManager#playAction: actionArg: #{actionArg}"
+    if 'playAction' of @window
+      @window.playAction actionArg
+    else
+      console.log("WindowManager#playAction: WARNING: Called when @window is not a PlayerActionsWindow!")
 
-  listenToMatchQueueUpdates: ()->
-    console.log "Realtime#listenToMatchQueueUpdates: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL: #{TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL}"
-    unless @alreadySubscribed(TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL)
-      checkForMatchQueueUpdates = => AjaxCommunicator.sendGet Routes.root_path()
-      @timer.start(checkForMatchQueueUpdates, 2000)
+  leaveMatch: (alertMessage=null)->
+    @showMatchEntryPage alertMessage
 
-  onPlayerComment: (data='')->
-    console.log "Realtime#onPlayerComment: data: #{data}"
-    Chat.chatBox.addMessage data.user, data.message
-
-  onMatchHasStarted: (message='')->
-    console.log "Realtime#onMatchHasStarted: message: #{message}"
-    return if @windowState is "match"
-
-    @unsubscribe TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL
-    @socket.emit 'leave', { room: TableManager.constants.UPDATE_MATCH_QUEUE_CHANNEL }
-
-    @unsubscribe @matchWindow.playerActionChannel()
+  onMatchHasStarted: ->
+    console.log "WindowManager#onMatchHasStarted"
 
     window.onunload = (event)=> @leaveMatch()
 
-    @socket.on(@matchWindow.playerActionChannel(), (msg)=> @onPlayerAction(msg))
-    @socket.on(@matchWindow.playerCommentChannel(), (msg)=> @onPlayerComment(msg))
+    # Chat.init(
+    #   @userName,
+    #   (id, user, msg)=>
+    #     @emitChatMessage user, msg
+    # )
 
-    @windowState = "match"
+    @_initPlayerActionsWindow @window.matchId, @window.matchSliceIndex
 
-    Chat.init(
-      @userName,
-      (id, user, msg)=>
-        @emitChatMessage user, msg
-    )
+  finishUpdatingPlayerActionsWindow: (matchSliceIndex)->
+    unless @window instanceof PlayerActionsWindow
+      @_initPlayerActionsWindow @window.matchId, @window.matchSliceIndex
+    @window.finishUpdating(matchSliceIndex)
 
-    @startActionTimer() if @matchWindow.isSpectating
+  _initPlayerActionsWindow: (matchId, matchSliceIndex)->
+    @window.close()
+    onActionTimeout = =>
+      # if @matchWindow.isSpectating
+      #   alert('The match has timed out.')
+      # else
+      @leaveMatch('The match has timed out.')
+    @window = new PlayerActionsWindow(matchId, matchSliceIndex, onActionTimeout)
 
-    @enqueueUpdate()
-
-  beforeMatch: (matchId, userName)->
-    @matchWindow.close() if @matchWindow?
-    @matchWindow = new MatchWindow(matchId)
-    @userName = userName
-    @windowState = "waiting"
-
-  listenForMatchToStart: (matchId, userName)->
-    console.log "Realtime#listenForMatchToStart: matchId: #{matchId}, userName: #{userName}, @windowState: #{@windowState}"
-    return if @windowState is "waiting"
-
-    @beforeMatch matchId, userName
-    @unsubscribe @matchWindow.playerActionChannel()
-    @socket.on @matchWindow.playerActionChannel(), (msg)=> @onMatchHasStarted(msg)
-    @socket.emit 'join', { room: matchId }
-
-  leaveMatch: (alertMessage = null)->
-    if @windowState is "match"
-      @resetState()
-      AjaxCommunicator.sendPost Routes.leave_match_path(), {alert_message: alertMessage}
-
-  resetState: ->
-    if @matchWindow?
-      @unsubscribe @matchWindow.playerActionChannel()
-      @unsubscribe @matchWindow.playerCommentChannel()
-      @socket.emit 'leave', { room: @matchWindow.matchId }
-      @stopSpectating()
-      @matchWindow = @matchWindow.close()
-    @clearTimeout()
-    Chat.close()
-    @inProcessOfUpdating = false
-    @userName = null
-    @listenToMatchQueueUpdates()
-    @windowState = 'open'
-
-  stopSpectating: ->
-    console.log "Realtime#stopSpectating"
-    if @matchWindow?
-      @unsubscribe @matchWindow.spectateNextHandChannel()
-
-  spectate: ->
-    console.log "Realtime#spectate"
-    if @matchWindow?
-      console.log "Realtime#spectate: channel: #{@matchWindow.spectateNextHandChannel()}"
-      @matchWindow.isSpectating = true
-      @socket.on @matchWindow.spectateNextHandChannel(), (msg)=> @reloadNextHand()
-
-root.Realtime = Realtime
+root.WindowManager = WindowManager

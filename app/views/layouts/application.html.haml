@@ -4,15 +4,12 @@
     %title= ApplicationHelper::APP_NAME
     %meta{:content => 'width=device-width', :'initial-scale' => 1.0, :'maximum-scale' => 1.0, :'user-scalable' => 'no', :name => 'viewport'}
     = stylesheet_link_tag "application", media: 'all'
-    = javascript_include_tag "https://cdn.socket.io/socket.io-1.2.0.js"
     = javascript_include_tag "application"
     = csrf_meta_tag
     = favicon_link_tag 'favicon.ico'
     = yield(:head)
     :javascript
-      $(document).ready(function(){
-        rt = Realtime.connect();
-      });
+      $(document).ready(function(){ rt = new WindowManager(); });
   %body
     .container
       %div{class: ApplicationHelper::APP_VIEW_HTML_CLASS}

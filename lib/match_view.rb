@@ -1,4 +1,5 @@
 require 'delegate'
+require 'timeout'
 
 require 'match'
 require 'acpc_poker_types/match_state'
@@ -13,7 +14,7 @@ class MatchView < SimpleDelegator
 
   exceptions :unable_to_find_next_slice
 
-  attr_reader :match, :slice_index, :messages_to_display, :given_slice_index
+  attr_reader :match, :slice_index, :messages_to_display
   attr_writer :messages_to_display
 
   def self.chip_contributions_in_previous_rounds(player, round)
@@ -24,29 +25,27 @@ class MatchView < SimpleDelegator
     end
   end
 
-  def initialize(match_id, slice_index = nil, load_previous_messages = false)
+  WAIT_FOR_SLICE_TIMEOUT = 30 # seconds
+
+  def initialize(match_id, slice_index, load_previous_messages = false)
     @match = Match.find(match_id)
     super @match
 
     @messages_to_display = []
 
-    @given_slice_index = nil
+    @slice_index = slice_index
 
-    @slice_index = [
-      0,
-      [
-        (
-          if slice_index
-            @given_slice_index = [slice_index.to_i, @match.last_slice_viewed].min
-          else
-            @match.last_slice_viewed
-          end
-        ),
-        @match.slices.length - 1
-      ].min
-    ].max
+    raise "Illegal slice index: #{@slice_index}" unless @slice_index >= 0
 
-    raise "Illegal slice index: #{@slice_index}" unless @slice_index >= 0 && @slice_index <= (@match.slices.length - 1)
+    unless @slice_index < @match.slices.length
+      Timeout.timeout(WAIT_FOR_SLICE_TIMEOUT) do
+        while @slice_index >= @match.slices.length do
+          sleep 1
+          @match = Match.find(match_id)
+        end
+      end
+      super @match
+    end
 
     @messages_to_display = slice.messages
 
@@ -59,16 +58,7 @@ class MatchView < SimpleDelegator
   end
   def state() @state ||= MatchState.parse slice.state_string end
   def slice() slices[@slice_index] end
-  def next_slice!(max_retries = 0)
-    next_slice_without_updating_messages! max_retries
-    raise "Illegal slice index: #{@slice_index}" unless @slice_index >= 0 && @slice_index <= (@match.slices.length - 1)
-    if loaded_previous_messages?
-      @messages_to_display += slice.messages
-    else
-      @messages_to_display = slice.messages
-    end
-    self
-  end
+
   # zero indexed
   def users_seat() @users_seat ||= @match.seat - 1 end
   def betting_sequence() slice.betting_sequence end

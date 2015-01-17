@@ -66,6 +66,8 @@ gem 'bcrypt', '~> 3.1.5', require: "bcrypt"
 
 gem 'js-routes'
 
+gem 'timeout'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

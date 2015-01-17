@@ -12,7 +12,6 @@ AcpcPokerGuiClient::Application.routes.draw do
 
   # Routes for PlayerActions
   match 'player_actions/match_home' => 'player_actions#index', :as => :match_home
-  match 'player_actions/update_match' => 'player_actions#update_match', :as => :update_match
   match 'player_actions/play_action' => 'player_actions#play_action', :as => :play_action
   match 'player_actions/update_hotkeys' => 'player_actions#update_hotkeys', :as => :update_hotkeys
   match 'player_actions/reset_hotkeys' => 'player_actions#reset_hotkeys', as: :reset_hotkeys

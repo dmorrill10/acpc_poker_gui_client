@@ -101,128 +101,40 @@ class MatchViewManagerController < ApplicationController
     label += ' to' if match_view.no_limit?
     label
   end
-  def update_match_view!
-    begin
-      Rails.logger.ap(
-        {
-          method: __method__,
-          match_slice: match_view.slice_index,
-          messages_to_display: match_view.messages_to_display,
-          message: "Before #next_slice!"
-        }
-      )
-      match_view.next_slice!
-      Rails.logger.ap(
-        {
-          method: __method__,
-          match_slice: match_view.slice_index,
-          messages_to_display: match_view.messages_to_display,
-          message: "After #next_slice!"
-        }
-      )
-    rescue MatchView::UnableToFindNextSlice => e
-      Rails.logger.ap method: __method__, match_slice: match_view.slice_index, message: e.message
-      raise e
-    else
-      unless spectating?
-        match.last_slice_viewed = match_view.slice_index
-        match.save!
-      end
-    end
-  end
 end
 
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
 class PlayerActionsController < MatchViewManagerController
-  before_filter :abort_if_too_many_requests
-
-  def abort_if_too_many_requests
-    if session['num_requests'] && session['num_requests'].to_i > 100
-      Rails.logger.ap method: __method__, too_many_repeat_requests: session['num_requests']
-      session['num_requests'] = 0
-      clear_match_information!
-      return redirect_to root_path
-    end
-  end
-
   def index
-    session['num_requests'] ||= 0
-    session['num_requests'] += 1
     return reset_to_match_entry_view(
-      "Sorry, there was a problem retrieving match #{match_id}, #{self.class.report_error_request_message}."
+      "Sorry, there was a problem retrieving match #{params['match_id']}, #{self.class.report_error_request_message}."
     ) if (
       error? do
         update_match_id_if_necessary
-        @match_view = MatchView.new match_id, params['match_slice_index'], params['load_previous_messages']
-
-        last_slice_viewed = @match_view.given_slice_index - 1
-
-        Rails.logger.ap action: __method__, hand_ended: @match_view.hand_ended?, last_slice_viewed: last_slice_viewed
-
-        return (
-          if @match_view.match_ended?
-            render nothing: true
-          elsif @match_view.hand_ended?
-            if last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
-              @match_view.messages_to_display = []
+        begin
+          @match_view = MatchView.new(
+            params['match_id'],
+            params['match_slice_index'].to_i,
+            params['load_previous_messages'] == 'true'
+          )
+        rescue Timeout::Error => e
+          Rails.logger.ap(
+            action: __method__,
+            requested_slice_index: params['match_slice_index'].to_i,
+            timeout: e.message
+          )
+          return respond_to do |format|
+            format.js do
+              render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
             end
-            if spectating? && @match_view.last_slice_viewed > @match_view.slice_index
-              update_match
-            else
-              replace_page_contents_with_updated_game_view
-            end
-          else
-            update_match
           end
-        )
-      end
-    )
-  end
-
-  def update_match
-    session['num_requests'] ||= 0
-    session['num_requests'] += 1
-    return reset_to_match_entry_view(
-      "Sorry, there was a problem continuing match #{match_id}, #{self.class.report_error_request_message}."
-    ) if (
-      error? do
-        update_match_id_if_necessary
-        @match_view ||= MatchView.new match_id, params['match_slice_index']
-
-        last_slice_viewed = @match_view.given_slice_index - 1
-
-        Rails.logger.ap(
-          action: __method__,
-          last_slice_viewed: last_slice_viewed,
-          slice_index: @match_view.slice_index,
-          num_slices: @match_view.slices.length
-        )
-
-        last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
-
-        if @match_view.slice_index < (@match_view.slices.length - 1) && @match_view.slice_index <= last_slice_viewed
-          update_match_view!
-        elsif @match_view.slice_index > @match_view.last_slice_viewed && !spectating?
-          match.last_slice_viewed = match_view.slice_index
-          match.save!
+        else
+          return render_match_view(
+            params['match_id'],
+            params['match_slice_index'].to_i
+          )
         end
-
-        if last_slice_viewed == @match_view.slice_index && !@match_view.loaded_previous_messages?
-          @match_view.messages_to_display = []
-        end
-
-        if @match_view.slice_index > last_slice_viewed
-          session['num_requests'] = 0
-        end
-
-        Rails.logger.ap(
-          action: __method__,
-          match_slice_index_to_be_rendered: @match_view.slice_index,
-          view_ms: @match_view.state.to_s
-        )
-
-        return replace_page_contents_with_updated_game_view
       end
     )
   end
@@ -232,17 +144,19 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        update_match_id_if_necessary
         TableManager::Worker.perform_async(
           TableManager::PLAY_ACTION_REQUEST_CODE,
           {
-            TableManager::MATCH_ID_KEY => match_id,
+            TableManager::MATCH_ID_KEY => params['match_id'],
             TableManager::ACTION_KEY => params[:poker_action]
           }
         )
+        return render_match_view params['match_id'], params['match_slice_index'].to_i
       end
     )
-    render nothing: true
+    format.js do
+      render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
+    end
   end
 
   def update_hotkeys
@@ -295,16 +209,16 @@ class PlayerActionsController < MatchViewManagerController
       action: __method__,
       was_spectating: spectating?,
       user: user.name,
-      match_id: match_id,
+      match_id: params['match_id'],
       match_user_name: match.user_name
     )
-    unless spectating? || match_id.nil?
-      Match.delete_match! match_id
-      Rails.logger.ap(action: __method__, message: "Deleted match #{match_id}")
+    unless spectating? || params['match_id'].nil?
+      Match.delete_match! params['match_id']
+      Rails.logger.ap(action: __method__, message: "Deleted match #{params['match_id']}")
 
       TableManager::Worker.perform_async(
         TableManager::KILL_MATCH,
-        {TableManager::MATCH_ID_KEY => match_id}
+        {TableManager::MATCH_ID_KEY => params['match_id']}
       )
     end
     @alert_message = params['alert_message'] if params['alert_message'] && !params['alert_message'].empty?
@@ -331,5 +245,28 @@ class PlayerActionsController < MatchViewManagerController
         ApplicationHelper::POKER_VIEW_HTML_CLASS
       )
     )
+  end
+
+  def render_match_view(
+      match_id,
+      match_slice_index
+    )
+    @match_view ||= MatchView.new match_id, match_slice_index
+
+    if @match_view.slice_index > @match_view.last_slice_viewed && !spectating?
+      @match_view.last_slice_viewed = @match_view.slice_index
+      @match_view.save!
+    end
+
+    if @match_view.slice_index > @match_view.last_slice_viewed
+      session['num_requests'] = 0
+    end
+
+    Rails.logger.ap({
+      method: __method__,
+      last_slice_viewed: @match_view.last_slice_viewed
+    })
+
+    return replace_page_contents_with_updated_game_view
   end
 end

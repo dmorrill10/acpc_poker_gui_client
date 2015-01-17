@@ -4,12 +4,15 @@ class Timer
   constructor: ->
     @timeoutId = null
   isCounting: -> @timeoutId?
-  clear: ()->
+  clear: ->
     if @timeoutId?
       clearTimeout(@timeoutId)
       @timeoutId = null
   start: (fn, period)->
+    @stop() if @isCounting()
     @timeoutId = setTimeout(fn, period)
+  stop: -> @clear()
+
 
 root.Timer = Timer
 
@@ -21,7 +24,11 @@ class ActionTimer extends Timer
     return if !timeRemaining? || isNaN(timeRemaining)
     timeRemaining = 0 if timeRemaining < 0
     $('.time-remaining').text(timeRemaining)
-  start: -> super(@onTimeout, 1000)
+  start: ->
+    super(
+      => @afterEachSecond(@onTimeout),
+      1000
+    )
   afterEachSecond: ->
     timeRemaining = @getTimeRemaining()
     if timeRemaining?
@@ -32,9 +39,6 @@ class ActionTimer extends Timer
         @start(=> @afterEachSecond(@onTimeout))
     else
       @start(=> @afterEachSecond(@onTimeout))
-  startForPlayer: ->
-    @clear()
-    @start(=> @afterEachSecond(@onTimeout))
   pause: ->
     @timeRemaining = @getTimeRemaining()
   resume: ->

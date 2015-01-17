@@ -1,12 +1,6 @@
 :javascript
-  function nextHand() {
-    rt.matchWindow.timer.clear();
-    rt.inMatchHeartbeat(5000);
-    return rt.nextHand();
-  };
+  function nextHand() { return rt.nextHand(); };
   function submitAction(action) {
-    rt.matchWindow.timer.clear();
-    rt.inMatchHeartbeat(5000);
     return rt.playAction(action);
   };
   $(".#{PlayerActionsHelper::FOLD_HTML_CLASS}").click(function() {

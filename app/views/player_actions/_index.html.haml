@@ -1,15 +1,17 @@
 :javascript
-  rt.finishedUpdatingPlayerActionsWindow(
-    {
-      match_id: "#{match_view.match.id}",
-      match_slice_index: parseInt("#{match_view.slice_index}", 10)
-    },
+  alert('started updating paw');
+  rt.finishUpdatingPlayerActionsWindow(
+    WindowManager.packageMatchData(
+      "#{match_view.match.id}",
+      "#{match_view.slice_index}"
+    ),
     {
       match_has_ended: 'true' === "#{match_view.match_ended?}",
       next_hand_button_is_visible: 'true' === "#{next_hand_button_visible?}",
       is_users_turn_to_act: 'true' === "#{match_view.users_turn_to_act?}"
     }
   );
+  alert('finished updating paw');
 
 = render partial: game_interface_partial('index')
 = render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}

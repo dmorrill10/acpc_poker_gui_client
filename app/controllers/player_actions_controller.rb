@@ -156,7 +156,7 @@ class PlayerActionsController < MatchViewManagerController
         update_match_id_if_necessary
         @match_view = MatchView.new match_id, params['match_slice_index'], params['load_previous_messages']
 
-        last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
+        last_slice_viewed = @match_view.given_slice_index - 1
 
         Rails.logger.ap action: __method__, hand_ended: @match_view.hand_ended?, last_slice_viewed: last_slice_viewed
 
@@ -190,7 +190,7 @@ class PlayerActionsController < MatchViewManagerController
         update_match_id_if_necessary
         @match_view ||= MatchView.new match_id, params['match_slice_index']
 
-        last_slice_viewed = @match_view.given_slice_index || @match_view.last_slice_viewed
+        last_slice_viewed = @match_view.given_slice_index - 1
 
         Rails.logger.ap(
           action: __method__,

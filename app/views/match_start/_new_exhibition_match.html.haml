@@ -1,12 +1,12 @@
-- if @enque_match
-  :javascript
-    AjaxCommunicator.sendGet("#{enqueue_exhibition_match_url}");
 - matches = matches_including_user
 - if matches.length > 0
   - my_match = matches.first
   - match_id(my_match.id)
   :javascript
     rt.waitForMatchToStart("#{my_match.id}", "#{my_match.last_slice_viewed}");
+- else
+  :javascript
+    rt.finishedUpdatingMatchStartWindow();
 
 - rejoin_button_id = 'rejoin'
 - spectate_button_id_prefix = 'spectate-'

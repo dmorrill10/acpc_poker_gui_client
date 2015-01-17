@@ -121,9 +121,7 @@ class MatchStartController < ApplicationController
 
         match_id(@match.id)
 
-        @enque_match = true
-
-        return update_match_queue
+        return enqueue_exhibition_match
       end
     )
     return update_match_queue

@@ -2,25 +2,22 @@ root = exports ? this
 
 class WindowManager
   class Poller
-    constructor: (pollFn, period)->
-      @pollFn = pollFn
-      @period = period
-      @timer = Timer
+    constructor: (@pollFn, @period)->
+      @timer = new Timer
     stop: -> @timer.clear()
     start: ->
+      @stop() if @timer.isCounting()
       @timer.start(@pollFn, @period)
 
-  class SubWindow
-    constructor: (poller)->
-      @poller = poller
+  class PollingSubWindow
+    constructor: (@poller)->
       @poller.start()
     close: ->
       @poller.stop()
       null
 
   class PollingWindow
-    constructor: (pollingSubWindow)->
-      @subWindow = pollingSubWindow
+    constructor: (@subWindow)->
     replace: (newPollingSubWindow)->
       @subWindow.close()
       @subWindow = newPollingSubWindow
@@ -28,7 +25,7 @@ class WindowManager
       @subWindow.close()
 
   class MatchStartWindow extends PollingWindow
-    class MatchQueueUpdateWindow extends SubWindow
+    class MatchQueueUpdateWindow extends PollingSubWindow
       class MatchQueueUpdatePoller extends Poller
         @PERIOD: 2000
         constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
@@ -36,16 +33,18 @@ class WindowManager
       constructor: ->
         super(new MatchQueueUpdatePoller(=> AjaxCommunicator.get Routes.update_match_queue_path()))
 
-    class WaitingForMatchWindow extends SubWindow
+    class WaitingForMatchWindow extends PollingSubWindow
       class WaitingForMatchPoller extends Poller
         @PERIOD: 2000
         constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
 
-      constructor: (matchId, matchSliceIndex)->
+      constructor: (matchData)->
+        console.log "WaitingForMatchWindow#constructor: matchData: #{matchData}"
+        matchData.load_previous_messages = true
         super(
           new WaitingForMatchPoller(
             => AjaxCommunicator.post Routes.match_home_path(),
-            {match_id: matchId, match_slice_index: matchSliceIndex, load_previous_messages: true}
+            matchData
           )
         )
 
@@ -54,20 +53,25 @@ class WindowManager
       @showMatchEntryPage alertMessage
       super(new MatchQueueUpdateWindow)
 
-    waitForMatchToStart: (@matchId, @matchSliceIndex)->
-      replace(new WaitingForMatchWindow(@matchId, @matchSliceIndex))
+    waitForMatchToStart: (@matchData)->
+      console.log "MatchStartWindow#waitForMatchToStart: matchData: #{matchData}"
+      if !@isWaitingForMatchToStart()
+        @subWindow.close()
+        @replace(new WaitingForMatchWindow(@matchData))
+
+    isWaitingForMatchToStart: ->
+      @subWindow instanceof WaitingForMatchWindow
 
     showMatchEntryPage: (alertMessage = null)->
-      console.log "Realtime#showMatchEntryPage: alertMessage: #{alertMessage}"
-      @resetState()
+      console.log "MatchStartWindow#showMatchEntryPage: alertMessage: #{alertMessage}"
       if alertMessage?
-        AjaxCommunicator.sendPost Routes.root_path(), {alert_message: alertMessage}
+        AjaxCommunicator.get Routes.root_path(), {alert_message: alertMessage}
       else
-        AjaxCommunicator.sendGet Routes.root_path()
+        AjaxCommunicator.get Routes.root_path()
 
 
   class PlayerActionsWindow extends PollingWindow
-    class MatchSliceWindow extends SubWindow
+    class MatchSliceWindow extends PollingSubWindow
       class SummaryInformationManager
         constructor: ()->
           @savedSummaryInfo = $('.summary_information').html()
@@ -81,7 +85,7 @@ class WindowManager
         @PERIOD: 500
         constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
 
-      constructor: (@matchId, @matchSliceIndex, onActionTimeout)->
+      constructor: (@matchData, onActionTimeout)->
         @isSpectating = false
         @timer = new ActionTimer onActionTimeout
         super(new MatchSliceWindowPoller(=> @updateState()))
@@ -90,34 +94,36 @@ class WindowManager
         @timer.clear()
         super()
 
-      matchData: -> {match_id: @matchId, match_slice_index: @matchSliceIndex}
-
       updateState: ->
         console.log "MatchSliceWindowPoller#updateState"
         @matchWindow.timer.pause()
         @_reload(=> @_updateState())
       playAction: (actionArg)->
-        params = @matchData()
+        params = @matchData
         params.poker_action = actionArg
-        AjaxCommunicator.sendPost(Routes.play_action_path(), params)
+        AjaxCommunicator.post(Routes.play_action_path(), params)
       nextHand: ->
-        @_reload(=> AjaxCommunicator.sendPost(Routes.update_match_path(), @matchData()))
-      finishUpdating: (matchSliceIndexString)->
-        nextSliceIndex = parseInt(matchSliceIndexString, 10)
-        if nextSliceIndex > @matchSliceIndex or not @timer.isCounting()
+        @_reload(=> AjaxCommunicator.post(Routes.update_match_path(), @matchData))
+      finishUpdating: (newMatchData, sliceData)->
+        if newMatchData.match_slice_index >= @matchData.match_slice_index or not @timer.isCounting()
           @timer.start()
         else
           @timer.resume()
         @summaryInfoManager.update()
-        @matchSliceIndex = nextSliceIndex
+        @matchData = newMatchData
+        if sliceData.is_users_turn_to_act or sliceData.next_hand_button_is_visible
+          @stop()
+        else
+          @start()
 
       _reload: (reloadMethod)->
         @summaryInfoManager = new SummaryInformationManager
+        @stop()
         reloadMethod()
 
       _updateState: ()->
         console.log "MatchSliceWindowPoller#forceUpdateState"
-        AjaxCommunicator.sendPost Routes.match_home_path(), @matchData
+        AjaxCommunicator.post Routes.match_home_path(), @matchData
 
     constructor: (matchId, matchSliceIndex, onActionTimeout)->
       console.log "PlayerActionsWindow#constructor: matchId: #{matchId}, matchSliceIndex: #{matchSliceIndex}"
@@ -126,8 +132,8 @@ class WindowManager
     nextHand: -> @subWindow.nextHand()
     playAction: (actionArg)-> @subWindow.playAction actionArg
 
-    finishUpdating: (matchSliceIndexString)->
-      @subWindow.finishUpdating matchSliceIndexString
+    finishUpdating: (matchData, sliceData)->
+      @subWindow.finishUpdating matchData, sliceData
 
     emitChatMessage: (user, msg)->
       console.log "Realtime#emitChatMessage"
@@ -147,9 +153,11 @@ class WindowManager
   constructor: ->
     @window = new MatchStartWindow
 
-  waitForMatchToStart: (matchId, matchSliceIndex)->
+  waitForMatchToStart: (matchData)->
+    console.log "WindowManager#waitForMatchToStart: matchData: #{matchData}"
     if 'waitForMatchToStart' of @window
-      @window.waitForMatchToStart matchId, matchSliceIndex
+      matchData.match_slice_index += 1
+      @window.waitForMatchToStart matchData
     else
       console.log("WindowManager#waitForMatchToStart: WARNING: Called when @window is not a MatchStartWindow!")
 
@@ -185,20 +193,25 @@ class WindowManager
     #     @emitChatMessage user, msg
     # )
 
-    @_initPlayerActionsWindow @window.matchId, @window.matchSliceIndex
+    @_initPlayerActionsWindow @window.matchData
 
-  finishUpdatingPlayerActionsWindow: (matchSliceIndex)->
+  finishedUpdatingMatchStartWindow: ->
+    console.log "WindowManager#finishedUpdatingMatchStartWindow"
+    @window.subWindow.poller.start()
+
+  finishUpdatingPlayerActionsWindow: (matchData, sliceData)->
+    matchData.match_slice_index += 1
     unless @window instanceof PlayerActionsWindow
-      @_initPlayerActionsWindow @window.matchId, @window.matchSliceIndex
-    @window.finishUpdating(matchSliceIndex)
+      @_initPlayerActionsWindow matchData
+    @window.finishUpdating(matchData, sliceData)
 
-  _initPlayerActionsWindow: (matchId, matchSliceIndex)->
+  _initPlayerActionsWindow: (matchData)->
     @window.close()
     onActionTimeout = =>
       # if @matchWindow.isSpectating
       #   alert('The match has timed out.')
       # else
       @leaveMatch('The match has timed out.')
-    @window = new PlayerActionsWindow(matchId, matchSliceIndex, onActionTimeout)
+    @window = new PlayerActionsWindow(matchData, onActionTimeout)
 
 root.WindowManager = WindowManager

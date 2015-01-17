@@ -9,11 +9,11 @@ class AjaxCommunicator
       data: dataArg,
       dataType: 'script'
     })
-  @sendPost: (urlArg, dataArg = {})->
-    console.log "AjaxCommunicator#sendPost: urlArg: #{urlArg}, dataArg: #{dataArg}"
+  @post: (urlArg, dataArg = {})->
+    console.log "AjaxCommunicator#post: urlArg: #{urlArg}, dataArg: #{dataArg}"
     @send('POST', urlArg, dataArg)
-  @sendGet: (urlArg)->
-    console.log "AjaxCommunicator#sendGet: urlArg: #{urlArg}"
+  @get: (urlArg)->
+    console.log "AjaxCommunicator#get: urlArg: #{urlArg}"
     @send('GET', urlArg)
 
 root.AjaxCommunicator = AjaxCommunicator

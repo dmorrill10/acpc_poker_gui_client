@@ -16,9 +16,9 @@
 //= require js-routes
 //= require jquery.ui.chatbox/jquery.ui.chatbox
 //= require jquery.hotkeys/jquery.hotkeys
+//= require project_specific/timer.js.coffee
 //= require project_specific/ajax_communicator.js.coffee
 //= require project_specific/counter_queue.js.coffee
-//= require project_specific/match_window.js.coffee
 //= require project_specific/realtime.js.coffee
 //= require project_specific/chat.js.coffee
 //= require_tree .

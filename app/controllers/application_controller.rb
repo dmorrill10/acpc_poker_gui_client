@@ -187,7 +187,7 @@ class MatchManagerController < UserManagerController
   end
 
   def num_matches_in_progress
-    @num_matches_in_progress ||= started_and_unfinished_matches.length
+    @num_matches_in_progress ||= Match.asc(:name).running.all.length
   end
 end
 

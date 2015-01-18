@@ -15,6 +15,7 @@
 
 - rejoin_button_id = 'rejoin'
 - spectate_button_id_prefix = 'spectate-'
+- running_matches = Match.asc(:name).running.take(ApplicationHelper::MAX_NUM_MATCHES)
 
 .row
   .col-sm-12
@@ -32,11 +33,11 @@
         %thead
           %tr
             %th Player
-            %th= "#{num_matches_in_progress} / #{ApplicationHelper::MAX_NUM_MATCHES}"
+            %th= "#{running_matches.length} / #{ApplicationHelper::MAX_NUM_MATCHES}"
             - if ApplicationHelper::ENABLE_SPECTATING
               %th
         %tbody
-          - Match.asc(:name).running.take(ApplicationHelper::MAX_NUM_MATCHES).each do |m|
+          - running_matches.each do |m|
             %tr
               %td= m.user_name
               - hn = if m.hand_number then m.hand_number else 0 end
@@ -70,7 +71,7 @@
                           );
                           rt.spectate();
                         });
-          - (ApplicationHelper::MAX_NUM_MATCHES - num_matches_in_progress).times do |i|
+          - (ApplicationHelper::MAX_NUM_MATCHES - running_matches.length).times do |i|
             %tr
               %td
               %td

@@ -107,19 +107,13 @@ module TableManager
 
       begin
         match = Match.find match_id
-        match.delete if match.all_slices_up_to_hand_end_viewed?
-      rescue Mongoid::Errors::DocumentNotFound
-      else
-        begin
+        if match.all_slices_up_to_hand_end_viewed?
+          match.delete
+        else
           match.is_running = false
           match.save!
-        rescue # quiet errors
-          log(
-            __method__,
-            match_is_running: match.is_running,
-            msg: "Unable to set match as not running!"
-          )
         end
+      rescue Mongoid::Errors::DocumentNotFound
       end
 
       match_info = @running_matches[match_id]

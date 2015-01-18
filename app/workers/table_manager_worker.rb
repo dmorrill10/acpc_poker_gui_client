@@ -65,7 +65,7 @@ module TableManager
 
       @syncer.synchronize do
         if (
-          @table_queue.changeInNumberOfRunningMatches? do
+          @table_queue.change_in_number_of_running_matches? do
             @table_queue.kill_match!(match_id)
           end
         )
@@ -77,7 +77,7 @@ module TableManager
     def clean_up_matches!
       @syncer.synchronize do
         if (
-          @table_queue.changeInNumberOfRunningMatches? do
+          @table_queue.change_in_number_of_running_matches? do
             @table_queue.check_queue!
           end
         )
@@ -91,8 +91,8 @@ module TableManager
     def enque_match!(match_id, options)
       @syncer.synchronize do
         if (
-          @table_queue.changeInNumberOfRunningMatches? do
-            @table_queue.enque!(match_id, options)
+          @table_queue.change_in_number_of_running_matches? do
+            @table_queue.enqueue!(match_id, options)
           end
         )
           @match_communicator.update_match_queue!

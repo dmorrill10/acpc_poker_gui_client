@@ -21,6 +21,10 @@ class Match
 
   scope :running, where(is_running: true)
 
+  scope :not_running, where(is_running: false)
+
+  scope :not_started, where(:last_slice_viewed.lt => 0)
+
   def self.id_exists?(match_id)
     Match.where(id: match_id).exists?
   end
@@ -146,6 +150,14 @@ class Match
   field :random_seed, type: Integer
   field :last_slice_viewed, type: Integer, default: -1
   field :is_running, type: Boolean, default: false
+  field :dealer_options, type: String, default: (
+    [
+      '-a', # Append logs with the same name rather than overwrite
+      "--t_response 70000", # 70 seconds per action
+      '--t_hand -1',
+      '--t_per_hand -1'
+    ].join(' ')
+  )
 
   include_name
   include_name_from_user

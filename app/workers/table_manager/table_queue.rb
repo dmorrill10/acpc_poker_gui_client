@@ -40,9 +40,13 @@ module TableManager
       ).with_metadata!
       @matches_to_start = []
       @running_matches = {}
+
+      Match.not_running.and.not_started do |m|
+        enqueue! m.id.to_s, m.dealer_options
+      end
     end
 
-    def changeInNumberOfRunningMatches?
+    def change_in_number_of_running_matches?
       prevNumMatchesRunning = @running_matches.length
       yield if block_given?
       prevNumMatchesRunning != @running_matches.length
@@ -69,7 +73,7 @@ module TableManager
       end
     end
 
-    def enque!(match_id, dealer_options)
+    def enqueue!(match_id, dealer_options)
       log __method__, match_id: match_id, running_matches: @running_matches
 
       raise StandardError.new("Match #{match_id} already started!") if @running_matches[match_id]
@@ -238,6 +242,20 @@ module TableManager
       @matches_to_start.any? { |m| m[:match_id] == match_id }
     end
 
+    def port(available_ports_)
+      port_ = (available_ports_ - ports_to_exclude).pop
+      while !AcpcDealer::port_available?(port_)
+        if available_ports_.empty?
+          raise StandardError.new("None of the special ports (#{available_special_ports}) are open")
+        end
+        port_ = available_ports_.pop
+      end
+      unless port_
+        raise StandardError.new("None of the special ports (#{available_special_ports}) are open")
+      end
+      port_
+    end
+
     def dequeue!
       log(
         __method__,
@@ -278,36 +296,29 @@ module TableManager
 
       available_ports_ = available_special_ports
       ports_to_be_used = special_port_requirements.map do |r|
-        if r
-          port = available_ports_.pop
-          while !AcpcDealer::port_available?(port)
-            if available_ports_.empty?
-              raise StandardError.new("None of the special ports (#{available_special_ports}) are open")
-            end
-            port = available_ports_.pop
-          end
-          unless port
-            raise StandardError.new("None of the special ports (#{available_special_ports}) are open")
-          end
-          port
-        else
-          0
-        end
+        if r then port(available_ports_) else 0 end
       end
 
-      log(
-        __method__,
-        msg: "Added #{match_id} list of running matches",
-        available_special_ports: available_special_ports,
-        special_port_requirements: special_port_requirements,
-        :'ports_to_be_used_(zero_for_random)' => ports_to_be_used
-      )
-
-      @running_matches[match_id][:dealer] = @agent_interface.start_dealer!(
-        options,
-        match,
-        ports_to_be_used
-      )
+      while @running_matches[match_id][:dealer].nil? do
+        log(
+          __method__,
+          msg: "Added #{match_id} list of running matches",
+          available_special_ports: available_special_ports,
+          special_port_requirements: special_port_requirements,
+          :'ports_to_be_used_(zero_for_random)' => ports_to_be_used
+        )
+        begin
+          @running_matches[match_id][:dealer] = @agent_interface.start_dealer!(
+            options,
+            match,
+            ports_to_be_used
+          )
+        rescue Timeout::Error
+          ports_to_be_used = special_port_requirements.map do |r|
+            if r then port(available_ports_) else 0 end
+          end
+        end
+      end
 
       begin
         match = Match.find match_id

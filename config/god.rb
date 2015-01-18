@@ -63,8 +63,3 @@ end
 watch('worker') do |w|
   w.start = "bundle exec sidekiq -r #{GOD_RAILS_ROOT} -L #{GOD_RAILS_ROOT}/log/sidekiq.log -t 1"
 end
-
-watch('node') do |w|
-  w.dir = "#{GOD_RAILS_ROOT}/realtime"
-  w.start = "node_modules/coffee-script/bin/coffee realtime-server.coffee"
-end

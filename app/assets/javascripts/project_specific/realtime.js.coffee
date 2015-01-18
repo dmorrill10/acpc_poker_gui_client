@@ -1,5 +1,15 @@
 root = exports ? this
 
+class ConsoleLogManager
+  @CONSOLE_LOG: console.log
+  @consoleIsEnabled: false
+  @enableLogger: ->
+    console.log = @CONSOLE_LOG
+  @disableLogger: ->
+    console.log = -> return
+
+root.ConsoleLogManager = ConsoleLogManager
+
 class WindowManager
   @isBlank: (str)-> (!str || /^[\"\'\s]*$/.test(str))
   @isEmpty: (el)-> !$.trim(el.html())

@@ -22,7 +22,7 @@
       .panel-heading
         %h3.panel-title Welcome!
       .panel-body
-        %p= "If this is your first time here, play a match by signing-in with a new user name. Sign-in by clicking on the current user name in the navigation bar." + if ApplicationHelper::ENABLE_SPECTATING then " Or, if you would rather watch another person play a match, click on a Spectate button in the table below." else '' end
+        %p= "If this is your first time here, play a match by signing-in with a new user name. Sign-in by clicking on the current user name in the navigation bar." + if ApplicationHelper::ENABLE_SPECTATING then " Or, if you would rather watch another person play a match, click on a Spectate button in the table below." else '' end + 'The title of your browser tab will alert you that your enqueued match has started by showing the message, "Match Started!".'
 .row
   .col-sm-6
     .matches-in-progress.panel.panel-success
@@ -36,7 +36,7 @@
             - if ApplicationHelper::ENABLE_SPECTATING
               %th
         %tbody
-          - started_and_unfinished_matches.each do |m|
+          - Match.asc(:name).running.take(ApplicationHelper::MAX_NUM_MATCHES).each do |m|
             %tr
               %td= m.user_name
               - hn = if m.hand_number then m.hand_number else 0 end

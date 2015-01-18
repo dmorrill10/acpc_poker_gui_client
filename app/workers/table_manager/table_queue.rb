@@ -109,6 +109,9 @@ module TableManager
         match = Match.find match_id
         match.delete if match.all_slices_up_to_hand_end_viewed?
       rescue Mongoid::Errors::DocumentNotFound
+      else
+        match.is_running = false
+        match.save!
       end
 
       match_info = @running_matches[match_id]
@@ -330,6 +333,9 @@ module TableManager
       @agent_interface.start_opponents!(opponents)
 
       log(__method__, msg: "Opponents started for #{match_id}")
+
+      match.is_running = true
+      match.save!
 
       @running_matches[match_id][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
         @match_communicator.match_updated! match_id

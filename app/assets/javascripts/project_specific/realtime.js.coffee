@@ -245,16 +245,14 @@ class WindowManager
     else
       @showMatchEntryPage alertMessage
 
-  onMatchHasStarted: ->
-    console.log "WindowManager#onMatchHasStarted"
-
+  # onMatchHasStarted: ->
+    # console.log "WindowManager#onMatchHasStarted"
     # Chat.init(
     #   @userName,
     #   (id, user, msg)=>
     #     @emitChatMessage user, msg
     # )
-
-    @_initPlayerActionsWindow @window.matchData
+    # @_initPlayerActionsWindow @window.matchData
 
   finishUpdating: ->
     console.log "WindowManager#finishUpdating"
@@ -271,6 +269,15 @@ class WindowManager
     )
     matchData.match_slice_index += 1
     unless @window instanceof PlayerActionsWindow
+      $.titleAlert(
+        'Match Started!',
+        {
+          requireBlur: true,
+          stopOnFocus: true,
+          duration: 55000,
+          interval: 700
+        }
+      )
       @_initPlayerActionsWindow matchData
     @window.finishUpdating(matchData, sliceData)
     console.log "WindowManager#finishUpdatingPlayerActionsWindow: Returning"

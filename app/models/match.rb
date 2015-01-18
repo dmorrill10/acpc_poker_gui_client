@@ -19,6 +19,8 @@ class Match
     where(:updated_at.lt => (Time.new - lifespan))
   end
 
+  scope :running, where(is_running: true)
+
   def self.id_exists?(match_id)
     Match.where(id: match_id).exists?
   end
@@ -142,7 +144,8 @@ class Match
   # Table parameters
   field :port_numbers, type: Array
   field :random_seed, type: Integer
-  field :last_slice_viewed, type: Integer
+  field :last_slice_viewed, type: Integer, default: -1
+  field :is_running, type: Boolean, default: false
 
   include_name
   include_name_from_user
@@ -214,7 +217,6 @@ class Match
     self.opponent_names ||= (game_info[:num_players] - 1).times.map { |i| "tester" }
 
     self.number_of_hands ||= 1
-    self.last_slice_viewed ||= -1
 
     save!
 

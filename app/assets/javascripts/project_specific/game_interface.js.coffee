@@ -8,13 +8,14 @@ root.GameInterface =
     elementToScale = $('.game_interface')
     windowBuffer = 1
     widthRatio = ($(window).width() - windowBuffer) / elementToScale.width()
-    heightRatio = ($(window).height() - windowBuffer - $('.navbar').height()) / elementToScale.height()
+    aboveTableHeight = $('nav').height() + $('.banner-container').height()
+    heightRatio = ($(window).height() - windowBuffer - aboveTableHeight) / elementToScale.height()
 
     smallestRatio = Math.min(heightRatio, widthRatio)
 
     elementToScale.css('transform', 'scale(' + smallestRatio.toString() + ')')
 
-    @adjustPositionAfterScaling(elementToScale, smallestRatio, $('.navbar').height(), $(window))
+    @adjustPositionAfterScaling(elementToScale, smallestRatio, aboveTableHeight, $(window))
 
     # Inversely scale slider and adjust width manually
     slider = $('.slider')

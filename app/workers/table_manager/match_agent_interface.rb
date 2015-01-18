@@ -54,7 +54,7 @@ module TableManager
       }
 
       # Start the dealer
-      dealer_info = Timeout::timeout(1) do
+      dealer_info = Timeout::timeout(3) do
         AcpcDealer::DealerRunner.start(
           dealer_arguments,
           MATCH_LOG_DIRECTORY,
@@ -92,7 +92,7 @@ module TableManager
           command_to_be_run: bot_start_command.join(' ')
         }
       )
-      pid = Timeout::timeout(1) do
+      pid = Timeout::timeout(3) do
         ProcessRunner.go(bot_start_command)
       end
       log(

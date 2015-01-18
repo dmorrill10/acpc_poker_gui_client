@@ -243,7 +243,7 @@ module TableManager
     end
 
     def port(available_ports_)
-      port_ = (available_ports_ - ports_to_exclude).pop
+      port_ = available_ports_.pop
       while !AcpcDealer::port_available?(port_)
         if available_ports_.empty?
           raise StandardError.new("None of the special ports (#{available_special_ports}) are open")

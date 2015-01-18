@@ -1,7 +1,7 @@
 {
   "WAIT_FOR_MATCH_TO_START_PARTIAL": "match_start/wait_for_match_to_start",
   "FOOTER": "match_start/footer",
-  "DEALER_MILLISECOND_TIMEOUT": 604800000,
+  "DEALER_MILLISECOND_TIMEOUT": 70000,
   "IMPROPER_AMOUNT_MESSAGE": "Improper amount entered",
   "SIGN_IN_ID": "sign-in"
 }

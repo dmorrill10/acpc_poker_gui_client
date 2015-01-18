@@ -1,29 +1,13 @@
 :javascript
-  function nextHand() { return rt.nextHand(); };
-  function submitAction(action) {
-    return rt.playAction(action);
-  };
-  $(".#{PlayerActionsHelper::FOLD_HTML_CLASS}").click(function() {
-    return submitAction("#{AcpcPokerTypes::PokerAction::FOLD}");
-  });
-  $(".#{PlayerActionsHelper::PASS_HTML_CLASS}").click(function() {
-    return submitAction("#{AcpcPokerTypes::PokerAction::CALL}");
-  });
-  $(".#{PlayerActionsHelper::WAGER_HTML_CLASS}").click(function() {
-    var wagerAmount = wagerAmountField().val();
-    var action = "#{AcpcPokerTypes::PokerAction::RAISE}"
-    if (!isBlank(wagerAmount)) {
-      action += wagerAmount;
-    }
-    return submitAction(action);
-  });
-  $(".#{PlayerActionsHelper::NEXT_HAND_ID}").click(function() { return nextHand(); });
 - user.hotkeys.each do |hotkey|
   - label = hotkey.action
   - key = hotkey.key
   - if Hotkey::HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK[label]
     :javascript
-      Hotkey.bind("#{Hotkey::HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK[label]}", "#{key}");
+      Hotkey.bind(
+        "#{Hotkey::HOTKEY_LABELS_TO_ELEMENTS_TO_CLICK[label]}",
+        "#{key}"
+      );
   - else
     - wager_amount = if label == Hotkey::MIN_WAGER_LABEL
       - match_view.minimum_wager_to

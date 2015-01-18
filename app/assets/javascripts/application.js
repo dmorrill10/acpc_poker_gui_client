@@ -22,7 +22,3 @@
 //= require project_specific/realtime.js.coffee
 //= require project_specific/chat.js.coffee
 //= require_tree .
-
-function isBlank(str) {
-  return (!str || /^[\"\'\s]*$/.test(str));
-};

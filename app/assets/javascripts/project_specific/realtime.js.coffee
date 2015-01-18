@@ -1,17 +1,23 @@
 root = exports ? this
 
 class WindowManager
+  @isBlank: (str)-> (!str || /^[\"\'\s]*$/.test(str))
+  @isEmpty: (el)-> !$.trim(el.html())
+
+  @onLoadCallbacks: []
+  @loadComplete: ->
+    console.log "WindowManager::loadComplete: @onLoadCallbacks.length: #{@onLoadCallbacks.length}"
+    @onLoadCallbacks.shift()() while @onLoadCallbacks.length > 0
+
   class Poller
     constructor: (@pollFn, @period)->
       @_timer = new Timer
     stop: -> @_timer.clear()
-    start: ->
-      @stop() if @_timer.isCounting()
-      @_timer.start(@pollFn, @period)
+    start: -> @_timer.start(@pollFn, @period)
 
   class PollingSubWindow
     constructor: (@poller)->
-      @poller.start()
+    poll: -> WindowManager.onLoadCallbacks.push => @poller.start()
     stop: -> @poller.stop()
     close: ->
       @stop()
@@ -30,7 +36,6 @@ class WindowManager
       match_id: matchId,
       match_slice_index: parseInt(sliceIndexString, 10)
     }
-
 
   class MatchStartWindow extends PollingWindow
     class MatchQueueUpdateWindow extends PollingSubWindow
@@ -73,6 +78,7 @@ class WindowManager
       if !@isWaitingForMatchToStart()
         @subWindow.close()
         @replace(new WaitingForMatchWindow(@matchData))
+        @subWindow.poll()
 
     isWaitingForMatchToStart: ->
       console.log "MatchStartWindow#isWaitingForMatchToStart"
@@ -93,12 +99,14 @@ class WindowManager
           @savedSummaryInfo = $('.summary_information').html()
 
         update: ()->
+          console.log 'SummaryInformationManager#update'
           $('.summary_information').prepend(@savedSummaryInfo)
           summaryInfo = document.getElementById('summary_information')
           summaryInfo.scrollTop = summaryInfo.scrollHeight
+          console.log 'SummaryInformationManager#update: Returning'
 
       class MatchSliceWindowPoller extends Poller
-        @PERIOD: 500
+        @PERIOD: 1000
         constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
 
       constructor: (@matchData, onActionTimeout)->
@@ -119,28 +127,67 @@ class WindowManager
         @timer.stop()
         params = @matchData
         params.poker_action = actionArg
-        AjaxCommunicator.post(Routes.play_action_path(), params)
-      nextHand: ->
-        @timer.stop()
-        @_reload(=> AjaxCommunicator.post(Routes.update_match_path(), @matchData))
+        @_reload(=> AjaxCommunicator.post(Routes.play_action_path(), params))
+      nextHand: -> @updateState()
       finishUpdating: (newMatchData, sliceData)->
         console.log "MatchSliceWindow#finishUpdating: newMatchData: #{JSON.stringify(newMatchData)}, sliceData: #{JSON.stringify(sliceData)}"
-        if newMatchData.match_slice_index >= @matchData.match_slice_index or not @timer.isCounting()
-          @timer.start()
-        else
-          @timer.resume()
-        @summaryInfoManager.update()
+        @_updateActionTimer newMatchData
+        @summaryInfoManager.update() if @summaryInfoManager?
         @matchData = newMatchData
-        if sliceData.is_users_turn_to_act or sliceData.next_hand_button_is_visible
-          @stop()
-        else
-          @start()
+        GameInterface.adjustScale()
+        @_wireActions sliceData
+        @_checkToStartPolling sliceData
 
       leaveMatch: (alertMessage=null)->
+        console.log "MatchSliceWindow#leaveMatch: alertMessage: #{alertMessage}"
         @timer.stop()
         params = @matchData
         params.alert_message = alertMessage
-        AjaxCommunicator.post(Routes.leave_match_path(), params)
+        @_reload(=> AjaxCommunicator.post(Routes.leave_match_path(), params))
+
+      _wireActions: (sliceData)->
+        console.log "MatchSliceWindow#_wireActions: sliceData: #{JSON.stringify(sliceData)}"
+        if sliceData.match_has_ended
+          $(".leave-btn").click => @leaveMatch()
+        else if sliceData.next_hand_button_is_visible
+          $(".next_hand_id").click => @nextHand()
+        else
+          $(".fold").click => @playAction "f"
+          $(".pass").click => @playAction "c"
+          $(".wager").click =>
+            wagerAmount = wagerAmountField().val();
+            action = 'r'
+            if !WindowManager.isBlank(wagerAmount)
+              action += wagerAmount
+            @playAction action
+
+      _setInitialFocus: (sliceData)->
+        if sliceData.match_has_ended
+          $(".leave-btn").focus()
+        else if sliceData.next_hand_button_is_visible
+          $(".next_hand_id").focus()
+        else
+          wagerAmountField().focus()
+
+      _updateActionTimer: (newMatchData)->
+        console.log "MatchSliceWindow#_updateActionTimer: newMatchData: #{JSON.stringify(newMatchData)}"
+        if newMatchData.match_slice_index >= @matchData.match_slice_index or not @timer.isCounting()
+          console.log "MatchSliceWindow#_updateActionTimer: Starting action timer"
+          @timer.start()
+        else if @matchData.match_has_ended
+          @timer.clear()
+        else
+          console.log "MatchSliceWindow#_updateActionTimer: Resuming action timer"
+          @timer.resume()
+
+      _checkToStartPolling: (sliceData)->
+        console.log "MatchSliceWindow#_checkToStartPolling: sliceData: #{JSON.stringify(sliceData)}"
+        if sliceData.is_users_turn_to_act or sliceData.next_hand_button_is_visible or sliceData.match_has_ended
+          console.log "MatchSliceWindow#finishUpdatingPlayerActionsWindow: No polling"
+          @stop()
+        else
+          console.log "MatchSliceWindow#finishUpdatingPlayerActionsWindow: Started polling"
+          @poll()
 
       _reload: (reloadMethod)->
         @summaryInfoManager = new SummaryInformationManager
@@ -154,9 +201,6 @@ class WindowManager
     constructor: (matchData, onActionTimeout)->
       console.log "PlayerActionsWindow#constructor: matchData: #{JSON.stringify(matchData)}"
       super(new MatchSliceWindow(matchData, onActionTimeout))
-
-    nextHand: -> @subWindow.nextHand()
-    playAction: (actionArg)-> @subWindow.playAction actionArg
 
     finishUpdating: (matchData, sliceData)->
       console.log "PlayerActionsWindow#finishUpdating"
@@ -195,20 +239,6 @@ class WindowManager
     @window.close()
     @window = new MatchStartWindow(alertMessage)
 
-  nextHand: ->
-    console.log "WindowManager#nextHand"
-    if 'nextHand' of @window
-      @window.nextHand()
-    else
-      console.log("WindowManager#nextHand: WARNING: Called when @window is not a PlayerActionsWindow!")
-
-  playAction: (actionArg)->
-    console.log "WindowManager#playAction: actionArg: #{actionArg}"
-    if 'playAction' of @window
-      @window.playAction actionArg
-    else
-      console.log("WindowManager#playAction: WARNING: Called when @window is not a PlayerActionsWindow!")
-
   leaveMatch: (alertMessage=null)->
     if 'leaveMatch' of @window
       @window.leaveMatch alertMessage
@@ -217,8 +247,6 @@ class WindowManager
 
   onMatchHasStarted: ->
     console.log "WindowManager#onMatchHasStarted"
-
-    window.onunload = (event)=> @leaveMatch()
 
     # Chat.init(
     #   @userName,
@@ -229,18 +257,23 @@ class WindowManager
     @_initPlayerActionsWindow @window.matchData
 
   finishUpdating: ->
-    console.log "WindowManager#finishedUpdating"
-    @window.subWindow.poller.start()
+    console.log "WindowManager#finishUpdating"
+    @window.subWindow.poll()
 
-  finishedUpdatingMatchStartWindow: ->
-    console.log "WindowManager#finishedUpdatingMatchStartWindow"
+  finishUpdatingMatchStartWindow: ->
+    console.log "WindowManager#finishUpdatingMatchStartWindow"
     @finishUpdating()
 
   finishUpdatingPlayerActionsWindow: (matchData, sliceData)->
+    console.log(
+      "WindowManager#finishUpdatingPlayerActionsWindow: matchData:" +
+      " #{JSON.stringify(matchData)}, sliceData: #{JSON.stringify(sliceData)}"
+    )
     matchData.match_slice_index += 1
     unless @window instanceof PlayerActionsWindow
       @_initPlayerActionsWindow matchData
     @window.finishUpdating(matchData, sliceData)
+    console.log "WindowManager#finishUpdatingPlayerActionsWindow: Returning"
 
   _initPlayerActionsWindow: (matchData)->
     @window.close()

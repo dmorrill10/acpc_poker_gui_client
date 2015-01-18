@@ -253,19 +253,16 @@ class PlayerActionsController < MatchViewManagerController
     )
     @match_view ||= MatchView.new match_id, match_slice_index
 
+    Rails.logger.ap({
+      method: __method__,
+      last_slice_viewed: @match_view.last_slice_viewed,
+      slice_to_be_rendered: @match_view.slice_index
+    })
+
     if @match_view.slice_index > @match_view.last_slice_viewed && !spectating?
       @match_view.last_slice_viewed = @match_view.slice_index
       @match_view.save!
     end
-
-    if @match_view.slice_index > @match_view.last_slice_viewed
-      session['num_requests'] = 0
-    end
-
-    Rails.logger.ap({
-      method: __method__,
-      last_slice_viewed: @match_view.last_slice_viewed
-    })
 
     return replace_page_contents_with_updated_game_view
   end

@@ -9,7 +9,10 @@
     = favicon_link_tag 'favicon.ico'
     = yield(:head)
     :javascript
-      $(document).ready(function(){ rt = new WindowManager(); });
+      $(document).ready(function(){
+        rt = new WindowManager();
+        WindowManager.loadComplete();
+      });
   %body
     .container
       %div{class: ApplicationHelper::APP_VIEW_HTML_CLASS}

@@ -8,7 +8,8 @@
     });
   });
   $("#leave-match-confirmation").on('shown.bs.modal', function() {
-    $('a.confirm-leave').focus();
+    $('.confirm-leave').click(function() { rt.leaveMatch(); });
+    $('.confirm-leave').focus();
   });
 %li.dropdown
   %a.dropdown-toggle{role: 'button', :href => "#", :data => {:toggle => "dropdown"}}= 'Hotkeys <b class="caret"></b>'.html_safe
@@ -26,4 +27,4 @@
         %p Are you sure you want to leave and end the match?
       .modal-footer
         %button.btn.btn-default.cancel{type: "button",  data: {dismiss: "modal"}} Cancel
-        %a.btn.btn-success.confirm-leave{type: "button",  href: "#{leave_match_path}", data: {remote: true}} Leave
+        %button.btn.btn-success.confirm-leave{type: "button", data: {remote: true}} Leave

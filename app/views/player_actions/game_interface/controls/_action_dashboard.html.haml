@@ -1,12 +1,13 @@
 .action_dashboard{ class: match_view.betting_type_label }
   - if match_view.match_ended?
     .meta_action
-      = button_tag PlayerActionsHelper::LEAVE_MATCH_LABEL, data: { disable_with: PlayerActionsHelper::LEAVE_MATCH_LABEL }, class: PlayerActionsHelper::LEAVE_MATCH_BUTTON_HTML_CLASS
+      - leave_match_attributes = {class: PlayerActionsHelper::LEAVE_MATCH_BUTTON_HTML_CLASS, data: { disable_with: PlayerActionsHelper::LEAVE_MATCH_LABEL }}
+      %button.btn.btn-info{leave_match_attributes}= PlayerActionsHelper::LEAVE_MATCH_LABEL
   - elsif next_hand_button_visible?
     .meta_action
       - next_hand_attributes = { class: PlayerActionsHelper::NEXT_HAND_ID, data: { disable_with: PlayerActionsHelper::NEXT_HAND_LABEL } }
       - next_hand_attributes[:disabled] = 'disabled' if spectating?
-      %button{next_hand_attributes}= PlayerActionsHelper::NEXT_HAND_LABEL
+      %button.btn.btn-info{next_hand_attributes}= PlayerActionsHelper::NEXT_HAND_LABEL
   - else
     .action_modification_tools
       - if match_view.no_limit?

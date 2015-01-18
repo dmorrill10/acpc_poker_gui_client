@@ -12,6 +12,11 @@ require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
 module TableManager
+  class Null
+    def method_missing(*args, &block)
+      self
+    end
+  end
   class Maintainer
     include SimpleLogging
     include MatchInterface
@@ -22,7 +27,7 @@ module TableManager
     def initialize(logger_)
       @logger = logger_
       @agent_interface = MatchAgentInterface.new
-      @match_communicator = MatchCommunicator.new
+      @match_communicator = Null.new
 
       @table_queue = TableQueue.new(@match_communicator, @agent_interface)
 

@@ -1,3 +1,4 @@
 - if @alert_message
   alert("#{escape_javascript(@alert_message.html_safe)}");
 rt.finishUpdating();
+WindowManager.loadComplete();

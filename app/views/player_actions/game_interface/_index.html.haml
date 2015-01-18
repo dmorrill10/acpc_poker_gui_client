@@ -1,9 +1,3 @@
-:javascript
-  // Must come before change in focus code and as late into loading the page as possible
-  // to make sure the window fits exactly as expected.
-  alert('adjusting scale');
-  GameInterface.adjustScale();
-
 .game_interface
   = render partial: poker_table_partial('index')
 

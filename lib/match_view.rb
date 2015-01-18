@@ -25,7 +25,7 @@ class MatchView < SimpleDelegator
     end
   end
 
-  WAIT_FOR_SLICE_TIMEOUT = 30 # seconds
+  WAIT_FOR_SLICE_TIMEOUT = 60 # seconds
 
   def initialize(match_id, slice_index, load_previous_messages = false)
     @match = Match.find(match_id)

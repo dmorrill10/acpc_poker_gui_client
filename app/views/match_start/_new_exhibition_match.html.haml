@@ -86,7 +86,7 @@
         - num_matches_in_queue = Match.unfinished.length
         - num_matches_before_user_can_play = num_matches_in_queue - ApplicationHelper::MAX_NUM_MATCHES + 1
         - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-success', value: if num_matches_in_queue < ApplicationHelper::MAX_NUM_MATCHES && matches.empty? then "Play Match!" else "Enqueue match (#{num_matches_before_user_can_play} in line)" end}
-        - if matches.length > 0 || @enqueue_match
+        - if matches.length > 0
           - play_button_attributes[:disabled] = 'disabled'
           - play_button_attributes[:value] = disabled_label
         - elsif user.name == User::DEFAULT_NAME

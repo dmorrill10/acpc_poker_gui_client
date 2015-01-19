@@ -227,7 +227,6 @@ module TableManager
 
     # Called by Rails controller through Sidekiq
     def perform(request, params=nil)
-      sleep 2
       match_id = nil
       begin
         log(__method__, {request: request, params: params})

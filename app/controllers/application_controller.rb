@@ -86,9 +86,7 @@ class MatchManagerController < UserManagerController
     :matches_to_rejoin,
     :seats_to_rejoin,
     :matches_including_user,
-    :user_already_in_match?,
-    :num_matches_in_progress,
-    :started_and_unfinished_matches
+    :user_already_in_match?
   )
 
   protected
@@ -138,9 +136,8 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_to_join
-    @matches_to_join ||= Match.asc(:name).all.select do |m|
-      !m.name_from_user.match(/^_+$/) &&
-      m.slices.empty? &&
+    Match.asc(:name).not_started.select do |m|
+      !m.copy? &&
       !m.human_opponent_seats(user.name).empty?
     end
   end
@@ -152,42 +149,32 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_to_rejoin
-    @matches_to_rejoin ||= Match.asc(:name).all.select do |m|
+    Match.asc(:name).started.select do |m|
       m.user_name == user_name &&
-      !m.name_from_user.match(/^_+$/) &&
-      !m.finished? &&
-      !m.slices.empty?
+      !m.copy? &&
+      !m.finished?
     end
   end
   def seats_to_rejoin
-    matches_to_rejoin.sort_by{ |m| m.name }.inject({}) do |hash, lcl_match|
-      hash[lcl_match.name] = lcl_match.human_opponent_seats
-      hash[lcl_match.name] << lcl_match.seat unless hash[lcl_match.name].include?(lcl_match.seat)
-      hash[lcl_match.name].sort!
+    matches_to_rejoin.sort_by{ |m| m.name }.inject({}) do |hash, m|
+      hash[m.name] = m.human_opponent_seats
+      hash[m.name] << m.seat unless hash[m.name].include?(m.seat)
+      hash[m.name].sort!
       hash
     end
   end
 
   def matches_including_user
-    @matches_including_user ||= begin
+    begin
       matches = Match.where(user_name: user_name)
-      matches.reject { |m| m.name_from_user.match(/^_+$/) }
-      Match.unfinished matches
+      matches.reject { |m| m.copy? || m.finished? }
     rescue
       []
     end
   end
 
   def user_already_in_match?
-    @user_is_already_in_match ||= matches_including_user.length > 0
-  end
-
-  def started_and_unfinished_matches
-    @started_and_unfinished_matches ||= Match.asc(:name).started_and_unfinished
-  end
-
-  def num_matches_in_progress
-    @num_matches_in_progress ||= Match.asc(:name).running.all.length
+    matches_including_user.length > 0
   end
 end
 
@@ -197,12 +184,6 @@ class ApplicationController < MatchManagerController
   def table_manager_constants
     render(
       json: File.read(TableManager::CONSTANTS_FILE)
-    )
-  end
-
-  def realtime_constants
-    render(
-      json: File.read(Rails.root.join('realtime', 'realtime.json'))
     )
   end
 

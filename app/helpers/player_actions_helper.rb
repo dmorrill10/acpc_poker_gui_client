@@ -77,8 +77,4 @@ module PlayerActionsHelper
   def dealer_button
     haml_tag(:div, class: DEALER_BUTTON_HTML_CLASS) { haml_concat 'Dealer' }
   end
-
-  def action_timeout_enabled?
-    PlayerActionsHelper::ACTION_TIMEOUT > 0
-  end
 end

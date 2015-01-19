@@ -59,4 +59,16 @@ module ApplicationHelper
   def self.label_for_required(label)
     "<abbr title='required'>*</abbr> #{label}".html_safe
   end
+
+  def action_timeout_enabled?
+    ApplicationHelper::ACTION_TIMEOUT > 0
+  end
+
+  def hand_number(match_)
+    if match_.hand_number then match_.hand_number else 0 end
+  end
+
+  def hands_completed(match_)
+    "#{hand_number(match_)} / #{match_.number_of_hands} hands completed"
+  end
 end

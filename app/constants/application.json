@@ -14,5 +14,6 @@
   "TOGGLE_NAV_TEXT": "Toggle navigation",
   "ENABLE_NO_LIMIT_HOTKEYS": false,
   "ENABLE_CHAT": false,
-  "ENABLE_SPECTATING": false
+  "ENABLE_SPECTATING": false,
+  "ACTION_TIMEOUT": 60
 }

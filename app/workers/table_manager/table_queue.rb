@@ -18,14 +18,12 @@ using SimpleLogging::MessageFormatting
 
 
 require_relative 'table_manager_constants'
-require_relative 'match_interface'
 require_relative 'monkey_patches'
 using TableManager::MonkeyPatches::IntegerAsProcessId
 
 module TableManager
   class TableQueue
     include SimpleLogging
-    include MatchInterface
 
     attr_reader :running_matches
 
@@ -41,7 +39,13 @@ module TableManager
       @matches_to_start = []
       @running_matches = {}
 
-      Match.not_running.and.not_started do |m|
+      # Clean up old matches
+      Match.running.or.started.each do |m|
+        m.delete
+      end
+
+      # Enqueue matches that are waiting
+      Match.not_running.and.not_started.each do |m|
         enqueue! m.id.to_s, m.dealer_options
       end
     end
@@ -97,13 +101,8 @@ module TableManager
       if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
         dequeue!
       end
-      self
-    end
 
-    def delete_matches!
-      delete_irrelevant_matches!
-      delete_irrelevant_running_matches!
-      delete_matches_not_in_memory!
+      self
     end
 
     def kill_match!(match_id)
@@ -111,13 +110,10 @@ module TableManager
 
       begin
         match = Match.find match_id
-        if match.all_slices_up_to_hand_end_viewed?
-          match.delete
-        else
-          match.is_running = false
-          match.save!
-        end
       rescue Mongoid::Errors::DocumentNotFound
+      else
+        match.is_running = false
+        match.save!
       end
 
       match_info = @running_matches[match_id]
@@ -174,8 +170,6 @@ module TableManager
     protected
 
     def kill_matches!
-      delete_matches!
-
       running_matches_array = @running_matches.to_a
       running_matches_array.each_index do |i|
         match_id, match_info = running_matches_array[i]
@@ -196,42 +190,7 @@ module TableManager
       end
     end
 
-    def delete_irrelevant_running_matches!
-      @running_matches.each do |match_id, match_processes|
-        unless AcpcDealer::dealer_running?(match_processes)
-          begin
-            match = Match.find match_id
-          rescue Mongoid::Errors::DocumentNotFound
-          else
-            match.delete if match.all_slices_up_to_hand_end_viewed?
-          end
-        end
-      end
-    end
-
-    def delete_matches_not_in_memory!
-      Match.each do |match|
-        match_id = match.id.to_s
-
-        log(
-          __method__,
-          {
-            match_to_check: { id: match_id, name: match.name, num_slices: match.slices.length },
-            running?: match_running?(match_id),
-            started?: match.started?,
-            queued?: match_queued?(match_id)
-          }
-        )
-
-        unless match_running?(match_id)
-          if match.started? || !match_queued?(match_id)
-            kill_match! match_id
-          end
-        end
-      end
-    end
-
-    def match_running?(match_id)
+    def dealer_running?(match_id)
       (
         @running_matches[match_id] &&
         AcpcDealer::dealer_running?(@running_matches[match_id])
@@ -299,6 +258,9 @@ module TableManager
         if r then port(available_ports_) else 0 end
       end
 
+      match.is_running = true
+      match.save!
+
       while @running_matches[match_id][:dealer].nil? do
         log(
           __method__,
@@ -346,9 +308,6 @@ module TableManager
       @agent_interface.start_opponents!(opponents)
 
       log(__method__, msg: "Opponents started for #{match_id}")
-
-      match.is_running = true
-      match.save!
 
       @running_matches[match_id][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
         @match_communicator.match_updated! match_id

@@ -40,7 +40,7 @@ class MatchView < SimpleDelegator
     unless @slice_index < @match.slices.length
       Timeout.timeout(WAIT_FOR_SLICE_TIMEOUT) do
         while @slice_index >= @match.slices.length do
-          sleep 1
+          sleep 0.5
           @match = Match.find(match_id)
         end
       end

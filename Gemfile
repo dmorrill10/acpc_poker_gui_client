@@ -5,9 +5,9 @@ gem 'rails', '~>3.2'
 gem 'rack', '~>1.4'
 
 # Database module
-gem 'origin', '~>1.0.11'
-gem 'moped', '~>1.4.3'
-gem "mongoid", '~>3.1.2'
+gem 'origin', '~>1.0'
+gem 'moped', '~>1.4'
+gem "mongoid", '~>3.1'
 
 # For convenient styling macros and SASS
 gem 'compass-rails', '~> 1.0'
@@ -110,6 +110,11 @@ group :development do
 
   # Static code analysis
   gem 'rails_best_practices'
+
+  gem 'pry-rails'
+
+  # if you require 'sinatra' you get the DSL extended to Object
+  gem 'sinatra', :require => nil
 end
 
 group :development, :test do

@@ -49,10 +49,6 @@ class MatchSlice
     )
   end
 
-  def users_turn_to_act?
-    is_users_turn_to_act
-  end
-
   def self.betting_sequence(match_state, game_def)
     sequence = ''
     match_state.betting_sequence(game_def).each_with_index do |actions_per_round, round|
@@ -168,12 +164,14 @@ class MatchSlice
     state.players(game_def).amount_to_call(state.next_to_act(game_def))
   end
 
-  def hand_ended?
-    hand_has_ended
+  def users_turn_to_act?
+    self.is_users_turn_to_act
   end
-
+  def hand_ended?
+    self.hand_has_ended
+  end
   def match_ended?
-    match_has_ended
+    self.match_has_ended
   end
 
   private

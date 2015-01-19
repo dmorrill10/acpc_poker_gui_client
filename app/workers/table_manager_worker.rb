@@ -17,10 +17,28 @@ module TableManager
       self
     end
   end
+  module HandleException
+    protected
+
+    # @param [String] match_id The ID of the match in which the exception occurred.
+    # @param [Exception] e The exception to log.
+    def handle_exception(match_id, e)
+      log(
+        __method__,
+        {
+          match_id: match_id,
+          message: e.message,
+          backtrace: e.backtrace
+        },
+        Logger::Severity::ERROR
+      )
+    end
+  end
+
   class Maintainer
     include SimpleLogging
-    include MatchInterface
     include ParamRetrieval
+    include HandleException
 
     MAINTENANCE_INTERVAL = 60 # seconds
 
@@ -48,7 +66,17 @@ module TableManager
           log_with maintenance_logger, __method__, msg: "Going to sleep"
           sleep MAINTENANCE_INTERVAL
           log_with maintenance_logger, __method__, msg: "Starting maintenance"
+
           begin
+            @syncer.synchronize do
+              if (
+                @table_queue.change_in_number_of_running_matches? do
+                  @table_queue.check_queue!
+                end
+              )
+                @match_communicator.update_match_queue!
+              end
+            end
             clean_up_matches!
           rescue => e
             handle_exception nil, e
@@ -75,17 +103,7 @@ module TableManager
     end
 
     def clean_up_matches!
-      @syncer.synchronize do
-        if (
-          @table_queue.change_in_number_of_running_matches? do
-            @table_queue.check_queue!
-          end
-        )
-          @match_communicator.update_match_queue!
-        end
-
-        log __method__, num_matches_in_database_after: Match.all.length
-      end
+      Match.delete_matches_older_than! 1.day
     end
 
     def enque_match!(match_id, options)
@@ -101,11 +119,9 @@ module TableManager
     end
 
     def start_proxy!(match_id)
-      @syncer.synchronize do
-        match = match_instance(match_id)
-        @agent_interface.start_proxy!(match) do |players_at_the_table|
-          @match_communicator.match_updated! match_id.to_s
-        end
+      match = Match.find match_id
+      @agent_interface.start_proxy!(match) do |players_at_the_table|
+        @match_communicator.match_updated! match_id.to_s
       end
     end
 
@@ -115,35 +131,29 @@ module TableManager
         action: action,
         running?: !@table_queue.running_matches[match_id].nil?
       }
-      @syncer.synchronize do
-        unless @table_queue.running_matches[match_id]
-          @table_queue.kill_match!(match_id)
-          raise StandardError.new(
-            "Request to play in match #{match_id} when it doesn't exist! Killed match."
-          )
-        end
-        match = match_instance(match_id)
-        proxy = @table_queue.running_matches[match_id][:proxy]
-        unless proxy
-          @table_queue.kill_match!(match_id)
-          raise StandardError.new(
-            "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match."
-          )
-        end
+      unless @table_queue.running_matches[match_id]
+        kill_match!(match_id)
+        raise StandardError.new(
+          "Request to play in match #{match_id} when it doesn't exist! Killed match."
+        )
+      end
+      match = Match.find match_id
+      proxy = @table_queue.running_matches[match_id][:proxy]
+      unless proxy
+        kill_match!(match_id)
+        raise StandardError.new(
+          "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match."
+        )
+      end
 
-        @agent_interface.play!(action, match, proxy) do |players_at_the_table|
-          @match_communicator.match_updated! match_id
-          if players_at_the_table.match_state.first_state_of_first_round?
-            @match_communicator.update_match_queue!
-          end
-        end
-
-        if proxy.match_ended?
-          @table_queue.kill_match!(match_id)
-          @table_queue.check_queue!
+      @agent_interface.play!(action, match, proxy) do |players_at_the_table|
+        @match_communicator.match_updated! match_id
+        if players_at_the_table.match_state.first_state_of_first_round?
           @match_communicator.update_match_queue!
         end
       end
+
+      kill_match!(match_id) if proxy.match_ended?
     end
   end
 
@@ -152,8 +162,8 @@ module TableManager
     sidekiq_options retry: false, backtrace: true
 
     include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
-    include MatchInterface
     include ParamRetrieval
+    include HandleException
 
     def initialize
       @@logger ||= nil
@@ -171,16 +181,6 @@ module TableManager
       @logger = @@logger
     end
 
-    def refresh_module(module_constant, module_file, mode_file_base)
-      if Object.const_defined?(module_constant)
-        Object.send(:remove_const, module_constant)
-      end
-      $".delete_if {|s| s.include?(mode_file_base) }
-      load module_file
-
-      log __method__, msg: "RELOADED #{module_constant}"
-    end
-
     # Called by Rails controller through Sidekiq
     def perform(request, params=nil)
       match_id = nil
@@ -188,14 +188,8 @@ module TableManager
         log(__method__, {request: request, params: params})
 
         case request
-        when START_MATCH_REQUEST_CODE
-          # @todo Put bots in json so this hacky module reloading doesn't need to be done?
-          refresh_module('Bots', File.expand_path('../../../bots/bots.rb', __FILE__), 'bots')
-          refresh_module(
-            'ApplicationDefs',
-            File.expand_path('../../../lib/application_defs.rb', __FILE__),
-            'application_defs'
-          )
+        # when START_MATCH_REQUEST_CODE
+          # @todo Put bots in erb yaml and have them reread here
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
           return @@maintainer.clean_up_matches!
         end
@@ -254,3 +248,8 @@ module TableManager
     end
   end
 end
+
+# Want to instantiate a worker upon starting
+TableManager::Worker.perform_async(
+  TableManager::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
+)

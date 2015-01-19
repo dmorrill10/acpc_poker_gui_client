@@ -148,9 +148,11 @@ class PlayerActionsController < MatchViewManagerController
           TableManager::PLAY_ACTION_REQUEST_CODE,
           {
             TableManager::MATCH_ID_KEY => params['match_id'],
-            TableManager::ACTION_KEY => params[:poker_action]
+            TableManager::ACTION_KEY => params['poker_action']
           }
         )
+        # Gives the back end time, makes the UI faster since less polling is done
+        sleep 0.15
         return render_match_view params['match_id'], params['match_slice_index'].to_i
       end
     )

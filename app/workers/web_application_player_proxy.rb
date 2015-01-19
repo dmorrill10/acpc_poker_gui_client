@@ -1,9 +1,10 @@
-require 'acpc_poker_player_proxy'
-require 'acpc_poker_types'
-
 require_relative '../../lib/database_config'
 require_relative '../models/match'
 require_relative '../models/match_slice'
+
+# @todo These *must* be after database_config, otherwise segfaults will occur. Don't know why.
+require 'acpc_poker_player_proxy'
+require 'acpc_poker_types'
 
 require_relative '../../lib/application_defs'
 

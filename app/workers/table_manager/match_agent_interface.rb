@@ -9,8 +9,6 @@ require 'process_runner'
 require_relative '../../../lib/database_config'
 require_relative '../../models/match'
 
-require_relative 'match_interface'
-
 require_relative '../../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
@@ -22,7 +20,6 @@ module TableManager
   class MatchAgentInterface
     include AcpcPokerTypes
     include SimpleLogging
-    include MatchInterface
 
     def initialize
       @logger = Logger.from_file_name(
@@ -64,7 +61,7 @@ module TableManager
 
       # Store the port numbers in the database so the web app can access them
       match.port_numbers = dealer_info[:port_numbers]
-      save_match_instance! match
+      match.save!
 
       log __method__, {
         match_id: match.id,
@@ -113,7 +110,7 @@ module TableManager
 
       game_definition = GameDefinition.parse_file(match.game_definition_file_name)
       match.game_def_hash = game_definition.to_h
-      save_match_instance! match
+      match.save!
 
       proxy = WebApplicationPlayerProxy.new(
         match.id,

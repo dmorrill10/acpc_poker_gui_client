@@ -78,7 +78,7 @@ module TableManager
     end
 
     def enqueue!(match_id, dealer_options)
-      log __method__, match_id: match_id, running_matches: @running_matches
+      log __method__, match_id: match_id, running_matches: @running_matches.map { |r| r.first }
 
       raise StandardError.new("Match #{match_id} already started!") if @running_matches[match_id]
 
@@ -170,6 +170,7 @@ module TableManager
     protected
 
     def kill_matches!
+      log __method__
       running_matches_array = @running_matches.to_a
       running_matches_array.each_index do |i|
         match_id, match_info = running_matches_array[i]

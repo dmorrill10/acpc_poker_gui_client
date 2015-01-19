@@ -40,7 +40,7 @@ module TableManager
     include ParamRetrieval
     include HandleException
 
-    MAINTENANCE_INTERVAL = 60 # seconds
+    MAINTENANCE_INTERVAL = 30 # seconds
 
     def initialize(logger_)
       @logger = logger_
@@ -51,41 +51,44 @@ module TableManager
 
       @syncer = Mutex.new
 
+      @maintaining_ = false
+
       log(__method__)
     end
 
-    def maintain!
-      @thread = Thread.new do
-        maintenance_logger = Logger.from_file_name(
-          File.join(
-            ApplicationDefs::LOG_DIRECTORY,
-            'table_manager.maintenance.log'
-          )
-        ).with_metadata!
-        loop do
-          log_with maintenance_logger, __method__, msg: "Going to sleep"
-          sleep MAINTENANCE_INTERVAL
-          log_with maintenance_logger, __method__, msg: "Starting maintenance"
+    def maintaining?() @maintaining_ end
 
-          begin
-            @syncer.synchronize do
-              if (
-                @table_queue.change_in_number_of_running_matches? do
-                  @table_queue.check_queue!
-                end
-              )
-                @match_communicator.update_match_queue!
+    def maintain!
+      @maintaining_ = true
+      maintenance_logger = Logger.from_file_name(
+        File.join(
+          ApplicationDefs::LOG_DIRECTORY,
+          'table_manager.maintenance.log'
+        )
+      ).with_metadata!
+      log(__method__, {started_maintenance_thread: true})
+      loop do
+        log_with maintenance_logger, __method__, msg: "Going to sleep"
+        sleep MAINTENANCE_INTERVAL
+        log_with maintenance_logger, __method__, msg: "Starting maintenance"
+
+        begin
+          @syncer.synchronize do
+            if (
+              @table_queue.change_in_number_of_running_matches? do
+                @table_queue.check_queue!
               end
+            )
+              @match_communicator.update_match_queue!
             end
-            clean_up_matches!
-          rescue => e
-            handle_exception nil, e
-            Rusen.notify e # Send an email notification
           end
-          log_with maintenance_logger, __method__, msg: "Finished maintenance"
+          clean_up_matches!
+        rescue => e
+          handle_exception nil, e
+          Rusen.notify e # Send an email notification
         end
+        log_with maintenance_logger, __method__, msg: "Finished maintenance"
       end
-      log(__method__, {started_thread: @thread})
     end
 
     def kill_match!(match_id)
@@ -133,6 +136,7 @@ module TableManager
       }
       unless @table_queue.running_matches[match_id]
         kill_match!(match_id)
+
         raise StandardError.new(
           "Request to play in match #{match_id} when it doesn't exist! Killed match."
         )
@@ -140,10 +144,21 @@ module TableManager
       match = Match.find match_id
       proxy = @table_queue.running_matches[match_id][:proxy]
       unless proxy
-        kill_match!(match_id)
-        raise StandardError.new(
-          "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match."
+        log(
+          __method__,
+          {
+            msg: "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match.",
+            match_id: match_id,
+            match_name: match.name,
+            last_updated_at: match.updated_at,
+            running?: match.running?,
+            last_slice_viewed: match.last_slice_viewed,
+            last_slice_present: match.slices.length - 1,
+            action: action
+          },
+          Logger::Severity::ERROR
         )
+        return kill_match!(match_id)
       end
 
       @agent_interface.play!(action, match, proxy) do |players_at_the_table|
@@ -176,7 +191,6 @@ module TableManager
           )
         ).with_metadata!
         @@maintainer = Maintainer.new @@logger
-        @@maintainer.maintain!
       end
       @logger = @@logger
     end
@@ -188,6 +202,8 @@ module TableManager
         log(__method__, {request: request, params: params})
 
         case request
+        when 'maintain'
+          @@maintainer.maintain! unless @@maintainer.maintaining?
         # when START_MATCH_REQUEST_CODE
           # @todo Put bots in erb yaml and have them reread here
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
@@ -250,6 +266,4 @@ module TableManager
 end
 
 # Want to instantiate a worker upon starting
-TableManager::Worker.perform_async(
-  TableManager::DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-)
+TableManager::Worker.perform_async 'maintain'

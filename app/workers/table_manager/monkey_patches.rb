@@ -39,11 +39,11 @@ using TableManager::MonkeyPatches::IntegerAsProcessId
 require 'socket'
 require 'timeout'
 module AcpcDealer
-  def self.dealer_running?(match_process_hash)
+  def self.dealer_running?(dealer_process_hash)
     (
-      match_process_hash[:dealer] &&
-      match_process_hash[:dealer][:pid] &&
-      match_process_hash[:dealer][:pid].process_exists?
+      dealer_process_hash &&
+      dealer_process_hash[:pid] &&
+      dealer_process_hash[:pid].process_exists?
     )
   end
 

@@ -40,7 +40,7 @@ module TableManager
       @running_matches = {}
 
       # Clean up old matches
-      Match.running.or.started.each do |m|
+      Match.running_or_started.each do |m|
         m.delete
       end
 
@@ -105,6 +105,17 @@ module TableManager
       self
     end
 
+    # @todo Shouldn't be necessary, so this method isn't called right now, but I've written it so I'll leave it for now
+    def fix_running_matches_statuses!
+      log __method__
+      Match.running do |m|
+        if !(@running_matches[m.id.to_s] && AcpcDealer::dealer_running?(@running_matches[m.id.to_s][:dealer]))
+          m.is_running = false
+          m.save
+        end
+      end
+    end
+
     def kill_match!(match_id)
       return unless match_id
 
@@ -122,52 +133,54 @@ module TableManager
       end
       @matches_to_start.delete_if { |m| m[:match_id] == match_id }
 
-      if match_info && match_info[:dealer]
-        log(
-          __method__,
-          pid: match_info[:dealer][:pid],
-          was_running?: true,
-          dealer_running?: AcpcDealer::dealer_running?(match_info)
-        )
+      kill_dealer!(match_info[:dealer]) if match_info && match_info[:dealer]
 
-        if AcpcDealer::dealer_running? match_info
-          match_info[:dealer][:pid].kill_process
-
-          sleep 1 # Give the dealer a chance to exit
-
-          log(
-            __method__,
-            pid: match_info[:dealer][:pid],
-            msg: 'After TERM signal',
-            dealer_still_running?: AcpcDealer::dealer_running?(match_info)
-          )
-
-          if AcpcDealer::dealer_running?(match_info)
-            match_info[:dealer][:pid].force_kill_process
-            sleep 1
-
-            log(
-              __method__,
-              pid: match_info[:dealer][:pid],
-              msg: 'After KILL signal',
-              dealer_still_running?: AcpcDealer::dealer_running?(match_info)
-            )
-
-            if AcpcDealer::dealer_running?(match_info)
-              raise(
-                StandardError.new(
-                  "Dealer process #{match_info[:dealer][:pid]}
-                  associated with #{match_id} couldn't be killed!"
-                )
-              )
-            end
-          end
-          log __method__, match_id: match_id, msg: 'Match successfully killed'
-        end
-      end
+      log __method__, match_id: match_id, msg: 'Match successfully killed'
     end
 
     protected
+
+    def kill_dealer!(dealer_info)
+      log(
+        __method__,
+        pid: dealer_info[:pid],
+        was_running?: true,
+        dealer_running?: AcpcDealer::dealer_running?(dealer_info)
+      )
+
+      if AcpcDealer::dealer_running? dealer_info
+        dealer_info[:pid].kill_process
+
+        sleep 1 # Give the dealer a chance to exit
+
+        log(
+          __method__,
+          pid: dealer_info[:pid],
+          msg: 'After TERM signal',
+          dealer_still_running?: AcpcDealer::dealer_running?(dealer_info)
+        )
+
+        if AcpcDealer::dealer_running?(dealer_info)
+          dealer_info[:pid].force_kill_process
+          sleep 1
+
+          log(
+            __method__,
+            pid: dealer_info[:pid],
+            msg: 'After KILL signal',
+            dealer_still_running?: AcpcDealer::dealer_running?(dealer_info)
+          )
+
+          if AcpcDealer::dealer_running?(dealer_info)
+            raise(
+              StandardError.new(
+                "Dealer process #{dealer_info[:pid]} couldn't be killed!"
+              )
+            )
+          end
+        end
+      end
+    end
 
     def kill_matches!
       log __method__
@@ -175,7 +188,7 @@ module TableManager
       running_matches_array.each_index do |i|
         match_id, match_info = running_matches_array[i]
 
-        unless (AcpcDealer::dealer_running?(match_info) && Match.id_exists?(match_id))
+        unless (AcpcDealer::dealer_running?(match_info[:dealer]) && Match.id_exists?(match_id))
           log(
             __method__,
             {
@@ -189,13 +202,6 @@ module TableManager
       @matches_to_start.delete_if do |m|
         !Match.id_exists?(m[:match_id])
       end
-    end
-
-    def dealer_running?(match_id)
-      (
-        @running_matches[match_id] &&
-        AcpcDealer::dealer_running?(@running_matches[match_id])
-      )
     end
 
     def match_queued?(match_id)

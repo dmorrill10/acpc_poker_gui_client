@@ -41,6 +41,7 @@ class Match
   end
   scope :running, with_running_status(true)
   scope :not_running, with_running_status(false)
+  scope :running_or_started, any_of([running.selector, started.selector])
 
   class << self
     def id_exists?(match_id)

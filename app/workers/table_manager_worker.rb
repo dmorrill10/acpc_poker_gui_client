@@ -7,6 +7,9 @@ require_relative 'setup_rusen'
 
 # For job scheduling
 require 'sidekiq'
+Sidekiq.configure_server do |config|
+  config.poll_interval = 2
+end
 
 require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
@@ -135,11 +138,35 @@ module TableManager
         running?: !@table_queue.running_matches[match_id].nil?
       }
       unless @table_queue.running_matches[match_id]
-        kill_match!(match_id)
-
-        raise StandardError.new(
-          "Request to play in match #{match_id} when it doesn't exist! Killed match."
-        )
+        begin
+          match = Match.find match_id
+        rescue Mongoid::Errors::DocumentNotFound
+          log(
+            __method__,
+            {
+              msg: "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match.",
+              match_id: match_id,
+              action: action
+            },
+            Logger::Severity::ERROR
+          )
+        else
+          log(
+            __method__,
+            {
+              msg: "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match.",
+              match_id: match_id,
+              match_name: match.name,
+              last_updated_at: match.updated_at,
+              running?: match.running?,
+              last_slice_viewed: match.last_slice_viewed,
+              last_slice_present: match.slices.length - 1,
+              action: action
+            },
+            Logger::Severity::ERROR
+          )
+        end
+        return kill_match!(match_id)
       end
       match = Match.find match_id
       proxy = @table_queue.running_matches[match_id][:proxy]
@@ -174,7 +201,7 @@ module TableManager
 
   class Worker
     include Sidekiq::Worker
-    sidekiq_options retry: false, backtrace: true
+    sidekiq_options retry: false, backtrace: false
 
     include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
     include ParamRetrieval

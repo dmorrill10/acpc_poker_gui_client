@@ -165,7 +165,7 @@ class Match
   field :dealer_options, type: String, default: (
     [
       '-a', # Append logs with the same name rather than overwrite
-      "--t_response 70000", # 70 seconds per action
+      "--t_response 80000", # 80 seconds per action
       '--t_hand -1',
       '--t_per_hand -1'
     ].join(' ')

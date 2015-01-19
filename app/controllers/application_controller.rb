@@ -165,16 +165,16 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_including_user
+    return @matches_including_user_ if @matches_including_user_
     begin
-      matches = Match.where(user_name: user_name)
-      matches.reject { |m| m.copy? || m.finished? }
+      @matches_including_user_ = Match.where(user_name: user_name).reject { |m| m.copy? || m.finished? }
     rescue
       []
     end
   end
 
   def user_already_in_match?
-    matches_including_user.length > 0
+    !matches_including_user.empty?
   end
 end
 

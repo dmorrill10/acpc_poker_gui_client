@@ -81,6 +81,22 @@ class MatchStartController < ApplicationController
       alert_message: @alert_message
     )
 
+    if user_already_in_match?
+      match_ = matches_including_user.first
+      if !match_.running? && match_.started?
+        begin
+          match_.delete
+        rescue => e
+          Rails.logger.ap(
+            action: __method__,
+            match_id: match_.id,
+            exception_trying_to_delete_dead_match: e.message
+          )
+          clear_match_session!
+        end
+      end
+    end
+
     respond_to do |format|
       format.html {} # Render the default partial
       format.js do

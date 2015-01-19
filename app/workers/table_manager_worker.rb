@@ -217,9 +217,12 @@ module TableManager
             'table_manager.log'
           )
         ).with_metadata!
+        @logger = @@logger
+        log(__method__, "Creating new TMM")
         @@maintainer = Maintainer.new @@logger
       end
       @logger = @@logger
+      log(__method__, "Started new TMW")
     end
 
     # Called by Rails controller through Sidekiq
@@ -230,7 +233,9 @@ module TableManager
 
         case request
         when 'maintain'
+          log(__method__, {maintaining?: @@maintainer.maintaining?})
           @@maintainer.maintain! unless @@maintainer.maintaining?
+          return
         # when START_MATCH_REQUEST_CODE
           # @todo Put bots in erb yaml and have them reread here
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
@@ -291,6 +296,5 @@ module TableManager
     end
   end
 end
-
-# Want to instantiate a worker upon starting
+# Want to instantiate one worker upon starting
 TableManager::Worker.perform_async 'maintain'

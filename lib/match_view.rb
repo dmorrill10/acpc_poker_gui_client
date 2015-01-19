@@ -25,26 +25,30 @@ class MatchView < SimpleDelegator
     end
   end
 
-  WAIT_FOR_SLICE_TIMEOUT = 60 # seconds
+  DEFAULT_WAIT_FOR_SLICE_TIMEOUT = 0 # seconds
 
-  def initialize(match_id, slice_index, load_previous_messages = false)
+  def initialize(match_id, slice_index = nil, load_previous_messages: false, timeout: DEFAULT_WAIT_FOR_SLICE_TIMEOUT)
     @match = Match.find(match_id)
     super @match
 
     @messages_to_display = []
 
-    @slice_index = slice_index
+    @slice_index = slice_index || @match.last_slice_viewed
 
-    raise "Illegal slice index: #{@slice_index}" unless @slice_index >= 0
+    raise StandardError.new("Illegal slice index: #{@slice_index}") unless @slice_index >= 0
 
     unless @slice_index < @match.slices.length
-      Timeout.timeout(WAIT_FOR_SLICE_TIMEOUT) do
-        while @slice_index >= @match.slices.length do
-          sleep 0.5
-          @match = Match.find(match_id)
+      if timeout > 0
+        Timeout.timeout(timeout, UnableToFindNextSlice) do
+          while @slice_index >= @match.slices.length do
+            sleep 0.5
+            @match = Match.find(match_id)
+          end
         end
+        super @match
+      else
+        raise UnableToFindNextSlice
       end
-      super @match
     end
 
     @messages_to_display = slice.messages

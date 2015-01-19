@@ -116,9 +116,9 @@ class PlayerActionsController < MatchViewManagerController
           @match_view = MatchView.new(
             params['match_id'],
             params['match_slice_index'].to_i,
-            params['load_previous_messages'] == 'true'
+            load_previous_messages: params['load_previous_messages'] == 'true'
           )
-        rescue Timeout::Error => e
+        rescue MatchView::UnableToFindNextSlice => e
           Rails.logger.ap(
             action: __method__,
             requested_slice_index: params['match_slice_index'].to_i,
@@ -151,9 +151,20 @@ class PlayerActionsController < MatchViewManagerController
             TableManager::ACTION_KEY => params['poker_action']
           }
         )
-        # Gives the back end time, makes the UI faster since less polling is done
-        sleep 0.15
-        return render_match_view params['match_id'], params['match_slice_index'].to_i
+        begin
+          return render_match_view params['match_id'], params['match_slice_index'].to_i
+        rescue MatchView::UnableToFindNextSlice => e
+          Rails.logger.ap(
+            action: __method__,
+            requested_slice_index: params['match_slice_index'].to_i,
+            timeout: e.message
+          )
+          return respond_to do |format|
+            format.js do
+              render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
+            end
+          end
+        end
       end
     )
     format.js do

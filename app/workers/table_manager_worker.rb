@@ -144,7 +144,7 @@ module TableManager
           log(
             __method__,
             {
-              msg: "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match.",
+              msg: "Request to play in match #{match_id} when no such proxy exists! Killed match.",
               match_id: match_id,
               action: action
             },
@@ -227,6 +227,7 @@ module TableManager
 
     # Called by Rails controller through Sidekiq
     def perform(request, params=nil)
+      sleep 2
       match_id = nil
       begin
         log(__method__, {request: request, params: params})

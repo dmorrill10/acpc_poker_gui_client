@@ -21,11 +21,16 @@ require_relative 'table_manager_constants'
 require_relative 'monkey_patches'
 using TableManager::MonkeyPatches::IntegerAsProcessId
 
+require 'contextual_exceptions'
+using ContextualExceptions::ClassRefinement
+
 module TableManager
   class TableQueue
     include SimpleLogging
 
     attr_reader :running_matches
+
+    exceptions :no_port_for_dealer_available
 
     def initialize(match_communicator_, agent_interface_)
       @match_communicator = match_communicator_
@@ -212,12 +217,12 @@ module TableManager
       port_ = available_ports_.pop
       while !AcpcDealer::port_available?(port_)
         if available_ports_.empty?
-          raise StandardError.new("None of the special ports (#{available_special_ports}) are open")
+          raise NoPortForDealerAvailable.new("None of the special ports (#{available_special_ports}) are open")
         end
         port_ = available_ports_.pop
       end
       unless port_
-        raise StandardError.new("None of the special ports (#{available_special_ports}) are open")
+        raise NoPortForDealerAvailable.new("None of the special ports (#{available_special_ports}) are open")
       end
       port_
     end
@@ -268,11 +273,12 @@ module TableManager
       match.is_running = true
       match.save!
 
+      num_repetitions = 0
       while @running_matches[match_id][:dealer].nil? do
         log(
           __method__,
           msg: "Added #{match_id} list of running matches",
-          available_special_ports: available_special_ports,
+          available_special_ports: available_ports_,
           special_port_requirements: special_port_requirements,
           :'ports_to_be_used_(zero_for_random)' => ports_to_be_used
         )
@@ -283,8 +289,18 @@ module TableManager
             ports_to_be_used
           )
         rescue Timeout::Error
-          ports_to_be_used = special_port_requirements.map do |r|
-            if r then port(available_ports_) else 0 end
+          begin
+            ports_to_be_used = special_port_requirements.map do |r|
+              if r then port(available_ports_) else 0 end
+            end
+          rescue NoPortForDealerAvailable => e
+            if num_repetitions < 5
+              num_repetitions += 1
+              available_ports_ = available_special_ports
+            else
+              kill_match! match_id
+              raise e
+            end
           end
         end
       end

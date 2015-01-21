@@ -295,6 +295,7 @@ module TableManager
             end
           rescue NoPortForDealerAvailable => e
             if num_repetitions < 5
+              sleep 1
               num_repetitions += 1
               available_ports_ = available_special_ports
             else

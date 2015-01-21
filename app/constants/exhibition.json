@@ -1,5 +1,18 @@
 {
-  "MAX_NUM_MATCHES": 2,
-  "EXHIBITION_BOT_NAME": "Tester",
-  "NUM_HANDS_PER_MATCH": 100
+  "GAMES": {
+    "two_player_limit": {
+      "LABEL": "Heads-up Limit Texas Hold'em",
+      "MAX_NUM_MATCHES": 2,
+      "EXHIBITION_BOT_NAME": "Tester",
+      "NUM_HANDS_PER_MATCH": 100
+    },
+    "two_player_nolimit": {
+      "LABEL": "Heads-up No-limit Texas Hold'em",
+      "MAX_NUM_MATCHES": 2,
+      "EXHIBITION_BOT_NAME": "Tester",
+      "NUM_HANDS_PER_MATCH": 100
+    }
+  },
+  "REJOIN_BUTTON_ID": "rejoin",
+  "SPECTATE_BUTTON_ID_PREFIX": "spectate-"
 }

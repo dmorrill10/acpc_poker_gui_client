@@ -9,16 +9,19 @@ class MatchStartController < ApplicationController
 
   def sign_in
     if params[:user_name] && !params[:user_name].empty?
-      # @todo Check over all bots as well
-      if ApplicationHelper::EXHIBITION_BOT_NAME == params[:user_name]
-        @alert_message = "Sorry, \"#{ApplicationHelper::EXHIBITION_BOT_NAME}\" is a reserved name. Please choose another user name."
-        begin
-          User.find_by(name: ApplicationHelper::EXHIBITION_BOT_NAME).delete
-        rescue Mongoid::Errors::DocumentNotFound
-        end
-        return respond_to do |format|
-          format.js do
-            render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
+      ApplicationDefs.game_definitions.map do |d|
+        d.last[:opponents].keys
+      end.flatten.uniq.each do |bot_name|
+        if bot_name == params[:user_name]
+          @alert_message = "Sorry, \"#{bot_name}\" is a reserved name. Please choose another user name."
+          begin
+            User.find_by(name: bot_name).delete
+          rescue Mongoid::Errors::DocumentNotFound
+          end
+          return respond_to do |format|
+            format.js do
+              render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
+            end
           end
         end
       end
@@ -60,13 +63,16 @@ class MatchStartController < ApplicationController
     rescue # Quiet any errors
     end
 
-    # @todo Check over all bots as well
-    if ApplicationHelper::EXHIBITION_BOT_NAME == user_name
-      @alert_message = "Sorry, \"#{ApplicationHelper::EXHIBITION_BOT_NAME}\" is a reserved name. Please choose another user name."
-      session[ApplicationHelper::USER_NAME_KEY] = User::DEFAULT_NAME
-      begin
-        User.find_by(name: ApplicationHelper::EXHIBITION_BOT_NAME).delete
-      rescue Mongoid::Errors::DocumentNotFound
+    ApplicationDefs.game_definitions.map do |d|
+      d.last[:opponents].keys
+    end.flatten.uniq.each do |bot_name|
+      if bot_name == user_name
+        @alert_message = "Sorry, \"#{bot_name}\" is a reserved name. Please choose another user name."
+        session[ApplicationHelper::USER_NAME_KEY] = User::DEFAULT_NAME
+        begin
+          User.find_by(name: bot_name).delete
+        rescue Mongoid::Errors::DocumentNotFound
+        end
       end
     end
 
@@ -108,15 +114,18 @@ class MatchStartController < ApplicationController
   def new
     return render_js(RENDER_NOTHING_JS) if user.name == User::DEFAULT_NAME
 
+    exhibition_game_def_key = params['game_definition_key']
+    return render_js(RENDER_NOTHING_JS) unless exhibition_game_def_key && ApplicationHelper::GAMES[exhibition_game_def_key]
+
     seed = Match.new_random_seed
     seat = Match.new_random_seat(2)
     match_name = Match.new_name user_name
 
     params[:match] = {
-      opponent_names: [ApplicationHelper::EXHIBITION_BOT_NAME],
+      opponent_names: [ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAME']],
       name_from_user: match_name,
-      game_definition_key: :two_player_limit,
-      number_of_hands: ApplicationHelper::NUM_HANDS_PER_MATCH,
+      game_definition_key: exhibition_game_def_key.to_sym,
+      number_of_hands: ApplicationHelper::GAMES[exhibition_game_def_key]['NUM_HANDS_PER_MATCH'],
       seat: seat,
       random_seed: seed,
       user_name: user_name

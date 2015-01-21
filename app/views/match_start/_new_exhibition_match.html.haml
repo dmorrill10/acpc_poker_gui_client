@@ -13,10 +13,6 @@
       )
     );
 
-- rejoin_button_id = 'rejoin'
-- spectate_button_id_prefix = 'spectate-'
-- matches_in_progress = Match.asc(:name).running.take(ApplicationHelper::MAX_NUM_MATCHES)
-
 .row
   .col-sm-12
     .intro-message.panel.panel-success
@@ -24,72 +20,7 @@
         %h3.panel-title Welcome!
       .panel-body
         %p= "If this is your first time here, play a match by signing-in with a new user name. Sign-in by clicking on the current user name in the navigation bar." + if ApplicationHelper::ENABLE_SPECTATING then " Or, if you would rather watch another person play a match, click on a Spectate button in the table below." else '' end + "The title of your browser tab will alert you that your enqueued match has started by showing the message, \"Match Started!\". When the match starts, you will have #{ApplicationHelper::ACTION_TIMEOUT.to_i} seconds to act before the match will be ended."
-.row
-  .col-sm-6
-    .matches-in-progress.panel.panel-success
-      .panel-heading
-        %h3.panel-title Matches in Progress
-      %table.table.table-striped.table-bordered
-        %thead
-          %tr
-            %th Player
-            %th= "#{matches_in_progress.length} / #{ApplicationHelper::MAX_NUM_MATCHES}"
-            - if ApplicationHelper::ENABLE_SPECTATING
-              %th
-        %tbody
-          - matches_in_progress.each do |m|
-            %tr
-              %td= m.user_name
-              %td= hands_completed(m)
-              - if ApplicationHelper::ENABLE_SPECTATING
-                %td
-                  %form.spectate_form
-                    - spectate_or_rejoin_label = if user_started_match?(m) then '...' else 'Spectate' end
-                    - spectate_button = {value: spectate_or_rejoin_label}
-                    - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
-                    - spectate_button[:id] = if user_started_match?(m) then rejoin_button_id else "#{spectate_button_id_prefix}#{m.user_name}" end
-                    %input.btn.btn-success{spectate_button}
-                    - if user_started_match?(m)
-                      :javascript
-                        $("##{spectate_button[:id]}").click(function() {
-                          rt.waitForMatchToStart(
-                            WindowManager.packageMatchData(
-                              "#{m.id}",
-                              "#{m.last_slice_viewed}"
-                            )
-                          );
-                        });
-                    - else
-                      :javascript
-                        $("##{spectate_button[:id]}").click(function() {
-                          rt.waitForMatchToStart(
-                            WindowManager.packageMatchData(
-                              "#{m.id}",
-                              "#{m.last_slice_viewed}"
-                            )
-                          );
-                          rt.spectate();
-                        });
-          - (ApplicationHelper::MAX_NUM_MATCHES - matches_in_progress.length).times do |i|
-            %tr
-              %td
-              %td
-              - if ApplicationHelper::ENABLE_SPECTATING
-                %td
-                  %form.spectate_form
-                    %input.btn.btn-success{disabled: true, value: 'Spectate'}
-  .col-sm-offset-2
-  .col-sm-4
-    .play_button_box
-      = form_for match, url: new_match_url, remote: true do |f|
-        - disabled_label = "Waiting..."
-        - num_matches_in_queue = Match.not_running.and.not_started.length
-        - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-success', value: if (matches_in_progress.length + num_matches_in_queue) < ApplicationHelper::MAX_NUM_MATCHES && matches_including_user_.empty? then "Play Match!" else "Enqueue match (#{num_matches_in_queue + 1} in line)" end}
-        - if !matches_including_user_.empty?
-          - play_button_attributes[:disabled] = 'disabled'
-          - play_button_attributes[:value] = disabled_label
-        - elsif user.name == User::DEFAULT_NAME
-          - play_button_attributes[:disabled] = 'disabled'
-          - play_button_attributes[:value] = "Sign-in to Play!"
-        .form-actions
-          = f.submit play_button_attributes
+
+- ApplicationHelper::GAMES.each do |game, info|
+  .row
+    = render partial: match_start_partial('exhibition_match_for_game'), locals: {game: game, info: info, matches_including_user_: matches_including_user_}

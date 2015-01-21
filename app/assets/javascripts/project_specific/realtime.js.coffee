@@ -18,6 +18,11 @@ class WindowManager
   @loadComplete: ->
     console.log "WindowManager::loadComplete: @onLoadCallbacks.length: #{@onLoadCallbacks.length}"
     @onLoadCallbacks.shift()() while @onLoadCallbacks.length > 0
+  @packageMatchData: (matchId, sliceIndexString)->
+    {
+      match_id: matchId,
+      match_slice_index: parseInt(sliceIndexString, 10)
+    }
 
   class Poller
     constructor: (@pollFn, @period)->
@@ -32,6 +37,24 @@ class WindowManager
     close: ->
       @stop()
       null
+    matchData: -> null
+    showMatchEntryPage: (alertMessage = null)->
+      console.log "PollingSubWindow#showMatchEntryPage: alertMessage: #{alertMessage}"
+      if alertMessage?
+        AjaxCommunicator.get Routes.root_path(), {alert_message: alertMessage}
+      else
+        AjaxCommunicator.get Routes.root_path()
+    leaveMatch: (alertMessage=null)->
+      if @matchData()?
+        console.log "PollingSubWindow#leaveMatch: alertMessage: #{alertMessage}"
+        params = @matchData()
+        params.alert_message = alertMessage
+        @_reload(=> AjaxCommunicator.post(Routes.leave_match_path(), params))
+      else
+        @_reload(=> @showMatchEntryPage(alertMessage))
+    _reload: (reloadMethod)->
+      @stop()
+      reloadMethod()
 
   class PollingWindow
     constructor: (@subWindow)->
@@ -40,12 +63,8 @@ class WindowManager
       @subWindow = newPollingSubWindow
     close: ->
       @subWindow.close()
-
-  @packageMatchData: (matchId, sliceIndexString)->
-    {
-      match_id: matchId,
-      match_slice_index: parseInt(sliceIndexString, 10)
-    }
+    leaveMatch: (alertMessage=null)-> @subWindow.leaveMatch alertMessage
+    showMatchEntryPage: (alertMessage = null)-> @subWindow.showMatchEntryPage alertMessage
 
   class MatchStartWindow extends PollingWindow
     class MatchQueueUpdateWindow extends PollingSubWindow
@@ -66,42 +85,36 @@ class WindowManager
           console.log "WaitingForMatchPoller#constructor"
           super(pollFn, @constructor.PERIOD)
 
-      constructor: (matchData)->
-        console.log "WaitingForMatchWindow#constructor: matchData: #{JSON.stringify(matchData)}"
-        matchData.load_previous_messages = true
+      constructor: (@matchData_)->
+        console.log "WaitingForMatchWindow#constructor: matchData: #{JSON.stringify(@matchData_)}"
+        params = @matchData_
+        params.load_previous_messages = true
         super(
           new WaitingForMatchPoller(
             => AjaxCommunicator.post(
-              Routes.match_home_path(),
-              matchData
+              Routes.check_for_match_started_path(),
+              params
             )
           )
         )
+      matchData: -> @matchData_
 
     constructor: (alertMessage=null)->
       console.log "MatchStartWindow#constructor: alertMessage: #{alertMessage}"
-      @showMatchEntryPage alertMessage
       super(new MatchQueueUpdateWindow)
-
-    waitForMatchToStart: (@matchData)->
-      console.log "MatchStartWindow#waitForMatchToStart: matchData: #{JSON.stringify(matchData)}"
-      if !@isWaitingForMatchToStart()
-        @subWindow.close()
-        @replace(new WaitingForMatchWindow(@matchData))
+      @matchData_ = null
+      @showMatchEntryPage alertMessage
+    matchData: -> @matchData_
+    waitForMatchToStart: (@matchData_)->
+      console.log "MatchStartWindow#waitForMatchToStart: matchData: #{JSON.stringify(@matchData_)}"
+      unless @isWaitingForMatchToStart()
+        console.log "MatchStartWindow#waitForMatchToStart: Not waiting yet"
+        @replace(new WaitingForMatchWindow(@matchData_))
+        console.log "MatchStartWindow#waitForMatchToStart: Not waiting yet 3"
         @subWindow.poll()
-
     isWaitingForMatchToStart: ->
       console.log "MatchStartWindow#isWaitingForMatchToStart"
       @subWindow instanceof WaitingForMatchWindow
-
-    showMatchEntryPage: (alertMessage = null)->
-      console.log "MatchStartWindow#showMatchEntryPage: alertMessage: #{alertMessage}"
-      if alertMessage?
-        AjaxCommunicator.get Routes.root_path(), {alert_message: alertMessage}
-      else
-        AjaxCommunicator.get Routes.root_path()
-
-
   class PlayerActionsWindow extends PollingWindow
     class MatchSliceWindow extends PollingSubWindow
       class SummaryInformationManager
@@ -114,20 +127,17 @@ class WindowManager
           summaryInfo = document.getElementById('summary_information')
           summaryInfo.scrollTop = summaryInfo.scrollHeight
           console.log 'SummaryInformationManager#update: Returning'
-
       class MatchSliceWindowPoller extends Poller
         @PERIOD: 1000
         constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
-
-      constructor: (@matchData, onActionTimeout)->
+      constructor: (@matchData_, onActionTimeout)->
         @isSpectating = false
         @timer = new ActionTimer(onActionTimeout)
         super(new MatchSliceWindowPoller(=> @updateState()))
-
+      matchData: -> @matchData_
       close: ->
         @timer.clear()
         super()
-
       updateState: ->
         console.log "MatchSliceWindow#updateState"
         @timer.pause()
@@ -135,7 +145,7 @@ class WindowManager
       playAction: (actionArg)->
         console.log "MatchSliceWindow#playAction: actionArg: #{actionArg}"
         @timer.stop()
-        params = @matchData
+        params = @matchData_
         params.poker_action = actionArg
         @_reload(=> AjaxCommunicator.post(Routes.play_action_path(), params))
       nextHand: -> @updateState()
@@ -143,17 +153,14 @@ class WindowManager
         console.log "MatchSliceWindow#finishUpdating: newMatchData: #{JSON.stringify(newMatchData)}, sliceData: #{JSON.stringify(sliceData)}"
         @_updateActionTimer newMatchData
         @summaryInfoManager.update() if @summaryInfoManager?
-        @matchData = newMatchData
+        @matchData_ = newMatchData
         GameInterface.adjustScale()
         @_wireActions sliceData
         @_checkToStartPolling sliceData
-
       leaveMatch: (alertMessage=null)->
         console.log "MatchSliceWindow#leaveMatch: alertMessage: #{alertMessage}"
         @timer.stop()
-        params = @matchData
-        params.alert_message = alertMessage
-        @_reload(=> AjaxCommunicator.post(Routes.leave_match_path(), params))
+        super alertMessage
 
       _wireActions: (sliceData)->
         console.log "MatchSliceWindow#_wireActions: sliceData: #{JSON.stringify(sliceData)}"
@@ -181,10 +188,10 @@ class WindowManager
 
       _updateActionTimer: (newMatchData)->
         console.log "MatchSliceWindow#_updateActionTimer: newMatchData: #{JSON.stringify(newMatchData)}"
-        if newMatchData.match_slice_index >= @matchData.match_slice_index or not @timer.isCounting()
+        if newMatchData.match_slice_index >= @matchData_.match_slice_index or not @timer.isCounting()
           console.log "MatchSliceWindow#_updateActionTimer: Starting action timer"
           @timer.start()
-        else if @matchData.match_has_ended
+        else if @matchData_.match_has_ended
           @timer.clear()
         else
           console.log "MatchSliceWindow#_updateActionTimer: Resuming action timer"
@@ -201,12 +208,11 @@ class WindowManager
 
       _reload: (reloadMethod)->
         @summaryInfoManager = new SummaryInformationManager
-        @stop()
-        reloadMethod()
+        super reloadMethod
 
       _updateState: ()->
         console.log "MatchSliceWindow#forceUpdateState"
-        AjaxCommunicator.post Routes.match_home_path(), @matchData
+        AjaxCommunicator.post Routes.match_home_path(), @matchData_
 
     constructor: (matchData, onActionTimeout)->
       console.log "PlayerActionsWindow#constructor: matchData: #{JSON.stringify(matchData)}"
@@ -216,8 +222,7 @@ class WindowManager
       console.log "PlayerActionsWindow#finishUpdating"
       @subWindow.finishUpdating matchData, sliceData
 
-    leaveMatch: (alertMessage=null)->
-      @subWindow.leaveMatch alertMessage
+    matchData: -> @subWindow.matchData()
 
     emitChatMessage: (user, msg)->
       console.log "PlayerActionsWindow#emitChatMessage"
@@ -235,6 +240,7 @@ class WindowManager
       # Chat.chatBox.addMessage data.user, data.message
 
   constructor: ->
+    $(window).unload(=> @leaveMatch())
     @window = new MatchStartWindow
 
   waitForMatchToStart: (matchData)->
@@ -249,11 +255,7 @@ class WindowManager
     @window.close()
     @window = new MatchStartWindow(alertMessage)
 
-  leaveMatch: (alertMessage=null)->
-    if 'leaveMatch' of @window
-      @window.leaveMatch alertMessage
-    else
-      @showMatchEntryPage alertMessage
+  leaveMatch: (alertMessage=null)-> @window.leaveMatch alertMessage
 
   # onMatchHasStarted: ->
     # console.log "WindowManager#onMatchHasStarted"

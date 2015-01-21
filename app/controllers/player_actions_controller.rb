@@ -106,7 +106,7 @@ end
 # Controller for the main game view where the table and actions are presented to the player.
 # Implements the actions in the main match view.
 class PlayerActionsController < MatchViewManagerController
-  def index
+  def match_home(partial_to_render_on_failure, params)
     return reset_to_match_entry_view(
       "Sorry, there was a problem retrieving match #{params['match_id']}, #{self.class.report_error_request_message}."
     ) if (
@@ -126,7 +126,7 @@ class PlayerActionsController < MatchViewManagerController
           )
           return respond_to do |format|
             format.js do
-              render ApplicationHelper::RENDER_NOTHING_JS, formats: [:js]
+              render partial_to_render_on_failure, formats: [:js]
             end
           end
         else
@@ -137,6 +137,14 @@ class PlayerActionsController < MatchViewManagerController
         end
       end
     )
+  end
+
+  def check_for_match_started
+    return match_home(ApplicationHelper::RENDER_MATCH_ENTRY_JS, params)
+  end
+
+  def index
+    return match_home(ApplicationHelper::RENDER_NOTHING_JS, params)
   end
 
   def play_action

@@ -10,6 +10,8 @@ AcpcPokerGuiClient::Application.routes.draw do
   match 'match_start/update_match_queue' => 'match_start#update_match_queue', :as => :update_match_queue
   match 'match_start/enqueue_exhibition_match' => 'match_start#enqueue_exhibition_match', :as => :enqueue_exhibition_match
 
+  match 'player_actions/check_for_match_started' => 'player_actions#check_for_match_started', :as => :check_for_match_started
+
   # Routes for PlayerActions
   match 'player_actions/match_home' => 'player_actions#index', :as => :match_home
   match 'player_actions/play_action' => 'player_actions#play_action', :as => :play_action

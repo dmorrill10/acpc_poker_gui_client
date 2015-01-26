@@ -1,10 +1,13 @@
+$hud-scaling: 1/1.4
+$hud-fontSize: $base-fontSize * $hud-scaling
+
 %hud
   @extend .panel
   @extend .panel-default
 
   opacity: 0.8
 
-  font-size: rem($base-fontSize)
+  font-size: rem($hud-fontSize)
 
   padding: 0
   margin: 0
@@ -15,9 +18,9 @@
   z-index: 1
   .right
     float: right
-    margin-left: 8px
+    margin-left: 8px * $hud-scaling
   .table
     margin-bottom: 0
   h1, h2, h3, h4
-    padding-left: 8px
-    padding-right: 8px
+    padding-left: 8px * $hud-scaling
+    padding-right: 8px * $hud-scaling

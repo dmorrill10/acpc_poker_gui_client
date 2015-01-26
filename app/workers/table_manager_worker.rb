@@ -7,9 +7,6 @@ require_relative 'setup_rusen'
 
 # For job scheduling
 require 'sidekiq'
-Sidekiq.configure_server do |config|
-  config.poll_interval = 2
-end
 
 require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
@@ -50,7 +47,10 @@ module TableManager
       @agent_interface = MatchAgentInterface.new
       @match_communicator = Null.new
 
-      @table_queue = TableQueue.new(@match_communicator, @agent_interface)
+      @table_queues = {}
+      ExhibitionConstants::GAMES.each do |game_definition_key, info|
+        @table_queues[game_definition_key] = TableQueue.new(@match_communicator, @agent_interface, game_definition_key)
+      end
 
       @syncer = Mutex.new
 
@@ -77,12 +77,14 @@ module TableManager
 
         begin
           @syncer.synchronize do
-            if (
-              @table_queue.change_in_number_of_running_matches? do
-                @table_queue.check_queue!
+            @table_queues.each do |key, queue|
+              if (
+                queue.change_in_number_of_running_matches? do
+                  queue.check_queue!
+                end
+              )
+                @match_communicator.update_match_queue!
               end
-            )
-              @match_communicator.update_match_queue!
             end
           end
           clean_up_matches!
@@ -98,12 +100,14 @@ module TableManager
       log(__method__, match_id: match_id)
 
       @syncer.synchronize do
-        if (
-          @table_queue.change_in_number_of_running_matches? do
-            @table_queue.kill_match!(match_id)
+        @table_queues.each do |key, queue|
+          if (
+            queue.change_in_number_of_running_matches? do
+              queue.kill_match!(match_id)
+            end
+          )
+            @match_communicator.update_match_queue!
           end
-        )
-          @match_communicator.update_match_queue!
         end
       end
     end
@@ -113,63 +117,77 @@ module TableManager
     end
 
     def enque_match!(match_id, options)
-      @syncer.synchronize do
-        if (
-          @table_queue.change_in_number_of_running_matches? do
-            @table_queue.enqueue!(match_id, options)
+      begin
+        m = Match.find match_id
+      rescue Mongoid::Errors::DocumentNotFound
+        return kill_match!(match_id)
+      else
+        @syncer.synchronize do
+          if (
+            @table_queues[m.game_definition_key.to_s].change_in_number_of_running_matches? do
+              @table_queues[m.game_definition_key.to_s].enqueue!(match_id, options)
+            end
+          )
+            @match_communicator.update_match_queue!
           end
-        )
-          @match_communicator.update_match_queue!
         end
       end
     end
 
     def start_proxy!(match_id)
-      match = Match.find match_id
-      @agent_interface.start_proxy!(match) do |players_at_the_table|
-        @match_communicator.match_updated! match_id.to_s
+      begin
+        match = Match.find match_id
+      rescue Mongoid::Errors::DocumentNotFound
+        return kill_match!(match_id)
+      else
+        @agent_interface.start_proxy!(match) do |players_at_the_table|
+          @match_communicator.match_updated! match_id.to_s
+        end
       end
     end
 
     def play_action!(match_id, action)
       log __method__, {
         match_id: match_id,
-        action: action,
-        running?: !@table_queue.running_matches[match_id].nil?
+        action: action
       }
-      unless @table_queue.running_matches[match_id]
-        begin
-          match = Match.find match_id
-        rescue Mongoid::Errors::DocumentNotFound
-          log(
-            __method__,
-            {
-              msg: "Request to play in match #{match_id} when no such proxy exists! Killed match.",
-              match_id: match_id,
-              action: action
-            },
-            Logger::Severity::ERROR
-          )
-        else
-          log(
-            __method__,
-            {
-              msg: "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match.",
-              match_id: match_id,
-              match_name: match.name,
-              last_updated_at: match.updated_at,
-              running?: match.running?,
-              last_slice_viewed: match.last_slice_viewed,
-              last_slice_present: match.slices.length - 1,
-              action: action
-            },
-            Logger::Severity::ERROR
-          )
-        end
+      begin
+        match = Match.find match_id
+      rescue Mongoid::Errors::DocumentNotFound
+        log(
+          __method__,
+          {
+            msg: "Request to play in match #{match_id} when no such proxy exists! Killed match.",
+            match_id: match_id,
+            action: action
+          },
+          Logger::Severity::ERROR
+        )
         return kill_match!(match_id)
       end
-      match = Match.find match_id
-      proxy = @table_queue.running_matches[match_id][:proxy]
+      unless @table_queues[match.game_definition_key.to_s].running_matches[match_id]
+        log(
+          __method__,
+          {
+            msg: "Request to play in match #{match_id} in seat #{match.seat} when no such proxy exists! Killed match.",
+            match_id: match_id,
+            match_name: match.name,
+            last_updated_at: match.updated_at,
+            running?: match.running?,
+            last_slice_viewed: match.last_slice_viewed,
+            last_slice_present: match.slices.length - 1,
+            action: action
+          },
+          Logger::Severity::ERROR
+        )
+        return kill_match!(match_id)
+      end
+      log __method__, {
+        match_id: match_id,
+        action: action,
+        running?: !@table_queues[match.game_definition_key.to_s].running_matches[match_id].nil?
+      }
+      proxy = @table_queues[match.game_definition_key.to_s].running_matches[match_id][:proxy]
       unless proxy
         log(
           __method__,
@@ -203,26 +221,29 @@ module TableManager
     include Sidekiq::Worker
     sidekiq_options retry: false, backtrace: false
 
-    include SimpleLogging # Must be after Sidekiq::Worker to log to the proper file
+    attr_accessor :maintainer
+
+    def perform(request)
+      @maintainer.maintain! unless @maintainer.maintaining?
+    end
+  end
+
+  class StatefulWorker
+    include SimpleLogging
     include ParamRetrieval
     include HandleException
 
+    attr_accessor :maintainer
+
     def initialize
-      @@logger ||= nil
-      @@maintainer ||= nil
-      unless @@maintainer
-        @@logger = Logger.from_file_name(
-          File.join(
-            ApplicationDefs::LOG_DIRECTORY,
-            'table_manager.log'
-          )
-        ).with_metadata!
-        @logger = @@logger
-        log(__method__, "Creating new TMM")
-        @@maintainer = Maintainer.new @@logger
-      end
-      @logger = @@logger
-      log(__method__, "Started new TMW")
+      @logger = Logger.from_file_name(
+        File.join(
+          ApplicationDefs::LOG_DIRECTORY,
+          'table_manager.log'
+        )
+      ).with_metadata!
+      log __method__, 'Starting new TMSW'
+      @maintainer = Maintainer.new @logger
     end
 
     # Called by Rails controller through Sidekiq
@@ -232,14 +253,10 @@ module TableManager
         log(__method__, {request: request, params: params})
 
         case request
-        when 'maintain'
-          log(__method__, {maintaining?: @@maintainer.maintaining?})
-          @@maintainer.maintain! unless @@maintainer.maintaining?
-          return
         # when START_MATCH_REQUEST_CODE
           # @todo Put bots in erb yaml and have them reread here
         when DELETE_IRRELEVANT_MATCHES_REQUEST_CODE
-          return @@maintainer.clean_up_matches!
+          return @maintainer.clean_up_matches!
         end
 
         match_id = retrieve_match_id_or_raise_exception params
@@ -253,6 +270,16 @@ module TableManager
       end
     end
 
+    def call(worker, msg, queue)
+      log __method__, msg: msg
+      if msg['args'].first == 'maintain'
+        worker.maintainer = self.maintainer
+        yield
+      else
+        perform *msg['args']
+      end
+    end
+
     protected
 
     def do_request!(request, match_id, params)
@@ -260,7 +287,7 @@ module TableManager
       when START_MATCH_REQUEST_CODE
         log(__method__, {request: request, match_id: match_id, msg: 'Enqueueing match'})
 
-        @@maintainer.enque_match!(
+        @maintainer.enque_match!(
           match_id,
           retrieve_parameter_or_raise_exception(params, OPTIONS_KEY)
         )
@@ -272,7 +299,7 @@ module TableManager
           msg: 'Starting proxy'
         )
 
-        @@maintainer.start_proxy! match_id
+        @maintainer.start_proxy! match_id
       when PLAY_ACTION_REQUEST_CODE
         log(
           __method__,
@@ -281,7 +308,7 @@ module TableManager
           msg: 'Taking action'
         )
 
-        @@maintainer.play_action! match_id, retrieve_parameter_or_raise_exception(params, ACTION_KEY)
+        @maintainer.play_action! match_id, retrieve_parameter_or_raise_exception(params, ACTION_KEY)
       when KILL_MATCH
         log(
           __method__,
@@ -289,12 +316,18 @@ module TableManager
           match_id: match_id,
           msg: "Killing match #{match_id}"
         )
-        @@maintainer.kill_match! match_id
+        @maintainer.kill_match! match_id
       else
         raise StandardError.new("Unrecognized request: #{request}")
       end
     end
   end
+
+  class Factory
+    @instance = nil
+    def initialize
+      @instance ||= StatefulWorker.new
+    end
+    def new() @instance end
+  end
 end
-# Want to instantiate one worker upon starting
-TableManager::Worker.perform_async 'maintain'

@@ -35,11 +35,11 @@ module TableManager
       log __method__, options: options
 
       dealer_arguments = {
-        match_name: "\"#{match.name}\"",
+        match_name: match.name.gsub(/\s+/, '_'),
         game_def_file_name: match.game_definition_file_name,
         hands: match.number_of_hands,
         random_seed: match.random_seed.to_s,
-        player_names: match.player_names.map { |name| "\"#{name}\"" }.join(' '),
+        player_names: match.player_names.map { |name| name.gsub(/\s+/, '_') }.join(' '),
         options: (options || {})
       }
 

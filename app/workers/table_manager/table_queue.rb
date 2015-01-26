@@ -32,7 +32,7 @@ module TableManager
 
     exceptions :no_port_for_dealer_available
 
-    def initialize(match_communicator_, agent_interface_)
+    def initialize(match_communicator_, agent_interface_, game_definition_key_)
       @match_communicator = match_communicator_
       @agent_interface = agent_interface_
       @logger = Logger.from_file_name(
@@ -43,16 +43,29 @@ module TableManager
       ).with_metadata!
       @matches_to_start = []
       @running_matches = {}
+      @game_definition_key = game_definition_key_
+
+      log(
+        __method__,
+        {
+          game_definition_key: @game_definition_key,
+          max_num_matches: ExhibitionConstants::GAMES[@game_definition_key]['MAX_NUM_MATCHES']
+        }
+      )
 
       # Clean up old matches
-      Match.running_or_started.each do |m|
+      my_matches.running_or_started.each do |m|
         m.delete
       end
 
       # Enqueue matches that are waiting
-      Match.not_running.and.not_started.each do |m|
+      my_matches.not_running.and.not_started.each do |m|
         enqueue! m.id.to_s, m.dealer_options
       end
+    end
+
+    def my_matches
+      Match.where(game_definition_key: @game_definition_key.to_sym)
     end
 
     def change_in_number_of_running_matches?
@@ -83,13 +96,26 @@ module TableManager
     end
 
     def enqueue!(match_id, dealer_options)
-      log __method__, match_id: match_id, running_matches: @running_matches.map { |r| r.first }
+      log(
+        __method__,
+        {
+          match_id: match_id,
+          running_matches: @running_matches.map { |r| r.first },
+          game_definition_key: @game_definition_key,
+          max_num_matches: ExhibitionConstants::GAMES[@game_definition_key]['MAX_NUM_MATCHES']
+        }
+      )
 
-      raise StandardError.new("Match #{match_id} already started!") if @running_matches[match_id]
+      if @running_matches[match_id]
+        return log(
+          __method__,
+          msg: "Match #{match_id} already started!"
+        )
+      end
 
       @matches_to_start << {match_id: match_id, options: dealer_options}
 
-      if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
+      if @running_matches.length < ExhibitionConstants::GAMES[@game_definition_key]['MAX_NUM_MATCHES']
         dequeue!
       end
 
@@ -103,17 +129,16 @@ module TableManager
 
       log __method__, {num_running_matches: @running_matches.length, num_matches_to_start: @matches_to_start.length}
 
-      if @running_matches.length < ExhibitionConstants::MAX_NUM_MATCHES
+      if @running_matches.length < ExhibitionConstants::GAMES[@game_definition_key]['MAX_NUM_MATCHES']
         dequeue!
       end
-
       self
     end
 
     # @todo Shouldn't be necessary, so this method isn't called right now, but I've written it so I'll leave it for now
     def fix_running_matches_statuses!
       log __method__
-      Match.running do |m|
+      my_matches.running do |m|
         if !(@running_matches[m.id.to_s] && AcpcDealer::dealer_running?(@running_matches[m.id.to_s][:dealer]))
           m.is_running = false
           m.save
@@ -294,7 +319,7 @@ module TableManager
               if r then port(available_ports_) else 0 end
             end
           rescue NoPortForDealerAvailable => e
-            if num_repetitions < 5
+            if num_repetitions < 1
               sleep 1
               num_repetitions += 1
               available_ports_ = available_special_ports

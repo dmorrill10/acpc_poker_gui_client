@@ -12,7 +12,7 @@ require 'acpc_poker_types/match_state'
 module TimeRefinement
   refine Time.class() do
     def now_as_string
-      now.strftime('%b%-d_%Y-at-%-H:%-M:%-S')
+      now.strftime('%b%-d_%Y-at-%-H_%-M_%-S')
     end
   end
 end
@@ -104,7 +104,7 @@ class Match
       seat: nil,
       time: true
     )
-      name = "#{user_name}"
+      name = "match.#{user_name}"
       name += ".#{game_def_key}" if game_def_key
       name += ".#{num_hands}h" if num_hands
       name += ".#{seat}s" if seat

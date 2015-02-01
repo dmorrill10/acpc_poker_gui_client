@@ -35,12 +35,12 @@ module TableManager
       log __method__, options: options
 
       dealer_arguments = {
-        match_name: "\"#{match.name}\"",
-        game_def_file_name: match.game_definition_file_name,
-        hands: match.number_of_hands,
-        random_seed: match.random_seed.to_s,
-        player_names: match.player_names.map { |name| "\"#{name}\"" }.join(' '),
-        options: (options || {})
+        match_name: Shellwords.escape(match.name.gsub(/\s+/, '_')),
+        game_def_file_name: Shellwords.escape(match.game_definition_file_name),
+        hands: Shellwords.escape(match.number_of_hands),
+        random_seed: Shellwords.escape(match.random_seed.to_s),
+        player_names: match.player_names.map { |name| Shellwords.escape(name.gsub(/\s+/, '_')) }.join(' '),
+        options: (options.split(' ').map { |o| Shellwords.escape o }.join(' ') || '')
       }
 
       log __method__, {

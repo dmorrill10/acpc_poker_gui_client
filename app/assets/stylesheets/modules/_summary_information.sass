@@ -5,14 +5,14 @@
 
   float: right
 
-  $c-summary_information-font-size: $base-fontSize
+  $c-summary_information-font-size: $hud-fontSize
 
   font-size: $c-summary_information-font-size
   overflow-y: auto
-  height: 4 * $card_height
-  width: 5 * $card_height
+  height: 5 * $card_height * $hud-scaling
+  width: 4 * $card_height * $hud-scaling
 
   .list-group-item
     font-size: $c-summary_information-font-size
-    padding-top: $original-zen-gutter-width / 2.0
-    padding-bottom: $original-zen-gutter-width / 2.0
+    padding-top: $original-zen-gutter-width / 2.0 * $hud-scaling
+    padding-bottom: $original-zen-gutter-width / 2.0 * $hud-scaling

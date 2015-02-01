@@ -132,7 +132,6 @@ module TableManager
       if @running_matches.length < ExhibitionConstants::GAMES[@game_definition_key]['MAX_NUM_MATCHES']
         dequeue!
       end
-
       self
     end
 
@@ -320,8 +319,8 @@ module TableManager
               if r then port(available_ports_) else 0 end
             end
           rescue NoPortForDealerAvailable => e
-            if num_repetitions < 10
-              sleep 2
+            if num_repetitions < 1
+              sleep 1
               num_repetitions += 1
               available_ports_ = available_special_ports
             else

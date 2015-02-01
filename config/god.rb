@@ -58,7 +58,7 @@ watch('mongod') do |w|
 end
 
 watch('redis') do |w|
-  w.start = "#{GOD_RAILS_ROOT}/vendor/redis-stable/src/redis-server"
+  w.start = "#{GOD_RAILS_ROOT}/vendor/redis-stable/src/redis-server #{GOD_RAILS_ROOT}/config/redis.conf > #{GOD_RAILS_ROOT}/log/redis.log"
 end
 
 watch('worker') do |w|

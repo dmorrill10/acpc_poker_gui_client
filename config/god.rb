@@ -49,11 +49,12 @@ end
 
 watch('mongod') do |w|
   vendor_mongod = "#{MONGODB_ROOT}/bin/mongod"
+  options = "--dbpath #{GOD_RAILS_ROOT}/db --smallfiles"
   w.start = if File.exists?(vendor_mongod)
-    "#{MONGODB_ROOT}/bin/mongod --dbpath #{GOD_RAILS_ROOT}/db"
+    "#{MONGODB_ROOT}/bin/mongod "
   else
-    "mongod --dbpath #{GOD_RAILS_ROOT}/db"
-  end
+    "mongod "
+  end + options
 end
 
 watch('redis') do |w|

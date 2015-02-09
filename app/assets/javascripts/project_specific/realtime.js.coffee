@@ -130,8 +130,8 @@ class WindowManager
       class MatchSliceWindowPoller extends Poller
         @PERIOD: 1000
         constructor: (pollFn)-> super(pollFn, @constructor.PERIOD)
-      constructor: (@matchData_, onActionTimeout)->
-        @isSpectating = false
+      constructor: (@matchData_, onActionTimeout, @isSpectating=false)->
+        console.log "MatchSliceWindow::new: @isSpectating: #{@isSpectating}"
         @timer = new ActionTimer(onActionTimeout)
         super(new MatchSliceWindowPoller(=> @updateState()))
       matchData: -> @matchData_
@@ -198,8 +198,8 @@ class WindowManager
           @timer.resume()
 
       _checkToStartPolling: (sliceData)->
-        console.log "MatchSliceWindow#_checkToStartPolling: sliceData: #{JSON.stringify(sliceData)}"
-        if sliceData.is_users_turn_to_act or sliceData.next_hand_button_is_visible or sliceData.match_has_ended
+        console.log "MatchSliceWindow#_checkToStartPolling: sliceData: #{JSON.stringify(sliceData)}, @isSpectating: #{@isSpectating}"
+        if not @isSpectating and (sliceData.is_users_turn_to_act or sliceData.next_hand_button_is_visible or sliceData.match_has_ended)
           console.log "MatchSliceWindow#finishUpdatingPlayerActionsWindow: No polling"
           @stop()
         else
@@ -214,9 +214,9 @@ class WindowManager
         console.log "MatchSliceWindow#forceUpdateState"
         AjaxCommunicator.post Routes.match_home_path(), @matchData_
 
-    constructor: (matchData, onActionTimeout)->
+    constructor: (matchData, onActionTimeout, isSpectating=false)->
       console.log "PlayerActionsWindow#constructor: matchData: #{JSON.stringify(matchData)}"
-      super(new MatchSliceWindow(matchData, onActionTimeout))
+      super(new MatchSliceWindow(matchData, onActionTimeout, isSpectating))
 
     finishUpdating: (matchData, sliceData)->
       console.log "PlayerActionsWindow#finishUpdating"
@@ -243,11 +243,19 @@ class WindowManager
     $(window).unload(=> @leaveMatch())
     @window = new MatchStartWindow
 
-  waitForMatchToStart: (matchData)->
-    console.log "WindowManager#waitForMatchToStart: matchData: #{JSON.stringify(matchData)}"
+  waitForMatchToStart: (matchData, @isSpectating=false)->
+    console.log "WindowManager#waitForMatchToStart: matchData: #{JSON.stringify(matchData)}, @isSpectating: #{@isSpectating}"
     if 'waitForMatchToStart' of @window
       matchData.match_slice_index = 0 if matchData.match_slice_index < 0
       @window.waitForMatchToStart matchData
+      if @isSpectating
+        this.constructor.loadComplete();
+      #    @finishUpdatingMatchStartWindow();
+      #   Chat.init(
+      #     @userName,
+      #     (id, user, msg)=>
+      #       @emitChatMessage user, msg
+      #   )
     else
       console.log("WindowManager#waitForMatchToStart: WARNING: Called when @window is not a MatchStartWindow!")
 
@@ -256,15 +264,6 @@ class WindowManager
     @window = new MatchStartWindow(alertMessage)
 
   leaveMatch: (alertMessage=null)-> @window.leaveMatch alertMessage
-
-  # onMatchHasStarted: ->
-    # console.log "WindowManager#onMatchHasStarted"
-    # Chat.init(
-    #   @userName,
-    #   (id, user, msg)=>
-    #     @emitChatMessage user, msg
-    # )
-    # @_initPlayerActionsWindow @window.matchData
 
   finishUpdating: ->
     console.log "WindowManager#finishUpdating"
@@ -295,12 +294,16 @@ class WindowManager
     console.log "WindowManager#finishUpdatingPlayerActionsWindow: Returning"
 
   _initPlayerActionsWindow: (matchData)->
+    console.log(
+      "WindowManager#_initPlayerActionsWindow: matchData:" +
+      " #{JSON.stringify(matchData)}, @isSpectating: #{@isSpectating}"
+    )
     @window.close()
     onActionTimeout = =>
       # if @isSpectating
       #   alert('The match has timed out.')
       # else
       @leaveMatch('The match has timed out.')
-    @window = new PlayerActionsWindow(matchData, onActionTimeout)
+    @window = new PlayerActionsWindow(matchData, onActionTimeout, @isSpectating)
 
 root.WindowManager = WindowManager

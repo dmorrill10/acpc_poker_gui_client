@@ -24,7 +24,7 @@
                     %form.spectate_form
                       - spectate_or_rejoin_label = if user_started_match?(m) then '...' else 'Spectate' end
                       - spectate_button = {value: spectate_or_rejoin_label}
-                      - spectate_button[:disabled] = true if matches.length > 0 || user_started_match?(m)
+                      - spectate_button[:disabled] = true if matches_including_user_.length > 0 || user_started_match?(m)
                       - spectate_button[:id] = if user_started_match?(m) then ApplicationHelper::REJOIN_BUTTON_ID else "#{ApplicationHelper::SPECTATE_BUTTON_ID_PREFIX}#{m.user_name}" end
                       %input.btn.btn-success{spectate_button}
                       - if user_started_match?(m)
@@ -44,9 +44,9 @@
                               WindowManager.packageMatchData(
                                 "#{m.id}",
                                 "#{m.last_slice_viewed}"
-                              )
+                              ),
+                              true
                             );
-                            rt.spectate();
                           });
             - (info['MAX_NUM_MATCHES'] - matches_in_progress_for_game.length).times do |i|
               %tr

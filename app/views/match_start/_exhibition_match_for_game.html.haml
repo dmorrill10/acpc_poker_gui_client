@@ -1,7 +1,7 @@
 - matches_in_progress_for_game = Match.running.and.where game_definition_key: game.to_sym
 .panel.panel-success
   .panel-heading
-    %h4.panel-title= "#{info['LABEL']} against #{info['EXHIBITION_BOT_NAME']}"
+    %h4.panel-title= "#{info['LABEL']} against #{info['EXHIBITION_BOT_NAMES'].join(' and ')}"
   .panel-body
     .col-sm-6
       .matches-in-progress.panel.panel-success

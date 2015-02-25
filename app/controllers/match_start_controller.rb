@@ -118,11 +118,11 @@ class MatchStartController < ApplicationController
     return render_js(RENDER_NOTHING_JS) unless exhibition_game_def_key && ApplicationHelper::GAMES[exhibition_game_def_key]
 
     seed = Match.new_random_seed
-    seat = Match.new_random_seat(2)
+    seat = Match.new_random_seat(ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAMES'].length)
     match_name = Match.new_name user_name
 
     params[:match] = {
-      opponent_names: [ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAME']],
+      opponent_names: ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAMES'],
       name_from_user: match_name,
       game_definition_key: exhibition_game_def_key.to_sym,
       number_of_hands: ApplicationHelper::GAMES[exhibition_game_def_key]['NUM_HANDS_PER_MATCH'],

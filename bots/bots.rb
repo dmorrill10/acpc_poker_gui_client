@@ -96,7 +96,9 @@ module Bots
         # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
         # OR:
         # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
-        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false}
+        DEFAULT_BOT_NAME => {runner: RunTestingBot, requires_special_port: false},
+        'Opponent1' => {runner: RunTestingBot, requires_special_port: false},
+        'Opponent2' => {runner: RunTestingBot, requires_special_port: false}
       },
       num_players: 3
     }

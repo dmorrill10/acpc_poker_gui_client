@@ -3,14 +3,20 @@
     "two_player_limit": {
       "LABEL": "Heads-up Limit Texas Hold'em",
       "MAX_NUM_MATCHES": 2,
-      "EXHIBITION_BOT_NAME": "Tester",
+      "EXHIBITION_BOT_NAMES": ["Tester"],
       "NUM_HANDS_PER_MATCH": 100
     },
     "two_player_nolimit": {
       "LABEL": "Heads-up No-limit Texas Hold'em",
       "MAX_NUM_MATCHES": 2,
-      "EXHIBITION_BOT_NAME": "Tester",
+      "EXHIBITION_BOT_NAMES": ["Tester"],
       "NUM_HANDS_PER_MATCH": 100
+    },
+    "three_player_kuhn": {
+      "LABEL": "3-player Kuhn",
+      "MAX_NUM_MATCHES": 2,
+      "EXHIBITION_BOT_NAMES": ["Opponent1", "Opponent2"],
+      "NUM_HANDS_PER_MATCH": 3000
     }
   },
   "REJOIN_BUTTON_ID": "rejoin",

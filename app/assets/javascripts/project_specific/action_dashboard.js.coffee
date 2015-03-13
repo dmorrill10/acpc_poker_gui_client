@@ -5,6 +5,8 @@ root.ActionDashboard =
     $('button').not('.close').not('.cancel').not('.navbar-toggle').click(->
       $('button').not('.leave-btn').not('.close').not('.cancel').not('.navbar-toggle').attr("disabled", true)
     )
+  enableButtons: ->
+    $('button').not('.leave-btn').not('.close').not('.cancel').not('.navbar-toggle').removeAttr("disabled")
   illogicalWagerSize: (wager_to_amount_over_round)->
     !wager_to_amount_over_round or isNaN(wager_to_amount_over_round)
   tooSmallOrIllogicalWager: (wager_to_amount_over_round, minimum_wager_to)->
@@ -35,6 +37,7 @@ root.ActionDashboard =
       wager_to_amount_over_round = parseInt(wagerAmountField().val())
 
       if @tooLargeWager(wager_to_amount_over_round, all_in_to) or @tooSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to)
+        @enableButtons()
         return e.stopImmediatePropagation()
       wager_to_amount_over_hand = wager_to_amount_over_round + user_contributions_in_previous_rounds
 

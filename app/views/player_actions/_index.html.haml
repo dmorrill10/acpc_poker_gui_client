@@ -1,3 +1,7 @@
+= render partial: game_interface_partial('index')
+= render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
+= render partial: hud_partial('index')
+
 :javascript
   rt.finishUpdatingPlayerActionsWindow(
     WindowManager.packageMatchData(
@@ -10,7 +14,3 @@
       is_users_turn_to_act: 'true' === "#{match_view.slice.users_turn_to_act?}"
     }
   );
-
-= render partial: game_interface_partial('index')
-= render partial: 'layouts/navbar', locals: {partial: navbar_partial('index')}
-= render partial: hud_partial('index')

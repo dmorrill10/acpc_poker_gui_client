@@ -57,11 +57,6 @@ module TableManager
       my_matches.running_or_started.each do |m|
         m.delete
       end
-
-      # Enqueue matches that are waiting
-      my_matches.not_running.and.not_started.each do |m|
-        enqueue! m.id.to_s, m.dealer_options
-      end
     end
 
     def my_matches
@@ -95,6 +90,7 @@ module TableManager
       end
     end
 
+    # @return (@see #dequeue!)
     def enqueue!(match_id, dealer_options)
       log(
         __method__,
@@ -116,12 +112,13 @@ module TableManager
       @matches_to_start << {match_id: match_id, options: dealer_options}
 
       if @running_matches.length < ExhibitionConstants::GAMES[@game_definition_key]['MAX_NUM_MATCHES']
-        dequeue!
+        return dequeue!
       end
 
-      self
+      nil
     end
 
+    # @return (@see #dequeue!)
     def check_queue!
       log __method__
 
@@ -130,9 +127,9 @@ module TableManager
       log __method__, {num_running_matches: @running_matches.length, num_matches_to_start: @matches_to_start.length}
 
       if @running_matches.length < ExhibitionConstants::GAMES[@game_definition_key]['MAX_NUM_MATCHES']
-        dequeue!
+        return dequeue!
       end
-      self
+      nil
     end
 
     # @todo Shouldn't be necessary, so this method isn't called right now, but I've written it so I'll leave it for now
@@ -252,12 +249,15 @@ module TableManager
       port_
     end
 
+    # @return [Object] The match that has been started or +nil+ if none could
+    # be started. Note that players have
+    # yet to be started, so the caller must do this.
     def dequeue!
       log(
         __method__,
         num_matches_to_start: @matches_to_start.length
       )
-      return self if @matches_to_start.empty?
+      return nil if @matches_to_start.empty?
 
       match_info = nil
       match_id = nil
@@ -344,22 +344,25 @@ module TableManager
         ports: match.port_numbers
       )
 
+      match
+    end
+
+    def start_players!(match)
       opponents = []
       match.every_bot(DEALER_HOST) do |bot_command|
         opponents << bot_command
       end
 
       if opponents.empty?
-        kill_match! match_id
-        raise StandardError.new("No opponents found to start for #{match_id}! Killed match.")
+        kill_match! match.id.to_s
+        raise StandardError.new("No opponents found to start for #{match.id.to_s}! Killed match.")
       end
 
       @agent_interface.start_opponents!(opponents)
+      log(__method__, msg: "Opponents started for #{match.id.to_s}")
 
-      log(__method__, msg: "Opponents started for #{match_id}")
-
-      @running_matches[match_id][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
-        @match_communicator.match_updated! match_id
+      @running_matches[match.id.to_s][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
+        @match_communicator.match_updated! match.id.to_s
       end
       self
     end

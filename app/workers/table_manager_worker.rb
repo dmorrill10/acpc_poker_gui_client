@@ -11,6 +11,8 @@ require 'sidekiq'
 require_relative '../../lib/simple_logging'
 using SimpleLogging::MessageFormatting
 
+require 'timeout'
+
 module TableManager
   class Null
     def method_missing(*args, &block)
@@ -50,6 +52,15 @@ module TableManager
       @table_queues = {}
       ExhibitionConstants::GAMES.each do |game_definition_key, info|
         @table_queues[game_definition_key] = TableQueue.new(@match_communicator, @agent_interface, game_definition_key)
+        # Enqueue matches that are waiting
+        @table_queues[game_definition_key].my_matches.not_running.and.not_started.each do |m|
+          match = enqueue! m.id.to_s, m.dealer_options
+          if match
+            Timeout::timeout(THREE_MINUTES) do
+              @table_queues[game_definition_key].start_players! match
+            end
+          end
+        end
       end
 
       @syncer = Mutex.new
@@ -60,6 +71,8 @@ module TableManager
     end
 
     def maintaining?() @maintaining_ end
+
+    THREE_MINUTES = 180
 
     def maintain!
       @maintaining_ = true
@@ -76,16 +89,28 @@ module TableManager
         log_with maintenance_logger, __method__, msg: "Starting maintenance"
 
         begin
+          started_match = {}
+          do_update_match_queue = false
           @syncer.synchronize do
             @table_queues.each do |key, queue|
               if (
                 queue.change_in_number_of_running_matches? do
-                  queue.check_queue!
+                  started_match[key] = queue.check_queue!
                 end
               )
-                @match_communicator.update_match_queue!
+                do_update_match_queue = true
               end
             end
+          end
+          started_match.each do |key, match|
+            if match
+              Timeout::timeout(THREE_MINUTES) do
+                @table_queues[key].start_players! match
+              end
+            end
+          end
+          if do_update_match_queue
+            @match_communicator.update_match_queue!
           end
           clean_up_matches!
         rescue => e
@@ -122,14 +147,26 @@ module TableManager
       rescue Mongoid::Errors::DocumentNotFound
         return kill_match!(match_id)
       else
+        started_match = {}
+        do_update_match_queue = false
         @syncer.synchronize do
           if (
             @table_queues[m.game_definition_key.to_s].change_in_number_of_running_matches? do
-              @table_queues[m.game_definition_key.to_s].enqueue!(match_id, options)
+              started_match[m.game_definition_key.to_s] = @table_queues[m.game_definition_key.to_s].enqueue!(match_id, options)
             end
           )
-            @match_communicator.update_match_queue!
+            do_update_match_queue = true
           end
+        end
+        started_match.each do |key, match|
+          if match
+            Timeout::timeout(THREE_MINUTES) do
+              @table_queues[key].start_players! match
+            end
+          end
+        end
+        if do_update_match_queue
+          @match_communicator.update_match_queue!
         end
       end
     end

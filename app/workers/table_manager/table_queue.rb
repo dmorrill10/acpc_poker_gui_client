@@ -59,6 +59,26 @@ module TableManager
       end
     end
 
+    def start_players!(match)
+      opponents = []
+      match.every_bot(DEALER_HOST) do |bot_command|
+        opponents << bot_command
+      end
+
+      if opponents.empty?
+        kill_match! match.id.to_s
+        raise StandardError.new("No opponents found to start for #{match.id.to_s}! Killed match.")
+      end
+
+      @agent_interface.start_opponents!(opponents)
+      log(__method__, msg: "Opponents started for #{match.id.to_s}")
+
+      @running_matches[match.id.to_s][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
+        @match_communicator.match_updated! match.id.to_s
+      end
+      self
+    end
+
     def my_matches
       Match.where(game_definition_key: @game_definition_key.to_sym)
     end
@@ -345,26 +365,6 @@ module TableManager
       )
 
       match
-    end
-
-    def start_players!(match)
-      opponents = []
-      match.every_bot(DEALER_HOST) do |bot_command|
-        opponents << bot_command
-      end
-
-      if opponents.empty?
-        kill_match! match.id.to_s
-        raise StandardError.new("No opponents found to start for #{match.id.to_s}! Killed match.")
-      end
-
-      @agent_interface.start_opponents!(opponents)
-      log(__method__, msg: "Opponents started for #{match.id.to_s}")
-
-      @running_matches[match.id.to_s][:proxy] = @agent_interface.start_proxy!(match) do |players_at_the_table|
-        @match_communicator.match_updated! match.id.to_s
-      end
-      self
     end
   end
 end

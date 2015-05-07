@@ -54,7 +54,7 @@ module TableManager
         @table_queues[game_definition_key] = TableQueue.new(@match_communicator, @agent_interface, game_definition_key)
         # Enqueue matches that are waiting
         @table_queues[game_definition_key].my_matches.not_running.and.not_started.each do |m|
-          match = enqueue! m.id.to_s, m.dealer_options
+          match = @table_queues[game_definition_key].enqueue! m.id.to_s, m.dealer_options
           if match
             Timeout::timeout(THREE_MINUTES) do
               @table_queues[game_definition_key].start_players! match

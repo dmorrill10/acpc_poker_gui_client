@@ -114,6 +114,10 @@ class Match
   def no_limit?
     @is_no_limit ||= game_def.betting_type == AcpcPokerTypes::GameDefinition::BETTING_TYPES[:nolimit]
   end
+  def fcpa?
+    return @is_fcpa unless @is_fcpa.nil?
+    @is_fcpa = :two_player_fcpa == self.game_definition_key
+  end
   def finished?
     !slices.empty? && (
       slices.last.match_ended? || -> do

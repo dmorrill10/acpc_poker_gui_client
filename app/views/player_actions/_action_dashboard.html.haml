@@ -8,7 +8,19 @@
       %button{ class: next_hand_id, disabled: waiting_for_response, data: { disable_with: next_hand_label } }= next_hand_label
   - else
     .action_modification_tools
-      - if match_view.no_limit?
+      - if match_view.match.fcpa?
+        .wager_amount-slider
+          .slider_labels
+            .slider_label.min Pot
+            .slider_label.half_pot
+            .slider_label.three_quarters_pot
+            .slider_label.one_pot
+            .slider_label.two_pot
+            .slider_label.all_in All-in
+          .slider
+            .ui_slider
+        .wager_amount-num_field= number_field_tag :modifier, match_view.pot_fraction_wager_to.to_i, min: [match_view.pot_fraction_wager_to.to_i, match_view.all_in.to_i].min, max: match_view.all_in.to_i, step: match_view.all_in.to_i - [match_view.pot_fraction_wager_to.to_i, match_view.all_in.to_i].min, disabled: wager_disabled_when
+      - elsif match_view.no_limit?
         .wager_amount-slider
           .slider_labels
             .slider_label.min Min

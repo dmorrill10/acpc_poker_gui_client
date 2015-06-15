@@ -13,6 +13,21 @@ module Bots
   BOT_DIR = File.expand_path('../', __FILE__)
 
   STATIC_GAME_DEFINITIONS = {
+    two_player_fcpa: {
+      file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
+      text: '2-player FCPA',
+      opponents: {
+        # ADD BOTS HERE LIKE SO:
+        # 'YourAgentNameForDropdownAndLogs' => RunYourAgent
+        # OR:
+        # 'YourAgentNameForDropdownAndLogs' => '/absolute/path/to/my/agent'
+        # OR:
+        # 'YourAgentNameForDropdownAndLogs' => File.join(BOT_DIR, 'path/relative/to/bots/directory')
+        DEFAULT_BOT_NAME => RunTestingBot,
+        'ExamplePlayer' => AcpcDealer::EXAMPLE_PLAYERS[2][:nolimit]
+      },
+      num_players: 2
+    },
     two_player_nolimit: {
       file: AcpcDealer::GAME_DEFINITION_FILE_PATHS[2][:nolimit],
       text: '2-player no-limit',

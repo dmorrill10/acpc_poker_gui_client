@@ -28,13 +28,13 @@ root.ActionDashboard =
       true
     else
       false
-  adjustWagerOnSubmission: (minimum_wager_to, user_contributions_in_previous_rounds, all_in_to)->
+  adjustWagerOnSubmission: (minimum_wager_to, user_contributions_in_previous_rounds, all_in_to, allowed_wagers = [])->
     wagerSubmission().click((e)=>
       if wagerAmountField().length == 0
         return
       wager_to_amount_over_round = parseInt(wagerAmountField().val())
 
-      if @tooLargeWager(wager_to_amount_over_round, all_in_to) or @tooSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to)
+      if @tooLargeWager(wager_to_amount_over_round, all_in_to) or @tooSmallOrIllogicalWager(wager_to_amount_over_round, minimum_wager_to) or (allowed_wagers.length > 0 and wager_to_amount_over_round != all_in_to and wager_to_amount_over_round not in allowed_wagers)
         return e.stopImmediatePropagation()
       wager_to_amount_over_hand = wager_to_amount_over_round + user_contributions_in_previous_rounds
 

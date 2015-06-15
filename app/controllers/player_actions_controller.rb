@@ -68,8 +68,7 @@ class PlayerActionsController < ApplicationController
     Rails.logger.ap action: 'update_state', waiting_for_response: session['waiting_for_response']
 
     if params[:match_state] == @match_view.state.to_s
-      @container = '.update_state_periodically'
-      @partial = 'player_actions/update_state_periodically'
+      @update_state_periodically = true;
       return replace_page_contents_with_updated_game_view(params[:match_id])
     end
     replace_page_contents_with_updated_game_view(params[:match_id])
@@ -96,8 +95,7 @@ class PlayerActionsController < ApplicationController
           Rails.logger.ap action: 'update', param_ms: params[:match_state], view_ms: @match_view.state.to_s, equal_ms: params[:match_state] == @match_view.state.to_s
 
           if params[:match_state] == @match_view.state.to_s
-            @container = '.update_state_periodically'
-            @partial = 'player_actions/update_state_periodically'
+            @update_state_periodically = true;
             return replace_page_contents_with_updated_game_view(params[:match_id])
           end
           return replace_page_contents_with_updated_game_view(params[:match_id])

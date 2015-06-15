@@ -1,3 +1,4 @@
+require_relative '../config/environment.rb'
 require_relative '../bots/bots.rb'
 require 'json'
 

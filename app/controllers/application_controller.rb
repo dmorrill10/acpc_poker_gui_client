@@ -1,3 +1,5 @@
+require 'acpc_backend'
+
 class ErrorManagerController < ActionController::Base
   protect_from_forgery
   before_filter :log_session
@@ -92,7 +94,7 @@ class MatchManagerController < UserManagerController
   protected
 
   def clear_match_session!
-    session.delete TableManager::MATCH_ID_KEY
+    session.delete AcpcBackend.config.match_id_key
     session['num_requests'] = 0
   end
 
@@ -109,21 +111,21 @@ class MatchManagerController < UserManagerController
       @match
     elsif match_id
       begin
-        Match.find match_id
+        AcpcBackend::Match.find match_id
       rescue Mongoid::Errors::DocumentNotFound
         clear_match_information!
-        Match.new
+        AcpcBackend::Match.new
       end
     else
-      Match.new
+      AcpcBackend::Match.new
     end
   end
 
   def match_id(new_id=nil)
     if new_id
-      session[TableManager::MATCH_ID_KEY] = new_id.to_s
+      session[AcpcBackend.config.match_id_key] = new_id.to_s
     else
-      session[TableManager::MATCH_ID_KEY]
+      session[AcpcBackend.config.match_id_key]
     end
   end
 
@@ -136,9 +138,9 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_to_join
-    Match.asc(:name).not_started.select do |m|
+    AcpcBackend::Match.asc(:name).not_started.select do |m|
       !m.copy? &&
-      !m.human_opponent_seats(user.name).empty?
+      !m.opponent_seats(user.name).empty?
     end
   end
   def seats_to_join
@@ -149,7 +151,7 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_to_rejoin
-    Match.asc(:name).started.select do |m|
+    AcpcBackend::Match.asc(:name).started.select do |m|
       m.user_name == user_name &&
       !m.copy? &&
       !m.finished?
@@ -157,7 +159,7 @@ class MatchManagerController < UserManagerController
   end
   def seats_to_rejoin
     matches_to_rejoin.sort_by{ |m| m.name }.inject({}) do |hash, m|
-      hash[m.name] = m.human_opponent_seats
+      hash[m.name] = m.opponent_seats_with_condition { |player| User.where(user_name: player).exists? }
       hash[m.name] << m.seat unless hash[m.name].include?(m.seat)
       hash[m.name].sort!
       hash
@@ -167,7 +169,7 @@ class MatchManagerController < UserManagerController
   def matches_including_user
     return @matches_including_user_ if @matches_including_user_
     begin
-      @matches_including_user_ = Match.where(user_name: user_name).reject { |m| m.copy? || m.finished? }
+      @matches_including_user_ = AcpcBackend::Match.where(user_name: user_name).reject { |m| m.copy? || m.finished? }
     rescue
       []
     end
@@ -183,7 +185,7 @@ class ApplicationController < MatchManagerController
 
   def table_manager_constants
     render(
-      json: File.read(TableManager::CONSTANTS_FILE)
+      json: File.read(AcpcBackend.config.file)
     )
   end
 
@@ -239,7 +241,7 @@ class ApplicationController < MatchManagerController
   end
 
   def clear_nonexistant_match
-    if match_id && !Match.id_exists?(match_id)
+    if match_id && !AcpcBackend::Match.id_exists?(match_id)
       clear_match_information!
       Rails.logger.ap({method: __method__})
       raise

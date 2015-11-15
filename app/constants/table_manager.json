@@ -1,0 +1,19 @@
+{
+  "start_match_request_code": "dealer",
+  "start_proxy_request_code": "proxy",
+  "play_action_request_code": "play",
+  "kill_match": "kill-match",
+  "delete_irrelevant_matches_request_code": "delete_irrelevant_matches",
+  "player_action_channel_prefix": "player-action-in-",
+  "realtime_channel": "table-manager-update",
+  "match_id_key": "match_id",
+  "options_key": "options",
+  "action_key": "action",
+  "message_server_port": 6379,
+  "update_match_queue_channel": "update_match_queue",
+  "special_ports_to_dealer": [],
+  "match_lifespan_s": 120,
+  "action_delay_s": 0.15,
+  "maintenance_interval_s": 30,
+  "max_time_to_wait_for_players_to_start_s": 180
+}

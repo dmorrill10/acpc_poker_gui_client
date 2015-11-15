@@ -1,5 +1,5 @@
 require 'application_helper'
-require 'match'
+require 'acpc_backend'
 
 # Controller for the 'start a new game' view.
 class MatchStartController < ApplicationController
@@ -117,9 +117,9 @@ class MatchStartController < ApplicationController
     exhibition_game_def_key = params['game_definition_key']
     return render_js(RENDER_NOTHING_JS) unless exhibition_game_def_key && ApplicationHelper::GAMES[exhibition_game_def_key]
 
-    seed = Match.new_random_seed
-    seat = Match.new_random_seat(ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAMES'].length)
-    match_name = Match.new_name user_name
+    seed = AcpcBackend::Match.new_random_seed
+    seat = AcpcBackend::Match.new_random_seat(ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAMES'].length)
+    match_name = AcpcBackend::Match.new_name user_name
 
     params[:match] = {
       opponent_names: ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAMES'],
@@ -135,7 +135,7 @@ class MatchStartController < ApplicationController
       'Sorry, unable to finish creating a match instance, please try again.'
     ) if (
       error? do
-        @match = Match.new(params[:match]).finish_starting!
+        @match = AcpcBackend::Match.new(params[:match]).finish_starting!
 
         Rails.logger.ap(
           action: __method__,
@@ -160,14 +160,14 @@ class MatchStartController < ApplicationController
       "Sorry, unable to join match \"#{match_name}\" in seat #{seat}."
     ) if (
       error? do
-        opponent_users_match = Match.where(name_from_user: match_name).first
+        opponent_users_match = AcpcBackend::Match.where(name_from_user: match_name).first
         raise unless opponent_users_match
 
         @match = opponent_users_match.copy_for_next_human_player user.name, seat
 
         match_id(@match.id)
 
-        wait_for_match_to_start TableManager::START_PROXY_REQUEST_CODE
+        wait_for_match_to_start AcpcBackend.config.start_proxy_request_code
       end
     )
   end
@@ -180,7 +180,7 @@ class MatchStartController < ApplicationController
       "Sorry, unable to find match \"#{match_name}\" in seat #{seat}."
     ) if (
       error? do
-        @match = Match.where(name: match_name, seat: seat).first
+        @match = AcpcBackend::Match.where(name: match_name, seat: seat).first
         raise unless @match
 
         match_id(@match.id)
@@ -206,9 +206,9 @@ class MatchStartController < ApplicationController
       'Sorry, unable to start the dealer and players, please try again or join a match already in progress.'
     ) if (
       error? do
-        TableManager::Worker.perform_async(
-          TableManager::START_PROXY_REQUEST_CODE,
-          TableManager::MATCH_ID_KEY => match_id
+        AcpcBackend::Worker.perform_async(
+          AcpcBackend.config.start_proxy_request_code,
+          AcpcBackend.config.match_id_key => match_id
         )
       end
     )
@@ -274,11 +274,11 @@ class MatchStartController < ApplicationController
       action: __method__,
       match_id: match_id_
     )
-    TableManager::Worker.perform_async(
-      TableManager::START_MATCH_REQUEST_CODE,
+    AcpcBackend::Worker.perform_async(
+      AcpcBackend.config.start_match_request_code,
       {
-        TableManager::MATCH_ID_KEY => match_id_,
-        TableManager::OPTIONS_KEY => [
+        AcpcBackend.config.match_id_key => match_id_,
+        AcpcBackend.config.options_key => [
           '-a', # Append logs with the same name rather than overwrite
           "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
           '--t_hand -1',

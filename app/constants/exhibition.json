@@ -1,24 +1,53 @@
 {
-  "GAMES": {
+  "games": {
     "two_player_limit": {
-      "LABEL": "Heads-up Limit Texas Hold'em",
-      "MAX_NUM_MATCHES": 2,
-      "EXHIBITION_BOT_NAMES": ["Tester"],
-      "NUM_HANDS_PER_MATCH": 100
+      "label": "Heads-up Limit Texas Hold'em",
+      "max_num_matches": 2,
+      "num_hands_per_match": 100,
+      "file": "%{dealer_directory}/holdem.2p.reverse_blinds.game",
+      "num_players": 2,
+      "opponents": {
+        "ExamplePlayer": {
+          "runner": "%{dealer_directory}/example_player.limit.2p.sh",
+          "requires_special_port": false
+        }
+      }
     },
     "two_player_nolimit": {
-      "LABEL": "Heads-up No-limit Texas Hold'em",
-      "MAX_NUM_MATCHES": 2,
-      "EXHIBITION_BOT_NAMES": ["Tester"],
-      "NUM_HANDS_PER_MATCH": 100
+      "label": "Heads-up No-limit Texas Hold'em",
+      "max_num_matches": 2,
+      "num_hands_per_match": 100,
+      "file": "%{dealer_directory}/holdem.nolimit.2p.reverse_blinds.game",
+      "num_players": 2,
+      "opponents": {
+        "ExamplePlayer": {
+          "runner": "%{dealer_directory}/example_player.nolimit.2p.sh",
+          "requires_special_port": false
+        }
+      }
     },
     "three_player_kuhn": {
-      "LABEL": "3-player Kuhn",
-      "MAX_NUM_MATCHES": 2,
-      "EXHIBITION_BOT_NAMES": ["Opponent1", "Opponent2"],
-      "NUM_HANDS_PER_MATCH": 3000
+      "label": "3-player Kuhn",
+      "max_num_matches": 2,
+      "num_hands_per_match": 3000,
+      "file": "%{dealer_directory}/kuhn.limit.3p.game",
+      "num_players": 3,
+      "opponents": {
+        "Sf1": {
+          "runner": "%{dealer_directory}/kuhn_3p_equilibrium_player.sf1.sh",
+          "requires_special_port": false
+        },
+        "Sf2": {
+          "runner": "%{dealer_directory}/kuhn_3p_equilibrium_player.sf2.sh",
+          "requires_special_port": false
+        },
+        "Sf3": {
+          "runner": "%{dealer_directory}/kuhn_3p_equilibrium_player.sf3.sh",
+          "requires_special_port": false
+        }
+      }
     }
   },
-  "REJOIN_BUTTON_ID": "rejoin",
-  "SPECTATE_BUTTON_ID_PREFIX": "spectate-"
+  "rejoin_button_id": "rejoin",
+  "spectate_button_id_prefix": "spectate-"
 }

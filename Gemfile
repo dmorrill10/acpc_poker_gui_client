@@ -4,6 +4,8 @@ gem 'rails', '~>3.2'
 
 gem 'rack', '~>1.4'
 
+gem 'acpc_backend', '~> 0.0'
+
 # Database module
 gem 'origin', '~>1.0'
 gem 'moped', '~>1.4'
@@ -28,10 +30,6 @@ gem 'passenger', '~>4.0'
 # To manage background processes
 gem 'god'
 
-# Poker logic
-gem 'acpc_dealer', '~> 2.0'
-gem 'acpc_poker_player_proxy', '~> 1.1'
-
 # Improved forms
 gem 'simple_form'
 
@@ -43,20 +41,8 @@ gem 'client_side_validations-mongoid'
 # Improved logging output
 gem 'awesome_print'
 
-# Simple exception email notifications
-gem 'rusen'
-
 # For CLI client application
 gem 'methadone'
-
-# For better errors in WAPP
-gem 'contextual_exceptions'
-
-# To run background process
-gem 'process_runner', '~> 0.0'
-
-# For background process communication
-gem 'sidekiq'
 
 # To add bots without restarting the server
 gem 'require_reloader'
@@ -65,8 +51,6 @@ gem 'require_reloader'
 gem 'bcrypt', '~> 3.1.5', require: "bcrypt"
 
 gem 'js-routes'
-
-gem 'timeout'
 
 # Gems used only for assets and not required
 # in production environments by default.

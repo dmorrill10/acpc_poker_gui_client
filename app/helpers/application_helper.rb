@@ -10,7 +10,7 @@ module ApplicationHelper
   end
 
   JSON.parse(read_constants).each do |constant, val|
-    ApplicationHelper.const_set(constant, val) unless const_defined? constant
+    ApplicationHelper.const_set(constant.upcase, val) unless const_defined? constant.upcase
   end
 
   JSON.parse(
@@ -18,7 +18,7 @@ module ApplicationHelper
       Rails.root.join('app', 'constants', 'exhibition.json')
     )
   ).each do |constant, val|
-    ApplicationHelper.const_set(constant, val) unless const_defined? constant
+    ApplicationHelper.const_set(constant.upcase, val) unless const_defined? constant.upcase
   end
 
   def html_element_name_to_class(element)

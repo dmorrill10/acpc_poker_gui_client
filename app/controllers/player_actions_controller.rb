@@ -1,6 +1,6 @@
 require 'application_helper'
 require 'acpc_poker_types/seat'
-require 'match'
+require 'acpc_backend'
 require 'user'
 require 'hotkey'
 
@@ -25,7 +25,7 @@ class MatchViewManagerController < ApplicationController
 
   def ensure_match_view_exists
     if (
-      match_id && !Match.id_exists?(match_id)
+      match_id && !AcpcBackend::Match.id_exists?(match_id)
     ) || !match_view
       clear_match_information!
       return reset_to_match_entry_view
@@ -113,7 +113,7 @@ class PlayerActionsController < MatchViewManagerController
       error? do
         update_match_id_if_necessary
         begin
-          @match_view = MatchView.new(
+          @match_view = AcpcBackend::MatchView.new(
             params['match_id'],
             params['match_slice_index'].to_i,
             load_previous_messages: params['load_previous_messages'] == 'true'
@@ -152,11 +152,11 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        TableManager::Worker.perform_async(
-          TableManager::PLAY_ACTION_REQUEST_CODE,
+        AcpcBackend::Worker.perform_async(
+          AcpcBackend.config.play_action_request_code,
           {
-            TableManager::MATCH_ID_KEY => params['match_id'],
-            TableManager::ACTION_KEY => params['poker_action']
+            AcpcBackend.config.match_id_key => params['match_id'],
+            AcpcBackend.config.action_key => params['poker_action']
           }
         )
         begin
@@ -234,12 +234,12 @@ class PlayerActionsController < MatchViewManagerController
       match_user_name: match.user_name
     )
     unless spectating? || params['match_id'].nil?
-      Match.delete_match! params['match_id']
+      AcpcBackend::Match.delete_match! params['match_id']
       Rails.logger.ap(action: __method__, message: "Deleted match #{params['match_id']}")
 
-      TableManager::Worker.perform_async(
-        TableManager::KILL_MATCH,
-        {TableManager::MATCH_ID_KEY => params['match_id']}
+      AcpcBackend::Worker.perform_async(
+        AcpcBackend.config.kill_match,
+        {AcpcBackend.config.match_id_key => params['match_id']}
       )
     end
     @alert_message = params['alert_message'] if params['alert_message'] && !params['alert_message'].empty?
@@ -257,7 +257,7 @@ class PlayerActionsController < MatchViewManagerController
 
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view
-    @match_view ||= MatchView.new(match_id)
+    @match_view ||= AcpcBackend::MatchView.new(match_id)
     ensure_match_view_exists
 
     replace_page_contents(
@@ -272,7 +272,7 @@ class PlayerActionsController < MatchViewManagerController
       match_id,
       match_slice_index
     )
-    @match_view ||= MatchView.new match_id, match_slice_index
+    @match_view ||= AcpcBackend::MatchView.new match_id, match_slice_index
 
     Rails.logger.ap({
       method: __method__,

@@ -60,8 +60,8 @@ module AcpcPokerGuiClient
   end
 end
 
-require_relative '../lib/application_defs'
-require_relative '../bots/bots'
-require_relative '../app/workers/table_manager/table_manager'
-require_relative '../app/workers/table_manager_worker'
+require 'acpc_backend'
+AcpcBackend.load! File.expand_path('../acpc_backend.yml', __FILE__)
+AcpcBackend.configure_middleware
+
 require 'awesome_print'

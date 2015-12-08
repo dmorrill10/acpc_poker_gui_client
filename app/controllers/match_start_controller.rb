@@ -3,14 +3,13 @@ require 'acpc_backend'
 
 # Controller for the 'start a new game' view.
 class MatchStartController < ApplicationController
-  include ApplicationDefs
   include ApplicationHelper
   include MatchStartHelper
 
   def sign_in
     if params[:user_name] && !params[:user_name].empty?
-      ApplicationDefs.game_definitions.map do |d|
-        d.last[:opponents].keys
+      AcpcBackend.exhibition_config.games.map do |key, info|
+        info['opponents'].keys
       end.flatten.uniq.each do |bot_name|
         if bot_name == params[:user_name]
           @alert_message = "Sorry, \"#{bot_name}\" is a reserved name. Please choose another user name."
@@ -63,8 +62,8 @@ class MatchStartController < ApplicationController
     rescue # Quiet any errors
     end
 
-    ApplicationDefs.game_definitions.map do |d|
-      d.last[:opponents].keys
+    AcpcBackend.exhibition_config.games.map do |key, info|
+      info['opponents'].keys
     end.flatten.uniq.each do |bot_name|
       if bot_name == user_name
         @alert_message = "Sorry, \"#{bot_name}\" is a reserved name. Please choose another user name."
@@ -81,11 +80,6 @@ class MatchStartController < ApplicationController
     end
 
     @alert_message = params['alert_message'] if params['alert_message'] && !params['alert_message'].empty?
-
-    Rails.logger.ap(
-      action: __method__,
-      alert_message: @alert_message
-    )
 
     if user_already_in_match?
       match_ = matches_including_user.first
@@ -118,14 +112,14 @@ class MatchStartController < ApplicationController
     return render_js(RENDER_NOTHING_JS) unless exhibition_game_def_key && ApplicationHelper::GAMES[exhibition_game_def_key]
 
     seed = AcpcBackend::Match.new_random_seed
-    seat = AcpcBackend::Match.new_random_seat(ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAMES'].length)
+    seat = AcpcBackend::Match.new_random_seat(ApplicationHelper::GAMES[exhibition_game_def_key]['opponents'].length)
     match_name = AcpcBackend::Match.new_name user_name
 
     params[:match] = {
-      opponent_names: ApplicationHelper::GAMES[exhibition_game_def_key]['EXHIBITION_BOT_NAMES'],
+      opponent_names: ApplicationHelper::GAMES[exhibition_game_def_key]['opponents'].keys,
       name_from_user: match_name,
       game_definition_key: exhibition_game_def_key.to_sym,
-      number_of_hands: ApplicationHelper::GAMES[exhibition_game_def_key]['NUM_HANDS_PER_MATCH'],
+      number_of_hands: ApplicationHelper::GAMES[exhibition_game_def_key]['num_hands_per_match'],
       seat: seat,
       random_seed: seed,
       user_name: user_name
@@ -206,9 +200,14 @@ class MatchStartController < ApplicationController
       'Sorry, unable to start the dealer and players, please try again or join a match already in progress.'
     ) if (
       error? do
-        AcpcBackend::Worker.perform_async(
-          AcpcBackend.config.start_proxy_request_code,
-          AcpcBackend.config.match_id_key => match_id
+        $redis.rpush(
+          'backend',
+          {
+            'request' => AcpcBackend.config.start_proxy_request_code,
+            'params' => {
+              AcpcBackend.config.match_id_key => match_id
+            }
+          }.to_json
         )
       end
     )
@@ -266,7 +265,7 @@ class MatchStartController < ApplicationController
   end
 
   def num_players(game_def_key)
-    ApplicationDefs.game_definitions[game_def_key][:num_players]
+    AcpcBackend.exhibition_config.games[game_def_key.to_s]['num_players']
   end
 
   def self.start_dealer_and_players_on_server(match_id_)
@@ -274,17 +273,20 @@ class MatchStartController < ApplicationController
       action: __method__,
       match_id: match_id_
     )
-    AcpcBackend::Worker.perform_async(
-      AcpcBackend.config.start_match_request_code,
+    $redis.rpush(
+      'backend',
       {
-        AcpcBackend.config.match_id_key => match_id_,
-        AcpcBackend.config.options_key => [
-          '-a', # Append logs with the same name rather than overwrite
-          "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
-          '--t_hand -1',
-          '--t_per_hand -1'
-        ].join(' ')
-      }
+        'request' => AcpcBackend.config.start_match_request_code,
+        'params' => {
+          AcpcBackend.config.match_id_key => match_id_,
+          AcpcBackend.config.options_key => [
+            '-a', # Append logs with the same name rather than overwrite
+            "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
+            '--t_hand -1',
+            '--t_per_hand -1'
+          ].join(' ')
+        }
+      }.to_json
     )
   end
 end

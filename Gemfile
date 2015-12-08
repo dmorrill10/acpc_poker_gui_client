@@ -4,7 +4,8 @@ gem 'rails', '~>3.2'
 
 gem 'rack', '~>1.4'
 
-gem 'acpc_backend', '~> 0.0'
+gem 'acpc_backend', '~> 0.0.1'
+gem 'redis', '~> 3.2'
 
 # Database module
 gem 'origin', '~>1.0'
@@ -30,22 +31,8 @@ gem 'passenger', '~>4.0'
 # To manage background processes
 gem 'god'
 
-# Improved forms
-gem 'simple_form'
-
-# Instant form validation
-gem 'client_side_validations'
-gem 'client_side_validations-simple_form'
-gem 'client_side_validations-mongoid'
-
 # Improved logging output
 gem 'awesome_print'
-
-# For CLI client application
-gem 'methadone'
-
-# To add bots without restarting the server
-gem 'require_reloader'
 
 # For password encryption
 gem 'bcrypt', '~> 3.1.5', require: "bcrypt"
@@ -96,14 +83,4 @@ group :development do
   gem 'rails_best_practices'
 
   gem 'pry-rails'
-
-  # if you require 'sinatra' you get the DSL extended to Object
-  gem 'sinatra', :require => nil
-end
-
-group :development, :test do
-  gem 'rspec-rails'
-  gem 'capybara'
-  gem 'mocha', require: false
-  gem 'rspec-rails-mocha', require: false
 end

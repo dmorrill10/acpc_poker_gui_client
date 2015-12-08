@@ -18,6 +18,8 @@ class WindowManager
   @loadComplete: ->
     console.log "WindowManager::loadComplete: @onLoadCallbacks.length: #{@onLoadCallbacks.length}"
     @onLoadCallbacks.shift()() while @onLoadCallbacks.length > 0
+    console.log "WindowManager::loadComplete: Finished all callbacks"
+
   @packageMatchData: (matchId, sliceIndexString)->
     {
       match_id: matchId,

@@ -62,5 +62,5 @@ watch('redis') do |w|
 end
 
 watch('worker') do |w|
-  w.start = "bundle exec sidekiq -r #{GOD_RAILS_ROOT} -L #{GOD_RAILS_ROOT}/log/sidekiq.log -t 1"
+  w.start = "bundle exec #{GOD_RAILS_ROOT}/bin/acpc_backend_client.rb"
 end

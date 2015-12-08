@@ -228,11 +228,15 @@ class ApplicationController < MatchManagerController
       end
     )
       @alert_message ||= "Unable to update the page, #{self.class.report_error_request_message}"
-      if js_partial == ApplicationHelper::NEW_MATCH_PARTIAL
-        return redirect_to(root_path, remote: true)
-      else
-        return replace_page_contents(replacement_partial: ApplicationHelper::NEW_MATCH_PARTIAL)
-      end
+      return replace_page_contents(
+        replacement_partial: (
+          if @replacement_partial == ApplicationHelper::NEW_MATCH_PARTIAL
+            ApplicationHelper::ERROR_PARTIAL
+          else
+            ApplicationHelper::NEW_MATCH_PARTIAL
+          end
+        )
+      )
     end
   end
 

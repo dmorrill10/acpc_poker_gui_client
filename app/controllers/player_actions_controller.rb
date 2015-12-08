@@ -118,7 +118,7 @@ class PlayerActionsController < MatchViewManagerController
             params['match_slice_index'].to_i,
             load_previous_messages: params['load_previous_messages'] == 'true'
           )
-        rescue MatchView::UnableToFindNextSlice => e
+        rescue AcpcBackend::MatchView::UnableToFindNextSlice => e
           Rails.logger.ap(
             action: __method__,
             requested_slice_index: params['match_slice_index'].to_i,
@@ -152,16 +152,19 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        AcpcBackend::Worker.perform_async(
-          AcpcBackend.config.play_action_request_code,
+        $redis.rpush(
+          'backend',
           {
-            AcpcBackend.config.match_id_key => params['match_id'],
-            AcpcBackend.config.action_key => params['poker_action']
-          }
+            'request' => AcpcBackend.config.play_action_request_code,
+            'params' => {
+              AcpcBackend.config.match_id_key => params['match_id'],
+              AcpcBackend.config.action_key => params['poker_action']
+            }
+          }.to_json
         )
         begin
           return render_match_view params['match_id'], params['match_slice_index'].to_i
-        rescue MatchView::UnableToFindNextSlice => e
+        rescue AcpcBackend::MatchView::UnableToFindNextSlice => e
           Rails.logger.ap(
             action: __method__,
             requested_slice_index: params['match_slice_index'].to_i,
@@ -237,9 +240,14 @@ class PlayerActionsController < MatchViewManagerController
       AcpcBackend::Match.delete_match! params['match_id']
       Rails.logger.ap(action: __method__, message: "Deleted match #{params['match_id']}")
 
-      AcpcBackend::Worker.perform_async(
-        AcpcBackend.config.kill_match,
-        {AcpcBackend.config.match_id_key => params['match_id']}
+      $redis.rpush(
+        'backend',
+        {
+          'request' => AcpcBackend.config.kill_match,
+          'params' => {
+            AcpcBackend.config.match_id_key => params['match_id']
+          }
+        }.to_json
       )
     end
     @alert_message = params['alert_message'] if params['alert_message'] && !params['alert_message'].empty?

@@ -4,7 +4,7 @@
       "label": "Heads-up Limit Texas Hold'em",
       "max_num_matches": 2,
       "num_hands_per_match": 100,
-      "file": "%{dealer_directory}/holdem.2p.reverse_blinds.game",
+      "file": "%{dealer_directory}/holdem.limit.2p.reverse_blinds.game",
       "num_players": 2,
       "opponents": {
         "ExamplePlayer": {
@@ -39,10 +39,6 @@
         },
         "Sf2": {
           "runner": "%{dealer_directory}/kuhn_3p_equilibrium_player.sf2.sh",
-          "requires_special_port": false
-        },
-        "Sf3": {
-          "runner": "%{dealer_directory}/kuhn_3p_equilibrium_player.sf3.sh",
           "requires_special_port": false
         }
       }

@@ -1,7 +1,7 @@
 - matches_in_progress_for_game = AcpcBackend::Match.running.and.where game_definition_key: game.to_sym
 .panel.panel-success
   .panel-heading
-    %h4.panel-title= "#{info['LABEL']} against #{info['EXHIBITION_BOT_NAMES'].join(' and ')}"
+    %h4.panel-title= "#{info['label']} against #{info['opponents'].keys.join(' and ')}"
   .panel-body
     .col-sm-6
       .matches-in-progress.panel.panel-success
@@ -11,7 +11,7 @@
           %thead
             %tr
               %th Player
-              %th= "#{matches_in_progress_for_game.length} / #{info['MAX_NUM_MATCHES']}"
+              %th= "#{matches_in_progress_for_game.length} / #{info['max_num_matches']}"
               - if ApplicationHelper::ENABLE_SPECTATING
                 %th
           %tbody
@@ -48,7 +48,7 @@
                             );
                             rt.spectate();
                           });
-            - (info['MAX_NUM_MATCHES'] - matches_in_progress_for_game.length).times do |i|
+            - (info['max_num_matches'] - matches_in_progress_for_game.length).times do |i|
               %tr
                 %td
                 %td
@@ -62,7 +62,7 @@
         = form_for match, url: new_match_url, remote: true do |f|
           - disabled_label = "Waiting..."
           - num_matches_in_queue = AcpcBackend::Match.not_running.and.not_started.where(game_definition_key: game.to_sym).length
-          - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-success', value: if (matches_in_progress_for_game.length + num_matches_in_queue) < info['MAX_NUM_MATCHES'] && matches_including_user_.empty? then "Play Match!" else "Enqueue match (#{num_matches_in_queue + 1} in line)" end}
+          - play_button_attributes = {data: { disable_with: disabled_label }, class: 'btn btn-success', value: if (matches_in_progress_for_game.length + num_matches_in_queue) < info['max_num_matches'] && matches_including_user_.empty? then "Play Match!" else "Enqueue match (#{num_matches_in_queue + 1} in line)" end}
           - if !matches_including_user_.empty?
             - play_button_attributes[:disabled] = 'disabled'
             - play_button_attributes[:value] = disabled_label

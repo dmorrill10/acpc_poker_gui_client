@@ -1,0 +1,13 @@
+:javascript
+  $('.modal-backdrop').remove();
+  console.log('_index');
+
+.poker
+  = render partial: 'layouts/navbar', locals: { partial: nil }
+  .panel.panel-danger
+    .panel-heading
+      %h3.panel-title Error, Unable to Start Application
+    .panel-body
+      %p An error is preventing the landing page from being displayed. Please report this error to its <a href='#{ApplicationHelper::ISSUE_TRACKER}' target='#'>issue tracker</a> detailing your exact situation (date and time, system and browser, match setup, and your observations). Sorry for the inconvenience, and thank you for your patience and cooperation.
+      .panel-footer
+        = render partial: MatchStartHelper::FOOTER

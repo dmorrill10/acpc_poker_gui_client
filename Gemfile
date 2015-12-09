@@ -16,8 +16,9 @@ gem "mongoid", '~>3.1'
 gem 'compass-rails', '~> 1.0'
 gem 'blueprint-rails', '~> 0.2'
 
-# To interpret Coffeescript in HAML
-gem 'coffee-filter', '~> 0.1'
+gem 'ember-rails'
+gem 'ember-source', '~> 1.9.0'
+gem 'coffee-rails'
 
 # JavaScript library
 gem 'jquery-rails', '~> 2.2'

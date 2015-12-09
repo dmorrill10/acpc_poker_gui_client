@@ -1,4 +1,4 @@
-require 'acpc_backend'
+require 'acpc_table_manager'
 
 class ErrorManagerController < ActionController::Base
   protect_from_forgery
@@ -94,7 +94,7 @@ class MatchManagerController < UserManagerController
   protected
 
   def clear_match_session!
-    session.delete AcpcBackend.config.match_id_key
+    session.delete AcpcTableManager.config.match_id_key
     session['num_requests'] = 0
   end
 
@@ -111,21 +111,21 @@ class MatchManagerController < UserManagerController
       @match
     elsif match_id
       begin
-        AcpcBackend::Match.find match_id
+        AcpcTableManager::Match.find match_id
       rescue Mongoid::Errors::DocumentNotFound
         clear_match_information!
-        AcpcBackend::Match.new
+        AcpcTableManager::Match.new
       end
     else
-      AcpcBackend::Match.new
+      AcpcTableManager::Match.new
     end
   end
 
   def match_id(new_id=nil)
     if new_id
-      session[AcpcBackend.config.match_id_key] = new_id.to_s
+      session[AcpcTableManager.config.match_id_key] = new_id.to_s
     else
-      session[AcpcBackend.config.match_id_key]
+      session[AcpcTableManager.config.match_id_key]
     end
   end
 
@@ -138,7 +138,7 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_to_join
-    AcpcBackend::Match.asc(:name).not_started.select do |m|
+    AcpcTableManager::Match.asc(:name).not_started.select do |m|
       !m.copy? &&
       !m.opponent_seats(user.name).empty?
     end
@@ -151,7 +151,7 @@ class MatchManagerController < UserManagerController
   end
 
   def matches_to_rejoin
-    AcpcBackend::Match.asc(:name).started.select do |m|
+    AcpcTableManager::Match.asc(:name).started.select do |m|
       m.user_name == user_name &&
       !m.copy? &&
       !m.finished?
@@ -169,7 +169,7 @@ class MatchManagerController < UserManagerController
   def matches_including_user
     return @matches_including_user_ if @matches_including_user_
     begin
-      @matches_including_user_ = AcpcBackend::Match.where(user_name: user_name).reject { |m| m.copy? || m.finished? }
+      @matches_including_user_ = AcpcTableManager::Match.where(user_name: user_name).reject { |m| m.copy? || m.finished? }
     rescue
       []
     end
@@ -185,7 +185,7 @@ class ApplicationController < MatchManagerController
 
   def table_manager_constants
     render(
-      json: File.read(AcpcBackend.config.file)
+      json: File.read(AcpcTableManager.config.file)
     )
   end
 
@@ -245,7 +245,7 @@ class ApplicationController < MatchManagerController
   end
 
   def clear_nonexistant_match
-    if match_id && !AcpcBackend::Match.id_exists?(match_id)
+    if match_id && !AcpcTableManager::Match.id_exists?(match_id)
       clear_match_information!
       Rails.logger.ap({method: __method__})
       raise

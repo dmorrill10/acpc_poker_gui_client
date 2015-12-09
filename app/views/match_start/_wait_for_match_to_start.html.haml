@@ -1,8 +1,8 @@
 - case @request_code
-- when AcpcBackend.config.start_match_request_code
+- when AcpcTableManager.config.start_match_request_code
   :javascript
     rt.startMatch("#{start_dealer_and_players_url}");
-- when AcpcBackend.config.start_proxy_request_code
+- when AcpcTableManager.config.start_proxy_request_code
   :javascript
     rt.startProxy("#{start_proxy_url}");
 - else

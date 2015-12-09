@@ -52,7 +52,7 @@ module AcpcPokerGuiClient
   end
 end
 
-require 'acpc_backend'
-AcpcBackend.load! File.expand_path('../acpc_backend.yml', __FILE__)
+require 'acpc_table_manager'
+AcpcTableManager.load! File.expand_path('../acpc_table_manager.yml', __FILE__)
 
 require 'awesome_print'

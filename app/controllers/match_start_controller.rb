@@ -1,5 +1,5 @@
 require 'application_helper'
-require 'acpc_backend'
+require 'acpc_table_manager'
 
 # Controller for the 'start a new game' view.
 class MatchStartController < ApplicationController
@@ -8,7 +8,7 @@ class MatchStartController < ApplicationController
 
   def sign_in
     if params[:user_name] && !params[:user_name].empty?
-      AcpcBackend.exhibition_config.games.map do |key, info|
+      AcpcTableManager.exhibition_config.games.map do |key, info|
         info['opponents'].keys
       end.flatten.uniq.each do |bot_name|
         if bot_name == params[:user_name]
@@ -62,7 +62,7 @@ class MatchStartController < ApplicationController
     rescue # Quiet any errors
     end
 
-    AcpcBackend.exhibition_config.games.map do |key, info|
+    AcpcTableManager.exhibition_config.games.map do |key, info|
       info['opponents'].keys
     end.flatten.uniq.each do |bot_name|
       if bot_name == user_name
@@ -111,9 +111,9 @@ class MatchStartController < ApplicationController
     exhibition_game_def_key = params['game_definition_key']
     return render_js(RENDER_NOTHING_JS) unless exhibition_game_def_key && ApplicationHelper::GAMES[exhibition_game_def_key]
 
-    seed = AcpcBackend::Match.new_random_seed
-    seat = AcpcBackend::Match.new_random_seat(ApplicationHelper::GAMES[exhibition_game_def_key]['opponents'].length)
-    match_name = AcpcBackend::Match.new_name user_name
+    seed = AcpcTableManager::Match.new_random_seed
+    seat = AcpcTableManager::Match.new_random_seat(ApplicationHelper::GAMES[exhibition_game_def_key]['opponents'].length)
+    match_name = AcpcTableManager::Match.new_name user_name
 
     params[:match] = {
       opponent_names: ApplicationHelper::GAMES[exhibition_game_def_key]['opponents'].keys,
@@ -129,7 +129,7 @@ class MatchStartController < ApplicationController
       'Sorry, unable to finish creating a match instance, please try again.'
     ) if (
       error? do
-        @match = AcpcBackend::Match.new(params[:match]).finish_starting!
+        @match = AcpcTableManager::Match.new(params[:match]).finish_starting!
 
         Rails.logger.ap(
           action: __method__,
@@ -154,14 +154,14 @@ class MatchStartController < ApplicationController
       "Sorry, unable to join match \"#{match_name}\" in seat #{seat}."
     ) if (
       error? do
-        opponent_users_match = AcpcBackend::Match.where(name_from_user: match_name).first
+        opponent_users_match = AcpcTableManager::Match.where(name_from_user: match_name).first
         raise unless opponent_users_match
 
         @match = opponent_users_match.copy_for_next_human_player user.name, seat
 
         match_id(@match.id)
 
-        wait_for_match_to_start AcpcBackend.config.start_proxy_request_code
+        wait_for_match_to_start AcpcTableManager.config.start_proxy_request_code
       end
     )
   end
@@ -174,7 +174,7 @@ class MatchStartController < ApplicationController
       "Sorry, unable to find match \"#{match_name}\" in seat #{seat}."
     ) if (
       error? do
-        @match = AcpcBackend::Match.where(name: match_name, seat: seat).first
+        @match = AcpcTableManager::Match.where(name: match_name, seat: seat).first
         raise unless @match
 
         match_id(@match.id)
@@ -203,9 +203,9 @@ class MatchStartController < ApplicationController
         $redis.rpush(
           'backend',
           {
-            'request' => AcpcBackend.config.start_proxy_request_code,
+            'request' => AcpcTableManager.config.start_proxy_request_code,
             'params' => {
-              AcpcBackend.config.match_id_key => match_id
+              AcpcTableManager.config.match_id_key => match_id
             }
           }.to_json
         )
@@ -265,7 +265,7 @@ class MatchStartController < ApplicationController
   end
 
   def num_players(game_def_key)
-    AcpcBackend.exhibition_config.games[game_def_key.to_s]['num_players']
+    AcpcTableManager.exhibition_config.games[game_def_key.to_s]['num_players']
   end
 
   def self.start_dealer_and_players_on_server(match_id_)
@@ -276,10 +276,10 @@ class MatchStartController < ApplicationController
     $redis.rpush(
       'backend',
       {
-        'request' => AcpcBackend.config.start_match_request_code,
+        'request' => AcpcTableManager.config.start_match_request_code,
         'params' => {
-          AcpcBackend.config.match_id_key => match_id_,
-          AcpcBackend.config.options_key => [
+          AcpcTableManager.config.match_id_key => match_id_,
+          AcpcTableManager.config.options_key => [
             '-a', # Append logs with the same name rather than overwrite
             "--t_response #{MatchStartHelper::DEALER_MILLISECOND_TIMEOUT}",
             '--t_hand -1',

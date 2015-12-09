@@ -1,6 +1,6 @@
 require 'application_helper'
 require 'acpc_poker_types/seat'
-require 'acpc_backend'
+require 'acpc_table_manager'
 require 'user'
 require 'hotkey'
 
@@ -25,7 +25,7 @@ class MatchViewManagerController < ApplicationController
 
   def ensure_match_view_exists
     if (
-      match_id && !AcpcBackend::Match.id_exists?(match_id)
+      match_id && !AcpcTableManager::Match.id_exists?(match_id)
     ) || !match_view
       clear_match_information!
       return reset_to_match_entry_view
@@ -113,12 +113,12 @@ class PlayerActionsController < MatchViewManagerController
       error? do
         update_match_id_if_necessary
         begin
-          @match_view = AcpcBackend::MatchView.new(
+          @match_view = AcpcTableManager::MatchView.new(
             params['match_id'],
             params['match_slice_index'].to_i,
             load_previous_messages: params['load_previous_messages'] == 'true'
           )
-        rescue AcpcBackend::MatchView::UnableToFindNextSlice => e
+        rescue AcpcTableManager::MatchView::UnableToFindNextSlice => e
           Rails.logger.ap(
             action: __method__,
             requested_slice_index: params['match_slice_index'].to_i,
@@ -155,16 +155,16 @@ class PlayerActionsController < MatchViewManagerController
         $redis.rpush(
           'backend',
           {
-            'request' => AcpcBackend.config.play_action_request_code,
+            'request' => AcpcTableManager.config.play_action_request_code,
             'params' => {
-              AcpcBackend.config.match_id_key => params['match_id'],
-              AcpcBackend.config.action_key => params['poker_action']
+              AcpcTableManager.config.match_id_key => params['match_id'],
+              AcpcTableManager.config.action_key => params['poker_action']
             }
           }.to_json
         )
         begin
           return render_match_view params['match_id'], params['match_slice_index'].to_i
-        rescue AcpcBackend::MatchView::UnableToFindNextSlice => e
+        rescue AcpcTableManager::MatchView::UnableToFindNextSlice => e
           Rails.logger.ap(
             action: __method__,
             requested_slice_index: params['match_slice_index'].to_i,
@@ -237,15 +237,15 @@ class PlayerActionsController < MatchViewManagerController
       match_user_name: match.user_name
     )
     unless spectating? || params['match_id'].nil?
-      AcpcBackend::Match.delete_match! params['match_id']
+      AcpcTableManager::Match.delete_match! params['match_id']
       Rails.logger.ap(action: __method__, message: "Deleted match #{params['match_id']}")
 
       $redis.rpush(
         'backend',
         {
-          'request' => AcpcBackend.config.kill_match,
+          'request' => AcpcTableManager.config.kill_match,
           'params' => {
-            AcpcBackend.config.match_id_key => params['match_id']
+            AcpcTableManager.config.match_id_key => params['match_id']
           }
         }.to_json
       )
@@ -265,7 +265,7 @@ class PlayerActionsController < MatchViewManagerController
 
   # Replaces the page contents with an updated game view
   def replace_page_contents_with_updated_game_view
-    @match_view ||= AcpcBackend::MatchView.new(match_id)
+    @match_view ||= AcpcTableManager::MatchView.new(match_id)
     ensure_match_view_exists
 
     replace_page_contents(
@@ -280,7 +280,7 @@ class PlayerActionsController < MatchViewManagerController
       match_id,
       match_slice_index
     )
-    @match_view ||= AcpcBackend::MatchView.new match_id, match_slice_index
+    @match_view ||= AcpcTableManager::MatchView.new match_id, match_slice_index
 
     Rails.logger.ap({
       method: __method__,

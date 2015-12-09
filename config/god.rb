@@ -58,9 +58,9 @@ watch('mongod') do |w|
 end
 
 watch('redis') do |w|
-  w.start = "#{GOD_RAILS_ROOT}/vendor/redis-stable/src/redis-server #{GOD_RAILS_ROOT}/config/redis.conf > #{GOD_RAILS_ROOT}/log/redis.log"
+  w.start = "#{GOD_RAILS_ROOT}/vendor/redis-stable/src/redis-server #{GOD_RAILS_ROOT}/config/redis.conf"
 end
 
 watch('worker') do |w|
-  w.start = "bundle exec #{GOD_RAILS_ROOT}/bin/acpc_backend_client.rb"
+  w.start = "bundle exec acpc_table_manager -t #{GOD_RAILS_ROOT}/config/acpc_table_manager.yml -r #{GOD_RAILS_ROOT}/config/redis.yml"
 end

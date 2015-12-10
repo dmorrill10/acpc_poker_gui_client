@@ -153,12 +153,15 @@ class PlayerActionsController < MatchViewManagerController
     ) if (
       error? do
         $redis.rpush(
-          'backend',
+          "play-action-in-#{params['match_id']}",
+          {AcpcTableManager.config.action_key => params['poker_action']}.to_json
+        )
+        $redis.rpush(
+          'table-manager',
           {
-            'request' => AcpcTableManager.config.play_action_request_code,
+            'request' => AcpcTableManager.config.check_match,
             'params' => {
-              AcpcTableManager.config.match_id_key => params['match_id'],
-              AcpcTableManager.config.action_key => params['poker_action']
+              AcpcTableManager.config.match_id_key => params['match_id']
             }
           }.to_json
         )
@@ -241,7 +244,7 @@ class PlayerActionsController < MatchViewManagerController
       Rails.logger.ap(action: __method__, message: "Deleted match #{params['match_id']}")
 
       $redis.rpush(
-        'backend',
+        'table-manager',
         {
           'request' => AcpcTableManager.config.kill_match,
           'params' => {

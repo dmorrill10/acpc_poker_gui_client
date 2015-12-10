@@ -3,6 +3,7 @@
   "start_proxy_request_code": "proxy",
   "play_action_request_code": "play",
   "kill_match": "kill-match",
+  "check_match": "check_match",
   "delete_irrelevant_matches_request_code": "delete_irrelevant_matches",
   "player_action_channel_prefix": "player-action-in-",
   "realtime_channel": "table-manager-update",
@@ -14,6 +15,6 @@
   "special_ports_to_dealer": [],
   "match_lifespan_s": 120,
   "action_delay_s": 0.15,
-  "maintenance_interval_s": 30,
+  "maintenance_interval_s": 5,
   "max_time_to_wait_for_players_to_start_s": 180
 }

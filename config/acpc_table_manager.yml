@@ -4,6 +4,7 @@ table_manager_constants: '%{pwd}/../app/constants/table_manager.json'
 log_directory: '%{pwd}/../log'
 mongoid_config: '%{pwd}/mongoid.yml'
 mongoid_env: development
+redis_config_file: '%{pwd}/redis.yml'
 # error_report:
 #   sender: sender@gmail.com
 #   recipients: 

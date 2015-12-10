@@ -62,5 +62,5 @@ watch('redis') do |w|
 end
 
 watch('worker') do |w|
-  w.start = "bundle exec acpc_table_manager -t #{GOD_RAILS_ROOT}/config/acpc_table_manager.yml -r #{GOD_RAILS_ROOT}/config/redis.yml"
+  w.start = "bundle exec acpc_table_manager -t #{GOD_RAILS_ROOT}/config/acpc_table_manager.yml"
 end

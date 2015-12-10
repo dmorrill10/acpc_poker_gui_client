@@ -201,7 +201,7 @@ class MatchStartController < ApplicationController
     ) if (
       error? do
         $redis.rpush(
-          'backend',
+          'table-manager',
           {
             'request' => AcpcTableManager.config.start_proxy_request_code,
             'params' => {
@@ -274,7 +274,7 @@ class MatchStartController < ApplicationController
       match_id: match_id_
     )
     $redis.rpush(
-      'backend',
+      'table-manager',
       {
         'request' => AcpcTableManager.config.start_match_request_code,
         'params' => {

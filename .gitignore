@@ -6,3 +6,6 @@ dump.rdb
 .yardoc
 doc
 realtime/node_modules
+.git
+.vagrant
+data

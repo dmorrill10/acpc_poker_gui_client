@@ -117,15 +117,17 @@ GEM
     compass-rails (1.0.3)
       compass (>= 0.12.2, < 0.14)
     contextual_exceptions (0.0.2)
+    daemon-overlord (0.2.0)
+      process_runner
+      thor
     daemon_controller (1.2.0)
     daemons (1.1.9)
     debug_inspector (0.0.2)
     erubis (2.7.0)
-    eventmachine (1.0.3)
+    eventmachine (1.2.0.1)
     execjs (1.4.0)
       multi_json (~> 1.0)
     fssm (0.2.10)
-    god (0.13.2)
     haml (3.1.8)
     hike (1.2.3)
     hitimes (1.2.3)
@@ -270,7 +272,7 @@ DEPENDENCIES
   coffee-filter (~> 0.1)
   coffee-rails
   compass-rails (~> 1.0)
-  god
+  daemon-overlord
   haml (~> 3.1)
   jquery-rails (~> 2.2)
   jquery-ui-rails
@@ -290,4 +292,4 @@ DEPENDENCIES
   zen-grids
 
 BUNDLED WITH
-   1.10.6
+   1.12.5

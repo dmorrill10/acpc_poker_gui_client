@@ -23,7 +23,7 @@ gem "haml", '~> 3.1'
 gem 'passenger', '~>4.0'
 
 # To manage background processes
-gem 'god'
+gem 'daemon-overlord'
 
 # Improved logging output
 gem 'awesome_print'

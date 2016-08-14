@@ -4,7 +4,7 @@ gem 'rails', '~>3.2'
 
 gem 'rack', '~>1.4'
 
-gem 'acpc_table_manager', '~> 1.0'
+gem 'acpc_table_manager', '~> 2.0'
 
 # For convenient styling macros and SASS
 gem 'compass-rails', '~> 1.0'

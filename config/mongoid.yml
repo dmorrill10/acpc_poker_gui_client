@@ -1,16 +1,14 @@
 development:
   database: acpc_poker_gui_client_development
   sessions:
-    default:  
-      hosts: 
+    default:
+      hosts:
         - localhost:27017
       database: acpc_poker_gui_client_development
-
 production:
   database: acpc_poker_gui_client_development
   sessions:
     default:
       database: acpc_poker_gui_client_development
-      hosts: 
+      hosts:
         - localhost:27017
-

@@ -152,19 +152,21 @@ class PlayerActionsController < MatchViewManagerController
       "Sorry, there was a problem taking action #{params[:poker_action]}, #{self.class.report_error_request_message}."
     ) if (
       error? do
-        $redis.rpush(
-          "play-action-in-#{params['match_id']}",
-          {AcpcTableManager.config.action_key => params['poker_action']}.to_json
-        )
-        $redis.rpush(
-          'table-manager',
-          {
-            'request' => AcpcTableManager.config.check_match,
-            'params' => {
-              AcpcTableManager.config.match_id_key => params['match_id']
-            }
-          }.to_json
-        )
+        channel = "#{AcpcTableManager.config.player_action_channel_prefix}#{params['match_id']}"
+        data = {AcpcTableManager.config.action_key => params['poker_action']}.to_json
+        Rails.logger.ap action: __method__, message: {channel: channel, data: data}
+        $redis.rpush(channel, data)
+
+        channel = 'table-manager'
+        data = {
+          'request' => AcpcTableManager.config.check_match,
+          'params' => {
+            AcpcTableManager.config.match_id_key => params['match_id']
+          }
+        }.to_json
+        Rails.logger.ap action: __method__, message: {channel: channel, data: data}
+        $redis.rpush(channel, data)
+
         begin
           return render_match_view params['match_id'], params['match_slice_index'].to_i
         rescue AcpcTableManager::MatchView::UnableToFindNextSlice => e

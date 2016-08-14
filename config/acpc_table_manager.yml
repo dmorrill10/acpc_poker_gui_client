@@ -5,9 +5,10 @@ log_directory: '%{pwd}/../log'
 mongoid_config: '%{pwd}/mongoid.yml'
 mongoid_env: development
 redis_config_file: '%{pwd}/redis.yml'
+proxy_pids_file: '%{pwd}/../tmp/proxy-pids'
 # error_report:
 #   sender: sender@gmail.com
-#   recipients: 
+#   recipients:
 #     - recipient@gmail.com
 #   smtp:
 #     :address: 'smtp.gmail.com'

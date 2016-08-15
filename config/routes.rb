@@ -27,8 +27,4 @@ AcpcPokerGuiClient::Application.routes.draw do
   match 'match_start/constants' => 'match_start#constants', :as => :match_start_constants
   match 'player_actions/constants' => 'player_actions#constants', :as => :player_actions_constants
   match 'table_manager/constants' => 'application#table_manager_constants', :as => :table_manager_constants
-
-
-  # require 'sidekiq/web'
-  # mount Sidekiq::Web => '/sidekiq'
 end

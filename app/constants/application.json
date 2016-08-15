@@ -16,5 +16,6 @@
   "ENABLE_CHAT": false,
   "ENABLE_SPECTATING": false,
   "ACTION_TIMEOUT": 60,
-  "ERROR_PARTIAL": "match_start/error"
+  "ERROR_PARTIAL": "match_start/error",
+  "PAUSE_AFTER_HAND": false
 }

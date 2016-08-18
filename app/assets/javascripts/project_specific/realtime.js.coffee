@@ -1,5 +1,10 @@
 root = exports ? this
 
+# TODO this is a bit of a hack
+CONFIG = {
+  "ON_TIMEOUT": "fold"
+}
+
 class ConsoleLogManager
   @CONSOLE_LOG: console.log
   @consoleIsEnabled: false
@@ -298,11 +303,23 @@ class WindowManager
 
   _initPlayerActionsWindow: (matchData)->
     @window.close()
-    onActionTimeout = =>
-      # if @isSpectating
-      #   alert('The match has timed out.')
-      # else
-      @leaveMatch('The match has timed out.')
+    onActionTimeout = if CONFIG.ON_TIMEOUT == 'fold'
+      =>
+        if $(".next_hand_id").length != 0
+          console.log "WindowManager#_initPlayerActionsWindow: onActionTimeout: Pressing next hand button."
+          $(".next_hand_id").click()
+        else if $(".fold").attr('disabled') != 'disabled'
+          console.log "WindowManager#_initPlayerActionsWindow: onActionTimeout: Pressing fold button."
+          $(".fold").click()
+        else
+          console.log "WindowManager#_initPlayerActionsWindow: onActionTimeout: Pressing pass button."
+          $(".pass").click()
+    else
+      =>
+        # if @isSpectating
+        #   alert('The match has timed out.')
+        # else
+        @leaveMatch('The match has timed out.')
     @window = new PlayerActionsWindow(matchData, onActionTimeout)
 
 root.WindowManager = WindowManager

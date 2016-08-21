@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Thanks to http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in for this
+project_root=$( cd "$( dirname "$0" )/../" && pwd )
+cd $project_root
+bundle exec overlord stop -p tmp/overlord-pids

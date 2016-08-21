@@ -31,7 +31,7 @@ module ApplicationHelper
 
   def link_with_glyph(link_text, link_target, glyph, options={})
     link_to link_target, options do
-      inserted_html = "#{content_tag(:i, nil, class: ['glyphicon', 'glyphicon-' << glyph])} #{link_text}".html_safe
+      inserted_html = "#{content_tag(:i, nil, class: ['glyphicon', 'glyphicon-' << glyph])} #{h(link_text)}".html_safe
       inserted_html << yield if block_given?
       inserted_html
     end
@@ -57,7 +57,7 @@ module ApplicationHelper
     "<button type='button' class='close' data-dismiss='#{dismiss_element}'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button>"
   end
   def self.label_for_required(label)
-    "<abbr title='required'>*</abbr> #{label}".html_safe
+    "<abbr title='required'>*</abbr> #{h(label)}".html_safe
   end
 
   def action_timeout_enabled?

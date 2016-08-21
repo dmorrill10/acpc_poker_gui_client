@@ -1,6 +1,6 @@
 .chip_balances
   .panel-heading
-    .match_name= "#{match_view.match.name} <span class=\"right\">#{match_view.state.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
+    .match_name= "#{h(match_view.match.name)} <span class=\"right\">#{match_view.state.hand_number+1} / #{match_view.match.number_of_hands}</span>".html_safe
   %table.table.table-striped
     %thead
       %tr

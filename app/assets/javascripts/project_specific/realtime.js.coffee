@@ -2,7 +2,7 @@ root = exports ? this
 
 # TODO this is a bit of a hack
 CONFIG = {
-  "ON_TIMEOUT": "fold"
+  "ON_TIMEOUT": "leave"
 }
 
 class ConsoleLogManager

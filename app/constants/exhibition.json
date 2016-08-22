@@ -13,6 +13,20 @@
         }
       }
     },
+    "hidden_two_player_limit": {
+      "label": "Heads-up Limit Texas Hold'em (Hidden Matches)",
+      "max_num_matches": 2,
+      "num_hands_per_match": 2,
+      "file": "%{dealer_directory}/holdem.limit.2p.reverse_blinds.game",
+      "num_players": 2,
+      "opponents": {
+        "ExamplePlayer": {
+          "runner": "%{dealer_directory}/example_player.limit.2p.sh",
+          "requires_special_port": false
+        }
+      },
+      "hide_other_matches": true
+    },
     "two_player_nolimit": {
       "label": "Heads-up No-limit Texas Hold'em",
       "max_num_matches": 2,
@@ -43,7 +57,5 @@
         }
       }
     }
-  },
-  "rejoin_button_id": "rejoin",
-  "spectate_button_id_prefix": "spectate-"
+  }
 }

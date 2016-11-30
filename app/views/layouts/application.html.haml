@@ -4,7 +4,7 @@
     %title= ApplicationHelper::APP_NAME
     %meta{:content => 'width=device-width', :'initial-scale' => 1.0, :'maximum-scale' => 1.0, :'user-scalable' => 'no', :name => 'viewport'}
     = stylesheet_link_tag "application", media: 'all'
-    = javascript_include_tag "application"
+    = javascript_include_tag "bundle"
     = csrf_meta_tag
     = favicon_link_tag 'favicon.ico'
     = yield(:head)
@@ -18,5 +18,3 @@
       .banner-container
       %div{class: ApplicationHelper::APP_VIEW_HTML_CLASS}
         = yield
-    - if ApplicationHelper::ENABLE_CHAT
-      #chat-box

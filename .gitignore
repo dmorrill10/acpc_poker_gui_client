@@ -9,3 +9,7 @@ realtime/node_modules
 .git
 .vagrant
 data
+
+app/assets/javascripts
+node_modules
+bin

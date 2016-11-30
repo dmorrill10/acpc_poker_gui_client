@@ -10,12 +10,6 @@ gem 'acpc_table_manager', '~> 2.0'
 gem 'compass-rails', '~> 1.0'
 gem 'blueprint-rails', '~> 0.2'
 
-# To interpret Coffeescript in HAML
-gem 'coffee-filter', '~> 0.1'
-
-# JavaScript library
-gem 'jquery-rails', '~> 2.2'
-
 # Enable HAML format views. Prettier than ERB format views.
 gem "haml", '~> 3.1'
 
@@ -31,21 +25,15 @@ gem 'awesome_print'
 # For password encryption
 gem 'bcrypt', '~> 3.1.5', require: "bcrypt"
 
-gem 'js-routes'
-
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
-  # JavaScript library
-  gem 'jquery-ui-rails'
-
   gem 'sass-rails', '>= 3.2'
   gem "bootstrap-sass", '~> 3.3.1'
   # Recommended by Bootstrap for adding browser vendor prefixes automatically
   gem 'autoprefixer-rails'
   gem 'zen-grids'
 
-  gem 'coffee-rails'
   gem 'uglifier'
 
   # compass uses this for sprites

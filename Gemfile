@@ -6,10 +6,6 @@ gem 'rack', '~>1.4'
 
 gem 'acpc_table_manager', '~> 2.0'
 
-# For convenient styling macros and SASS
-gem 'compass-rails', '~> 1.0'
-gem 'blueprint-rails', '~> 0.2'
-
 # Enable HAML format views. Prettier than ERB format views.
 gem "haml", '~> 3.1'
 
@@ -24,24 +20,6 @@ gem 'awesome_print'
 
 # For password encryption
 gem 'bcrypt', '~> 3.1.5', require: "bcrypt"
-
-# Gems used only for assets and not required
-# in production environments by default.
-group :assets do
-  gem 'sass-rails', '>= 3.2'
-  gem "bootstrap-sass", '~> 3.3.1'
-  # Recommended by Bootstrap for adding browser vendor prefixes automatically
-  gem 'autoprefixer-rails'
-  gem 'zen-grids'
-
-  gem 'uglifier'
-
-  # compass uses this for sprites
-  gem 'chunky_png'
-
-  # native c library for png routines to speed up chunky_png
-  gem 'oily_png'
-end
 
 group :development do
   # YARD documentation library

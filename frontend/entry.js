@@ -5,6 +5,7 @@ require('jquery-ui/ui/effect');
 require('jquery-ui/themes/base/core.css');
 require('jquery-ui/themes/base/theme.css');
 
+require("./stylesheets/application.sass");
 require('bootstrap-sass/assets/javascripts/bootstrap.min.js');
 
 require("./jquery-titlealert/jquery.titlealert.js");

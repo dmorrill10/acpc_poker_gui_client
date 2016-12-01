@@ -387,7 +387,6 @@ class WindowManager {
   }
 
   constructor() {
-    $(window).on('beforeunload', () => this.leaveMatch());
     this.window = new MatchStartWindow;
   }
 

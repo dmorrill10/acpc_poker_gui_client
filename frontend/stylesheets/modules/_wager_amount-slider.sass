@@ -3,16 +3,16 @@
 .wager_amount-slider
   @include parent_grid($l-action_dashboard-column-count)
   @include zen-grid-item(2, 1)
-  @include zen-nested-container
+  @include zen-grid-container(grid-item)
 
-  margin-bottom: $zen-gutter-width
+  margin-bottom: $zen-gutters
 
   $l-wager_amount-slider-column-count: 1
 
   .slider_labels
     @include parent_grid($l-wager_amount-slider-column-count)
     @include zen-grid-item($l-wager_amount-slider-column-count, 1)
-    @include zen-nested-container
+    @include zen-grid-container(grid-item)
 
     $num_labels: 6
 
@@ -37,7 +37,7 @@
     @include parent_grid($l-wager_amount-slider-column-count)
     @include zen-grid-item($l-wager_amount-slider-column-count, 1)
     @include zen-grid-container
-    @include zen-clear
+    @include zen-new-row
 
     position: relative
 

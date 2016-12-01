@@ -7,7 +7,7 @@
 .action_dashboard
   +parent_grid($l-poker_table-column-count)
   +zen-grid-item($l-poker_table-column-count, 1)
-  +zen-nested-container
+  +zen-grid-container(grid-item)
 
   +soft_edges($c-action_dashboard-background-color)
   +contrasted($c-action_dashboard-background-color)
@@ -44,8 +44,8 @@
   .actions
     +parent_grid($l-action_dashboard-column-count)
     +zen-grid-item($l-action_dashboard-column-count, 1)
-    +zen-nested-container
-    +zen-clear
+    +zen-grid-container(grid-item)
+    +zen-new-row
 
     list-style: none
     margin: 0
@@ -59,7 +59,7 @@
 
     .poker_actn_btn
       $l-poker_actn_btn-column-count: 1
-      +zen-nested-container
+      +zen-grid-container(grid-item)
 
       button
         @extend .btn
@@ -80,9 +80,9 @@
 
     .poker_actn_btn:first-child
       padding-left: 0
-      padding-right: $zen-gutter-width
+      padding-right: $zen-gutters
     .poker_actn_btn:first-child + .poker_actn_btn + .poker_actn_btn
-      padding-left: $zen-gutter-width
+      padding-left: $zen-gutters
       padding-right: 0
   &.limit
     height: $l-poker_actn_btn-height

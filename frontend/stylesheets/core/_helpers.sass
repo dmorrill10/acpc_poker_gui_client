@@ -1,13 +1,11 @@
-@import compass/css3/box-shadow
-
 $background_color: #000
 
 $default_radius: 5px
 $default_border_radius: $default_radius $default_radius $default_radius $default_radius
 $default_border_width: 2px
 
-$original-zen-gutter-width: $zen-gutter-width
-$original-zen-column-count: $zen-column-count
+$original-zen-gutters: $zen-gutters
+$original-zen-columns: $zen-columns
 
 // ----- Functions ----- //
 
@@ -31,6 +29,23 @@ $original-zen-column-count: $zen-column-count
 @function circular_border_radius()
   @return 50px 50px 50px 50px
 
+$contrasted-dark-default: #000
+$contrasted-light-default: #fff
+
+@function brightness($color)
+  $sum: red($color) + green($color) + blue($color)
+  @return percentage($sum / (255*3))
+
+@function contrast-color($color, $dark: $contrasted-dark-default, $light: $contrasted-light-default, $threshold: null)
+  @if $color == null
+    @return null
+  @else
+    $color-brightness: brightness($color)
+    $dark-text-brightness: brightness($dark)
+    $light-text-brightness: brightness($light)
+    @return if(abs($color-brightness - $light-text-brightness) > abs($color-brightness - $dark-text-brightness), $light, $dark)
+
+
 // ----- Mixins ----- //
 
 // +respond-to()
@@ -47,9 +62,9 @@ $original-zen-column-count: $zen-column-count
   border-style: $border_style
   border-radius: $border_radius
 
-=parent_grid($num_columns: $original-zen-column-count, $gutter_width: $original-zen-gutter-width)
-  $zen-column-count: $num_columns
-  $zen-gutter-width: $gutter_width
+=parent_grid($num_columns: $original-zen-columns, $gutter_width: $original-zen-gutters)
+  $zen-columns: $num_columns
+  $zen-gutters: $gutter_width
 
 =align_center($width_of_item_to_center, $width_of_item_in_which_to_center)
   position: absolute
@@ -67,6 +82,15 @@ $original-zen-column-count: $zen-column-count
 =pretty_button($color, $bg_color, $border_color)
   +button-variant($color, $bg_color, $border_color)
 
+=border-radius($radius, $vertical-radius: $radius)
+  @include border-top-radius($radius)
+  @include border-right-radius($vertical-radius)
+  @include border-bottom-radius($radius)
+  @include border-left-radius($vertical-radius)
+
+=contrasted($background-color, $dark: $contrasted-dark-default, $light: $contrasted-light-default, $threshold: null)
+  background-color: $background-color
+  color: contrast-color($background-color, $dark, $light)
 
 // ----- Extends ----- //
 

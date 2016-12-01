@@ -1,6 +1,4 @@
-@import 'compass';
 @import 'card-defs';
-
 @import '../abstract/cards-defs';
 
 @mixin set_card_color($color) {
@@ -51,7 +49,7 @@
    }
    .bottom_right_rank {
       @include zen-grid-item($card-column-count, 1);
-      @include zen-clear;
+      @include zen-new-row;
 
       line-height: 1;
       text-align: right;
@@ -63,7 +61,7 @@
 
    .logo {
       // Include card logo like this:
-      @include background-image(image-url('nick_morrill/chip_background.foggy.jpg'));
+      @include background-image(url(~../images/nick_morrill/chip_background.foggy.jpg));
 
       height: $card_height;
 

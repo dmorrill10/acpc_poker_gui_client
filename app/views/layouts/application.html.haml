@@ -3,10 +3,9 @@
   %head
     %title= ApplicationHelper::APP_NAME
     %meta{:content => 'width=device-width', :'initial-scale' => 1.0, :'maximum-scale' => 1.0, :'user-scalable' => 'no', :name => 'viewport'}
-    = stylesheet_link_tag "application", media: 'all'
-    = javascript_include_tag "bundle"
+    %script{src: "/assets/bundle.js", type: "text/javascript"}
     = csrf_meta_tag
-    = favicon_link_tag 'favicon.ico'
+    %link{href: "/favicon.ico", rel: "shortcut icon", type: "image/vnd.microsoft.icon"}
     = yield(:head)
     :javascript
       $(document).ready(function(){

@@ -14,7 +14,7 @@
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-react": "^6.16.0",
     "bootstrap-sass": "^3.3.7",
-    "compass": "^0.1.1",
+    "bourbon": "^4.2.7",
     "css-loader": "^0.25.0",
     "expose-loader": "^0.7.1",
     "file-loader": "^0.9.0",
@@ -26,8 +26,9 @@
     "react-dom": "^15.3.2",
     "sass-loader": "^4.0.2",
     "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
     "webpack": "^1.13.3",
-    "zen": "0.1.6"
+    "zen-grids": "^2.0.3"
   },
   "devDependencies": {}
 }

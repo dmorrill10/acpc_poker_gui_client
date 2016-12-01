@@ -1,8 +1,5 @@
-// ---- Compass ------- //
-@import "compass"
-
-// ---- Zen Grids ------- //
-@import 'zen'
+@import 'bourbon'
+@import '~zen-grids/sass/zen-grids'
 
 // ---- Twitter Bootstrap ------- //
 // control the screen sizes
@@ -13,8 +10,9 @@ $screen-lg-min: 1200px
 // this tells which screen size to use to start breaking on
 // will tell navbar when to collapse
 $grid-float-breakpoint: $screen-md-min
-@import "bootstrap-sprockets"
-@import 'bootstrap'
+
+$icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/'
+@import '~bootstrap-sass/assets/stylesheets/bootstrap'
 
 // ---- Core ------- //
 // Must be included first

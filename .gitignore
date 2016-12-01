@@ -10,6 +10,7 @@ realtime/node_modules
 .vagrant
 data
 
-app/assets/javascripts
+.DS_Store
+public/assets
 node_modules
 bin

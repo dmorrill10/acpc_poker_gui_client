@@ -9,7 +9,7 @@
   @include soft_edges($triad-color-2-dark, $l-poker_table-border-width, 500px 500px 500px 500px)
   +contrasted($l-poker_table-background-color)
 
-  background-image: image-url('nick_morrill/small_felt.jpg')
+  background-image: url(~../images/nick_morrill/small_felt.jpg)
 
   height: $l-poker_table-height
 
@@ -18,13 +18,13 @@
   .user
     @include parent_grid($l-poker_table-column-count)
     @include player($l-poker_table-column-count/2)
-    @include zen-clear
+    @include zen-new-row
 
     .held_player_information
-      @include zen-clear
+      @include zen-new-row
   .opponent
     .outer_player_information
-      @include zen-clear
+      @include zen-new-row
   .opponent.opponent_1_of_1
     @include parent_grid($l-poker_table-column-count)
     @include player($l-poker_table-column-count/2)
@@ -38,10 +38,10 @@
   .community_information
     @include parent_grid($l-poker_table-column-count)
     @include zen-grid-item($l-poker_table-column-count, 1)
-    @include zen-nested-container
-    @include zen-clear
+    @include zen-grid-container(grid-item)
+    @include zen-new-row
 
-    $l-community_information-height: $card_height + 2 * $original-zen-gutter-width
+    $l-community_information-height: $card_height + 2 * $original-zen-gutters
     height: $l-community_information-height
 
     $l-community_information-column-count: 14
@@ -50,8 +50,8 @@
       @include zen-grid-item(7, 1)
       @include cards(5)
 
-      padding-top: $original-zen-gutter-width
-      padding-bottom: $original-zen-gutter-width
+      padding-top: $original-zen-gutters
+      padding-bottom: $original-zen-gutters
 
       .card_set
         float: right
@@ -63,5 +63,5 @@
         @include chip_stack($l-poker_table-pot-color)
         @extend %centerHorizontally
 
-      padding-top: $original-zen-gutter-width
-      padding-bottom: $original-zen-gutter-width
+      padding-top: $original-zen-gutters
+      padding-bottom: $original-zen-gutters

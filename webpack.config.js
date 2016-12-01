@@ -4,12 +4,12 @@ var webpack = require('webpack')
 module.exports = {
   devtool: 'source-map',
   context: __dirname,
-  entry: path.join(__dirname, 'frontend', 'javascripts', 'entry'),
+  entry: path.join(__dirname, 'frontend', 'entry'),
   output: {
-    path: path.join(__dirname, 'app', 'assets', 'javascripts'),
-    filename: 'bundle.js'
+    path: path.join(__dirname, 'public', 'assets'),
+    filename: 'bundle.js',
+    publicPath: '/assets/'
   },
-  publicPath: '/assets', // TODO Useful?
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       compressor: {
@@ -24,11 +24,8 @@ module.exports = {
   ],
   module: {
     loaders: [{
-      test: /\.(jpe?g|png|gif|svg)$/i,
-      loaders: [
-        'file?hash=sha512&digest=hex&name=[hash].[ext]',
-        'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
-      ]
+      test: /\.(jpe?g|png|gif|ttf|eot|svg|woff)(\??v?=?[0-9]?\.?[0-9]?\.?[0-9]?)?$/,
+      loaders: ["url-loader"]
     }, {
       test: /\.css$/,
       loaders: ['style', 'css']
@@ -42,6 +39,8 @@ module.exports = {
     }]
   },
   sassLoader: {
-    includePaths: [path.resolve(__dirname, "./node_modules")]
+    includePaths: [
+      path.resolve(__dirname, "./node_modules"),
+    ].concat(require("bourbon").includePaths)
   }
 }

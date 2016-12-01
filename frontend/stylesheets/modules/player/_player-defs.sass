@@ -1,5 +1,3 @@
-@import compass/css3
-
 @import ../abstract/chip_stack-defs
 @import ../abstract/cards-defs
 @import ../poker_table/poker_table-defs
@@ -15,7 +13,7 @@ $l-player-column-count: 3
   .held_player_information
     +parent_grid($l-player-column-count)
     +zen-grid-item($l-player-column-count, 1)
-    +zen-nested-container
+    +zen-grid-container(grid-item)
 
     +soft_edges(transparent)
 
@@ -24,7 +22,7 @@ $l-player-column-count: 3
     height: $l-held-player_information-height
 
     $l-held_player_information-column-count: 5
-    $l-held_player_information-gutter-width: $original-zen-gutter-width/2
+    $l-held_player_information-gutter-width: $original-zen-gutters/2
 
     .name
       +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
@@ -35,7 +33,7 @@ $l-player-column-count: 3
     .hole_cards
       +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
       +zen-grid-item(3, 1)
-      +zen-clear
+      +zen-new-row
       +cards
     .player_stack
       +parent_grid($l-held_player_information-column-count, $l-held_player_information-gutter-width)
@@ -48,7 +46,7 @@ $l-player-column-count: 3
   .outer_player_information
     +parent_grid($l-player-column-count)
     +zen-grid-item($l-player-column-count, 1)
-    +zen-nested-container
+    +zen-grid-container(grid-item)
 
     height: $chip_stack_diameter + 2 * $l-raisedBorder-border-width
 

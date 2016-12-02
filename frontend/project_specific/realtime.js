@@ -17,91 +17,88 @@ class ConsoleLogManager {
 }
 ConsoleLogManager.initClass();
 
-let Poller = undefined;
-let PollingSubWindow = undefined;
-let PollingWindow = undefined;
+class Poller {
+  constructor(pollFn, period) {
+    this.pollFn = pollFn;
+    this.period = period;
+    this._timer = new Timer;
+  }
+  stop() {
+    return this._timer.clear();
+  }
+  start() {
+    return this._timer.start(this.pollFn, this.period);
+  }
+};
+
+class PollingSubWindow {
+  constructor(poller) {
+    this.poller = poller;
+  }
+  poll() {
+    return WindowManager.onLoadCallbacks.push(() => this.poller.start());
+  }
+  stop() {
+    return this.poller.stop();
+  }
+  close() {
+    this.stop();
+    return null;
+  }
+  matchData() {
+    return null;
+  }
+  showMatchEntryPage(alertMessage = null) {
+    console.log(`PollingSubWindow#showMatchEntryPage: alertMessage: ${alertMessage}`);
+    if (alertMessage != null) {
+      return AjaxCommunicator.get(Routes.root_path(), {
+        alert_message: alertMessage
+      });
+    } else {
+      return AjaxCommunicator.get(Routes.root_path());
+    }
+  }
+  leaveMatch(alertMessage = null) {
+    if (this.matchData() != null) {
+      console.log(`PollingSubWindow#leaveMatch: alertMessage: ${alertMessage}`);
+      let params = this.matchData();
+      params.alert_message = alertMessage;
+      return this._reload(() => AjaxCommunicator.post(Routes.leave_match_path(), params));
+    } else {
+      return this._reload(() => this.showMatchEntryPage(alertMessage));
+    }
+  }
+  _reload(reloadMethod) {
+    this.stop();
+    return reloadMethod();
+  }
+};
+
+class PollingWindow {
+  constructor(subWindow) {
+    this.subWindow = subWindow;
+  }
+  replace(newPollingSubWindow) {
+    this.subWindow.close();
+    return this.subWindow = newPollingSubWindow;
+  }
+  close() {
+    return this.subWindow.close();
+  }
+  leaveMatch(alertMessage = null) {
+    return this.subWindow.leaveMatch(alertMessage);
+  }
+  showMatchEntryPage(alertMessage = null) {
+    return this.subWindow.showMatchEntryPage(alertMessage);
+  }
+};
+
 let MatchStartWindow = undefined;
 let PlayerActionsWindow = undefined;
 class WindowManager {
   static initClass() {
 
     this.onLoadCallbacks = [];
-
-    Poller = class Poller {
-      constructor(pollFn, period) {
-        this.pollFn = pollFn;
-        this.period = period;
-        this._timer = new Timer;
-      }
-      stop() {
-        return this._timer.clear();
-      }
-      start() {
-        return this._timer.start(this.pollFn, this.period);
-      }
-    };
-
-    PollingSubWindow = class PollingSubWindow {
-      constructor(poller) {
-        this.poller = poller;
-      }
-      poll() {
-        return WindowManager.onLoadCallbacks.push(() => this.poller.start());
-      }
-      stop() {
-        return this.poller.stop();
-      }
-      close() {
-        this.stop();
-        return null;
-      }
-      matchData() {
-        return null;
-      }
-      showMatchEntryPage(alertMessage = null) {
-        console.log(`PollingSubWindow#showMatchEntryPage: alertMessage: ${alertMessage}`);
-        if (alertMessage != null) {
-          return AjaxCommunicator.get(Routes.root_path(), {
-            alert_message: alertMessage
-          });
-        } else {
-          return AjaxCommunicator.get(Routes.root_path());
-        }
-      }
-      leaveMatch(alertMessage = null) {
-        if (this.matchData() != null) {
-          console.log(`PollingSubWindow#leaveMatch: alertMessage: ${alertMessage}`);
-          let params = this.matchData();
-          params.alert_message = alertMessage;
-          return this._reload(() => AjaxCommunicator.post(Routes.leave_match_path(), params));
-        } else {
-          return this._reload(() => this.showMatchEntryPage(alertMessage));
-        }
-      }
-      _reload(reloadMethod) {
-        this.stop();
-        return reloadMethod();
-      }
-    };
-
-    PollingWindow = class PollingWindow {
-      constructor(subWindow) {
-        this.subWindow = subWindow;
-      }
-      replace(newPollingSubWindow) {
-        this.subWindow.close();
-        return this.subWindow = newPollingSubWindow;
-      }
-      close() {
-        return this.subWindow.close();
-      }
-      leaveMatch(alertMessage = null) {
-        return this.subWindow.leaveMatch(alertMessage);
-      }
-      showMatchEntryPage(alertMessage = null) {
-        return this.subWindow.showMatchEntryPage(alertMessage);
-      }
-    };
 
     let MatchQueueUpdateWindow = undefined;
     let WaitingForMatchWindow = undefined;
@@ -124,7 +121,9 @@ class WindowManager {
 
           constructor() {
             console.log("MatchQueueUpdateWindow#constructor");
-            super(new MatchQueueUpdatePoller(() => AjaxCommunicator.get(Routes.update_match_queue_path())));
+            super(new MatchQueueUpdatePoller(() => {
+              return
+            }));
           }
         };
         MatchQueueUpdateWindow.initClass();

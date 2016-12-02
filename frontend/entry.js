@@ -1,4 +1,6 @@
 require('expose?$!expose?jQuery!jquery');
+require('jquery-ujs');
+
 require('jquery-ui/ui/core');
 require('jquery-ui/ui/widget');
 require('jquery-ui/ui/effect');
@@ -15,8 +17,8 @@ import Routes from './routes.js';
 window.Routes = Routes;
 
 // TODO Shared
-const wagerAmountField = () => $('.wager_amount-num_field > input#modifier');
-const wagerSubmission = () => $('.wager');
+window.wagerAmountField = () => $('.wager_amount-num_field > input#modifier');
+window.wagerSubmission = () => $('.wager');
 
 import ActionDashboard from './project_specific/action_dashboard.js';
 window.ActionDashboard = ActionDashboard;

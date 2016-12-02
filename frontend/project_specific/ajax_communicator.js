@@ -1,5 +1,5 @@
 class AjaxCommunicator {
-  static send(type, urlArg, dataArg = {}){
+  static send(type, urlArg, dataArg = {}) {
     console.log(`AjaxCommunicator#send: type: ${type}, urlArg: ${urlArg}, dataArg: ${JSON.stringify(dataArg)}`);
     return $.ajax({
       type,
@@ -8,11 +8,11 @@ class AjaxCommunicator {
       dataType: 'script'
     });
   }
-  static post(urlArg, dataArg = {}){
+  static post(urlArg, dataArg = {}) {
     console.log(`AjaxCommunicator#post: urlArg: ${urlArg}, dataArg: ${JSON.stringify(dataArg)}`);
     return this.send('POST', urlArg, dataArg);
   }
-  static get(urlArg){
+  static get(urlArg) {
     console.log(`AjaxCommunicator#get: urlArg: ${urlArg}`);
     return this.send('GET', urlArg);
   }

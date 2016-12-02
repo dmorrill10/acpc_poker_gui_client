@@ -25,13 +25,11 @@ class ErrorManagerController < ActionController::Base
   end
 
   def error?
-    begin
-      yield if block_given?
-      false
-    rescue => e
-      log_error e
-      true
-    end
+    yield if block_given?
+    false
+  rescue => e
+    log_error e
+    true
   end
 end
 
@@ -47,16 +45,14 @@ class UserManagerController < ErrorManagerController
   end
 
   def user_name_from_htaccess
-    begin
-      ActionController::HttpAuthentication::Basic::user_name_and_password(
-        request
-      ).first
-    rescue NoMethodError # Occurs when no authentication has been done
-      nil
-    end
+    ActionController::HttpAuthentication::Basic.user_name_and_password(
+      request
+    ).first
+  rescue NoMethodError # Occurs when no authentication has been done
+    nil
   end
 
-  def user(user_name_=nil)
+  def user(user_name_ = nil)
     return @user if user_name_.nil? && @user
     @user = User.find_or_create_by name: (user_name_ || user_name)
     session[ApplicationHelper::USER_NAME_KEY] = @user.name
@@ -64,12 +60,10 @@ class UserManagerController < ErrorManagerController
   end
 
   def user_initialized?
-    begin
-      user
-      true
-    rescue Mongoid::Errors
-      false
-    end
+    user
+    true
+  rescue Mongoid::Errors
+    false
   end
 
   def reset_user
@@ -106,22 +100,22 @@ class MatchManagerController < UserManagerController
 
   def match
     @match = if @match_view
-      @match_view.match
-    elsif @match
-      @match
-    elsif match_id
-      begin
-        AcpcTableManager::Match.find match_id
-      rescue Mongoid::Errors::DocumentNotFound
-        clear_match_information!
-        AcpcTableManager::Match.new
-      end
-    else
-      AcpcTableManager::Match.new
+               @match_view.match
+             elsif @match
+               @match
+             elsif match_id
+               begin
+                 AcpcTableManager::Match.find match_id
+               rescue Mongoid::Errors::DocumentNotFound
+                 clear_match_information!
+                 AcpcTableManager::Match.new
+               end
+             else
+               AcpcTableManager::Match.new
     end
   end
 
-  def match_id(new_id=nil)
+  def match_id(new_id = nil)
     if new_id
       session[AcpcTableManager.config.match_id_key] = new_id.to_s
     else
@@ -140,11 +134,12 @@ class MatchManagerController < UserManagerController
   def matches_to_join
     AcpcTableManager::Match.asc(:name).not_started.select do |m|
       !m.copy? &&
-      !m.opponent_seats(user.name).empty?
+        !m.opponent_seats(user.name).empty?
     end
   end
+
   def seats_to_join
-    matches_to_join.inject({}) do |hash, lcl_match|
+    matches_to_join.each_with_object({}) do |lcl_match, hash|
       hash[lcl_match.name] = lcl_match.rejoinable_seats(user.name).sort
       hash
     end
@@ -153,12 +148,13 @@ class MatchManagerController < UserManagerController
   def matches_to_rejoin
     AcpcTableManager::Match.asc(:name).started.select do |m|
       m.user_name == user_name &&
-      !m.copy? &&
-      !m.finished?
+        !m.copy? &&
+        !m.finished?
     end
   end
+
   def seats_to_rejoin
-    matches_to_rejoin.sort_by{ |m| m.name }.inject({}) do |hash, m|
+    matches_to_rejoin.sort_by(&:name).each_with_object({}) do |m, hash|
       hash[m.name] = m.opponent_seats_with_condition { |player| User.where(user_name: player).exists? }
       hash[m.name] << m.seat unless hash[m.name].include?(m.seat)
       hash[m.name].sort!
@@ -181,7 +177,9 @@ class MatchManagerController < UserManagerController
 end
 
 class ApplicationController < MatchManagerController
-  def constants() render(json: my_helper.read_constants) end
+  def constants
+    render(json: my_helper.read_constants)
+  end
 
   def table_manager_constants
     render(
@@ -191,7 +189,9 @@ class ApplicationController < MatchManagerController
 
   protected
 
-  def my_helper() ApplicationHelper end
+  def my_helper
+    ApplicationHelper
+  end
 
   # Renders a shared +JavaScript+ template that replaces the old contents
   # of the current page with new contents. In essence, it acts like a
@@ -207,18 +207,16 @@ class ApplicationController < MatchManagerController
     @alert_message = alert_message
     @html_element = html_element || app_html_element
 
-    Rails.logger.ap({
-      method: __method__,
-      replacement_partial: @replacement_partial,
-      alert_message: @alert_message,
-      html_element: @html_element
-    })
+    Rails.logger.ap(method: __method__,
+                    replacement_partial: @replacement_partial,
+                    alert_message: @alert_message,
+                    html_element: @html_element)
 
     render_js ApplicationHelper::REPLACE_CONTENTS_JS
   end
 
   def render_js(js_partial)
-    if (
+    if
       error? do
         respond_to do |format|
           format.js do
@@ -226,9 +224,9 @@ class ApplicationController < MatchManagerController
           end
         end
       end
-    )
+
       @alert_message ||= "Unable to update the page, #{self.class.report_error_request_message}"
-      return replace_page_contents(
+      replace_page_contents(
         replacement_partial: (
           if @replacement_partial == ApplicationHelper::NEW_MATCH_PARTIAL
             ApplicationHelper::ERROR_PARTIAL
@@ -240,14 +238,14 @@ class ApplicationController < MatchManagerController
     end
   end
 
-  def reset_to_match_entry_view(alert_message=@alert_message)
+  def reset_to_match_entry_view(_alert_message = @alert_message)
     render_js ApplicationHelper::RENDER_MATCH_ENTRY_JS
   end
 
   def clear_nonexistant_match
     if match_id && !AcpcTableManager::Match.id_exists?(match_id)
       clear_match_information!
-      Rails.logger.ap({method: __method__})
+      Rails.logger.ap(method: __method__)
       raise
     end
   end
